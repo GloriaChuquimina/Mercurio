@@ -19,11 +19,13 @@ class Login extends CI_Controller
 	}
 	function logued()
 	{
+		// echo ("Ingresa al LOGUED");
 		$IDAPLICACION = $this->config->item('IDAPLICACION');
 		$username = ($this->input->post('username'));
 		$password =  md5(($this->input->post('pass')));
 		$ip = $this->obtenerIp();
-		//echo $username." - ".$password;
+		// echo $username." - ".$password;
+		// die();
 		$login = $this->usuarios_model->loguear($username, $password);
 		if($login)
 		{
@@ -110,7 +112,7 @@ class Login extends CI_Controller
 						);
 						$this->session->set_userdata($data);
 						redirect("inicio");
-
+						
 					}
 					else
 					{
@@ -130,6 +132,7 @@ class Login extends CI_Controller
 		{
 			$this->index('NOMBRE O CONTRASEÑA INCORRECTO');
 		}
+
 	}
 	/*//redirect("inicio");
 		/*$fecha = date('Y-m-j H:i:s');

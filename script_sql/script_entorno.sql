@@ -15,5 +15,5 @@ values (11,'PARÁMETROS','PAR','MÓDULOS PARA EL REGISTRO DE DATOS PARAMETRICOS'
 
 
 
-insert into aplicaciones.opciones(id_modulo,codigo_opciones,opcion,link,icono,nivel,orden,id_aplicacion)values (130,365,'INICIO','','',0,1,9);
-insert into aplicaciones.opciones(id_modulo,codigo_opciones,opcion,link,icono,nivel,orden,id_aplicacion)values (131,366,'PARÁMETROS','','',1,2,9);
+insert into aplicaciones.opciones(id_modulo,codigo_opciones,opcion,link,icono,nivel,orden,id_aplicacion)values (130,365,'INICIO','','',0,1,11);
+insert into aplicaciones.opciones(id_modulo,codigo_opciones,opcion,link,icono,nivel,orden,id_aplicacion)values (131,366,'PARÁMETROS','','',1,2,11);
