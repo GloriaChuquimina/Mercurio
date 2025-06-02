@@ -7,6 +7,7 @@ class PlanDeCuentas extends CI_Controller {
 		parent::__construct();
 		$this->_is_logued_in();
         $this->load->model('PlanDeCuentas_model');
+		$this->load->helper('configuraciones_helper');
 	}
 	function _is_logued_in()
 	{
@@ -38,9 +39,60 @@ class PlanDeCuentas extends CI_Controller {
 		$this->load->view('contabilidad/plandecuentas',$dato);
 		$this->load->view('inicio/pie');
 	}
+	// public function ordenarJerarquicamente($cuentas, $padre = 0, $nivel = 0) 
+	// {
+	// 	$resultado = [];
+	// 	foreach ($cuentas as $cuenta) {
+	// 		if ($cuenta['padre'] == $padre) {
+	// 			$cuenta['indentacion'] = $nivel;
+	// 			$resultado[] = $cuenta;
+	// 			$hijos = $this->ordenarJerarquicamente($cuentas, $cuenta['id'], $nivel + 1);
+	// 			$resultado = array_merge($resultado, $hijos);
+	// 		}
+	// 	}
+	// 	return $resultado;
+	// }
+	private function ordenarJerarquicamente($cuentas, $padreId = 0, $indentacion = 0)
+	{
+		$ordenadas = [];
+
+		foreach ($cuentas as $cuenta) {
+			if ($cuenta['padre'] == $padreId) {
+				// Buscar si esta cuenta tiene hijos
+				$tieneHijos = false;
+				foreach ($cuentas as $posibleHijo) {
+					if ($posibleHijo['padre'] == $cuenta['id']) {
+						$tieneHijos = true;
+						break;
+					}
+					elseif($posibleHijo['padre'] == $cuenta['ruta'])/*ojo*/
+					{
+						$tieneHijos = true;
+						break;
+					}
+				}
+				// Añadir campo extra
+				$cuenta['indentacion'] = $indentacion;
+				$cuenta['es_padre'] = $tieneHijos;
+
+				// Agregar la cuenta ordenada
+				$ordenadas[] = $cuenta;
+
+				// Agregar recursivamente los hijos
+				$ordenadas = array_merge($ordenadas, $this->ordenarJerarquicamente($cuentas, $cuenta['id'], $indentacion + 1));
+			}
+		}
+
+		return $ordenadas;
+	}
     public function listarPlanDeCuentas()
     {
-		$filas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
+		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
+		$cuentas = json_decode(json_encode($cuentas), true);
+		$ordenadas = $this->ordenarJerarquicamente($cuentas);
+
+		// echo json_encode($ordenadas);
+		// die();
 		
 		$draw    = intval($this->input->get("draw"));
 		$start   = intval($this->input->get("start"));
@@ -48,30 +100,59 @@ class PlanDeCuentas extends CI_Controller {
 		$data    = array();
 		$num     = 1;
 
-		foreach ($filas as $fila)
+		foreach ($ordenadas as $fila)
 		{   
+
 			$boton   = "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
-                            <button type='button' class='btn btn-secondary' onclick='editarAplicacion(". $fila->id . ")'><i class='mdi mdi-pencil'></i></button>     
+                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-edit'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-                            <button type='button' class='btn btn-warning' onclick='bajaAplicacion(". $fila->id . ")'><i class='mdi mdi-close-circle-outline'></i></button>     
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'><i class='fas fa-trash-alt'></i></button>     
                         </span>	
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
+                            <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."')\"><i class='fas fa-plus-circle'></i></button>     
+                        </span>				
                         ";		
+
+			$indentacion = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
+			$descripcion = $fila['descripcion'];
+			$codigo      = $fila['codigo'];
+
+			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
+				$descripcion = "<strong><u>{$descripcion}</u></strong>";
+				$codigo =  "<strong><u>{$codigo}</u></strong>";
+			}
+
+			$cadena = $fila['ruta'];
+			$partes = explode('-', $cadena);
+			$primer_valor = $partes[0];
+			if($primer_valor == 0)
+			{
+				$tipo =getCuenta($fila['padre']);
+			}
+			else
+			{
+				$tipo =getCuenta($primer_valor);
+			}
 
 			$data[] = array(
 				$boton,
 				$num++,
-				$fila->codigo,
-				$fila->descripcion,			
-                $fila->nivel,
-				$fila->estado
+				$indentacion.$codigo,
+				$descripcion,	
+				$tipo,
+                $fila['nivel'],
+                $fila['sigla'],
+				$fila['estado']
 			);
 		}
+
+		// die();
 		$output = array(
 			"draw" => $draw,
-			"recordsTotal" => count($filas),
-			"recordsFiltered" => count($filas),
+			"recordsTotal" => count($ordenadas),
+			"recordsFiltered" => count($ordenadas),
 			"data" => $data
 		);
 		echo json_encode($output);
@@ -92,39 +173,19 @@ class PlanDeCuentas extends CI_Controller {
         if($resul == 1)
 		{
             $accion      = $data['txtAccion'];
-			$codigo      = $data['txtCodigo'];
-			$descripcion = $data['txtDescripcion'];
-			$nivel       = $data['opcionNivel'];
-
-            $opcionPadre = $nivel>1 ? $data['opcionPadre'] : 0;
-            $ruta        = $nivel>1?$data['opcionPadre']:0;
-            if($nivel = 1)
-            {
-                $ruta = 0;
-            }else if($nivel = 2)
-            {
-                $ruta = $data['opcionPadre'];
-            }
-            else
-            {
-                /*OBTENER LA RUTA DEL PADRE Y CONCATENER LA RUTA PADRE SELECCIONADA*/
-                $cuenta =$this->PlanDeCuentas_model->getPlanDeCuentasById($data['opcionPadre']);
-                if(count($cuenta)>0)
-                {
-                    $ruta = $cuenta[0]->ruta . "-" . $data['opcionPadre'];
-                }
-                else
-                {
-                    $ruta = 0;
-                }
-                
-            }
-
-			$padre       = $opcionPadre;
-			$sigla       = $data['txtSigla'];
-
+			$codigo      = $data['txtCodigoCuenta'];
+			$descripcion = $data['txtDescripcionCuenta'];
+			$id_cuenta   = $data['idCuenta'];
+			$sigla       = $data['txtSiglaCuenta'];
+			// $nivel       = $data['opcionNivel'];
+			
 			if($accion === 'nuevo')
 			{
+				/*DATOS PARA NUEVO REGISTRO */
+				$nivel       = $data['nivel'];
+				$ruta        = 0;
+				$padre       = 0;
+				/*DATOS PARA NUEVO REGISTRO */
 				$datosPlanCuentas = array(
 					'codigo'                  => $codigo,
 					'descripcion'             => $descripcion,
@@ -149,23 +210,23 @@ class PlanDeCuentas extends CI_Controller {
 			}
 			else
 			{
-				// $updateAplicacion = array(
-				// 	'nombre_aplicacion' 		=> $nombre_aplicacion,
-				// 	'abreviatura'       		=> $abreviatura,
-				// 	'descripcion_aplicacion'    => $descripcion
-				//    );
+				$updatePlanCuenta = array(
+					'codigo' 				    => $codigo,
+					'descripcion'       		=> $descripcion,
+					'sigla'       				=> $sigla
+				   );
 
-				// $aplicacion = $this->Aplicaciones_model->updateAplicaciones($id_aplicacion,$updateAplicacion);
-				// if($aplicacion)
-				// {
-				// 	$resul = 1;
-				// 	$mensaje = "SE ACTUALIZÓ LOS DATOS DE LA APLICACIÓN CORRECTAMENTE.";
-				// }
-				// else
-				// {
-				// 	$resul = 0;
-				// 	$mensaje = "ERROR EN LA ACTUALIZACIÓN!!!";
-				// }
+				$plancuenta = $this->PlanDeCuentas_model->updatePlanDeCuentas($id_cuenta,$updatePlanCuenta);
+				if($plancuenta)
+				{
+					$resul = 1;
+					$mensaje = "SE ACTUALIZÓ LOS DATOS DE LA CUENTA CORRECTAMENTE.";
+				}
+				else
+				{
+					$resul = 0;
+					$mensaje = "ERROR EN LA ACTUALIZACIÓN!!!";
+				}
 			}
 
 			
@@ -225,18 +286,137 @@ class PlanDeCuentas extends CI_Controller {
 
 	// 	return $resultado; 		
 	// }
-    public function cargarCuentaSuperior()
-	{
-		$nivel = $this->input->post('nivel');
+    // public function cargarCuentaSuperior()
+	// {
+	// 	$nivel = $this->input->post('nivel');
 		
-	    $option = "<option VALUE='-1'>Seleccione un opción</OPTION>";
+	//     $option = "<option VALUE='-1'>Seleccione un opción</OPTION>";
 
-        $filas = $this->PlanDeCuentas_model->getPlanDeCuentasByNivel($nivel);
-        foreach ($filas as $fila)
-        {
-            $option.="<option value = '".$fila->id."'>".$fila->descripcion."</option>";
-        }
-	    echo $option;
+    //     $filas = $this->PlanDeCuentas_model->getPlanDeCuentasByNivel($nivel);
+    //     foreach ($filas as $fila)
+    //     {
+    //         $option.="<option value = '".$fila->id."'>".$fila->descripcion."</option>";
+    //     }
+	//     echo $option;
+	// }
+	public function guardarPlanDeSubCuentas()
+	{
+		$id_usuario       = $this->session->userdata('id_usuario');
+		$id_funcionario   = $this->session->userdata('id_funcionario');
+		$data 			  = $this->input->post();
+
+		// $resultado   = json_decode($this->validarDatos($data));		
+		// $resul       = $resultado[0]->resultado;
+		// $mensaje     = $resultado[0]->mensaje;
+        $resul=1;
+        $mensaje = "OK";
+        $opcionPadre="";
+		$nivel_subcuenta=0;
+        if($resul == 1)
+		{
+            $accion      = $data['txtAccionSubCuenta'];
+			/*DATOS CUENTA PRINCIPAL SELECCIONADA*/
+			$id_cuenta   = $data['id_cuenta'];
+			$nivel       = $data['nivel_padre'];
+			$padre       = $data['id_padre'];
+			$ruta        = $data['ruta'];
+			
+			
+			/*DATOS A REGISTRAR DE LA SUBCUENTA*/
+			$codigo      		= $data['txtCodigo'];
+			$descripcion 		= $data['txtDescripcion'];
+			$nivel_subcuenta	= (int)$nivel+1;
+			$padre_subcuenta	= $id_cuenta;
+			$ruta_subcuenta		= $padre."-".$id_cuenta;
+			$sigla       		= $data['txtSigla'];
+
+			if($accion === 'nuevo')
+			{
+				$datosPlanCuentas = array(
+					'codigo'                  => $codigo,
+					'descripcion'             => $descripcion,
+                    'nivel'                   => $nivel_subcuenta,
+                    'padre'                   => $padre_subcuenta,
+                    'ruta'                    => $ruta_subcuenta,
+                    'id_funcionario_registro' => $id_funcionario,
+					'sigla'                   => $sigla
+				);
+				// echo json_encode($datosPlanCuentas);
+				// die();
+
+				$plancuentas = $this->PlanDeCuentas_model->guardarPlanDeCuentas($datosPlanCuentas);
+				if($plancuentas)
+				{
+					$resul = 1;
+					$mensaje = "SE REGISTRO CORRECTAMENTE";
+				}
+				else
+				{
+					$resul = 0;
+					$mensaje = "ERROR EN EL REGISTRO!!!";
+				}
+			}
+			else
+			{
+				// $updateAplicacion = array(
+				// 	'nombre_aplicacion' 		=> $nombre_aplicacion,
+				// 	'abreviatura'       		=> $abreviatura,
+				// 	'descripcion_aplicacion'    => $descripcion
+				//    );
+
+				// $aplicacion = $this->Aplicaciones_model->updateAplicaciones($id_aplicacion,$updateAplicacion);
+				// if($aplicacion)
+				// {
+				// 	$resul = 1;
+				// 	$mensaje = "SE ACTUALIZÓ LOS DATOS DE LA APLICACIÓN CORRECTAMENTE.";
+				// }
+				// else
+				// {
+				// 	$resul = 0;
+				// 	$mensaje = "ERROR EN LA ACTUALIZACIÓN!!!";
+				// }
+			}
+
+			
+		}
+
+		$resultado ='[{
+						"resultado":"'.$resul.'",
+						"mensaje":"'.$mensaje.'"
+					 }]';
+
+		echo $resultado;
 	}
+	public function listarPlanDeSubCuentas()
+    {
+		$id_cuenta = $this->input->post('id_cuenta');
+		$filas   = $this->PlanDeCuentas_model->getPlanDeCuentasByPadre($id_cuenta);
+		
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		foreach ($filas as $fila)
+		{   
+
+			$data[] = array(
+				$num++,
+				$fila->codigo,
+				$fila->descripcion,			
+                $fila->nivel,
+				$fila->estado
+			);
+		}
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($filas),
+			"recordsFiltered" => count($filas),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
+    }
 
 }

@@ -15,8 +15,11 @@ class PlanDeCuentas_model extends CI_Model
 	{
 		$query = $this->db_mercurio->query("select *
 											 from contabilidad.plancuentas
-											where estado='AC'" 
-										 );
+											where estado='AC'
+										 order by nivel ASC,
+  												  codigo ASC;
+											" 
+										  );
 		return $query->result();
 	}
 	function getPlanDeCuentasById($id)
@@ -37,6 +40,15 @@ class PlanDeCuentas_model extends CI_Model
                                          );
         return $query->result();
     }
+	function getPlanDeCuentasByPadre($padre)
+    {
+        $query = $this->db_mercurio->query("select *
+                                              from contabilidad.plancuentas
+                                             where padre= ".$padre."
+                                               and estado='AC'" 
+                                         );
+        return $query->result();
+    }
 	
 	function guardarPlanDeCuentas($data)
     {
@@ -45,11 +57,19 @@ class PlanDeCuentas_model extends CI_Model
         return $this->db_mercurio->insert_id();
     }
 
-	function updateAplicaciones($id_aplicacion,$data)
+	function updatePlanDeCuentas($id_cuenta,$data)
 	{
-		$this->db_entorno->where('id',$id_aplicacion);
-		return $this->db_entorno->update('aplicaciones.aplicaciones',$data);
+		$this->db_mercurio->where('id',$id_cuenta);
+		return $this->db_mercurio->update('contabilidad.plancuentas',$data);
 	}
+
+
+
+
+
+
+
+	
 	function getAplicacionId($id_aplicacion)
 	{
 		$query = $this->db_entorno->query("select a.*
