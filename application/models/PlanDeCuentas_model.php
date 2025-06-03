@@ -62,6 +62,11 @@ class PlanDeCuentas_model extends CI_Model
 		$this->db_mercurio->where('id',$id_cuenta);
 		return $this->db_mercurio->update('contabilidad.plancuentas',$data);
 	}
+	function guardarPlanDeCuentasDependencia($data)
+    {
+        $this->db_mercurio->insert('contabilidad.plancuenta_dependencia',$data);
+        return $this->db_mercurio->insert_id();
+    }
 
 
 

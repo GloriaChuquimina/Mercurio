@@ -84,9 +84,6 @@ function agregarCuentas()
             });
         }
     });
-
-
-
  
 }
 function agregarSubCuentas(id_cuenta,codigo,nombreCuenta,nivel,padre,ruta)
@@ -141,6 +138,7 @@ function guardarPlanDeSubCuentas()
                         }else{
                             swal({title:"!Excelente¡",text:datos.mensaje,icon:"success",button:"OK"});
                             // swal("!Excelente!","SE REGISTRO CORRECTAMENTE,"success");
+                            cargarTablaPlanDeCuentas();
                             cargarTablaPlanDeSubCuentas(id_cuenta);
                             $("#modalPlanDeCuentas").modal('hide'); 
                         }
@@ -179,4 +177,44 @@ function editarCuentas(id_cuenta,codigo,sigla,descripcion)
     $('#txtDescripcionCuenta').val(descripcion);
     $('#modalPlanDeCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanDeCuentas').modal('show');  
+}
+function eliminarCuenta(id_cuenta)
+{
+    swal({
+        title: 'ATENCIÓN',
+        text: "¿Está seguro de Eliminar la cuenta ?",
+        icon: 'warning',
+        dangerMode: true,
+        buttons: {
+            cancel: "Cancelar",
+            verificar: {
+                text: "ELIMINAR",
+                value: "verificar",
+            }
+        },
+    })
+    .then(respuesta => {
+        if (respuesta)
+        {
+            let idHR= $("#idHojaruta").val();
+            $.ajax({
+                type: 'POST',
+                url: base_url + "Externa/correspondenciaExterna/borraAnexo",
+                data: {   id_anexo: id , id_hojaruta: idHR },
+                dataType:'JSON', 
+                success: function(data) {
+                    if(data.resultado==1) 
+                    {
+                        swal({title: "",text: data.mensaje ,icon: "success",button: "OK",dangerMode:true });
+                        eliminarFilaAnexo(obj);
+                        $("#idAnexos").val(data.idAnexos);
+                    }
+                    else
+                    {
+                        swal({title: "Advertencia",text: data.mensaje ,icon: "warning",button: "OK" });
+                    }
+                }
+            });
+        }
+    });
 }

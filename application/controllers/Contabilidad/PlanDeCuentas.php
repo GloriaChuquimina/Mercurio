@@ -39,19 +39,6 @@ class PlanDeCuentas extends CI_Controller {
 		$this->load->view('contabilidad/plandecuentas',$dato);
 		$this->load->view('inicio/pie');
 	}
-	// public function ordenarJerarquicamente($cuentas, $padre = 0, $nivel = 0) 
-	// {
-	// 	$resultado = [];
-	// 	foreach ($cuentas as $cuenta) {
-	// 		if ($cuenta['padre'] == $padre) {
-	// 			$cuenta['indentacion'] = $nivel;
-	// 			$resultado[] = $cuenta;
-	// 			$hijos = $this->ordenarJerarquicamente($cuentas, $cuenta['id'], $nivel + 1);
-	// 			$resultado = array_merge($resultado, $hijos);
-	// 		}
-	// 	}
-	// 	return $resultado;
-	// }
 	private function ordenarJerarquicamente($cuentas, $padreId = 0, $indentacion = 0)
 	{
 		$ordenadas = [];
@@ -105,10 +92,10 @@ class PlanDeCuentas extends CI_Controller {
 
 			$boton   = "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
-                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-edit'></i></button>     
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-edit'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'><i class='fas fa-trash-alt'></i></button>     
+                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'><i class='fas fa-trash-alt'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
                             <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."')\"><i class='fas fa-plus-circle'></i></button>     
@@ -126,15 +113,24 @@ class PlanDeCuentas extends CI_Controller {
 
 			$cadena = $fila['ruta'];
 			$partes = explode('-', $cadena);
-			$primer_valor = $partes[0];
-			if($primer_valor == 0)
+			$cont =count($partes);
+			// $primer_valor = $partes[0];
+			// $segundo_valor = $partes[1];
+			if($cont == 1)
 			{
 				$tipo =getCuenta($fila['padre']);
 			}
 			else
 			{
-				$tipo =getCuenta($primer_valor);
+				$segundo_valor = $partes[1];
+				$tipo =getCuenta($segundo_valor);
 			}
+			
+			// if($primer_valor == 0)
+			// {
+			// 	$tipo =getCuenta($partes[1]);
+			// }
+			// $tipo=$partes[0];
 
 			$data[] = array(
 				$boton,
@@ -162,6 +158,8 @@ class PlanDeCuentas extends CI_Controller {
 	{
 		$id_usuario       = $this->session->userdata('id_usuario');
 		$id_funcionario   = $this->session->userdata('id_funcionario');
+		$id_dependencia   = $this->session->userdata('id_dependencia_principal');
+		$fecha_actual	  = getFechaHoraActual();
 		$data 			  = $this->input->post();
 
 		// $resultado   = json_decode($this->validarDatos($data));		
@@ -199,6 +197,14 @@ class PlanDeCuentas extends CI_Controller {
 				$plancuentas = $this->PlanDeCuentas_model->guardarPlanDeCuentas($datosPlanCuentas);
 				if($plancuentas)
 				{
+					/*DATOS PARA NUEVO REGISTRO DE PLANCUENTA DEPENDENCIA */
+					$datosPlanCuentasDependencia = array(
+						'id_plancuenta'              => $plancuentas,
+						'id_dependencia'          => $id_dependencia,
+						'id_usuario_registro'     => $id_funcionario
+					);
+					$plancuentas_dependencia = $this->PlanDeCuentas_model->guardarPlanDeCuentasDependencia($datosPlanCuentasDependencia);
+
 					$resul = 1;
 					$mensaje = "SE REGISTRO CORRECTAMENTE.";
 				}
@@ -213,7 +219,9 @@ class PlanDeCuentas extends CI_Controller {
 				$updatePlanCuenta = array(
 					'codigo' 				    => $codigo,
 					'descripcion'       		=> $descripcion,
-					'sigla'       				=> $sigla
+					'sigla'       				=> $sigla,
+					'fecha_modificacion'		=> $fecha_actual,
+					'id_funcionario_update'		=> $id_funcionario
 				   );
 
 				$plancuenta = $this->PlanDeCuentas_model->updatePlanDeCuentas($id_cuenta,$updatePlanCuenta);
@@ -303,6 +311,7 @@ class PlanDeCuentas extends CI_Controller {
 	{
 		$id_usuario       = $this->session->userdata('id_usuario');
 		$id_funcionario   = $this->session->userdata('id_funcionario');
+		$id_dependencia   = $this->session->userdata('id_dependencia_principal');
 		$data 			  = $this->input->post();
 
 		// $resultado   = json_decode($this->validarDatos($data));		
@@ -327,7 +336,8 @@ class PlanDeCuentas extends CI_Controller {
 			$descripcion 		= $data['txtDescripcion'];
 			$nivel_subcuenta	= (int)$nivel+1;
 			$padre_subcuenta	= $id_cuenta;
-			$ruta_subcuenta		= $padre."-".$id_cuenta;
+			// $ruta_subcuenta		= $padre."-".$id_cuenta;
+			$ruta_subcuenta		= $ruta."-".$id_cuenta;
 			$sigla       		= $data['txtSigla'];
 
 			if($accion === 'nuevo')
@@ -347,6 +357,14 @@ class PlanDeCuentas extends CI_Controller {
 				$plancuentas = $this->PlanDeCuentas_model->guardarPlanDeCuentas($datosPlanCuentas);
 				if($plancuentas)
 				{
+					/*DATOS PARA NUEVO REGISTRO DE PLANCUENTA DEPENDENCIA */
+					$datosPlanCuentasDependencia = array(
+						'id_plancuenta'           => $plancuentas,
+						'id_dependencia'          => $id_dependencia,
+						'id_usuario_registro'     => $id_funcionario
+					);
+					$plancuentas_dependencia = $this->PlanDeCuentas_model->guardarPlanDeCuentasDependencia($datosPlanCuentasDependencia);
+
 					$resul = 1;
 					$mensaje = "SE REGISTRO CORRECTAMENTE";
 				}
@@ -418,5 +436,34 @@ class PlanDeCuentas extends CI_Controller {
 		echo json_encode($output);
 		exit();
     }
+	/*VERIFICAR HIJOS DE LA CUENTA===>Verificar si la cuenta ya fue usada no se puede modificar ni eliminar */
+	function verificarCuenta()
+	{
+		$id_cuenta           = $this->input->post('id_cuenta');
+		$datosCuentaHijos    = count($this->PlanDeCuentas_model->getPlanDeCuentasByPadre($id_cuenta));
+
+		if($datosCuentaHijos>0)
+		{
+
+			$resul           =  1;
+			$mensaje         =  "La cuenta seleccionada tiene subcuentas asociadas, por lo que no puede ser eliminada.";
+			$asociacionHRP   =  1;
+		}
+		// else
+		// {
+		// 	$datosCiteHojaRuta = $this->cites_model->getCite_HojaRuta($id_cite);
+		// 	if(count($datosCiteHojaRuta)>1)
+		// 	{
+
+		// 		$resul           =  1;
+		// 		$mensaje         =  "Cite asociado a una hoja de ruta clonada, no se puede realizar la solicitud.";
+		// 	}
+		// }
+		$resultado ='[{					
+					"resultado":"'.$resul.'",
+					"mensaje":"'.$mensaje.'"
+					}]';
+		echo $resultado; 
+	}
 
 }

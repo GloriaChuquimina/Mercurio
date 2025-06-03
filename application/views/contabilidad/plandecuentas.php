@@ -2,17 +2,16 @@
 <script src="<?php echo  base_url() ?>scriptjs/contabilidad/plandecuentas.js"></script>
 <!-- <script src="<?php echo  base_url() ?>scriptjs/inicio/inicio.js"></script>
 <script src="<?php echo  base_url() ?>scriptjs/validacion.js"></script> -->
-<script src="<?php echo  base_url() ?>resources/js/sweetalert.min.js"></script>
 
 <!-- jQuery -->
-<script src="<?php echo base_url();?>resources/plugins/jquery/jquery.min.js"></script>
+<!-- <script src="<?php echo base_url();?>resources/plugins/jquery/jquery.min.js"></script> -->
 <!-- Bootstrap 4 -->
-<script src="<?php echo base_url();?>resources/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- <script src="<?php echo base_url();?>resources/plugins/bootstrap/js/bootstrap.bundle.min.js"></script> -->
 <!-- AdminLTE App -->
-<script src="<?php echo base_url();?>resources/dist/js/adminlte.min.js"></script>
+<!-- <script src="<?php echo base_url();?>resources/dist/js/adminlte.min.js"></script> -->
 
 
-
+<div>
 <h1 class="page-title"></h1>
     <div class="card">
         <div class="card-body">

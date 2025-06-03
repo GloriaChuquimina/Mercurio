@@ -65,8 +65,48 @@ create table contabilidad.plancuentas(
 	ruta varchar(30) NULL,
 	hijos varchar(30) NULL,
 	fecha_registro timestamp DEFAULT now() NULL,
+	id_funcionario_registro int4 null,
 	fecha_modificacion timestamp NULL,
+	id_funcionario_update int4 null,
 	estado varchar(2) DEFAULT 'AC'::character varying NULL,
-	sigla varchar(5) NULL,
+	sigla varchar(5) NULL,	
 	CONSTRAINT plancuentas_pkey PRIMARY KEY (id)
+);
+CREATE TABLE contabilidad.plancuenta_dependencia (
+	id serial4 NOT NULL,
+	id_plancuenta int4 NULL,
+	id_dependecia int4 NULL,
+	fecha_registro timestamp DEFAULT now() NULL,
+	id_usuario_registro int4 NULL,
+	fecha_modificacion timestamp NULL,
+	estado varchar(3) DEFAULT 'AC'::character varying null,
+	CONSTRAINT entidad_dependencia_pkey PRIMARY KEY (id)
+);
+
+/*ENTIDAD*/
+CREATE TABLE administracion.entidad (
+	id serial4 NOT NULL,
+	nombre varchar(100) NULL,
+	sigla varchar(100) NULL,
+	fecha_registro timestamp DEFAULT now() NULL,
+	fecha_modificacion timestamp NULL,
+	activo bool NULL,
+	id_usuario int4 NULL,
+	id_dependencia int4 NULL,
+	observaciones text NULL,
+	/*documento_admin varchar(100) NULL,
+	nro_admin varchar(15) NULL,
+	fecha_admin date NULL,*/
+	estado varchar(3) DEFAULT 'AC'::character varying NULL,
+	CONSTRAINT entidad_pkey PRIMARY KEY (id)
+);
+CREATE TABLE administracion.entidad_dependencia (
+	id serial4 NOT NULL,
+	id_entidad int4 NULL,
+	id_dependecia int4 NULL,
+	fecha_registro timestamp DEFAULT now() NULL,
+	id_usuario_registro int4 NULL,
+	fecha_modificacion timestamp NULL,
+	estado varchar(3) DEFAULT 'AC'::character varying null,
+	CONSTRAINT entidad_dependencia_pkey PRIMARY KEY (id)
 );
