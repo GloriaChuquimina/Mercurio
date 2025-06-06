@@ -72,6 +72,18 @@ class PlanDeCuentas extends CI_Controller {
 
 		return $ordenadas;
 	}
+	function listCuentas()
+	{
+		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
+		$cuentas = json_decode(json_encode($cuentas), true);
+		$ordenadas = $this->ordenarJerarquicamente($cuentas);
+		$option= "";
+		foreach($ordenadas as $fila)
+		{
+			$option .="<option data-value='".$fila['id']."'><b>".$fila['codigo']."</b>-". $fila['descripcion'] ."</option>";
+		}
+		echo $option;
+	}
     public function listarPlanDeCuentas()
     {
 		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
@@ -465,5 +477,54 @@ class PlanDeCuentas extends CI_Controller {
 					}]';
 		echo $resultado; 
 	}
+	public function listarPlanDeCuentasBusqueda()
+    {
+		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
+		$cuentas = json_decode(json_encode($cuentas), true);
+		$ordenadas = $this->ordenarJerarquicamente($cuentas);
+
+		// echo json_encode($ordenadas);
+		// die();
+		
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		foreach ($ordenadas as $fila)
+		{   
+
+			$boton   = "
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-edit'></i></button>     
+                        </span>				
+                        ";		
+
+			$indentacion = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
+			$descripcion = $fila['descripcion'];
+			$codigo      = $fila['codigo'];
+
+			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
+				$descripcion = "<strong><u>{$descripcion}</u></strong>";
+				$codigo =  "<strong><u>{$codigo}</u></strong>";
+			}
+			$data[] = array(
+				$boton,
+				$codigo,
+				$descripcion
+			);
+		}
+
+		// die();
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($ordenadas),
+			"recordsFiltered" => count($ordenadas),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
+    }
 
 }

@@ -912,4 +912,18 @@ function getCuenta($id_cuenta)
     } 
     return $respuesta;
 }
+function descripcion_nombre_entidad($id_entidad)
+{
+  $fila =& get_instance();
+  $fila->load->model('Entidades_model');
+  $datos = $fila->Entidades_model->getEntidadesById($id_entidad);
+  if($datos)
+  {
+    return $datos[0]->nombre;
+  }
+  else
+  {
+    return '';
+  }
+}
 ?>
