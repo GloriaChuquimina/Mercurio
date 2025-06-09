@@ -6,6 +6,8 @@ class Comunes extends CI_Controller
 	function __construct(){
 		parent::__construct();
 		$this->_is_logued_in();
+		$this->load->model('Comunes_model');
+		$this->load->model('Entidades_model');
 		$this->load->helper('configuraciones_helper');
 
 	}
@@ -78,6 +80,41 @@ class Comunes extends CI_Controller
 			}
 		}
 	    echo $option;
+	}
+	/*MERCURIO*/
+	function cargarEntidad()
+	{
+	    $filas = $this->Entidades_model->getEntidades();
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->id."'>".$fila->nombre."</option>";
+	    }
+   		 echo $option;
+	}
+	function cargarTipoMovimiento()
+	{
+	    $concepto = "TIPO MOVIMIENTO";
+		$estado = "ACT";
+	    $filas = $this->Comunes_model->getCatalogoDominio($concepto,$estado);
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->valor1."'>".$fila->valor2."</option>";
+	    }
+   		 echo $option;
+	}
+	function cargarTipoComprobante()
+	{
+	    $concepto = "TIPO COMPROBANTES CONTABLE";
+		$estado = "ACT";
+	    $filas = $this->Comunes_model->getCatalogoDominio($concepto,$estado);
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->valor1."'>".$fila->valor2."</option>";
+	    }
+   		 echo $option;
 	}
 	
 }

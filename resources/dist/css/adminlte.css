@@ -6148,6 +6148,7 @@ a.close.disabled, a.disabled.mailbox-attachment-close {
   justify-content: space-between;
   padding: 1rem;
   border-bottom: 1px solid #e9ecef;
+  background-color: #02B0A8 !important;
   border-top-left-radius: calc(0.3rem - 1px);
   border-top-right-radius: calc(0.3rem - 1px);
 }

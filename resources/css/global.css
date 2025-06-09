@@ -25,7 +25,7 @@
 
 
 fieldset {
-  border: 1px solid black; /*Olive;*/
+  border: 1px solid rgb(33, 15, 114); /*Olive;*/
   padding: 0.95%;
   margin: 1px auto;
   margin-top: 10px ;
@@ -40,8 +40,8 @@ legend {
   width: 45%;
   margin: 0  auto ; /*30.0%;*/
   margin-bottom: 10px;
-  border: 2px solid #383D4D; /*#c4c4c4 ; /*Olive; /*DarkOrange;*/
-  background-color:#2D488D; /* #ccc;*/
+  border: 2px solid #52357B; /*#c4c4c4 ; /*Olive; /*DarkOrange;*/
+  background-color:#52357B; /* #ccc;*/
   border-radius: 5px;
   color: #fff;
   box-shadow: 3px 3px 12px #2D488D;
