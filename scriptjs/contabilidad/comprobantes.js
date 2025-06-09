@@ -1,7 +1,7 @@
 var base_url;
 var id_entidad;
 var nombre_entidad;
-
+var accion;
 function baseurl(enlace) {
    base_url = enlace;
 }
@@ -152,13 +152,14 @@ function guardarRegistroCuenta()
     var tipo_movimiento_literal   = $('#txtTipoMovimiento option:selected').text();
     var importe                   = $('#txtImporte').val();
     var tipo_cambio               = 6.96;
+    var glosa_cuenta              = $('#txtGlosaCuenta').val();
 
     var cadRegistroCuenta         =  $('#registroCuentaT').val();
 
 
      if(accion == 'nuevo')
      {
-         var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"|";
+         var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
          $('#registroCuentaT').val(cadRegistroCuentaT);
         //  inicializarDatos();
         //  cargarEntidadDocumentoT('tablaNormativaTransferencia','TRA');
@@ -233,4 +234,43 @@ function listaCuentasBusqueda()
     cargarCuentas();
     $('#modalListaCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalListaCuentas').modal('show');  
+}
+function guardarDatosComprobanteMasDetalle()
+{
+    $('#txtAccionComprobante').val(accion);
+    var detalleComprobante = $('#registroCuentaT').val();
+    var enlace = base_url + "Contabilidad/Comprobante/guardarComprobante";
+    var datos = $('#formregistrocontable').serialize();
+    //alert (datos);
+    $.ajax({
+        type: "POST",
+        url: enlace,
+        data: {datos:datos,
+               detalleComprobante:detalleComprobante
+        },
+        success: function(data)
+        {
+            var result = JSON.parse(data);
+            $.each(result, function(i, datos)
+            {
+                if(datos.resultado == 1)
+                {
+                    swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
+                    // cargarTablaEntidades();
+                    // $('#modalEntidad').modal('hide');
+                }
+                else
+                {
+                    swal({title: "ERROR",text: datos.mensaje,icon: "error",button: "Error",});
+                }
+            });
+        }
+    });
+
+    
+}
+function cargarComprobantesPrincipal()
+{
+    // var entidad =$('#entidades').val();
+    window.location.href = base_url + "Contabilidad/Comprobante/";
 }

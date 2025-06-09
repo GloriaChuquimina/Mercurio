@@ -33,4 +33,15 @@ class Comprobantes_model extends CI_Model
 										  );
 		return $query->result();
 	}
+	function guardarComprobante($dataComprobante)
+	{
+		$this->db_mercurio->insert('contabilidad.comprobante', $dataComprobante);
+		return $this->db_mercurio->insert_id();
+	}
+	function guardarDetalleComprobante($dataDetalleComprobante)
+	{
+		$this->db_mercurio->insert('contabilidad.detalle_comprobante', $dataDetalleComprobante);
+		return $this->db_mercurio->insert_id();
+	}
+
 }

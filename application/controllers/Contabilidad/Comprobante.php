@@ -39,7 +39,7 @@ class Comprobante extends CI_Controller {
 		$this->load->view('contabilidad/comprobantes',$dato);
 		$this->load->view('inicio/pie');
 	}
-	public function registroComprobante($entidad)
+	public function registroComprobante($entidad,$accion='nuevo')
 	{
 		//$this->load->library('googlemaps');
 
@@ -54,6 +54,7 @@ class Comprobante extends CI_Controller {
 		$dato['nombre_entidad']  = descripcion_nombre_entidad($entidad);
 		// $dato['nombre_entidad']  = $entidad;
 		$dato['entidad']  = $entidad;
+		$dato['accion']  = $accion;
 
 		$titulo = "REGISTRO DE COMPROBANTE CONTABLE";		
 		$dato['titulo'] = $titulo;
@@ -84,43 +85,52 @@ class Comprobante extends CI_Controller {
 			$filas = explode("|", $cadRegistroCuenta);  
 			foreach($filas as $fila )
 			{
+				$importeDebe=0;
+				$importeHaber=0;
+				$importeDebeUs=0;
+				$importeHaberUs=0;
 				if( $fila)
 				{
 					$row = explode("*", $fila); 
-					list( $a,$b, $c,$d,$e,$f,$g) = $row;
+					list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta) = $row;
 
-					$codigoCuenta = explode("-",$b);
-					list($h,$i)	  = $codigoCuenta;
-					echo ("A->".$a);
-					echo("<br>");
-					echo ("B->".$b);
-					echo("<br>");
-					echo ("C->".$c);
-					echo("<br>");
-					echo ("D->".$d);
-					echo("<br>");
-					echo ("E->".$e);
-					echo("<br>");
-					echo ("F->".$f);
-					echo("<br>");
-					echo ("G->".$g);
-					echo("<br>");
-					echo ("H->".$h);
-					die();
-					if($d == "DB")
+					$codigoCuenta = explode("-",$cuenta);
+					list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
+					// echo ("A->".$ini);
+					// echo("<br>");
+					// echo ("B->".$id_cuenta);
+					// echo("<br>");
+					// echo ("C->".$cuenta);
+					// echo("<br>");
+					// echo ("D->".$tipo_movimiento);
+					// echo("<br>");
+					// echo ("E->".$tipo_movimiento_literal);
+					// echo("<br>");
+					// echo ("F->".$importe);
+					// echo("<br>");
+					// echo ("G->".$tipo_cambio);
+					// echo("<br>");
+					// echo ("H->".$glosa_cuenta);
+					// echo("<br>");
+					// echo ("I->".$codigo_cuenta);
+					// echo("<br>");
+					// echo ("J->".$descripcion_cuenta);
+					// die();
+					if($tipo_movimiento == "DB")
 					{
-						$importeDebe=$f;
-						$importeDebeUs=$f*$h;
+						$importeDebe=$importe;
+						$importeDebeUs=$importe*$tipo_cambio;
 					}
-					elseif ($d == "HB") {
-						$importeHaber=$f;
-						$importeHaberUs=$f*$h;
+					elseif ($tipo_movimiento == "HB") {
+						$importeHaber=$importe;
+						$importeHaberUs=$importe*$tipo_cambio;
 					}
-					
-					$boton = "<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'><button type='button' class='btn btn-danger btn-circle' onclick=\"eliminarDocumentoT('".$b."','".$c."','".$d."', '". $c."' )\"><i class='mdi mdi-delete'></i></button></span>";
+
+					$boton = "<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'><button type='button' class='btn btn-danger btn-circle' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i class='mdi mdi-delete'></i></button></span>";
+					$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
 					$data[] = array(
-						$h,
-						$i,
+						$codigo_cuenta,
+						$cuenta_registro,
 						$importeDebe,
 						$importeHaber,
 						$importeDebeUs,
@@ -156,5 +166,180 @@ class Comprobante extends CI_Controller {
 	    echo json_encode($output);
 	    exit();
 	}	
+	public function guardarComprobante()
+	{
+		$id_usuario          = $this->session->userdata('id_usuario');
+		$id_funcionario      = $this->session->userdata('id_funcionario');
+		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
+		// $data 			 	 = $this->input->post('datos');
+		parse_str($this->input->post('datos'), $data);
+		$detalleComprobante  = $this->input->post('detalleComprobante');
+
+		// $resultado   = json_decode($this->validarDatos($data));		
+		// $resul       = $resultado[0]->resultado;
+		// $mensaje     = $resultado[0]->mensaje;
+        $resul=1;
+        $mensaje = "OK";
+        $idComprobante="";
+		$this->db->trans_start();
+        if($resul == 1)
+		{
+            $accion      		  = $data['txtAccionComprobante'];
+			$idComprobante   	  = $data['id_comprobante'];
+			$id_entidad       	  = $data['id_entidad'];
+			$tipo_comprobante     = $data['txtTipo'];
+			$fecha_comprobante    = $data['txtFecha'];
+			$tipo_cambio	      = $data['txtTipoCambio'];
+			$glosa_general	      = $data['txtGlosaGeneral'];
+
+			$correlativo		  = 0;
+			$periodo			  = 0;
+			$gestion			  = 0;
+
+			if($accion === 'nuevo')
+			{
+				$datosComprobante = array(
+					'id_entidad'              => $id_entidad,
+					'tipo_comprobante'        => $tipo_comprobante,
+                    'correlativo'             => $correlativo,
+                    'periodo'                 => $periodo,
+                    'gestion'                 => $gestion,
+                    'glosa_comprobante' 	  => $glosa_general,
+					'fecha_comprobante'       => $fecha_comprobante,
+					'tipo_cambio'             => $tipo_cambio,
+					'id_usuario_registro'     => $id_usuario
+				);
+
+				$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
+				if($saveComprobante)
+				{
+					/*REGISTRO DE CUENTAS DEL COMPROBANTE*/
+					// echo("<br>");
+					// print_r($detalleComprobante);
+					$filas = explode("|", $detalleComprobante);
+					// echo("<br>");
+					// print_r($filas);
+					// echo("<br>");
+					// echo ("Cantidad de Filas->".count($filas));
+					// echo("<br>");
+					// die();
+					if(!empty($filas))
+					{
+						foreach($filas as $fila)
+						{
+							if(!empty($fila) && $fila != "undefined" && $fila != "null")
+							{
+								$row = explode("*", $fila);
+								// echo("<br>");
+								// echo ("A->".$fila);
+								// echo("<br>");
+								// echo ("B->".$row[0]);
+								// echo("<br>");
+								// echo ("Contador->".count($row));
+								if(!isset($row[0]) || empty($row[0]))
+								{
+									// echo("VERDAD");
+									list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta) = $row;
+									$importe=$importe;
+									$importeUs=$importe*$tipo_cambio;
+									$datosComprobanteDetalle = array(
+										'id_entidad'	            => $id_entidad,
+										'id_comprobante'            => $saveComprobante,
+										'id_cuenta'                 => $id_cuenta,
+										'tipo_movimiento'           => $tipo_movimiento,
+										'tipo_cambio'               => $tipo_cambio,
+										'importe_moneda_nacional'   => $importe,
+										'importe_moneda_extranjera' => $importeUs,
+										'glosa_cuenta'              => $glosa_cuenta,
+										'id_usuario_registro'       => $id_usuario					
+									);
+									// echo("<br>");
+									// print_r($datosComprobanteDetalle);
+									// echo("<br>");
+									// die();
+									$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
+									if($detalle_comprobante)
+									{
+										$resul = 1;
+										$mensaje = "SE REGISTRO CORRECTAMENTE XXXXX";
+									}
+									else
+									{
+										$resul = 0;
+										$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE!!!";
+									}
+								}
+								else
+								{
+									echo("FALSOOOOO");
+									$resul = 0;
+									$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE....!!!";
+								}
+
+							}
+														
+						}
+					}
+
+					// $resul = 1;
+					// $mensaje = "SE REGISTRO CORRECTAMENTE";
+				}
+				else
+				{
+					$resul = 0;
+					$mensaje = "ERROR EN EL REGISTRO!!!";
+				}
+			}
+			else
+			{
+				// $updateAplicacion = array(
+				// 	'nombre_aplicacion' 		=> $nombre_aplicacion,
+				// 	'abreviatura'       		=> $abreviatura,
+				// 	'descripcion_aplicacion'    => $descripcion
+				//    );
+
+				// $aplicacion = $this->Aplicaciones_model->updateAplicaciones($id_aplicacion,$updateAplicacion);
+				// if($aplicacion)
+				// {
+				// 	$resul = 1;
+				// 	$mensaje = "SE ACTUALIZÓ LOS DATOS DE LA APLICACIÓN CORRECTAMENTE.";
+				// }
+				// else
+				// {
+				// 	$resul = 0;
+				// 	$mensaje = "ERROR EN LA ACTUALIZACIÓN!!!";
+				// }
+			}
+
+			
+		}
+
+		// $resultado ='[{
+		// 				"resultado":"'.$resul.'",
+		// 				"mensaje":"'.$mensaje.'"
+		// 			 }]';
+
+		// echo $resultado;
+
+
+		/****************** */
+		/******TRANSACT*****/
+		/****************** */
+		if ($this->db->trans_status() === FALSE && $resul == 1) { 
+			$this->db->trans_rollback(); // Deshacer los cambios si hay un error
+			// echo "Transacción fallida";
+			$resultado = 0;
+			// echo '[{"resultado":"'.$resultado.'","mensaje":"'.$mensaje.'"}]';
+		} else {
+			$this->db->trans_commit(); // Confirmar los cambios si todo está bien
+			// echo "Transacción exitosa";
+			$resultado = 1;
+		}
+		echo '[{"resultado":"'.$resultado.'",
+		          "mensaje":"'.$mensaje.'"}]';
+
+
+
+	}
 	
 }

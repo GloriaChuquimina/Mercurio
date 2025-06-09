@@ -15,13 +15,13 @@
                         <div class="col-md-6">
                         </div>
                         <div class="col-md-6 d-flex justify-content-end gap-3">
-                                <button type="button" class="btn btn-success m-1" onclick="abrirDialogAdicionarInmueble()">
+                                <button type="button" class="btn btn-success m-1" onclick="guardarDatosComprobanteMasDetalle()">
                                     <i class="mdi mdi-plus"></i> Guardar Comprobante
                                 </button>
                                 <button type="button" class="btn btn-warning m-1" onclick="reporteEntidadInmueblesPDF(<?= $entidad ?>)">
                                     <i class="mdi mdi-printer"></i> PDF
                                 </button>
-                                <button type="button" class="btn btn-primary m-1" onclick="otraAccion()">
+                                <button type="button" class="btn btn-primary m-1" onclick="cargarComprobantesPrincipal()">
                                     <i class="mdi mdi-information"></i> Comprobantes Principal
                                 </button>
                         </div>
@@ -40,7 +40,7 @@
                             <!-- Inputs ocultos -->
                             <input type="hidden" class="form-control" id="txtAccionComprobante" name="txtAccionComprobante">
                             <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">                                                        
-                            <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">                                                        
+                            <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">                                                                                                               
                                 <div class="form-group row mb-6">
                                     <div class="col-sm-1">
                                         <label class="form-label small"><b><i class="mdi mdi-asterisk"></i> TIPO:</b></label>
@@ -68,7 +68,7 @@
                                 <div class="form-group row mb-3">
                                     <div class="col-sm-12">
                                         <label class="form-label small"><b><i class="mdi mdi-asterisk"></i> GLOSA GENERAL:</b></label>
-                                        <textarea class="form-control" type="text" id="txtDescripcion" name="txtDescripcion"></textarea>
+                                        <textarea class="form-control" type="text" id="txtGlosaGeneral" name="txtGlosaGeneral"></textarea>
                                     </div>
                                 </div>                            
                         <!-- </form> -->
@@ -195,7 +195,7 @@
                         <div class="form-group row mb-3">
                             <div class="col-sm-12">
                                 <label class="form-label small"><b><i class="mdi mdi-asterisk"></i> GLOSA:</b></label>
-                                <textarea class="form-control" type="text" id="txtGlosa" name="txtGlosa"></textarea>
+                                <textarea class="form-control" type="text" id="txtGlosaCuenta" name="txtGlosaCuenta"></textarea>
                             </div>
                         </div>
                     </fieldset>                    
@@ -268,6 +268,8 @@
       cargarCombos();
        id_entidad = <?= json_encode($entidad) ?>;
        nombre_entidad = <?= json_encode($nombre_entidad) ?>;
+       accion = <?= json_encode($accion) ?>;
+       $('#id_entidad').val(id_entidad);
        cargarCuentasLista();
     //   cargarPerfilesUsuarios(tipoPerfil); 
     //   cargarTablaComprobantes();
