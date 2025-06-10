@@ -8,24 +8,32 @@
     <div class="card">
         <div class="card-body">
             <div class="container-fluid">
-                <hr>
                 <div class="row" >
                     <div class="col-9 form-group">
-                       <div class="col-lg-12 mi-div" style="padding: 15px;">                                
+                       <div class="col-lg-12 mi-div" style="padding: 5px;">                                
                             <label><small><b> <i class="mdi mdi-asterisk"></i>ENTIDADES: </b></small></label>                                
                             <select class="form-control" id="entidades" name="entidades"></select>
                         </div>
                     </div>
-                    <div class="col-3 form-group">
-                        <br><br>
-                        <div class="d-flex justify-content-center">
-                            <button id="botonNuevaCuenta" class="btn btn-success btn-m" onclick="agregarComprobante()">
+                </div>
+                <!-- <hr> -->
+                <div class="container-fluid " style="background-color:#D8CEF6;padding-top: 10px;">
+                    <div class="row align-items-left mb-3" style="max-width: 1500px; margin: auto;">
+                        <div class="col-md-9 form-group text-md-end text-left">
+                            <h5 class="page-title mb-1">ENTIDAD:</h5>
+                            <h5 id="nombre_entidad" name="nombre_entidad" class="fw-bold text-primary">...</h5>
+                        </div>
+                        <div class="col-md-3 form-group text-md-end text-center" style="padding-top: 10px;">
+                            <button id="botonNuevaCuenta" class="btn btn-success btn-sm mt-2" onclick="agregarComprobante()">
                                 <i class="fa fa-plus-circle"></i> Registro de Comprobante
                             </button>
                         </div>
                     </div>
                 </div>
-                <hr>
+                <!-- <hr> -->
+                <div>
+                    <h6 class="page-title">COMPROBANTES:</h6>
+                </div>
             </div>
         </div>    
         <div class="card-body">
@@ -36,10 +44,11 @@
                             <tr class="bg-dark text-white">
                                 <th>Opciones</th>
                                 <th>Nro</th>
-                                <th>Nombre</th>
-                                <th>Sigla</th>
-                                <th>Observaciones</th>
-                                <th>Fecha de Registro</th>
+                                <th>Tipo Comprobante</th>
+                                <th>Correlativo</th>
+                                <th>Fecha Comprobante</th>
+                                <th>Glosa</th>
+                                <th>Usuario</th>
                                 <th>Estado</th>
                             </tr>
                         </thead>
@@ -171,6 +180,6 @@
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
       cargarCombos();
-      cargarTablaComprobantesEntidades();
+    //   cargarTablaComprobantesEntidades();
     });
 </script>  

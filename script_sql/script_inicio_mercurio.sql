@@ -4,6 +4,7 @@ CREATE SCHEMA configuraciones AUTHORIZATION postgres;
 CREATE SCHEMA parametricas AUTHORIZATION postgres;
 CREATE SCHEMA contabilidad AUTHORIZATION postgres;
 CREATE SCHEMA geografia AUTHORIZATION postgres;
+CREATE SCHEMA correlativos AUTHORIZATION postgres;
 /*========================DATOS PARAMETRICOS=============================*/
 /*CREAR TABLA DOMINIOS*/
 CREATE TABLE administracion.dominios (
@@ -75,7 +76,7 @@ create table contabilidad.plancuentas(
 	id_funcionario_registro int4 null,
 	fecha_modificacion timestamp NULL,
 	id_funcionario_update int4 null,
-	estado varchar(2) DEFAULT 'AC'::character varying NULL,
+	estado varchar(2) DEFAULT 'ACT'::character varying NULL,
 	sigla varchar(5) NULL,	
 	CONSTRAINT plancuentas_pkey PRIMARY KEY (id)
 );
@@ -86,7 +87,7 @@ CREATE TABLE contabilidad.plancuenta_dependencia (
 	fecha_registro timestamp DEFAULT now() NULL,
 	id_usuario_registro int4 NULL,
 	fecha_modificacion timestamp NULL,
-	estado varchar(3) DEFAULT 'AC'::character varying null,
+	estado varchar(3) DEFAULT 'ACT'::character varying null,
 	CONSTRAINT entidad_dependencia_pkey PRIMARY KEY (id)
 );
 
@@ -135,7 +136,7 @@ CREATE TABLE contabilidad.comprobante (
 	id_usuario_registro int4 NULL,
 	fecha_modificacion timestamp NULL,
 	id_funcionario_update int4 null,
-	estado varchar(3) DEFAULT 'AC'::character varying null,
+	estado varchar(3) DEFAULT 'ACT'::character varying null,
 	sec_log numeric(10,0),
 	CONSTRAINT comprobante_pkey PRIMARY KEY (id)
 );
@@ -171,7 +172,7 @@ CREATE TABLE contabilidad.detalle_comprobante (
 	id_usuario_registro int4 NULL,
 	fecha_modificacion timestamp NULL,
 	id_funcionario_update int4 null,
-	estado varchar(3) DEFAULT 'AC'::character varying NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
 	sec_log numeric(10,0),
 	CONSTRAINT detalle_comprobante_pkey PRIMARY KEY (id)
 );
@@ -193,4 +194,55 @@ COMMENT ON COLUMN contabilidad.detalle_comprobante.fecha_modificacion IS 'Fecha 
 COMMENT ON COLUMN contabilidad.detalle_comprobante.id_funcionario_update IS 'Funcionario que realizó la última modificación.';
 COMMENT ON COLUMN contabilidad.detalle_comprobante.estado IS 'Estado del detalle (AC = Activo, AN = Anulado, etc.).';
 COMMENT ON COLUMN contabilidad.detalle_comprobante.sec_log IS 'Campo para control de cambios o logging.';
+
+
+
+
+
+/*TABLAS DE CONTROL PARA LOS CORRELATIVOS*/
+ CREATE TABLE correlativos.correlativos (
+	id serial4 NOT NULL,
+	nombre_documento varchar(50) NULL,
+	abreviatura varchar(4) NULL,
+	descripcion varchar(255) NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	CONSTRAINT correlativos_pkey PRIMARY KEY (id)
+);
+
+COMMENT ON TABLE correlativos.correlativos IS 'Define los tipos de documentos que requieren un número correlativo dentro del sistema.';
+
+COMMENT ON COLUMN correlativos.correlativos.id IS 'Identificador único para cada tipo de documento correlativo.';
+COMMENT ON COLUMN correlativos.correlativos.nombre_documento IS 'Nombre completo del documento que utilizará el correlativo (ej. "Nota de Venta", "Factura").';
+COMMENT ON COLUMN correlativos.correlativos.abreviatura IS 'Abreviatura corta que identifica el tipo de documento (ej. "NV", "FAC").';
+COMMENT ON COLUMN correlativos.correlativos.descripcion IS 'Descripción detallada del propósito y uso del tipo de documento.';
+COMMENT ON COLUMN correlativos.correlativos.estado IS 'Estado del detalle (AC = Activo, AN = Anulado, etc.).';
+
+
+
+CREATE TABLE correlativos.correlativos_entidad_gestion (
+	id serial4 NOT NULL,
+	id_correlativo serial4 not null,
+	id_entidad serial4 not null,
+	id_dependencia serial4 not null,
+	gestion int4 NULL,
+	correlativo int4 DEFAULT 0 NULL,
+	id_usuario_registro int4 NULL,
+	fecha_registro timestamp DEFAULT now() NULL,
+	fecha_modificacion timestamp NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	CONSTRAINT correlativos_gestion_pkey PRIMARY KEY (id)
+);
+
+
+COMMENT ON TABLE correlativos.correlativos_entidad_gestion IS 'Gestiona los números correlativos asignados a documentos para una entidad y gestión específicas.';
+
+COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.id IS 'Identificador único para cada asignación de correlativo a una entidad y gestión.';
+COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.id_correlativo IS 'Referencia al ID del tipo de documento correlativo de la tabla "correlativos".';
+COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.id_entidad IS 'Identificador de la entidad a la que pertenece este correlativo.';
+COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.id_dependencia IS 'Identificador de la dependencia o unidad organizacional dentro de la entidad.';
+COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.gestion IS 'Año o período de gestión al que aplica el correlativo (ej. 2023, 2024).';
+COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.correlativo IS 'Numero correlativo utilizado para este tipo de documento, entidad y gestión.';
+COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.fecha_registro IS 'Fecha ede registró de cuando se creó este registro de asignación de correlativo.';
+COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.fecha_modificacion IS 'Fecha de la última modificación del registro.';
+COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.estado IS 'Estado del detalle (AC = Activo, AN = Anulado, etc.).';
 

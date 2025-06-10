@@ -18,7 +18,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-3 form-group">
-                        <button id="botonNuevaCuenta" class="btn btn-block btn-success btn-xm" onclick='agregarCuentas()'><i class="mdi mdi-plus"></i>Registro de Cuentas Mayores</button>
+                        <button id="botonNuevaCuenta" class="btn btn-success btn-xm" onclick='agregarCuentas()'><i class="mdi mdi-plus"></i>Registro de Cuentas Mayores</button>
                     </div>
                 </div>
                 <hr>

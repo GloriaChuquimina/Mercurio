@@ -81,10 +81,18 @@ $(function (){
 
         });
 
+        $('#entidades').change(function(){
+            id_entidad = $(this).val();
+            // alert(id_entidad);
+            nombre_entidad = $('#entidades option:selected').text();
+            $('#nombre_entidad').text(nombre_entidad);
+            cargarTablaComprobantesEntidades(id_entidad);
+        });
+
 })
-function cargarTablaComprobantesEntidades()
+function cargarTablaComprobantesEntidades(id_entidad)
 {
-    var enlace = base_url + "Entidades/Entidades/cargarEntidades";
+    var enlace = base_url + "Contabilidad/Comprobante/cargarComprobantesByEntidad";
     $('#tablaComprobantesEntidades').DataTable({
         destroy: true,
         "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
@@ -92,7 +100,8 @@ function cargarTablaComprobantesEntidades()
         "font-size":8,
         "ajax": {
             type: "POST",
-            url: enlace
+            url: enlace,
+            data: { id_entidad: id_entidad }
         },
     });
 }
@@ -258,6 +267,7 @@ function guardarDatosComprobanteMasDetalle()
                     swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
                     // cargarTablaEntidades();
                     // $('#modalEntidad').modal('hide');
+                    cargarComprobantesPrincipal();
                 }
                 else
                 {

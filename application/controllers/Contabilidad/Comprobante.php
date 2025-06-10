@@ -8,6 +8,8 @@ class Comprobante extends CI_Controller {
 		$this->_is_logued_in();
         $this->load->model('Comprobantes_model');
 		$this->load->helper('configuraciones_helper');
+		$this->load->helper('funcionarios_helper');
+		$this->load->helper('correlativos_helper');
 	}
     function _is_logued_in()
 	{
@@ -56,7 +58,7 @@ class Comprobante extends CI_Controller {
 		$dato['entidad']  = $entidad;
 		$dato['accion']  = $accion;
 
-		$titulo = "REGISTRO DE COMPROBANTE CONTABLE";		
+		$titulo = "Comprobante Contable";		
 		$dato['titulo'] = $titulo;
 
 		$this->load->view('inicio/cabecera',$dato);
@@ -119,11 +121,11 @@ class Comprobante extends CI_Controller {
 					if($tipo_movimiento == "DB")
 					{
 						$importeDebe=$importe;
-						$importeDebeUs=$importe*$tipo_cambio;
+						$importeDebeUs=$importe/$tipo_cambio;
 					}
 					elseif ($tipo_movimiento == "HB") {
 						$importeHaber=$importe;
-						$importeHaberUs=$importe*$tipo_cambio;
+						$importeHaberUs=$importe/$tipo_cambio;
 					}
 
 					$boton = "<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'><button type='button' class='btn btn-danger btn-circle' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i class='mdi mdi-delete'></i></button></span>";
@@ -171,6 +173,7 @@ class Comprobante extends CI_Controller {
 		$id_usuario          = $this->session->userdata('id_usuario');
 		$id_funcionario      = $this->session->userdata('id_funcionario');
 		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
+		$fechaActual          = getFechaHoraActual();
 		// $data 			 	 = $this->input->post('datos');
 		parse_str($this->input->post('datos'), $data);
 		$detalleComprobante  = $this->input->post('detalleComprobante');
@@ -193,11 +196,20 @@ class Comprobante extends CI_Controller {
 			$glosa_general	      = $data['txtGlosaGeneral'];
 
 			$correlativo		  = 0;
-			$periodo			  = 0;
-			$gestion			  = 0;
+			// $periodo			  = 0;
+			// $gestion			  = gestion_actual();
+			$periodo        	  = date("Ym", strtotime($fecha_comprobante));
+			$gestion        	  = date("Y", strtotime($fecha_comprobante));
+
 
 			if($accion === 'nuevo')
 			{
+				$tipoCorrelativo  = $tipo_comprobante ;
+				$datosCorrelativo = json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
+				$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
+				$correlativo      		        = $datosCorrelativo[0]->correlativo;
+
+				
 				$datosComprobante = array(
 					'id_entidad'              => $id_entidad,
 					'tipo_comprobante'        => $tipo_comprobante,
@@ -260,6 +272,13 @@ class Comprobante extends CI_Controller {
 									$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
 									if($detalle_comprobante)
 									{
+										$updateCorrelativoEntidadGestion = array(
+											'correlativo' => $correlativo,
+											'fecha_modificacion' => $fechaActual
+										);	
+
+										$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
+
 										$resul = 1;
 										$mensaje = "SE REGISTRO CORRECTAMENTE XXXXX";
 									}
@@ -338,8 +357,63 @@ class Comprobante extends CI_Controller {
 		echo '[{"resultado":"'.$resultado.'",
 		          "mensaje":"'.$mensaje.'"}]';
 
+	}
+	 public function cargarComprobantesByEntidad()
+	{
+		$id_usuario  = $this->session->userdata('id_usuario');
+			
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
 
+		$id_entidad  = $this->input->post('id_entidad');
+		$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidad($id_entidad);
+		// echo("<pre>");
+		// echo($id_entidad);
+		// echo("<br>");
+		// print_r($filas);
+		// echo("</pre>");
 
+		foreach ($filas as $fila)
+		{   
+			$boton   = "
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarEntidad(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
+                        </span>	
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
+                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaEntidad(". $fila->id . ")'><i class='fas fa-trash-alt'></i></button>     
+                        </span>	
+                        ";	
+						
+			// echo("<br>");
+			// echo("Tipo Comprobante***->".$fila->tipo_comprobante);
+			// echo("<br>");
+			$tipo_comprobante = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
+			// echo("<br>");
+			// echo("Tipo Comprobante->".$tipo_comprobante);
+			// echo("<br>");
+			$nombre_entidad =descripcion_nombre_entidad($fila->id_entidad);
+			$estado =getValor2Configuraciones("ESTADO REGISTRO", $fila->estado);
+			$data[] = array(
+				$boton,
+				$num++,
+				$tipo_comprobante,
+				$fila->correlativo,
+				formato_fecha($fila->fecha_comprobante),
+				$fila->glosa_comprobante,
+				datos_persona_nombre2($fila->id_usuario_registro),	
+				$estado			);
+		}
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($filas),
+			"recordsFiltered" => count($filas),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
 	}
 	
 }

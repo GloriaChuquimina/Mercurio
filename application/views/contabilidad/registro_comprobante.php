@@ -5,16 +5,23 @@
 
 
 <!-- <h1 class="page-title">ENTIDAD: <?= $nombre_entidad ?></h1> -->
-<div class="card">
-    <div class="col-12">
+<div class="wrapper">
+    <div class="content-wrapper" style="margin-left: 0;">
         <form id="formregistrocontable">
             <div>
-                <div data-pws-tab="anynameyouwant1" data-pws-tab-name="REGISTRO COMPROBANTE CONTABLE">
+                <div>
                     <br>
                     <div class="row">
                         <div class="col-md-6">
                         </div>
-                        <div class="col-md-6 d-flex justify-content-end gap-3">
+                        
+                    </div>
+                    <div class="container-fluid" style="background-color:#D8CEF6;">
+                        <div class="entity-header" >
+                            <div class="col-md-6">
+                                <h5 class="page-title">ENTIDAD:<b><?= $nombre_entidad?></b></h5>
+                            </div>
+                            <div class="col-md-6 d-flex justify-content-end gap-3">
                                 <button type="button" class="btn btn-success m-1" onclick="guardarDatosComprobanteMasDetalle()">
                                     <i class="mdi mdi-plus"></i> Guardar Comprobante
                                 </button>
@@ -24,17 +31,11 @@
                                 <button type="button" class="btn btn-primary m-1" onclick="cargarComprobantesPrincipal()">
                                     <i class="mdi mdi-information"></i> Comprobantes Principal
                                 </button>
-                        </div>
-                    </div>
-                    <div class="container-fluid" style="background-color:#D8CEF6;">
-                        <hr>
-                        <div class="row" >
-                            <div class="col-md-6">
-                                <h5 class="page-title">ENTIDAD:<b><?= $nombre_entidad?></b></h5>
                             </div>
                         </div>
-                        <hr>
                     </div>
+                   <br>
+                   <br>
                     <div class="col-12 col-lg-12 ml-lg-auto">              
                         <!-- <form id="formularioComprobante"> -->
                             <!-- Inputs ocultos -->
