@@ -76,7 +76,7 @@ create table contabilidad.plancuentas(
 	id_funcionario_registro int4 null,
 	fecha_modificacion timestamp NULL,
 	id_funcionario_update int4 null,
-	estado varchar(2) DEFAULT 'ACT'::character varying NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
 	sigla varchar(5) NULL,	
 	CONSTRAINT plancuentas_pkey PRIMARY KEY (id)
 );
@@ -105,7 +105,7 @@ CREATE TABLE administracion.entidad (
 	/*documento_admin varchar(100) NULL,
 	nro_admin varchar(15) NULL,
 	fecha_admin date NULL,*/
-	estado varchar(3) DEFAULT 'AC'::character varying NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
 	CONSTRAINT entidad_pkey PRIMARY KEY (id)
 );
 CREATE TABLE administracion.entidad_dependencia (

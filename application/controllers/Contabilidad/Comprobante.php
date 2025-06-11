@@ -33,7 +33,7 @@ class Comprobante extends CI_Controller {
 		$dato['roles']  = $this->session->userdata('roles');
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
 
-		$titulo = "LISTA DE COMPROBANTES POR ENTIDAD";		
+		$titulo = "Gestión de Comprobantes";		
 		$dato['titulo'] = $titulo;
 
 		$this->load->view('inicio/cabecera',$dato);
@@ -128,18 +128,26 @@ class Comprobante extends CI_Controller {
 						$importeHaberUs=$importe/$tipo_cambio;
 					}
 
-					$boton = "<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'><button type='button' class='btn btn-danger btn-circle' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i class='mdi mdi-delete'></i></button></span>";
+					$boton = "<div style='text-align: center;'>
+								<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
+									<button type='button' class='btn btn-primary btn-xs mr-1' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i>✏️</i></button>
+								</span>
+								<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
+									<button type='button' class='btn btn-danger btn-xs' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i>🗑️</i></button>
+								</span>
+							  </div>";
 					$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
 					$data[] = array(
-						$codigo_cuenta,
+						 "<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
 						$cuenta_registro,
-						$importeDebe,
-						$importeHaber,
-						$importeDebeUs,
-						$importeHaberUs,
+						"<div style='text-align: right; color: #28a745; font-weight: bold;'>".$importeDebe."</div>",
+						"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaber."</div>",
+						"<div style='text-align: right; color: #28a745; font-weight: bold;'>".$importeDebeUs."</div>",
+						"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaberUs."</div>",
 						$boton
 			   		);
 				}		
+			
 			}
 		}
 		else

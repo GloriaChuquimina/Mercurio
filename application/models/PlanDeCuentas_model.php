@@ -15,7 +15,7 @@ class PlanDeCuentas_model extends CI_Model
 	{
 		$query = $this->db_mercurio->query("select *
 											 from contabilidad.plancuentas
-											where estado='AC'
+										  --where estado='ACT'
 										 order by nivel ASC,
   												  codigo ASC;
 											" 
@@ -27,7 +27,7 @@ class PlanDeCuentas_model extends CI_Model
         $query = $this->db_mercurio->query("select *
                                               from contabilidad.plancuentas
                                              where id= ".$id."
-                                               and estado='AC'" 
+                                               and estado='ACT'" 
                                          );
         return $query->result();
     }
@@ -36,7 +36,7 @@ class PlanDeCuentas_model extends CI_Model
         $query = $this->db_mercurio->query("select *
                                               from contabilidad.plancuentas
                                              where nivel= ".$nivel."
-                                               and estado='AC'" 
+                                               and estado='ACT'" 
                                          );
         return $query->result();
     }
@@ -45,7 +45,7 @@ class PlanDeCuentas_model extends CI_Model
         $query = $this->db_mercurio->query("select *
                                               from contabilidad.plancuentas
                                              where padre= ".$padre."
-                                               and estado='AC'" 
+                                               and estado='ACT'" 
                                          );
         return $query->result();
     }

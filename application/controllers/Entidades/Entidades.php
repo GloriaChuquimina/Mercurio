@@ -31,7 +31,7 @@ class Entidades extends CI_Controller {
 		$dato['roles']  = $this->session->userdata('roles');
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
 
-		$titulo = "Lista de Entidades Registradas";		
+		$titulo = "Gestión de Entidades";		
 		$dato['titulo'] = $titulo;
 
 		$this->load->view('inicio/cabecera',$dato);
