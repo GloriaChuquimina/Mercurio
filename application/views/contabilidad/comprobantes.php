@@ -106,18 +106,18 @@
     </section>
 </div>
 <div class="row">
-              <div class="col-md-3 col-sm-6 col-12">
-                <div
-                  class="info-box"
-                  style="
-                    background-color: #fff;
-                    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-                    border-radius: 0.25rem;
-                  "
-                >
-                <span class="info-box-icon bg-info">
-                    <i class="far fa-file-alt"></i>
-                </span>
+            <div class="col-md-3 col-sm-6 col-12">
+              <div
+                class="info-box"
+                style="
+                  background-color: #fff;
+                  box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+                  border-radius: 0.25rem;
+                "
+              >
+                  <span class="info-box-icon bg-info">
+                      <i class="far fa-file-alt"></i>
+                  </span>
                   <div class="info-box-content" style="padding: 15px;">
                     <span class="info-box-text">Total Comprobantes</span>
                     <span class="info-box-number" style="font-size: 24px; font-weight: bold;">
@@ -127,94 +127,94 @@
                   <div
                     style="
                       width: 50px,
-                      backgroundColor: #17a2b8,
+                      background-color: #17a2b8,
                       display: flex,
-                      alignItems: center,
-                      justifyContent: center,
+                      align-items: center,
+                      justify-content: center,
                       color: white,
-                      fontSize: 24px;
+                      font-size: 24px;
                     "
                   >
                     📊
                   </div>
-                </div>
               </div>
-              <div class="col-md-3 col-sm-6 col-12">
+            </div>
+            <div class="col-md-3 col-sm-6 col-12">
+              <div
+                class="info-box"
+                style="
+                  background-color: #fff;
+                  box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+                  border-radius: 0.25rem;
+                "
+              >
+              <span class="info-box-icon bg-success">
+                  <i class="far fa-file-alt"></i>
+              </span>
+                <div class="info-box-content" style="padding: 15px;">
+                  <span class="info-box-text">Aprobados</span>
+                  <span
+                    class="info-box-number"
+                    style="font-size: 24px; font-weight: bold; color: #28a745;"
+                  >
+                  </span>
+                </div>
                 <div
-                  class="info-box"
                   style="
-                    backgroundColor: "#fff",
-                    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-                    border-radius: 0.25rem;
+                    width: 50px,
+                    background-color: #28a745,
+                    display: flex,
+                    align-items: center,
+                    justify-content: center,
+                    color: white,
+                    font-size: 24px;
                   "
                 >
-                <span class="info-box-icon bg-success">
-                    <i class="far fa-file-alt"></i>
-                </span>
-                  <div class="info-box-content" style="padding: 15px;">
-                    <span class="info-box-text">Aprobados</span>
-                    <span
-                      class="info-box-number"
-                      style="font-size: 24px; font-weight: bold; color: #28a745;"
-                    >
-                    </span>
-                  </div>
-                  <div
-                    style="
-                      width: 50px,
-                      backgroundColor: #28a745,
-                      display: flex,
-                      alignItems: center,
-                      justifyContent: center,
-                      color: white,
-                      fontSize: 24px;
-                    "
-                  >
-                    ✓
-                  </div>
+                  ✓
                 </div>
               </div>
+            </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <div
                   class="info-box"
                   style="
-                    backgroundColor: #fff,
-                    boxShadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                    borderRadius: 0.25rem;
+                    background-color: #fff,
+                    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
+                    border-radius: 0.25rem;
                   "
                 >
                 <span class="info-box-icon bg-warning">
                     <i class="far fa-file-alt"></i>
                 </span>
-                  <div class="info-box-content" style=" padding:15px;">
-                    <span class="info-box-text">Pendientes</span>
-                    <span
-                      class="info-box-number"
-                      style="fontSize:24px; fontWeight: bold; color: #ffc107;" 
-                    >   
-                    </span>
-                  </div>
-                  <div
-                    style="
-                      width: 50px,
-                      backgroundColor: #ffc107,
-                      display: flex,
-                      alignItems: center,
-                      justifyContent: center,
-                      color: white,
-                      fontSize: 24px:"
-                  >
-                    ⏳
-                  </div>
+                    <div class="info-box-content" style=" padding:15px;">
+                      <span class="info-box-text">Pendientes</span>
+                      <span
+                        class="info-box-number"
+                        style="font-size:24px; font-weight: bold; color: #ffc107;" 
+                      >   
+                      </span>
+                    </div>
+                    <div
+                      style="
+                        width: 50px,
+                        background-color: #ffc107,
+                        display: flex,
+                        align-items: center,
+                        justify-content: center,
+                        color: white,
+                        font-size: 24px;"
+                    >
+                      ⏳
+                    </div>
                 </div>
               </div>
               <div class="col-md-3 col-sm-6 col-12">
                 <div
                   class="info-box"
                   style="
-                    backgroundColor: #fff,
-                    boxShadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                    borderRadius: 0.25rem;"
+                    background-color: #fff,
+                    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
+                    border-radius: 0.25rem;"
                 >
                 <span class="info-box-icon bg-danger">
                     <!-- <i class="far-solid fa-xmark"> ❌</i> -->
@@ -224,25 +224,27 @@
                     <span class="info-box-text">Anulados</span>
                     <span
                       class="info-box-number"
-                      style="fontSize: 24px, fontWeight: bold, color: #dc3545" 
+                      style="font-size: 24px; font-weight: bold; color: #dc3545;"
                     >
                     </span>
                   </div>
-                  <!-- <div
+                  <div
                     style="
                       width: 50px,
-                      backgroundColor: #dc3545,
+                      background-color: #dc3545,
                       display: flex,
-                      alignItems: center,
-                      justifyContent: center,
+                      align-items: center,
+                      justify-content: center,
                       color: white,
-                      fontSize: 24px;"
+                      font-size: 24px;"
                   >
                     ❌
-                  </div> -->
+                  </div>
                 </div>
               </div>
-            </div>
+</div>
+
+
 <script type="text/javascript">
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    
