@@ -6,6 +6,7 @@ class Comprobante extends CI_Controller {
 	function __construct(){
 		parent::__construct();
 		$this->_is_logued_in();
+		$this->load->library('form_validation');
         $this->load->model('Comprobantes_model');
 		$this->load->helper('configuraciones_helper');
 		$this->load->helper('funcionarios_helper');
@@ -66,6 +67,109 @@ class Comprobante extends CI_Controller {
 		$this->load->view('contabilidad/registro_comprobante',$dato); //cuerpo
 		$this->load->view('inicio/pie');
 	}
+	function verificarValorCombo($valor)
+	{
+		if($valor == -1 || strlen($valor) == 0)
+		{
+			$this->form_validation->set_message('verificarValorCombo', 'Seleccione una opción del combo TIPO de movimiento.');
+			return false;
+		}
+		else
+		{
+			return true;	
+		}
+	}
+	function verificarValorCuentaBusqueda()
+	{
+		// echo ($valor);
+		// if($valor == -1 || strlen($valor) == 0)
+		// {
+		// 	$this->form_validation->set_message('verificarValorCuentaBusqueda', 'La cuenta seleccionada no se encuentra registrada. Por favor, verifique la información ingresada.');
+		// 	return false;
+		// }
+		// else
+		// {
+		// 	return true;	
+		// }
+
+
+		// Obtenemos el otro campo relacionado directamente desde POST
+		$idCuenta = $this->input->post('id_cuenta');
+		echo($idCuenta);
+		// die();
+		if (empty($idCuenta) || !is_numeric($idCuenta)) {
+			$this->form_validation->set_message('verificarValorCuentaBusqueda', 'La cuenta seleccionada no es válida. Seleccione una cuenta válida de la lista.');
+			return FALSE;
+		}
+
+		// Opcional: verificar si el ID existe en la base de datos
+		// $cuentaValida = $this->Cuenta_model->existeCuentaPorId($idCuenta); // Debes crear este método
+
+		// if (!$cuentaValida) {
+		// 	$this->form_validation->set_message('verificarValorCuentaBusqueda', 'La cuenta no se encuentra registrada. Verifique nuevamente.');
+		// 	return FALSE;
+		// }
+
+		return TRUE;
+
+	}
+
+
+	function validarDatosRegistroCuenta()
+	{
+ 		$data = $this->input->post(); 
+		// echo("<pre>");
+		// print_r($data);
+		// echo("</pre>");
+		// die();
+ 		$accion 	= $data['txtAccionMovimiento'];
+ 		// $tipoCorrespondenciaCite = $data['idtipoCorrespondenciaCite'];
+
+ 		$this->form_validation->set_data($data);
+ 		$resul = 1;
+		$mensaje = "OK";
+
+		if($accion == 'nuevo')
+		{	
+			if($this->form_validation->run('validar_registro_movimiento_cuenta'))
+			{
+				$resul = 1;
+				$mensaje = "OK";
+			}
+			else
+			{
+				// echo("Validaaaaaa");
+				$resul = 0;
+				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
+				$mensaje = formaterarValidacion($mensaje);
+			}
+		}
+		else
+		{
+			if($this->form_validation->run('validar_opcion_editar'))
+			{
+				$resul = 1;
+				$mensaje = "OK";
+			}
+			else
+			{
+				$resul = 0;
+				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
+				$mensaje = formaterarValidacion($mensaje);
+			}
+		}
+
+		$resultado ='[{								
+					"resultado":"'.$resul.'",
+					"mensaje":"'.$mensaje.'"
+					}]';
+
+		// echo json_encode($resultado);
+		echo $resultado; 		
+	}
+
+
+
 	public function cargarTablaRegistroCuenta( )
 	{
 		$draw = intval($this->input->get("draw"));
@@ -76,101 +180,129 @@ class Comprobante extends CI_Controller {
 		$cadRegistroCuenta = $this->input->post('cuenta');
 		$id_entidad        = $this->input->post('id_entidad');
 		// $tipo = $this->input->post('tipo');
+
+		$resultado   	   = json_decode($this->validarDatos($data));		
+		$resul       	   = $resultado[0]->resultado;
+		$mensaje     	   = $resultado[0]->mensaje;
+
+		echo("<pre>");
+		print_r($resultado);
+		echo("</pre>");
+		die();
+
 		$data = array();
 		$num =1;
 		$importeDebe=0;
 		$importeHaber=0;
 		$importeDebeUs=0;
 		$importeHaberUs=0;
-		if($accion == "nuevo")
-		{  
-			$filas = explode("|", $cadRegistroCuenta);  
-			foreach($filas as $fila )
-			{
-				$importeDebe=0;
-				$importeHaber=0;
-				$importeDebeUs=0;
-				$importeHaberUs=0;
-				if( $fila)
-				{
-					$row = explode("*", $fila); 
-					list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta) = $row;
-
-					$codigoCuenta = explode("-",$cuenta);
-					list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
-					// echo ("A->".$ini);
-					// echo("<br>");
-					// echo ("B->".$id_cuenta);
-					// echo("<br>");
-					// echo ("C->".$cuenta);
-					// echo("<br>");
-					// echo ("D->".$tipo_movimiento);
-					// echo("<br>");
-					// echo ("E->".$tipo_movimiento_literal);
-					// echo("<br>");
-					// echo ("F->".$importe);
-					// echo("<br>");
-					// echo ("G->".$tipo_cambio);
-					// echo("<br>");
-					// echo ("H->".$glosa_cuenta);
-					// echo("<br>");
-					// echo ("I->".$codigo_cuenta);
-					// echo("<br>");
-					// echo ("J->".$descripcion_cuenta);
-					// die();
-					if($tipo_movimiento == "DB")
-					{
-						$importeDebe=$importe;
-						$importeDebeUs=$importe/$tipo_cambio;
-					}
-					elseif ($tipo_movimiento == "HB") {
-						$importeHaber=$importe;
-						$importeHaberUs=$importe/$tipo_cambio;
-					}
-
-					$boton = "<div style='text-align: center;'>
-								<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
-									<button type='button' class='btn btn-primary btn-xs mr-1' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i>✏️</i></button>
-								</span>
-								<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
-									<button type='button' class='btn btn-danger btn-xs' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i>🗑️</i></button>
-								</span>
-							  </div>";
-					$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
-					$data[] = array(
-						 "<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
-						$cuenta_registro,
-						"<div style='text-align: right; color: #28a745; font-weight: bold;'>".$importeDebe."</div>",
-						"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaber."</div>",
-						"<div style='text-align: right; color: #28a745; font-weight: bold;'>".$importeDebeUs."</div>",
-						"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaberUs."</div>",
-						$boton
-			   		);
-				}		
-			
-			}
-		}
-		else
+		$totalimporteDebe=0;
+		$totalimporteHaber=0;
+		$totalimporteDebeUs=0;
+		$totalimporteHaberUs=0;
+		if($resul == 1)
 		{
-			// $filas = $this->entidaddocumento_model->getListaEntidadDocumentos($entidad, $tipo);
-			// foreach($filas as $fila )
-			// {
-			// 	$boton = "<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'><button type='button' class='btn btn-danger btn-circle' onclick=\"eliminarDocumento('".$fila->id."' )\"><i class='mdi mdi-delete'></i></button></span>";
-			// 	$data[] = array(
-			// 				$num++,
-			// 				$fila->documento,
-			// 				$fila->numero_documento,
-			// 				$fila->fecha_documento,
-			// 				$boton 
-		    //   	);
-			// }
-		}
+				if($accion == "nuevo")
+				{  
+					$filas = explode("|", $cadRegistroCuenta);  
+					foreach($filas as $fila )
+					{
+						$importeDebe=0;
+						$importeHaber=0;
+						$importeDebeUs=0;
+						$importeHaberUs=0;
+						if( $fila)
+						{
+							$row = explode("*", $fila); 
+							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta) = $row;
+
+							$codigoCuenta = explode("-",$cuenta);
+							list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
+							// echo ("A->".$ini);
+							// echo("<br>");
+							// echo ("B->".$id_cuenta);
+							// echo("<br>");
+							// echo ("C->".$cuenta);
+							// echo("<br>");
+							// echo ("D->".$tipo_movimiento);
+							// echo("<br>");
+							// echo ("E->".$tipo_movimiento_literal);
+							// echo("<br>");
+							// echo ("F->".$importe);
+							// echo("<br>");
+							// echo ("G->".$tipo_cambio);
+							// echo("<br>");
+							// echo ("H->".$glosa_cuenta);
+							// echo("<br>");
+							// echo ("I->".$codigo_cuenta);
+							// echo("<br>");
+							// echo ("J->".$descripcion_cuenta);
+							// die();
+							if($tipo_movimiento == "DB")
+							{
+								$importeDebe=$importe;
+								$importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,4);
+							}
+							elseif ($tipo_movimiento == "HB") {
+								$importeHaber=$importe;
+								$importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,4);
+							}
+
+							$boton = "<div style='text-align: center;'>
+										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
+											<button type='button' class='btn btn-primary btn-xs mr-1' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i>✏️</i></button>
+										</span>
+										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
+											<button type='button' class='btn btn-danger btn-xs' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i>🗑️</i></button>
+										</span>
+									</div>";
+							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
+							$data[] = array(
+								"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
+								$cuenta_registro,
+								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".$importeDebe."</div>",
+								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaber."</div>",
+								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".$importeDebeUs."</div>",
+								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaberUs."</div>",
+								$boton
+							);
+							$totalimporteDebe+=$importeDebe;
+							$totalimporteHaber+=$importeHaber;
+							$totalimporteDebeUs+=$importeDebeUs;
+							$totalimporteHaberUs+=$importeHaberUs;
+						}
+						else
+						{
+							// echo("VACIOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+							// die();
+						}			
+					}
+				}
+				else
+				{
+					// $filas = $this->entidaddocumento_model->getListaEntidadDocumentos($entidad, $tipo);
+					// foreach($filas as $fila )
+					// {
+					// 	$boton = "<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'><button type='button' class='btn btn-danger btn-circle' onclick=\"eliminarDocumento('".$fila->id."' )\"><i class='mdi mdi-delete'></i></button></span>";
+					// 	$data[] = array(
+					// 				$num++,
+					// 				$fila->documento,
+					// 				$fila->numero_documento,
+					// 				$fila->fecha_documento,
+					// 				$boton 
+					//   	);
+					// }
+				}
 		
-		
+		}	
 		 $output = array(
             "draw" => $draw,
             "recordsTotal" => count($filas),
             "recordsFiltered" => count($filas),
+            "totalimporteDebe" => $totalimporteDebe,
+            "totalimporteHaber" => $totalimporteHaber,
+            "totalimporteDebeUs" => $totalimporteDebeUs,
+            "totalimporteHaberUs" => $totalimporteHaberUs,
             "data" => $data
         );
 	    echo json_encode($output);

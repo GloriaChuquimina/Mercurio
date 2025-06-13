@@ -1,4 +1,5 @@
 <script src="<?php echo  base_url() ?>scriptjs/jquery.js"></script>
+<script src="<?php echo  base_url() ?>scriptjs/validacion.js"></script>
 <!-- <script src="<?php echo  base_url() ?>scriptjs/entidades/entidades.js"></script> -->
 <script src="<?php echo  base_url() ?>scriptjs/contabilidad/comprobantes.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>resources/css/global.css">
@@ -80,6 +81,7 @@
                                             name="txtTipoCambio"
                                             style="background-color: #f3d6d6;"
                                             placeholder="0.00"
+                                            value="6.96"
                                             />
                                         </div>
                                         </div>
@@ -132,6 +134,7 @@
                                 <div class="card-body p-0">
                                     <div class="table-responsive">
                                     <table class="table table-striped table-hover" id="tablaRegistroCuenta" style="width: 100%;">
+                                    <!-- <table class="table table-head-fixed text-nowrap" id="tablaRegistroCuenta" style="width: 100%;"> -->
                                         <thead class="bg-dark">
                                         <tr>
                                             <th style="color: white">Código</th>
@@ -148,11 +151,12 @@
                                                 <td colSpan="2" style="color: white; font-weight: bold;">
                                                 TOTALES
                                                 </td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;">1,500.00</td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;">1,500.00</td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;">217.39</td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;">217.39</td> 
-                                                    <td></td>                                                 
+                                                    <!-- <td style="text-align: right; color: white; font-weight: bold;" id="txtTotalImporteDebe">0.00</td> -->
+                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe">0.00</td>
+                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber">0.00</td>
+                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebeUs">0.00</td>
+                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaberUs">0.00</td>
+                                                    <td></td>
                                                 </td>
                                             </tr>
                                         </tfoot>
@@ -172,17 +176,24 @@
     <div class="modal-dialog modal-lg" style="max-width: 1000px">
         <div class="modal-content">
             <div class="modal-header bg-info">
-                <h7 class="modal-title text-white">
-                <i class="mr-1">➕</i>
-                REGISTRO DE MOVIMIENTO:
-                </b><span style="color:white;"><label id="nombreEntidad">...</label></span>
-                </h7>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                <span>&times;</span>
-                </button>
-            </div>
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div class="col-md-8">
+                        <h7 class="modal-title text-white">
+                            <i class="mr-2">📋</i>
+                            REGISTRO DE MOVIMIENTO:
+                            <span style="color:white;"><label id="nombreEntidad">...</label></span>
+                        </h7>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <span class="badge badge-warning">Tipo Cambio:<label id="tipoCambio">...</label></span>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span>&times;</span>
+                        </button>
+                    </div>
+                </div>
+             </div>
             <div class="modal-body">
-                <form>
+                <form id="formularioRegistroCuenta">
                 <!-- CAMPOS OCULTOS -->
                 <input type="hidden" class="form-control" id="txtAccionComprobante" name="txtAccionComprobante">
                 <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
@@ -190,6 +201,7 @@
                 <input class="form-control" id="id_entidad_registro" name="id_entidad_registro">
                 <input class="form-control" id="id_cuenta" name="id_cuenta">
                 <input class="form-control" id="registroCuentaT" name="registroCuentaT">
+                <input class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
                 <div class="card card-outline card-info">
                     <div class="card-header">
                     <h7 class="card-title">
@@ -200,44 +212,44 @@
                     <div class="card-body">
                     <div class="row">
                         <div class="col-md-8">
-                        <div class="form-group">
-                            <label>
-                            <i class="text-danger">*</i>
-                            <strong> DESCRIPCIÓN CUENTA:</strong>
-                            </label>
-                            <div class="input-group">
-                            <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Buscar cuenta..."
-                                list="listaCuentas"
-                                id="txtCuenta" 
-                                name="txtCuenta"
-                            />
-                            <datalist id='listaCuentas'></datalist>
-                            <input type='hidden' name='idCuenta' id='idCuenta' >
-                            <div class="input-group-append">
-                                <button
-                                type="button"
-                                class="btn btn-warning"
-                                onclick="listaCuentasBusqueda();"
-                                >
-                                <i>🔍</i>
-                                </button>
+                            <div class="form-group">
+                                <label>
+                                <i class="text-danger">*</i>
+                                <strong> DESCRIPCIÓN CUENTA:</strong>
+                                </label>
+                                <div class="input-group">
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Buscar cuenta..."
+                                        list="listaCuentas"
+                                        id="txtCuenta" 
+                                        name="txtCuenta"
+                                    />
+                                    <datalist id='listaCuentas'></datalist>
+                                    <input type='hidden' name='idCuenta' id='idCuenta' >
+                                    <div class="input-group-append">
+                                        <button
+                                        type="button"
+                                        class="btn btn-warning"
+                                        onclick="listaCuentasBusqueda();"
+                                        >
+                                        <i>🔍</i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            </div>
-                        </div>
                         </div>
 
                         <div class="col-md-2">
-                        <div class="form-group">
-                            <label>
-                            <i class="text-danger">*</i>
-                            <strong> TIPO:</strong>
-                            </label>
-                            <select class="form-control" id="txtTipoMovimiento" name="txtTipoMovimiento">
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label>
+                                <i class="text-danger">*</i>
+                                <strong> TIPO:</strong>
+                                </label>
+                                <select class="form-control" id="txtTipoMovimiento" name="txtTipoMovimiento">
+                                </select>
+                            </div>
                         </div>
 
                         <div class="col-md-2">

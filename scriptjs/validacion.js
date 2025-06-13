@@ -19,7 +19,14 @@ function visualizarValidaciones(validaciones)
             campo2 = array3.split(":");
             nombrecampo = campo2[0];
             mensaje     = campo2[1];
-            activarCampoTexto(nombrecampo,mensaje);
+            if(nombrecampo=="txtCuenta")
+            {
+                activarCampoTextoCuenta(nombrecampo,mensaje);
+            }
+            else
+            {
+                activarCampoTexto(nombrecampo,mensaje);
+            }
         }
         else
         {
@@ -51,12 +58,36 @@ function eliminaMensajeErrorCombos()
 
 function activarCampoTexto(idTexto, mensaje)
 {
-    
     $('#'+idTexto).parent().addClass('form-group has-danger')
     $('#'+idTexto).addClass('form-control-danger')
-    $('#'+idTexto).parent().append('<div class="msje_error"><small><label class="error text-danger">'+mensaje+'</label></small></div> </div>')
+    // $('#'+idTexto).parent().append('<div class="msje_error"><small><label class="error text-danger">'+mensaje+'</label></small></div>')
+    $('#' + idTexto).after(
+        '<div class="msje_error mt-1"><small class="text-danger">' + mensaje + '</small></div>'
+    );
     resp = false;        
     return resp;
+}
+function activarCampoTextoCuenta(idTexto, mensaje)
+{
+    
+    const $campo = $('#' + idTexto);
+    const $inputGroup = $campo.closest('.input-group');
+    const $grupo = $campo.closest('.form-group');
+
+    // Elimina cualquier mensaje anterior
+    $grupo.find('.msje_error').remove();
+
+    // Añade clases de error
+    $campo.addClass('is-invalid');
+    $grupo.addClass('has-danger');
+
+    // Agrega el mensaje debajo de toda la estructura del input group
+    $inputGroup.after(`
+        <div class="msje_error mt-1">
+            <small class="text-danger">${mensaje}</small>
+        </div>
+    `);      
+    return false;
 }
 
 function activarCampoCombos(idTexto, mensaje)
