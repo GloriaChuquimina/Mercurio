@@ -37,7 +37,7 @@ function cargarCombos()
 function cargarCuentas(){
 
 
-    var enlace = base_url + "Contabilidad/PlanDeCuentas/listarPlanDeCuentasBusqueda";
+    var enlace = base_url + "Contabilidad/Comprobante/listarPlanDeCuentasBusquedaComprobante";
     $('#tbl_CuentasContables').DataTable({
         destroy: true,
         "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
@@ -88,8 +88,6 @@ $(function (){
             $('#nombre_entidad').text(nombre_entidad);
             cargarTablaComprobantesEntidades(id_entidad);
         });
-
-
         /* Valida  numeros en los textos */ 
         $("#txtImporte").keypress(function (e) {
             var keyCode = e.keyCode || e.which;
@@ -98,40 +96,50 @@ $(function (){
             }
         });
 
-        $("#txtImporte").on("input", function () {
-            let valor = $(this).val();
+        // $("#txtImporte").on("input", function () {
+        //     let valor = $(this).val();
 
-            // Reemplaza cualquier coma por punto (por si alguien pone , como separador decimal)
-            valor = valor.replace(",", ".");
+        //     // Reemplaza cualquier coma por punto (por si alguien pone , como separador decimal)
+        //     valor = valor.replace(",", ".");
 
-            // Verifica si el número tiene más de 2 decimales
-            if (/^\d+(\.\d{0,2})?$/.test(valor) || valor === "") {
-                // válido, se permite
-                $(this).data("oldValue", valor);
-            } else {
-                // no válido, restaura el valor anterior
-                $(this).val($(this).data("oldValue") || "");
-            }
-        });
+        //     // Verifica si el número tiene más de 2 decimales
+        //     if (/^\d+(\.\d{0,3})?$/.test(valor) || valor === "") {
+        //         // válido, se permite
+        //         $(this).data("oldValue", valor);
+        //         // $('#txtImporte').val(new Intl.NumberFormat('es-MX').format(data.valoradquisicion));
+        //     } else {
+        //         // no válido, restaura el valor anterior
+        //         $(this).val($(this).data("oldValue") || "");
+        //         // $('#txtImporte').val(new Intl.NumberFormat('es-MX').format(data.valoradquisicion));
+        //     }
+        // });
+        // preservarComasAuxiliar1();
 
-
-        preservarComasAuxiliar1();
-        restaurarComasAuxiliar1();
-        quitarComaNumeroDecimal1();
+        // restaurarComasAuxiliar1();
+        // quitarComaNumeroDecimal1();
 
 });
-function preservarComasAuxiliar1()
+
+// function preservarComasAuxiliar1()
+// {
+//     valorImporte = $('#txtImporte').val() ;
+//     $('#txtImporte').val(new Intl.NumberFormat('es-MX').format(valorImporte));
+// }
+// function restaurarComasAuxiliar1()
+// {
+//     $('#txtImporte').val(valorAdquisicion ) ;
+// }
+// function quitarComaNumeroDecimal1()
+// {
+//     var a = $('#txtImporte').val().split(",").join(""); 
+//     $('#txtImporte').val( a );
+// }
+function busquedaIDCuenta(id_cuenta,cuenta)
 {
-    valorImporte = $('#txtImporte').val() ;
-}
-function restaurarComasAuxiliar1()
-{
-    $('#txtImporte').val(valorAdquisicion ) ;
-}
-function quitarComaNumeroDecimal1()
-{
-    var a = $('#txtImporte').val().split(",").join(""); 
-    $('#txtImporte').val( a );
+
+     $('#id_cuenta').val( id_cuenta) ;
+     $('#txtCuenta').val( cuenta) ;
+     $('#modalListaCuentas').modal('hide');  
 }
 
 function cargarTablaComprobantesEntidades(id_entidad)
@@ -173,7 +181,7 @@ function agregarRegistroComprobante()
     eliminaMensajeError();
     eliminaMensajeErrorCombos();
     $('#txtAccionMovimiento').val('nuevo');
-    alert (id_entidad);
+    // alert (id_entidad);
     $('#id_entidad_registro').val(id_entidad);
     $('#nombreEntidad').text(nombre_entidad);
     var tipo_cambio=$('#txtTipoCambio').val();
@@ -207,6 +215,8 @@ function guardarRegistroCuenta()
     var tipo_movimiento           = $('#txtTipoMovimiento').val();
     var tipo_movimiento_literal   = $('#txtTipoMovimiento option:selected').text();
     var importe                   = $('#txtImporte').val();
+    var importeFormato            = importe.split(",").join("");
+
     // var tipo_cambio               = 6.96;
     var tipo_cambio               = $('#txtTipoCambio').val();
     var glosa_cuenta              = $('#txtGlosaCuenta').val();
@@ -222,7 +232,7 @@ function guardarRegistroCuenta()
                 data:datos,
                 success:function(data)
                 {
-                    alert(data);
+                    // alert(data);
                     var result =JSON.parse(data);
                     $.each(result,function(i,datos){
                         if(datos.resultado == 0)
@@ -233,86 +243,114 @@ function guardarRegistroCuenta()
 						else
                         {
                             swal("!Excelente!","SE REGISTRO CORRECTAMENTE","success");
-                            // $("#modalOpciones").modal('hide'); 
-                            // cargarTablaOpciones(datos.id_aplicacion,datos.id_modulo);
-                            // $('#aplicacionesOpciones option[value="'+datos.id_aplicacion+'"]').prop('selected','selected');
-                            // $('#modulosOpciones option[value="'+datos.id_modulo+'"]').prop('selected','selected');
+                            /****************************************************** */
+                            // quitarComaNumeroDecimal1();
+
+                            if(accion == 'nuevo')
+                            {
+                                var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
+                                $('#registroCuentaT').val(cadRegistroCuentaT);
+                                //  inicializarDatos();
+                                //  cargarEntidadDocumentoT('tablaNormativaTransferencia','TRA');
+                                //  cargarEntidadDocumentoT('tablaNormativaAdministracion','ADM');
+                                // var entidadT= $('#txtidregistro').val();
+                                var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
+                                $('#tablaRegistroCuenta').DataTable({
+                                    destroy: true,
+                                    searching: true,
+                                    fixedHeader: true,
+                                    scrollY: '300px',   // Altura del contenedor visible
+                                    scrollCollapse: true,
+                                    paging: false,
+                                    "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+                                    "iDisplayLength": 5,
+                                    "ajax": {
+                                        type: "POST",
+                                        url: enlace,
+                                        data: { accion: accion, 
+                                                cuenta: cadRegistroCuentaT, 
+                                                id_entidad: id_entidad
+                                            },
+
+                                        dataSrc: function(json) {
+
+                                                // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
+                                                $('.txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
+                                                $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
+                                                $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
+                                                $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
+
+                                                return json.data; // Data para el cuerpo de la tabla
+                                            }
+                                    }
+                                    
+                                });
+                            }
+                            /****************************************************** */
+
+                            
                         }
                     });
                 }
             });
-
-    //  if(accion == 'nuevo')
-    //  {
-    //      var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
-    //      $('#registroCuentaT').val(cadRegistroCuentaT);
-    //     //  inicializarDatos();
-    //     //  cargarEntidadDocumentoT('tablaNormativaTransferencia','TRA');
-    //     //  cargarEntidadDocumentoT('tablaNormativaAdministracion','ADM');
-    //     // var entidadT= $('#txtidregistro').val();
-    //     var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
-    //     $('#tablaRegistroCuenta').DataTable({
-    //         destroy: true,
-    //         searching: true,
-    //         fixedHeader: true,
-    //         scrollY: '300px',   // Altura del contenedor visible
-    //         scrollCollapse: true,
-    //         paging: false,
-    //         "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
-    //         "iDisplayLength": 5,
-    //         "ajax": {
-    //             type: "POST",
-    //             url: enlace,
-    //             data: { accion: accion, 
-    //                     cuenta: cadRegistroCuentaT, 
-    //                     id_entidad: id_entidad
-    //                   },
-
-    //              dataSrc: function(json) {
-
-    //                     // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-    //                     $('.txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-    //                     $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
-    //                     $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
-    //                     $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
-
-    //                     return json.data; // Data para el cuerpo de la tabla
-    //                 }
-    //         }
-           
-    //     });
-    //  }
-    //  else {
-    //     // var enlace = base_url + "Entidades/Entidades/guardarDocumento";
-    //     // $.ajax({
-    //     //     type: "POST",
-    //     //     url: enlace,
-    //     //     data: { accion: accion, doc: documento, nrodoc: nrodocumento, fechadoc:fecha, tipodoc:'ADM', entidad:entidadT },
-    //     //     dataType: 'JSON',
-    //     //     success: function(data) {
-    //     //             inicializarDatos();
-    //     //            swal({title: "OK",text: data.mensaje,icon: "success",button: "OK",});
-    //     //            cargarEntidadDocumentoT('tablaNormativaAdministracion','ADM');   
-    //     //     }
-    //     // });
-    //  }
      
 }
-function cargarEntidadDocumentoT(tabla, tipo)
+function  guardarRegistroCuentaTemporal()
 {
-    var accionT  = $('#txtaccion').val();
-    if(tipo == 'TRA')
-    {
-        var cadDocumentosT  =  $('#documentosT').val();    
-    }
-    else{
-        var cadDocumentosT  =  $('#documentosA').val();       
-    }
 
-    
-    var entidadT= $('#txtidregistro').val();
-    var enlace = base_url + "Entidades/entidades/cargarTablaDocumentoT";
-    $('#'+tabla).DataTable({
+    /****************************************************** */
+    // quitarComaNumeroDecimal1();
+    if(accion == 'nuevo')
+    {
+        var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
+        $('#registroCuentaT').val(cadRegistroCuentaT);
+        //  inicializarDatos();
+        //  cargarEntidadDocumentoT('tablaNormativaTransferencia','TRA');
+        //  cargarEntidadDocumentoT('tablaNormativaAdministracion','ADM');
+        // var entidadT= $('#txtidregistro').val();
+        var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
+        $('#tablaRegistroCuenta').DataTable({
+            destroy: true,
+            searching: true,
+            fixedHeader: true,
+            scrollY: '300px',   // Altura del contenedor visible
+            scrollCollapse: true,
+            paging: false,
+            "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+            "iDisplayLength": 5,
+            "ajax": {
+                type: "POST",
+                url: enlace,
+                data: { accion: accion, 
+                        cuenta: cadRegistroCuentaT, 
+                        id_entidad: id_entidad
+                    },
+
+                dataSrc: function(json) {listaCuentas
+
+                        // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
+                        $('.txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
+                        $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
+                        $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
+                        $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
+
+                        return json.data; // Data para el cuerpo de la tabla
+                    }
+            }
+            
+        });
+    }
+    /****************************************************** */
+
+}
+function cargarCuentasComprobanteT()
+{
+    var accion                   = $('#txtAccionMovimiento').val();
+    var id_entidad               = $('#id_entidad_registro').val();
+    var cadRegistroCuenta        = $('#registroCuentaT').val();
+
+    var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
+    $('#tablaRegistroCuenta').DataTable({
         destroy: true,
         searching: false,
         paging: false,
@@ -321,7 +359,21 @@ function cargarEntidadDocumentoT(tabla, tipo)
          "ajax": {
             type: "POST",
             url: enlace,
-             data: { accion: accionT, documentos: cadDocumentosT, entidad: entidadT, tipo: tipo},
+            data: { accion: accion, 
+                    cuenta: cadRegistroCuenta, 
+                id_entidad: id_entidad
+                },
+
+            dataSrc: function(json) {
+
+                    // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
+                    $('.txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
+                    $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
+                    $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
+                    $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
+
+                    return json.data; // Data para el cuerpo de la tabla
+                }
         },
     });
 }
@@ -374,4 +426,46 @@ function cargarComprobantesPrincipal()
 {
     // var entidad =$('#entidades').val();
     window.location.href = base_url + "Contabilidad/Comprobante/";
+}
+function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,tipo_movimiento_literal,importe,tipo_cambio,glosa_cuenta,cadRegistroCuenta)
+{
+    swal({
+        title: 'ATENCIÓN',
+        text: "¿Está seguro de eliminar el registro de cuenta del comprobante?",
+        icon: 'warning',
+        dangerMode: true,
+        buttons: {
+            cancel: "Cancelar",
+            verificar: {
+                text: "ELIMINAR",
+                value: "eliminar",
+            }
+        },
+    })
+    .then(respuesta => {
+        if (respuesta)
+        {
+            var accion  = $('#txtAccionMovimiento').val();
+            var enlace = base_url + "Contabilidad/Comprobante/eliminarRegistroCuenta";
+            $.ajax({
+                type: "POST",
+                url: enlace,
+                data: { accion: accion,
+                     id_cuenta: id_cuenta,
+                  codigoCuenta: codigoCuenta,
+               tipo_movimiento: tipo_movimiento,
+       tipo_movimiento_literal: tipo_movimiento_literal,
+                       importe: importe,
+                   tipo_cambio: tipo_cambio,
+                  glosa_cuenta: glosa_cuenta,
+             cadRegistroCuenta: cadRegistroCuenta
+                      },
+                dataType: 'JSON',
+                success: function(data) {
+                            $('#registroCuentaT').val(data.cuentas);
+                            cargarCuentasComprobanteT();   
+                }
+            });
+        }
+    });
 }

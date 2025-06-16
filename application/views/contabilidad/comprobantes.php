@@ -26,7 +26,6 @@
                         id="entidades"
                         name="entidades"
                         value="selectedEntity"
-                        onChange="handleEntityChange"
                       >
                       </select>
                     </div>

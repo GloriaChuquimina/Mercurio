@@ -8,6 +8,7 @@ class Comprobante extends CI_Controller {
 		$this->_is_logued_in();
 		$this->load->library('form_validation');
         $this->load->model('Comprobantes_model');
+        $this->load->model('PlanDeCuentas_model');
 		$this->load->helper('configuraciones_helper');
 		$this->load->helper('funcionarios_helper');
 		$this->load->helper('correlativos_helper');
@@ -95,7 +96,7 @@ class Comprobante extends CI_Controller {
 
 		// Obtenemos el otro campo relacionado directamente desde POST
 		$idCuenta = $this->input->post('id_cuenta');
-		echo($idCuenta);
+		// echo($idCuenta);
 		// die();
 		if (empty($idCuenta) || !is_numeric($idCuenta)) {
 			$this->form_validation->set_message('verificarValorCuentaBusqueda', 'La cuenta seleccionada no es válida. Seleccione una cuenta válida de la lista.');
@@ -118,10 +119,6 @@ class Comprobante extends CI_Controller {
 	function validarDatosRegistroCuenta()
 	{
  		$data = $this->input->post(); 
-		// echo("<pre>");
-		// print_r($data);
-		// echo("</pre>");
-		// die();
  		$accion 	= $data['txtAccionMovimiento'];
  		// $tipoCorrespondenciaCite = $data['idtipoCorrespondenciaCite'];
 
@@ -138,7 +135,6 @@ class Comprobante extends CI_Controller {
 			}
 			else
 			{
-				// echo("Validaaaaaa");
 				$resul = 0;
 				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
 				$mensaje = formaterarValidacion($mensaje);
@@ -181,14 +177,16 @@ class Comprobante extends CI_Controller {
 		$id_entidad        = $this->input->post('id_entidad');
 		// $tipo = $this->input->post('tipo');
 
-		$resultado   	   = json_decode($this->validarDatos($data));		
-		$resul       	   = $resultado[0]->resultado;
-		$mensaje     	   = $resultado[0]->mensaje;
+		// $resultado   	   = json_decode($this->validarDatos($data));		
+		// $resul       	   = $resultado[0]->resultado;
+		// $mensaje     	   = $resultado[0]->mensaje;
 
-		echo("<pre>");
-		print_r($resultado);
-		echo("</pre>");
-		die();
+		// echo("<pre>");
+		// print_r($resultado);
+		// echo("</pre>");
+		// die();
+
+		$resul =1;
 
 		$data = array();
 		$num =1;
@@ -248,13 +246,15 @@ class Comprobante extends CI_Controller {
 								$importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,4);
 							}
 
-							$boton = "<div style='text-align: center;'>
+							$botonEditar = "<div style='text-align: center;'>
 										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
-											<button type='button' class='btn btn-primary btn-xs mr-1' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i>✏️</i></button>
-										</span>
-										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
-											<button type='button' class='btn btn-danger btn-xs' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."', '". $glosa_cuenta."' )\"><i>🗑️</i></button>
-										</span>
+											<button type='button' class='btn btn-primary btn-xs mr-1' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."','". $glosa_cuenta."' )\"><i>✏️</i></button>
+										</span>										
+									</div>";
+							$botonEliminar = "<div style='text-align: center;'>
+										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro'>
+											<button type='button' class='btn btn-danger btn-xs' onclick=\"eliminarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$cadRegistroCuenta."')\"><i>🗑️</i></button>
+										</span>										
 									</div>";
 							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
 							$data[] = array(
@@ -264,7 +264,7 @@ class Comprobante extends CI_Controller {
 								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaber."</div>",
 								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".$importeDebeUs."</div>",
 								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaberUs."</div>",
-								$boton
+								$botonEliminar
 							);
 							$totalimporteDebe+=$importeDebe;
 							$totalimporteHaber+=$importeHaber;
@@ -555,5 +555,120 @@ class Comprobante extends CI_Controller {
 		echo json_encode($output);
 		exit();
 	}
+	function eliminarRegistroCuenta()
+	{				
+		$accion 				  = $this->input->post('accion');
+		$id_cuenta   			  = $this->input->post('id_cuenta');
+		$codigoCuenta   		  = $this->input->post('codigoCuenta');
+		$tipo_movimiento   		  = $this->input->post('tipo_movimiento');
+		$tipo_movimiento_literal  = $this->input->post('tipo_movimiento_literal');
+		$importe   				  = $this->input->post('importe');
+		$tipo_cambio   			  = $this->input->post('tipo_cambio');
+		$glosa_cuenta   		  = $this->input->post('glosa_cuenta');
+		$cadRegistroCuenta		  = $this->input->post('cadRegistroCuenta');
+
+		$doc  			= $this->input->post('doc');
+		$nrodoc   		= $this->input->post('nrodoc');
+		$fechadoc 		= $this->input->post('fechadoc');
+		$cadDocumentos 	=$this->input->post('documentos');
+		if(trim($accion) == 'nuevo')
+		{
+			$cadCuentas = str_replace('*'.$id_cuenta.'*'.$codigoCuenta.'*'.$tipo_movimiento.'*'.$tipo_movimiento_literal.'*'.$importe.'*'.$tipo_cambio.'*'.$glosa_cuenta."|","",$cadRegistroCuenta);
+			$mensaje = array("resultado" => 1 , "mensaje"=>"Se ha eliminado el registro", "cuentas"=> $cadCuentas);
+		}
+		else{
+			$data = array (
+			'estado' => 'AN',
+			'fecha' => date('Y-m-d H:i:s')
+			);
+			$filas = $this->entidaddocumento_model->updateEntidadDocumento($id,$data);
+			$mensaje = array("resultado" => 1 , "mensaje"=>"Se ha eliminado el registro", "cuentas"=>"");
+		}	
+		echo json_encode($mensaje);
+	}	
+
+
+	private function ordenarJerarquicamente($cuentas, $padreId = 0, $indentacion = 0)
+	{
+		$ordenadas = [];
+
+		foreach ($cuentas as $cuenta) {
+			if ($cuenta['padre'] == $padreId) {
+				// Buscar si esta cuenta tiene hijos
+				$tieneHijos = false;
+				foreach ($cuentas as $posibleHijo) {
+					if ($posibleHijo['padre'] == $cuenta['id']) {
+						$tieneHijos = true;
+						break;
+					}
+					elseif($posibleHijo['padre'] == $cuenta['ruta'])/*ojo*/
+					{
+						$tieneHijos = true;
+						break;
+					}
+				}
+				// Añadir campo extra
+				$cuenta['indentacion'] = $indentacion;
+				$cuenta['es_padre'] = $tieneHijos;
+
+				// Agregar la cuenta ordenada
+				$ordenadas[] = $cuenta;
+
+				// Agregar recursivamente los hijos
+				$ordenadas = array_merge($ordenadas, $this->ordenarJerarquicamente($cuentas, $cuenta['id'], $indentacion + 1));
+			}
+		}
+
+		return $ordenadas;
+	}
+	public function listarPlanDeCuentasBusquedaComprobante()
+    {
+		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
+		$cuentas = json_decode(json_encode($cuentas), true);
+		$ordenadas = $this->ordenarJerarquicamente($cuentas);
+
+		// echo json_encode($ordenadas);
+		// die();
+		
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		foreach ($ordenadas as $fila)
+		{   
+			$cuenta= $fila['codigo']."-". $fila['descripcion'];
+			$boton   = "
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Seleccionar'>
+                            <button type='button' class='btn btn-success btn-sm' onclick=\"busquedaIDCuenta(".$fila['id'].",'".$cuenta."')\"><i>✓</i></button>     
+                        </span>				
+                        ";		
+
+			$indentacion = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
+			$descripcion = $fila['descripcion'];
+			$codigo      = $fila['codigo'];
+
+			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
+				$descripcion = "<strong><u>{$descripcion}</u></strong>";
+				$codigo =  "<strong><u>{$codigo}</u></strong>";
+			}
+			$data[] = array(
+				"<div style='text-align: center;'>$boton</div>",
+				"<span class='badge badge-secondary'>".$codigo."</span>",
+				$descripcion
+			);
+		}
+
+		// die();
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($ordenadas),
+			"recordsFiltered" => count($ordenadas),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
+    }
 	
 }

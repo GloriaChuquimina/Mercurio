@@ -1,5 +1,6 @@
 <script src="<?php echo  base_url() ?>scriptjs/jquery.js"></script>
 <script src="<?php echo  base_url() ?>scriptjs/validacion.js"></script>
+
 <!-- <script src="<?php echo  base_url() ?>scriptjs/entidades/entidades.js"></script> -->
 <script src="<?php echo  base_url() ?>scriptjs/contabilidad/comprobantes.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>resources/css/global.css">
@@ -258,7 +259,7 @@
                             <i class="text-danger">*</i>
                             <strong> IMPORTE:</strong>
                             </label>
-                            <input type="number" id="txtImporte" name="txtImporte" class="form-control text-right" placeholder="0.00" step="0.01" />
+                            <input type="text" id="txtImporte" name="txtImporte" class="form-control text-right" placeholder="0.00" />
                         </div>
                         </div>
                     </div>
@@ -339,4 +340,16 @@
     //   cargarPerfilesUsuarios(tipoPerfil); 
     //   cargarTablaComprobantes();
     });
+</script>  
+<script src="<?php echo  base_url() ?>scriptjs/cleave.min.js"></script>
+<script type="text/javascript">   
+    if($("#txtImporte").length > 0  )  {     
+        new Cleave('#txtImporte', {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        numeralDecimalMark: '.',
+        delimiter: ',',
+        numeralIntegerScale: 20,          // permite hasta 20 dígitos 
+        });
+    }    
 </script>  
