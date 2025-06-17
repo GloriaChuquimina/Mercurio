@@ -45,18 +45,13 @@ class Comprobante extends CI_Controller {
 	}
 	public function registroComprobante($entidad,$accion='nuevo')
 	{
-		//$this->load->library('googlemaps');
-
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
 		$dato['nombre_sistema']  = "SISTEMA CONTABLE <BR>MERCURIO";
-		
-
 		$id_usuario = $this->session->userdata('id_usuario');
 		$dato['rolescero'] = $this->session->userdata('rolescero');
 		$dato['roles']  = $this->session->userdata('roles');
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
 		$dato['nombre_entidad']  = descripcion_nombre_entidad($entidad);
-		// $dato['nombre_entidad']  = $entidad;
 		$dato['entidad']  = $entidad;
 		$dato['accion']  = $accion;
 
@@ -82,37 +77,14 @@ class Comprobante extends CI_Controller {
 	}
 	function verificarValorCuentaBusqueda()
 	{
-		// echo ($valor);
-		// if($valor == -1 || strlen($valor) == 0)
-		// {
-		// 	$this->form_validation->set_message('verificarValorCuentaBusqueda', 'La cuenta seleccionada no se encuentra registrada. Por favor, verifique la información ingresada.');
-		// 	return false;
-		// }
-		// else
-		// {
-		// 	return true;	
-		// }
 
-
-		// Obtenemos el otro campo relacionado directamente desde POST
 		$idCuenta = $this->input->post('id_cuenta');
-		// echo($idCuenta);
-		// die();
+
 		if (empty($idCuenta) || !is_numeric($idCuenta)) {
 			$this->form_validation->set_message('verificarValorCuentaBusqueda', 'La cuenta seleccionada no es válida. Seleccione una cuenta válida de la lista.');
 			return FALSE;
 		}
-
-		// Opcional: verificar si el ID existe en la base de datos
-		// $cuentaValida = $this->Cuenta_model->existeCuentaPorId($idCuenta); // Debes crear este método
-
-		// if (!$cuentaValida) {
-		// 	$this->form_validation->set_message('verificarValorCuentaBusqueda', 'La cuenta no se encuentra registrada. Verifique nuevamente.');
-		// 	return FALSE;
-		// }
-
 		return TRUE;
-
 	}
 
 
@@ -120,8 +92,6 @@ class Comprobante extends CI_Controller {
 	{
  		$data = $this->input->post(); 
  		$accion 	= $data['txtAccionMovimiento'];
- 		// $tipoCorrespondenciaCite = $data['idtipoCorrespondenciaCite'];
-
  		$this->form_validation->set_data($data);
  		$resul = 1;
 		$mensaje = "OK";
@@ -175,17 +145,6 @@ class Comprobante extends CI_Controller {
 		$accion 		   = $this->input->post('accion');
 		$cadRegistroCuenta = $this->input->post('cuenta');
 		$id_entidad        = $this->input->post('id_entidad');
-		// $tipo = $this->input->post('tipo');
-
-		// $resultado   	   = json_decode($this->validarDatos($data));		
-		// $resul       	   = $resultado[0]->resultado;
-		// $mensaje     	   = $resultado[0]->mensaje;
-
-		// echo("<pre>");
-		// print_r($resultado);
-		// echo("</pre>");
-		// die();
-
 		$resul =1;
 
 		$data = array();
@@ -216,34 +175,14 @@ class Comprobante extends CI_Controller {
 
 							$codigoCuenta = explode("-",$cuenta);
 							list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
-							// echo ("A->".$ini);
-							// echo("<br>");
-							// echo ("B->".$id_cuenta);
-							// echo("<br>");
-							// echo ("C->".$cuenta);
-							// echo("<br>");
-							// echo ("D->".$tipo_movimiento);
-							// echo("<br>");
-							// echo ("E->".$tipo_movimiento_literal);
-							// echo("<br>");
-							// echo ("F->".$importe);
-							// echo("<br>");
-							// echo ("G->".$tipo_cambio);
-							// echo("<br>");
-							// echo ("H->".$glosa_cuenta);
-							// echo("<br>");
-							// echo ("I->".$codigo_cuenta);
-							// echo("<br>");
-							// echo ("J->".$descripcion_cuenta);
-							// die();
 							if($tipo_movimiento == "DB")
 							{
 								$importeDebe=$importe;
-								$importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,4);
+								$importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
 							}
 							elseif ($tipo_movimiento == "HB") {
 								$importeHaber=$importe;
-								$importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,4);
+								$importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
 							}
 
 							$botonEditar = "<div style='text-align: center;'>
@@ -260,10 +199,10 @@ class Comprobante extends CI_Controller {
 							$data[] = array(
 								"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
 								$cuenta_registro,
-								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".$importeDebe."</div>",
-								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaber."</div>",
-								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".$importeDebeUs."</div>",
-								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".$importeHaberUs."</div>",
+								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
+								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
+								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
+								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
 								$botonEliminar
 							);
 							$totalimporteDebe+=$importeDebe;
@@ -334,10 +273,7 @@ class Comprobante extends CI_Controller {
 			$fecha_comprobante    = $data['txtFecha'];
 			$tipo_cambio	      = $data['txtTipoCambio'];
 			$glosa_general	      = $data['txtGlosaGeneral'];
-
 			$correlativo		  = 0;
-			// $periodo			  = 0;
-			// $gestion			  = gestion_actual();
 			$periodo        	  = date("Ym", strtotime($fecha_comprobante));
 			$gestion        	  = date("Y", strtotime($fecha_comprobante));
 
@@ -366,15 +302,7 @@ class Comprobante extends CI_Controller {
 				if($saveComprobante)
 				{
 					/*REGISTRO DE CUENTAS DEL COMPROBANTE*/
-					// echo("<br>");
-					// print_r($detalleComprobante);
 					$filas = explode("|", $detalleComprobante);
-					// echo("<br>");
-					// print_r($filas);
-					// echo("<br>");
-					// echo ("Cantidad de Filas->".count($filas));
-					// echo("<br>");
-					// die();
 					if(!empty($filas))
 					{
 						foreach($filas as $fila)
@@ -382,15 +310,8 @@ class Comprobante extends CI_Controller {
 							if(!empty($fila) && $fila != "undefined" && $fila != "null")
 							{
 								$row = explode("*", $fila);
-								// echo("<br>");
-								// echo ("A->".$fila);
-								// echo("<br>");
-								// echo ("B->".$row[0]);
-								// echo("<br>");
-								// echo ("Contador->".count($row));
 								if(!isset($row[0]) || empty($row[0]))
 								{
-									// echo("VERDAD");
 									list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta) = $row;
 									$importe=$importe;
 									$importeUs=$importe*$tipo_cambio;
@@ -405,10 +326,6 @@ class Comprobante extends CI_Controller {
 										'glosa_cuenta'              => $glosa_cuenta,
 										'id_usuario_registro'       => $id_usuario					
 									);
-									// echo("<br>");
-									// print_r($datosComprobanteDetalle);
-									// echo("<br>");
-									// die();
 									$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
 									if($detalle_comprobante)
 									{
@@ -439,9 +356,6 @@ class Comprobante extends CI_Controller {
 														
 						}
 					}
-
-					// $resul = 1;
-					// $mensaje = "SE REGISTRO CORRECTAMENTE";
 				}
 				else
 				{
@@ -473,25 +387,15 @@ class Comprobante extends CI_Controller {
 			
 		}
 
-		// $resultado ='[{
-		// 				"resultado":"'.$resul.'",
-		// 				"mensaje":"'.$mensaje.'"
-		// 			 }]';
-
-		// echo $resultado;
-
 
 		/****************** */
 		/******TRANSACT*****/
 		/****************** */
 		if ($this->db->trans_status() === FALSE && $resul == 1) { 
 			$this->db->trans_rollback(); // Deshacer los cambios si hay un error
-			// echo "Transacción fallida";
 			$resultado = 0;
-			// echo '[{"resultado":"'.$resultado.'","mensaje":"'.$mensaje.'"}]';
 		} else {
 			$this->db->trans_commit(); // Confirmar los cambios si todo está bien
-			// echo "Transacción exitosa";
 			$resultado = 1;
 		}
 		echo '[{"resultado":"'.$resultado.'",
@@ -510,11 +414,6 @@ class Comprobante extends CI_Controller {
 
 		$id_entidad  = $this->input->post('id_entidad');
 		$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidad($id_entidad);
-		// echo("<pre>");
-		// echo($id_entidad);
-		// echo("<br>");
-		// print_r($filas);
-		// echo("</pre>");
 
 		foreach ($filas as $fila)
 		{   
@@ -527,13 +426,7 @@ class Comprobante extends CI_Controller {
                         </span>	
                         ";	
 						
-			// echo("<br>");
-			// echo("Tipo Comprobante***->".$fila->tipo_comprobante);
-			// echo("<br>");
 			$tipo_comprobante = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
-			// echo("<br>");
-			// echo("Tipo Comprobante->".$tipo_comprobante);
-			// echo("<br>");
 			$nombre_entidad =descripcion_nombre_entidad($fila->id_entidad);
 			$estado =getValor2Configuraciones("ESTADO REGISTRO", $fila->estado);
 			$data[] = array(
@@ -626,9 +519,6 @@ class Comprobante extends CI_Controller {
 		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
 		$cuentas = json_decode(json_encode($cuentas), true);
 		$ordenadas = $this->ordenarJerarquicamente($cuentas);
-
-		// echo json_encode($ordenadas);
-		// die();
 		
 		$draw    = intval($this->input->get("draw"));
 		$start   = intval($this->input->get("start"));

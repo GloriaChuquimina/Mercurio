@@ -41,9 +41,23 @@ function visualizarValidaciones(validaciones)
 }
 function eliminaMensajeError()
 {
-    $(".msje_error").each(function(){
-        $(this).parent().children('input[type=text] ,select ').removeClass('form-control-danger');
-        $(this).parent().removeClass('has-danger');
+    // $(".msje_error").each(function(){
+    //     $(this).parent().children('input[type=text] ,select ').removeClass('form-control-danger');
+    //     $(this).parent().removeClass('has-danger');        
+    //     $(this).remove();
+    // });
+      $(".msje_error").each(function(){
+        // Buscar el input o select hermano más cercano dentro del mismo grupo
+        let $grupo = $(this).closest('.form-group');
+
+        // Eliminar clases de error de los campos dentro del grupo
+        $grupo.find('input, select, textarea')
+              .removeClass('form-control-danger is-invalid');
+
+        // Eliminar clases del grupo contenedor
+        $grupo.removeClass('has-danger');
+
+        // Eliminar el mensaje de error
         $(this).remove();
     });
 }

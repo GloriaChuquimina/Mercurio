@@ -198,11 +198,11 @@
                 <!-- CAMPOS OCULTOS -->
                 <input type="hidden" class="form-control" id="txtAccionComprobante" name="txtAccionComprobante">
                 <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
-                <input class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
-                <input class="form-control" id="id_entidad_registro" name="id_entidad_registro">
-                <input class="form-control" id="id_cuenta" name="id_cuenta">
-                <input class="form-control" id="registroCuentaT" name="registroCuentaT">
-                <input class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
+                <input type="hidden" class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
+                <input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+                <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                <input type="hidden" class="form-control" id="registroCuentaT" name="registroCuentaT">
+                <input type="hidden" class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
                 <div class="card card-outline card-info">
                     <div class="card-header">
                     <h7 class="card-title">
@@ -352,4 +352,4 @@
         numeralIntegerScale: 20,          // permite hasta 20 dígitos 
         });
     }    
-</script>  
+ </script>  

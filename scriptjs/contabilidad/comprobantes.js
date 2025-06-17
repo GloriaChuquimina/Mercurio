@@ -36,7 +36,6 @@ function cargarCombos()
 }
 function cargarCuentas(){
 
-
     var enlace = base_url + "Contabilidad/Comprobante/listarPlanDeCuentasBusquedaComprobante";
     $('#tbl_CuentasContables').DataTable({
         destroy: true,
@@ -96,44 +95,8 @@ $(function (){
             }
         });
 
-        // $("#txtImporte").on("input", function () {
-        //     let valor = $(this).val();
-
-        //     // Reemplaza cualquier coma por punto (por si alguien pone , como separador decimal)
-        //     valor = valor.replace(",", ".");
-
-        //     // Verifica si el número tiene más de 2 decimales
-        //     if (/^\d+(\.\d{0,3})?$/.test(valor) || valor === "") {
-        //         // válido, se permite
-        //         $(this).data("oldValue", valor);
-        //         // $('#txtImporte').val(new Intl.NumberFormat('es-MX').format(data.valoradquisicion));
-        //     } else {
-        //         // no válido, restaura el valor anterior
-        //         $(this).val($(this).data("oldValue") || "");
-        //         // $('#txtImporte').val(new Intl.NumberFormat('es-MX').format(data.valoradquisicion));
-        //     }
-        // });
-        // preservarComasAuxiliar1();
-
-        // restaurarComasAuxiliar1();
-        // quitarComaNumeroDecimal1();
-
 });
 
-// function preservarComasAuxiliar1()
-// {
-//     valorImporte = $('#txtImporte').val() ;
-//     $('#txtImporte').val(new Intl.NumberFormat('es-MX').format(valorImporte));
-// }
-// function restaurarComasAuxiliar1()
-// {
-//     $('#txtImporte').val(valorAdquisicion ) ;
-// }
-// function quitarComaNumeroDecimal1()
-// {
-//     var a = $('#txtImporte').val().split(",").join(""); 
-//     $('#txtImporte').val( a );
-// }
 function busquedaIDCuenta(id_cuenta,cuenta)
 {
 
@@ -180,6 +143,7 @@ function agregarRegistroComprobante()
 {
     eliminaMensajeError();
     eliminaMensajeErrorCombos();
+    limpiarModalRegistro();
     $('#txtAccionMovimiento').val('nuevo');
     // alert (id_entidad);
     $('#id_entidad_registro').val(id_entidad);
@@ -192,22 +156,6 @@ function agregarRegistroComprobante()
 }
 function guardarRegistroCuenta()
 {
-    // var entidadT= $('#txtidregistro').val();
-     
-    //  var cadDocumentosA  =  $('#documentosA').val();
-    //  var documento  = $('#documentoAdm').val();
-    //  var nrodocumento  = $('#txtnrodocumentoAdm').val();
-    //  var fecha  = $('#txtfechaAdm').val();
-    //  if(fecha =="" && documento ==-1 && nrodocumento == ""  )
-    //  {
-    //     alert("Debe ingresar algun Documento,Nro. documento y Fecha");
-    //     return false;
-    //  }
-    //  if(fecha =="" || documento ==-1 )
-    //  { 
-    //     alert("Debe ingresar algun Documento y Fecha");
-    //     return false;
-    //  }
     var accion                    = $('#txtAccionMovimiento').val();
     var id_entidad                = $('#id_entidad_registro').val();
     var id_cuenta                 = $('#id_cuenta').val();
@@ -216,8 +164,6 @@ function guardarRegistroCuenta()
     var tipo_movimiento_literal   = $('#txtTipoMovimiento option:selected').text();
     var importe                   = $('#txtImporte').val();
     var importeFormato            = importe.split(",").join("");
-
-    // var tipo_cambio               = 6.96;
     var tipo_cambio               = $('#txtTipoCambio').val();
     var glosa_cuenta              = $('#txtGlosaCuenta').val();
 
@@ -242,7 +188,7 @@ function guardarRegistroCuenta()
                         }
 						else
                         {
-                            swal("!Excelente!","SE REGISTRO CORRECTAMENTE","success");
+                            
                             /****************************************************** */
                             // quitarComaNumeroDecimal1();
 
@@ -250,10 +196,6 @@ function guardarRegistroCuenta()
                             {
                                 var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
                                 $('#registroCuentaT').val(cadRegistroCuentaT);
-                                //  inicializarDatos();
-                                //  cargarEntidadDocumentoT('tablaNormativaTransferencia','TRA');
-                                //  cargarEntidadDocumentoT('tablaNormativaAdministracion','ADM');
-                                // var entidadT= $('#txtidregistro').val();
                                 var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
                                 $('#tablaRegistroCuenta').DataTable({
                                     destroy: true,
@@ -279,12 +221,13 @@ function guardarRegistroCuenta()
                                                 $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
                                                 $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
                                                 $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
-
                                                 return json.data; // Data para el cuerpo de la tabla
                                             }
                                     }
                                     
                                 });
+                                swal("!Excelente!","SE REGISTRO CORRECTAMENTE","success");
+                                registro();
                             }
                             /****************************************************** */
 
@@ -295,6 +238,50 @@ function guardarRegistroCuenta()
             });
      
 }
+function registro()
+{
+     swal({
+        title: 'ATENCIÓN',
+        text: "¿Desea seguir añadiendo registros?",
+        icon: 'warning',
+        dangerMode: true,
+        buttons: {
+            cancel: "NO",
+            verificar: {
+                text: "SI",
+                value: "si",
+            }
+        },
+    })
+    .then(respuesta => {
+        if (respuesta)
+        {
+           //Limpiar cajas de texto
+           limpiarModalRegistro();
+           eliminaMensajeError();
+           eliminaMensajeErrorCombos();
+        }
+        else
+        {
+            $('#modalRegistroMovimiento').modal('hide');  
+        }
+    });
+}
+function limpiarModalRegistro()
+{
+    $('#txtCuenta').val('');
+    var enlace = base_url + "Comunes/Comunes/cargarTipoMovimiento";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#txtTipoMovimiento').html(data);
+        }
+    });
+    $('#txtImporte').val('');
+    $('#txtGlosaCuenta').val('');
+    $('#id_cuenta').val('');
+}
 function  guardarRegistroCuentaTemporal()
 {
 
@@ -304,10 +291,6 @@ function  guardarRegistroCuentaTemporal()
     {
         var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
         $('#registroCuentaT').val(cadRegistroCuentaT);
-        //  inicializarDatos();
-        //  cargarEntidadDocumentoT('tablaNormativaTransferencia','TRA');
-        //  cargarEntidadDocumentoT('tablaNormativaAdministracion','ADM');
-        // var entidadT= $('#txtidregistro').val();
         var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
         $('#tablaRegistroCuenta').DataTable({
             destroy: true,
@@ -408,8 +391,6 @@ function guardarDatosComprobanteMasDetalle()
                 if(datos.resultado == 1)
                 {
                     swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
-                    // cargarTablaEntidades();
-                    // $('#modalEntidad').modal('hide');
                     cargarComprobantesPrincipal();
                 }
                 else
