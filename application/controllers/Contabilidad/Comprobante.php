@@ -86,7 +86,30 @@ class Comprobante extends CI_Controller {
 		}
 		return TRUE;
 	}
+	function verificarEntidad()
+	{
 
+		// $idEntidad = $this->input->post('id_entidad');
+		$idEntidad = '123';
+		return ($idEntidad);
+		// die();
+
+		// if (empty($idEntidad) || !is_numeric($idEntidad)) {
+		// 	$this->form_validation->set_message('verificarEntidad', 'No se ha registrado una entidad para asociar el comprobante.');
+		// 	return FALSE;
+		// }
+		// return TRUE;
+	}
+	public function fecha_valida()
+	{
+		$fecha = $this->input->post('txtFecha');
+		if (DateTime::createFromFormat('Y-m-d', $fecha) !== false) {
+			return true;
+		} else {
+			$this->form_validation->set_message('fecha_valida', 'El campo {field} no contiene una fecha válida.');
+			return false;
+		}
+	}
 
 	function validarDatosRegistroCuenta()
 	{
@@ -157,11 +180,13 @@ class Comprobante extends CI_Controller {
 		$totalimporteHaber=0;
 		$totalimporteDebeUs=0;
 		$totalimporteHaberUs=0;
+		$nro_registros=0;
 		if($resul == 1)
 		{
 				if($accion == "nuevo")
 				{  
 					$filas = explode("|", $cadRegistroCuenta);  
+					$nro_registros = count($filas)-1;
 					foreach($filas as $fila )
 					{
 						$importeDebe=0;
@@ -178,11 +203,13 @@ class Comprobante extends CI_Controller {
 							if($tipo_movimiento == "DB")
 							{
 								$importeDebe=$importe;
-								$importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
+								// $importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
+								$importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
 							}
 							elseif ($tipo_movimiento == "HB") {
 								$importeHaber=$importe;
-								$importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
+								// $importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
+								$importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
 							}
 
 							$botonEditar = "<div style='text-align: center;'>
@@ -236,17 +263,66 @@ class Comprobante extends CI_Controller {
 		}	
 		 $output = array(
             "draw" => $draw,
-            "recordsTotal" => count($filas),
-            "recordsFiltered" => count($filas),
-            "totalimporteDebe" => $totalimporteDebe,
-            "totalimporteHaber" => $totalimporteHaber,
-            "totalimporteDebeUs" => $totalimporteDebeUs,
-            "totalimporteHaberUs" => $totalimporteHaberUs,
+            "recordsTotal" => count($filas)-1,
+            "recordsFiltered" => count($filas)-1,
+            "nro_registros" => $nro_registros,
+            "totalimporteDebe" => number_format($totalimporteDebe,2,'.',','),
+            "totalimporteHaber" => number_format($totalimporteHaber,2,'.',','),
+            "totalimporteDebeUs" => number_format($totalimporteDebeUs,2,'.',','),
+            "totalimporteHaberUs" => number_format($totalimporteHaberUs,2,'.',','),
             "data" => $data
         );
 	    echo json_encode($output);
 	    exit();
 	}	
+	function validarDatos($data)
+	{
+
+ 		$txtAccion 	= $data['txtAccionComprobante'];
+
+
+ 		$this->form_validation->set_data($data);
+ 		$resul = 1;
+		$mensaje = "OK";
+
+		if($txtAccion == 'nuevo')
+		{	
+			if($this->form_validation->run('validar_registro_comprobante'))
+			{
+				$resul = 1;
+				$mensaje = "OK";
+			}
+			else
+			{
+				// $filas = explode("|", $detalleComprobante);
+				$resul = 0;
+				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
+				$mensaje = formaterarValidacion($mensaje);
+			}
+		}
+		else
+		{
+			if($this->form_validation->run('validar_opcion_editar'))
+			{
+				$resul = 1;
+				$mensaje = "OK";
+			}
+			else
+			{
+				$resul = 0;
+				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
+				$mensaje = formaterarValidacion($mensaje);
+			}
+		}
+
+		$resultado ='[{								
+					"resultado":"'.$resul.'",
+					"mensaje":"'.$mensaje.'"
+					}]';
+
+		return $resultado; 		
+
+	}
 	public function guardarComprobante()
 	{
 		$id_usuario          = $this->session->userdata('id_usuario');
@@ -257,15 +333,22 @@ class Comprobante extends CI_Controller {
 		parse_str($this->input->post('datos'), $data);
 		$detalleComprobante  = $this->input->post('detalleComprobante');
 
-		// $resultado   = json_decode($this->validarDatos($data));		
-		// $resul       = $resultado[0]->resultado;
-		// $mensaje     = $resultado[0]->mensaje;
-        $resul=1;
-        $mensaje = "OK";
+		$en=  $this->verificarEntidad();
+		echo($en);
+		die();
+
+		$validacomprobante   = json_decode($this->validarDatos($data));	
+		$resultado   = $validacomprobante[0]->resultado;
+		$mensaje     = $validacomprobante[0]->mensaje;
+		// echo($resultado);
+		// echo($mensaje);
+        // $resul=1;
+        // $mensaje = "OK";
         $idComprobante="";
 		$this->db->trans_start();
-        if($resul == 1)
+        if($resultado == 1)
 		{
+			
             $accion      		  = $data['txtAccionComprobante'];
 			$idComprobante   	  = $data['id_comprobante'];
 			$id_entidad       	  = $data['id_entidad'];
@@ -393,10 +476,10 @@ class Comprobante extends CI_Controller {
 		/****************** */
 		if ($this->db->trans_status() === FALSE && $resul == 1) { 
 			$this->db->trans_rollback(); // Deshacer los cambios si hay un error
-			$resultado = 0;
+			// $resultado = 0;
 		} else {
 			$this->db->trans_commit(); // Confirmar los cambios si todo está bien
-			$resultado = 1;
+			// $resultado = 1;
 		}
 		echo '[{"resultado":"'.$resultado.'",
 		          "mensaje":"'.$mensaje.'"}]';

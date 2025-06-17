@@ -1,7 +1,5 @@
 <script src="<?php echo  base_url() ?>scriptjs/jquery.js"></script>
 <script src="<?php echo  base_url() ?>scriptjs/validacion.js"></script>
-
-<!-- <script src="<?php echo  base_url() ?>scriptjs/entidades/entidades.js"></script> -->
 <script src="<?php echo  base_url() ?>scriptjs/contabilidad/comprobantes.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>resources/css/global.css">
 
@@ -15,7 +13,7 @@
                             <div class="card card-primary">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <div class="col-md-8">
-                                        <h3 class="card-title mb-0">
+                                        <h3 class="card-title mb-0" id="nombre_entidad">
                                             ENTIDAD: <b><?= $nombre_entidad ?></b>
                                         </h3>
                                     </div>
@@ -47,7 +45,8 @@
                                     <div class="card-body">
                                     <input type="hidden" id="txtAccionComprobante" name="txtAccionComprobante" />
                                     <input type="hidden" id="id_comprobante" name="id_comprobante" />
-                                    <input type="hidden" id="id_entidad" name="id_entidad" />
+                                    <input id="id_entidad" name="id_entidad" />
+                                    <input type="hidden" id="cant_cuentas" name="cant_cuentas" />
                                     <div class="row">
                                         <div class="col-md-3">
                                         <div class="form-group">

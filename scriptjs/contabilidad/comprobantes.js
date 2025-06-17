@@ -217,10 +217,11 @@ function guardarRegistroCuenta()
                                         dataSrc: function(json) {
 
                                                 // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-                                                $('.txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-                                                $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
-                                                $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
-                                                $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
+                                                $('.txtTotalImporteDebe').text(json.totalimporteDebe);
+                                                $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+                                                $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
+                                                $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+                                                $('#cant_cuentas').val(json.nro_registros);
                                                 return json.data; // Data para el cuerpo de la tabla
                                             }
                                     }
@@ -372,30 +373,75 @@ function listaCuentasBusqueda()
 }
 function guardarDatosComprobanteMasDetalle()
 {
-    $('#txtAccionComprobante').val(accion);
-    var detalleComprobante = $('#registroCuentaT').val();
-    var enlace = base_url + "Contabilidad/Comprobante/guardarComprobante";
-    var datos = $('#formregistrocontable').serialize();
-    //alert (datos);
-    $.ajax({
-        type: "POST",
-        url: enlace,
-        data: {datos:datos,
-               detalleComprobante:detalleComprobante
+
+    var nro_cuentas_comprobante = $('#cant_cuentas').val();
+    var mensaje="";
+    var icon="";
+    if(nro_cuentas_comprobante>0)
+    {
+        mensaje="¿Está seguro de registrar el comprobante?";
+        icon="warning";
+    }
+    else
+    {
+        mensaje="Está a punto de registrar un comprobante sin cuentas contables asociadas.<strong>¿Desea continuar?</strong>";
+        icon="error";
+
+
+    }
+    swal({
+        title: 'ATENCIÓN',
+        // text: mensaje,
+        content: {
+        element: "div",
+        attributes: {
+            innerHTML:mensaje
+            }
         },
-        success: function(data)
+
+
+        icon: icon,
+        dangerMode: true,
+        buttons: {
+            cancel: "Cancelar",
+            verificar: {
+                text: "Registrar",
+                value: "registrar",
+            }
+        },
+    })
+    .then(respuesta => {
+        if (respuesta)
         {
-            var result = JSON.parse(data);
-            $.each(result, function(i, datos)
-            {
-                if(datos.resultado == 1)
+
+            $('#txtAccionComprobante').val(accion);
+            var detalleComprobante = $('#registroCuentaT').val();
+            var enlace = base_url + "Contabilidad/Comprobante/guardarComprobante";
+            var datos = $('#formregistrocontable').serialize();
+            //alert (datos);
+            $.ajax({
+                type: "POST",
+                url: enlace,
+                data: {datos:datos,
+                    detalleComprobante:detalleComprobante
+                },
+                success: function(data)
                 {
-                    swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
-                    cargarComprobantesPrincipal();
-                }
-                else
-                {
-                    swal({title: "ERROR",text: datos.mensaje,icon: "error",button: "Error",});
+                    var result = JSON.parse(data);
+                    $.each(result, function(i, datos)
+                    {
+                        if(datos.resultado == 1)
+                        {
+                            swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
+                            cargarComprobantesPrincipal();
+                        }
+                        else
+                        {
+                            visualizarValidaciones(datos.mensaje);
+                            swal({title:"ALERTA",text:"Existen Observaciones.",icon:"warning",button:"OK",dangerMode:true});
+                            // swal({title: "ERROR",text: datos.mensaje,icon: "error",button: "Error",});
+                        }
+                    });
                 }
             });
         }

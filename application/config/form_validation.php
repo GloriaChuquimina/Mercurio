@@ -25,15 +25,28 @@ $config = array(
 		),
 
 		
-		'validar_categoria_editar'=> array
+		'validar_registro_comprobante'=> array
 		(
-		array ('field' => 'txtcodigo',
-			   'label' => 'CÓDIGO',
-		  	   'rules' => 'trim|required|min_length[3]|max_length[30]'),
 
-		array ('field' => 'txtdescripcion',
-			   'label' => 'DESCRIPCIÓN',
-		  	   'rules' => 'trim|required|min_length[3]|max_length[30]')
+		array ('field' => 'nombre_entidad',
+			   'label' => 'ENTIDAD',
+		  	   'rules' => 'callback_verificarEntidad'),
+
+		array ('field' => 'txtTipo',
+			   'label' => 'TIPO DE COMPROBANTE',
+			   'rules' => 'callback_verificarValorCombo'),
+		array(
+			  'field' => 'txtFecha',
+			  'label' => 'FECHA DE COMPROBANTE',
+			  'rules' => 'trim|required|callback_fecha_valida'),
+
+		array ('field' => 'txtTipoCambio',
+			   'label' => 'IMPORTE',
+			   'rules' => 'trim|required'),
+
+		array ('field' => 'txtGlosaGeneral',
+			   'label' => 'GLOSA GENERAL',
+		  	   'rules' => 'trim|required|min_length[3]|max_length[500]')
 		
 		),
 
