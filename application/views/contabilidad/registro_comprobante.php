@@ -45,7 +45,7 @@
                                     <div class="card-body">
                                     <input type="hidden" id="txtAccionComprobante" name="txtAccionComprobante" />
                                     <input type="hidden" id="id_comprobante" name="id_comprobante" />
-                                    <input id="id_entidad" name="id_entidad" />
+                                    <input type="hidden" id="id_entidad" name="id_entidad" />
                                     <input type="hidden" id="cant_cuentas" name="cant_cuentas" />
                                     <div class="row">
                                         <div class="col-md-3">

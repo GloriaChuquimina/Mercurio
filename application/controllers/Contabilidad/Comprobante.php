@@ -86,19 +86,19 @@ class Comprobante extends CI_Controller {
 		}
 		return TRUE;
 	}
-	function verificarEntidad()
+	function verificarEntidad($idEntidad)
 	{
 
 		// $idEntidad = $this->input->post('id_entidad');
-		$idEntidad = '123';
-		return ($idEntidad);
+		// $idEntidad = '123';
+		// return ($idEntidad);
 		// die();
 
-		// if (empty($idEntidad) || !is_numeric($idEntidad)) {
-		// 	$this->form_validation->set_message('verificarEntidad', 'No se ha registrado una entidad para asociar el comprobante.');
-		// 	return FALSE;
-		// }
-		// return TRUE;
+		if (empty($idEntidad) || !is_numeric($idEntidad)) {
+			$this->form_validation->set_message('verificarEntidad', 'No se ha registrado una entidad para asociar el comprobante.');
+			return FALSE;
+		}
+		return TRUE;
 	}
 	public function fecha_valida()
 	{
@@ -279,7 +279,9 @@ class Comprobante extends CI_Controller {
 	{
 
  		$txtAccion 	= $data['txtAccionComprobante'];
-
+		$idEntidad  = $data['id_entidad'];
+		$verifica =$this->verificarEntidad($idEntidad);
+		// echo $idEntidad;
 
  		$this->form_validation->set_data($data);
  		$resul = 1;
@@ -333,9 +335,9 @@ class Comprobante extends CI_Controller {
 		parse_str($this->input->post('datos'), $data);
 		$detalleComprobante  = $this->input->post('detalleComprobante');
 
-		$en=  $this->verificarEntidad();
-		echo($en);
-		die();
+		// $en=  $this->verificarEntidad();
+		// echo($en);
+		// die();
 
 		$validacomprobante   = json_decode($this->validarDatos($data));	
 		$resultado   = $validacomprobante[0]->resultado;
