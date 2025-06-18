@@ -496,3 +496,98 @@ function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,t
         }
     });
 }
+function generarPDFComprobante()
+{
+
+    // $('#divPDF').html('');   
+    // //  var data = idhr+"/"+gestion;
+    // var data = $('#servidorPublicoBusqueda').val();
+    // var direccion = $('#direccionBusqueda').val();
+    // if(data == "-1" || direccion =="-1")
+    // {
+    //     swal({
+    //         title: 'ATENCIÓN',
+    //         text: "Seleccione a un funcionario para la busqueda",
+    //         icon: 'warning',
+    //         dangerMode: true,
+    //         buttons: {
+    //             cancel: "Cerrar"
+    //         },
+    //     })
+    // }
+    // else
+    // {
+    //     buscarBandejasPerfil();
+    //     var iframe = document.createElement("iframe");
+    //             iframe.width = '100%';
+    //             iframe.height = '700px';
+    //             iframe.src = base_url+'Reportes/ReporteCorrespondencia/getReporteCorrespondenciaPDF/'+data; 
+    //             $('#divPDF').append(iframe);
+    //             $('#divCapa').addClass('overlay');    
+    //             $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+    //             $('#pdfModal > .modal-dialog ').css("max-width","85%"); 
+    //             $('#pdfModal').show();   
+                
+    // }  
+
+    // var detalleComprobante = $('#registroCuentaT').val();
+    // var datos = $('#formregistrocontable').serialize();
+
+    // var iframe = document.createElement("iframe");
+    // iframe.width = '100%';
+    // iframe.height = '700px';
+    // iframe.src = base_url+'Contabilidad/Comprobante/ReporteComprobantePDF/'+datos+'/'+detalleComprobante; 
+    // $('#divPDF').append(iframe);
+    // $('#divCapa').addClass('overlay');    
+    // $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+    // $('#pdfModal > .modal-dialog ').css("max-width","85%"); 
+    // $('#pdfModal').show();   
+    $('#txtAccionComprobante').val(accion);
+    var datos = $('#formregistrocontable').serialize();
+    var detalleComprobante = $('#registroCuentaT').val();
+
+    let form = document.createElement("form");
+    form.setAttribute("target", "iframePDF");
+    form.setAttribute("method", "POST");
+    form.setAttribute("action", base_url + "Contabilidad/Comprobante/ReporteComprobantePDF");
+    form.style.display = "none";
+
+    // Input para los datos generales
+    let inputDatos = document.createElement("input");
+    inputDatos.setAttribute("type", "hidden");
+    inputDatos.setAttribute("name", "datos");
+    inputDatos.setAttribute("value", JSON.stringify(datos));
+    form.appendChild(inputDatos);
+
+    // Input para el detalle contable
+    let inputDetalle = document.createElement("input");
+    inputDetalle.setAttribute("type", "hidden");
+    inputDetalle.setAttribute("name", "detalleComprobante");
+    inputDetalle.setAttribute("value", JSON.stringify(detalleComprobante));
+    form.appendChild(inputDetalle);
+
+    // Crear iframe si no existe
+    let iframe = document.getElementById("iframePDF");
+    if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.setAttribute("name", "iframePDF");
+        iframe.setAttribute("id", "iframePDF");
+        iframe.style.width = "100%";
+        iframe.style.height = "700px";
+        $('#divPDF').html(iframe);
+    }
+
+    // Agregar el form al DOM y enviarlo
+    document.body.appendChild(form);
+    form.submit();
+
+    // Mostrar modal
+    $('#divCapa').addClass('overlay');
+    $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+    $('#pdfModal > .modal-dialog ').css("max-width", "85%");
+    $('#pdfModal').show();
+
+
+
+
+}

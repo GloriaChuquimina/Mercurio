@@ -48,6 +48,19 @@ INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orde
 INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('TIPO COMPROBANTES CONTABLE', 'TIPO DE COMPROBANTES DE REGISTRO CONTABLE', 'TR', 'TRASPASO', 2,  'ACT');
 INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('TIPO COMPROBANTES CONTABLE', 'TIPO DE COMPROBANTES DE REGISTRO CONTABLE', 'GA', 'GASTO', 3,  'ACT');
 INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('TIPO COMPROBANTES CONTABLE', 'TIPO DE COMPROBANTES DE REGISTRO CONTABLE', 'IN', 'INGRESO', 4,  'ACT');
+/*MESES*/
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '1', 'ENERO', 1, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '2', 'FEBRERO', 2, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '3', 'MARZO', 3, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '4', 'ABRIL', 4, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '5', 'MAYO', 5, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '6', 'JUNIO', 6, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '7', 'JULIO', 7, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '8', 'AGOSTO', 8, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '9', 'SEPTIEMBRE', 9, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '10', 'OCTUBRE', 10, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '11', 'NOVIEMBRE', 11, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '12', 'DICIEMBRE', 12, 'ACT');
 
 
 
