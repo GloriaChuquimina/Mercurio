@@ -7,7 +7,7 @@
  * Author:  Dan Machado                                               *
  * Require  FPDF v1.81, formatedstring v1.0                           *
  **********************************************************************/
-include 'fpdfde.php';
+include_once 'fpdfde.php';
 include_once  "easyTable.php";
 
 include 'formatedstring.php';
@@ -31,6 +31,8 @@ class exFPDFCartaContable extends FPDFDE{
    public $pieFirmas;
    public $estadoDeclaracion;
    public $marcaDeAguaDeclaracion;
+   public $PaginadorC;
+   public $marcaDeAgua;
 
     /*
     public $rubro;
@@ -436,6 +438,13 @@ class exFPDFCartaContable extends FPDFDE{
       // if($this->orientacion_pagina=="ANCHO")
       //       $this->logoHeaderL();
       // else  $this->logoHeaderP();
+
+      // Posición desde el margen izquierdo
+        $this->SetY(22);         // Altura desde arriba
+        $this->SetX(-40);        // Posición desde la derecha (40 mm desde el borde derecho)
+        $this->SetFont('Arial', '', 8);
+        // Texto del paginador
+        $this->Cell(30, 5, utf8_decode('Página ' . $this->PageNo() . '/{nb}'), 0, 0, 'R');
    }
    
    public function Footer() {
@@ -488,8 +497,7 @@ class exFPDFCartaContable extends FPDFDE{
          
       }
    }
-   
-   function logoHeaderP()
+     function logoHeaderP()
    {
       if($this->tipoReporte!='reporteDEJURBE') {
          $this->SetMargins(-10,15,-10);

@@ -543,7 +543,7 @@ function generarPDFComprobante()
     // $('#pdfModal > .modal-dialog ').css("max-width","85%"); 
     // $('#pdfModal').show();   
     $('#txtAccionComprobante').val(accion);
-    var datos = $('#formregistrocontable').serialize();
+    var datos = $('#formregistrocontable').serializeArray();
     var detalleComprobante = $('#registroCuentaT').val();
 
     let form = document.createElement("form");

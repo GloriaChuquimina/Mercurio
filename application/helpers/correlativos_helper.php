@@ -5,10 +5,14 @@ function obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo, $id_entid
     $fila->load->model('Correlativos_model');
     $datosDocumentoCorrelativo= $fila->Correlativos_model->getTipoCorrelativo($tipoCorrelativo);
     $idCorrelativo = $datosDocumentoCorrelativo[0]->id;
+	// echo("corre==>".$idCorrelativo);
 
     // $datosCorrelativo = $fila->Correlativos_model->getCorrelativoEntidadGestion($idCorrelativo, $id_entidad, $gestion);
     // $correlativo = $datosCorrelativoSolicitud[0]->correlativo+1;
     $datosCorrelativo = $fila->Correlativos_model->getCorrelativoEntidadGestion($idCorrelativo, $id_entidad,$id_dependencia, $gestion);
+
+	// echo json_encode($datosCorrelativo);
+	// die();
     $id_correlativoentidadgestion = $datosCorrelativo[0]->id;
     $correlativo                  = $datosCorrelativo[0]->correlativo+1;
 

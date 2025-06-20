@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 require_once APPPATH . "libraries/fpdf/easyTable.php";
+require_once APPPATH . "libraries/fpdf/fpdfde.php";
 require_once APPPATH . "libraries/fpdf/exfpdfCartaContable.php";
 
 class Comprobante extends CI_Controller {
@@ -650,440 +651,55 @@ class Comprobante extends CI_Controller {
 	function ReporteComprobantePDF()
 	{
 
-				$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-		$datos_json = $this->input->post('datos');
-		$detalle_json = $this->input->post('detalleComprobante');
-		// parse_str($datos_json,$data);
-		echo("<pre>");
-		print_r($datos_json);
-		echo("<br>");
-		print_r($data);
-		echo("<br>");
-		print_r($detalle_json);
-		echo("</pre>");
-		// die();
-
-
-		$orden = array("\r\n", "\n", "\r" ,'"') ;
-		$pdf=new exFPDFCartaContable('P','mm','Letter');
-		$pdf->fechahora_impresion='SI';
-		$pdf->opcion_pie ="PAGINADOR_FECHA";
-		$pdf->SetFont('Arial','',14);
-		$pdf->AddPage(); 
-
-
-		/****************************/
-		/*DATOS CABECERA DEL REPORTE*/
-		/****************************/
-		$accion = $data['txtAccionComprobante'];
-		if($accion === 'nuevo'){
-			$nombre_entidad					= descripcion_nombre_entidad($data['id_entidad']);
-			$sigla_entidad					= "XXXXXX";/*CONSULTAR*/
-			$sigla_senape					= "SENAPE";
-			$paginador 						= "Pag. 1/2";
-			$fecha_comprobante  			= formato_fecha_slash($data['txtFecha']);
-			$tipo_cambio					= number_format($data['txtTipoCambio'],2,'.',',');
-			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $data['txtTipo']);
-			$mes							= date("m", strtotime($fecha_comprobante));
-			$periodo						= mb_strtolower(getValor2Configuraciones("MESES", $mes));
-			$gestion						= date("Y", strtotime($fecha_comprobante));			
-			$tipoCorrelativo  				= $data['txtTipo'] ;
-			$datosCorrelativo   			= json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
-			$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
-			$correlativo      		        = $datosCorrelativo[0]->correlativo;
-			$correlativo_comprobante		= $correlativo;
-			$referencia_comprobante 		= ".....";
-
-			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
-
-			$texto_cabecera_izquierda = utf8_decode(mb_strtoupper($nombre_entidad)) . "\n" .
-										utf8_decode(mb_strtoupper($sigla_entidad)) . "\n" .
-										utf8_decode(mb_strtoupper($sigla_senape));
-			$table->easyCell($texto_cabecera_izquierda, 'valign:M;halign:C;font-size:7');
-
-			$table->easyCell(' ', 'valign:M;halign:C;font-size:7');
-
-			$texto_cabecera_derecha = utf8_decode($paginador) . "\n" .
-									utf8_decode($fecha_comprobante) . "\n" .
-									utf8_decode("T.C.:".$tipo_cambio);
-			$table->easyCell($texto_cabecera_derecha, 'valign:M;halign:R;font-size:7');
-
-			$table->printRow();
-			$table->endTable(0);
-
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
-			$table->easyCell(utf8_decode(mb_strtoupper($tipo_comprobante)), 'valign:M;halign:C;font-size:8 ;font-style:BU');
-			$table->printRow();
-			$table->endTable(0);
-
-			$table = new easyTable($pdf, '{40,35,30,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
-
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-
-			$texto_periodo =  utf8_decode("Periodo: <b>".$periodo."-".$gestion."</b>");
-			$table->easyCell($texto_periodo, 'valign:M;font-size:8;halign:R;html=true');
-
-			$texto_nrocomprobante =  utf8_decode("Nro: <b>".$correlativo_comprobante."</b>");
-			$table->easyCell($texto_nrocomprobante, 'valign:M;font-size:8;halign:L;html=true');
-
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-
-			$table->printRow();
-			$table->endTable(2);
-
-
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{L}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-			$table->easyCell(utf8_decode("<b>Ref.:</b>".$referencia_comprobante), 'valign:M;halign:L;font-size:8 ;font-style:N');
-			$table->printRow();
-			$table->endTable(2);
-
-			/******************************/
-			/*CUERPO*/
-			/******************************/
-			/*CABECERA*/
-			$table=new easyTable($pdf, '{30,80,20,20,20,20}', 'width:190;align:{CLCCCC}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
-			$table->easyCell(utf8_decode("CÓDIGO"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DESCRIPCIÓN"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DEBE") ,'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("HABER"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DEBE Us."),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("HABER Us."),'valign:M;font-style:B;font-size:6;' );
-			$table->printRow(true);
-			
-			$filas = explode("|", $detalleComprobante);
-			$importeDebe=0;
-			$importeHaber=0;
-			$importeDebeUs=0;
-			$importeHaberUs=0;
-			$totalimporteDebe=0;
-			$totalimporteHaber=0;
-			$totalimporteDebeUs=0;
-			$totalimporteHaberUs=0;
-			$nro_registros=0;
-
-			if(!empty($filas))
-			{
-				foreach($filas as $fila)
-				{
-					if(!empty($fila) && $fila != "undefined" && $fila != "null")
-					{
-						$row = explode("*", $fila);
-						if(!isset($row[0]) || empty($row[0]))
-						{
-							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta) = $row;
-
-							$codigoCuenta = explode("-",$cuenta);
-							list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
-							if($tipo_movimiento == "DB")
-							{
-								$importeDebe=$importe;
-								// $importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
-							elseif ($tipo_movimiento == "HB") {
-								$importeHaber=$importe;
-								// $importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
-							$cuenta_registro = "<b><u>".$descripcion_cuenta."</u></b><br>".$glosa_cuenta;
-							$table->easyCell($codigo_cuenta,'valign:M;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(utf8_decode($cuenta_registro),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(number_format($importeDebe, 2, '.', ','),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(number_format($importeHaber,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(number_format($importeDebeUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(number_format($importeHaberUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-							$table->printRow();
-
-						}
-					}
-				}
-			}
-				
-			$table->endTable(5);
-		}
-
-
-
-
-
-
-		
-		
-
-
-
-
-
-
-
-		// $table=new easyTable($pdf, '{50,140}', 'width:190;align:{LL}; font-size:8; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell("Nombre Funcionario",'font-style:B;' );
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_nombre)),'bgcolor:#fff;font-size:7;' );
-		// $table->printRow();
-
-		// $table->easyCell("Puesto " ,'font-style:B;' );
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_puesto)) ,' bgcolor:#fff; font-size:7;' );
-		// $table->printRow();
-
-		// $table->endTable(5);
-
-
-
-		/*================================================ */
-		// $pdf->SetTitle(utf8_decode("Reporte de Comprobante"));
-		// $pdf->tituloCabecera= utf8_decode("COMPROBANTE DE ......." ); 
-		// //Valores de parametrización para la función Row_Reportes
-        // $pdf->AliasNbPages();
-		// $pdf->AddPage(); 
-		/****************************/
-		/*DATOS CABECERA DEL REPORTE*/
-		/****************************/
-
-		// $datosPerfil    = $this->comunes_model->getPerfilUsuariosID($id_perfil);
-		// $funcionario_nombre_dependencia = $datosPerfil[0]->nombre_dependencia;
-		// $funcionario_nombre				= $datosPerfil[0]->nombres." ".$datosPerfil[0]->primer_apellido." ".$datosPerfil[0]->segundo_apellido;
-		// $funcionario_puesto				= $datosPerfil[0]->nombre_puesto;
-		// $funcionario_cargo				= $datosPerfil[0]->nombre_cargo;
-
-		// $table=new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_nombre_dependencia)),'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-		// $table=new easyTable($pdf, '{50,140}', 'width:190;align:{LL}; font-size:8; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell("Nombre Funcionario",'font-style:B;' );
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_nombre)),'bgcolor:#fff;font-size:7;' );
-
-		// $table->printRow();
-		// $table->easyCell("Puesto " ,'font-style:B;' );
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_puesto)) ,' bgcolor:#fff; font-size:7;' );
-
-		// $table->printRow();
-		// $table->endTable(5);
-		// $i=0;
-		
-
-		// ///// CUERPO
-		// /******************************/
-		// /*BANDEJA DE HOJAS SIN DERIVAR*/
-		// /******************************/
-		// /*CABECERA*/
-		// $verificarBandejaSinDerivar = $this->cites_model->hojasRutaPendientePerfil($id_perfil);
-		// $totalB_SD = count($verificarBandejaSinDerivar);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:7; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_s$table->endTable(2);trtoupper("CORRESPONDENCIA CREADA SIN DERIVAR")),'valign:M;font-style:B' );
-		// $table->easyCell("(".$totalB_SD.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-			
-		// $table=new easyTable($pdf, '{20,20,60,90}', 'width:190;align:{CLLLL}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// $table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("FECHA CREACIÓN"),'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("REFERENCIA") ,'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("DESTINATARIO"),'valign:M;font-style:B;font-size:6;' );
-		// $table->printRow(true);
-
-		// foreach($verificarBandejaSinDerivar as $fila)
-		// {	
-		// 	$i++;
-		// 	$hoja_rutaSD 	    = $fila->origen."-".$fila->correlativo."-".$fila->destino;
-		// 	$fecha_creacionSD	= formato_fecha_hora_slash($fila->fecha_registro);
-		// 	$referenciaSD		= $fila->referencia;
-		// 	$destinatarioSD		= datosPerfilId($fila->id_perfil_destinatario);
-			
-		// 	$table->easyCell($hoja_rutaSD ,'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell($fecha_creacionSD,'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($referenciaSD),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($destinatarioSD),'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->printRow();
-
-		// }
-		// $table->endTable(5);
-		// /********************/
-		// /*BANDEJA DE ENTRADA*/
-		// /********************/
-		// /*CABECERA*/
-		// $verificarBandejaEntrada = $this->cites_model->hojasRutaEntradaPerfil($id_perfil);
-		// $totalB_E = count($verificarBandejaEntrada);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:7; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper("CORRESPONDENCIA POR RECIBIR")),'valign:M;font-style:B' );
-		// $table->easyCell("(".$totalB_E.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-		
-		// $table=new easyTable($pdf, '{20,20,60,90}', 'width:190;align:{CLLLL}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// 	$table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// 	$table->easyCell("FECHA ENVIO ",'valign:M;font-style:B;font-size:6;' );
-		// 	$table->easyCell(utf8_decode("REMITENTE") ,'valign:M;font-style:B;font-size:6;' );
-		// 	$table->easyCell(utf8_decode("PROVEIDO"),'valign:M;font-style:B;font-size:6;' );
-		// 	$table->printRow(true);
-
-		// foreach($verificarBandejaEntrada as $fila)
-		// {	
-		// 	$i++;
-		// 	$hoja_rutaE		= $fila->hoja_ruta;
-		// 	$fecha_envioE	= formato_fecha_hora_slash($fila->fecha_derivacion);
-		// 	$remitenteE		= datosPerfilIdCargoDerivacion($fila->id_perfil_remitente,$fila->origen_sicenad);
-		// 	$proveidoE		= $fila->proveido;
-			
-		// 	$table->easyCell($hoja_rutaE,'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell($fecha_envioE,'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($remitenteE),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($proveidoE),'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->printRow();
-
-		// }
-		// $table->endTable(5);
-
-		// /***********************/
-		// /*BANDEJA DE PENDIENTES*/
-		// /***********************/
-		// /*CABECERA*/
-		// $verificarBandejaPendiente = $this->cites_model->derivacionesPendientePerfil($id_perfil);
-
-		// $totalB_P = count($verificarBandejaPendiente);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:7; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper("CORRESPONDENCIA PENDIENTE")),'valign:M;font-style:B; font-size:7;' );
-		// $table->easyCell("(".$totalB_P.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-
-		// $table=new easyTable($pdf, '{20,20,40,55,55}', 'width:190;align:{CLLLL}; font-size:8; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// $table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("FECHA RECEPCIÓN"),'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("REMITENTE") ,'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("REFERENCIA") ,'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("PROVEÍDO"),'valign:M;font-style:B;font-size:6;' );
-		// $table->printRow(true);
-		
-		// foreach($verificarBandejaPendiente as $fila)
-		// {	
-		// 	$i++;
-		// 	$hoja_rutaP      = $fila->hoja_ruta;
-		// 	$fecha_recepcionP= formato_fecha_hora_slash($fila->fecha_recepcion);
-		// 	if($fila->id_remitente_externo>0)
-		// 	{
-		// 		$remitenteP = datosPerfilIdCargoDerivacionExterno($fila->id_remitente_externo);
-		// 	}
-		// 	else
-		// 	{
-		// 		$remitenteP = datosPerfilIdCargoDerivacion($fila->id_perfil_remitente,$fila->origen_sicenad);
-		// 	}
-
-		// 	$referenciaP     = $fila->referencia;
-		// 	$proveidoP       = $fila->proveido;
-
-		// 	$table->easyCell($hoja_rutaP,'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell($fecha_recepcionP,'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($remitenteP),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($referenciaP),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($proveidoP),'valign:M;bgcolor:#fff;font-size:7; ' );
-		// 	$table->printRow();
-
-		// }
-		// $table->endTable(5);
-
-		// /*******************/
-		// /*BANDEJA DE SALIDA*/
-		// /*******************/
-		// /*CABECERA*/
-		// $verificarBandejaSalida = $this->cites_model->hojasRutaSalidaPerfil($id_perfil);
-		// $totalB_S = count ($verificarBandejaSalida);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:8; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper("CORRESPONDENCIA ENVIADA")),'valign:M;font-style:B ;font-size:7;' );
-		// $table->easyCell("(".$totalB_S.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-		// $table=new easyTable($pdf, '{20,60,90,20}', 'width:190;align:{CLLLL}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// $table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell("DESTINATARIO",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("PROVEÍDO") ,'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("FECHA ENVIO"),'valign:M;font-style:B;font-size:6;' );
-		// $table->printRow(true);
-
-		// foreach($verificarBandejaSalida as $fila)
-		// {	
-		// 	$i++;
-		// 	$hoja_rutaS         =$fila->hoja_ruta;
-		// 	$destinatarioS      =datosPerfilIdCargoDerivacaionDestinatario($fila->id_perfil_destinatario,$fila->destinatario_sicenad);
-		// 	$proveidoS     		=$fila->proveido;//
-		// 	$fecha_derivacionS  =formato_fecha_hora_slash($fila->fecha_derivacion);
-		// 	$table->easyCell($hoja_rutaS,'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($destinatarioS),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($proveidoS),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell($fecha_derivacionS,'valign:M;bgcolor:#fff;font-size:7; ' );
-		// 	$table->printRow();
-
-		// }
-		// $table->endTable(5);
-
-		// /***********************/
-		// /*BANDEJA DE RECHAZADOS*/
-		// /***********************/
-		// /*CABECERA*/
-		// $verificarBandejaRechazados= $this->cites_model->hojasRutaRechazadasPerfil($id_perfil);
-		// $totalB_REC = count($verificarBandejaRechazados);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:7; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper("CORRESPONDENCIA RECHAZADA")),'valign:M;font-style:B; font-size:7;' );
-		// $table->easyCell("(".$totalB_REC.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-		// $table=new easyTable($pdf, '{20,20,60,90}', 'width:190;align:{CLLLL}; font-size:8; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// $table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("FECHA RECEPCIÓN"),'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("REFERENCIA") ,'valign:M;font-style:B;font-size:6;' );;
-		// $table->easyCell(utf8_decode("PROVEÍDO"),'valign:M;font-style:B;font-size:6;' );
-		// $table->printRow(true);
-		
-		// foreach($verificarBandejaRechazados as $fila)
-		// {	
-		// 	$i++;
-		// 	$hoja_rutaP      =$fila->hoja_ruta;$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-		$datos_json = $this->input->post('datos');
-		$detalle_json = $this->input->post('detalleComprobante');
-		parse_str($datos_json,$data);
-		// echo("<pre>");
-		// print_r($datos_json);
+		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
+		// $datos_json = $this->input->post('datos');
+		$datos_json = json_decode($this->input->post('datos'));
+		$detalle_json =json_decode($this->input->post('detalleComprobante'));
+		parse_str($datos_json, $datos1);		// echo("<pre>");
+		// print_r($datos1);
 		// echo("<br>");
 		// print_r($detalle_json);
-		// echo("</pre>");
-		// die();
-
-
+		// echo("</pre>");os1);
+		// parse_str($this->input->post('datos'), $data);
 		$orden = array("\r\n", "\n", "\r" ,'"') ;
 		$pdf=new exFPDFCartaContable('P','mm','Letter');
+		// $this->load->library('fpdf/pdf2');
+		// $pdf=new Pdf2('P','mm','Letter');
 		$pdf->fechahora_impresion='SI';
-		$pdf->opcion_pie ="PAGINADOR_FECHA";
+		// $pdf->opcion_pie ="PAGINADOR_FECHA";
 		$pdf->SetFont('Arial','',14);
+		$pdf->AliasNbPages();
+		$pdf->opcion_pie='COMPROBANTE';
+		// $pdf->marcaDeAgua = $marcaAgua;
 		$pdf->AddPage(); 
 
 
 		/****************************/
 		/*DATOS CABECERA DEL REPORTE*/
 		/****************************/
-		$accion = $data['txtAccionComprobante'];
+		$accion = $datos1['txtAccionComprobante'];
 		if($accion === 'nuevo'){
-			$nombre_entidad					= descripcion_nombre_entidad($data['id_entidad']);
+
+			$marcaAgua='SI';
+			$nombre_entidad					= descripcion_nombre_entidad($datos1['id_entidad']);
 			$sigla_entidad					= "XXXXXX";/*CONSULTAR*/
 			$sigla_senape					= "SENAPE";
+			// $this->Cell(20, 3, utf8_decode('Página ' . $this->PageNo() . '/{nb}'), 0, 0, 'C');
 			$paginador 						= "Pag. 1/2";
-			$fecha_comprobante  			= formato_fecha_slash($data['txtFecha']);
-			$tipo_cambio					= number_format($data['txtTipoCambio'],2,'.',',');
-			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $data['txtTipo']);
-			$mes							= date("m", strtotime($fecha_comprobante));
+			// $paginador 						= utf8_decode('Página ' . $pdf->PageNo() . '/{nb}');
+			$fecha_comprobante  			= formato_fecha_slash($datos1['txtFecha']);
+			$tipo_cambio					= number_format($datos1['txtTipoCambio'],2,'.',',');
+			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $datos1['txtTipo']);
+			$mes							= date("n", strtotime($fecha_comprobante));
 			$periodo						= mb_strtolower(getValor2Configuraciones("MESES", $mes));
-			$gestion						= date("Y", strtotime($fecha_comprobante));			
-			$tipoCorrelativo  				= $data['txtTipo'] ;
-			$datosCorrelativo   			= json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
+			$gestion						= date("Y", strtotime($fecha_comprobante));	
+			$tipoCorrelativo  				= $datos1['txtTipo'] ;
+			$datosCorrelativo   			= json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$datos1["id_entidad"],$id_dependencia, $gestion));
 			$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
 			$correlativo      		        = $datosCorrelativo[0]->correlativo;
 			$correlativo_comprobante		= $correlativo;
 			$referencia_comprobante 		= ".....";
+			$glosa_general					= $datos1['txtGlosaGeneral'];
 
 			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
 
@@ -1107,16 +723,16 @@ class Comprobante extends CI_Controller {
 			$table->printRow();
 			$table->endTable(0);
 
-			$table = new easyTable($pdf, '{40,35,30,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+			$table = new easyTable($pdf, '{40,25,40,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
 
 			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
 			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
 
 			$texto_periodo =  utf8_decode("Periodo: <b>".$periodo."-".$gestion."</b>");
-			$table->easyCell($texto_periodo, 'valign:M;font-size:8;halign:R;html=true');
+			$table->easyCell($texto_periodo, 'valign:M;font-size:8;halign:R;');
 
 			$texto_nrocomprobante =  utf8_decode("Nro: <b>".$correlativo_comprobante."</b>");
-			$table->easyCell($texto_nrocomprobante, 'valign:M;font-size:8;halign:L;html=true');
+			$table->easyCell($texto_nrocomprobante, 'valign:M;font-size:8;halign:L;');
 
 			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
 
@@ -1141,8 +757,12 @@ class Comprobante extends CI_Controller {
 			$table->easyCell(utf8_decode("DEBE Us."),'valign:M;font-style:B;font-size:6;' );
 			$table->easyCell(utf8_decode("HABER Us."),'valign:M;font-style:B;font-size:6;' );
 			$table->printRow(true);
-			
+			$table->endTable(0);
+
+			$table=new easyTable($pdf, '{30,80,20,20,20,20}', 'width:190;align:{LLRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LR;border-color:#c0c0c0;line-height:1.2;');
+			$detalleComprobante=$detalle_json;		
 			$filas = explode("|", $detalleComprobante);
+			
 			$importeDebe=0;
 			$importeHaber=0;
 			$importeDebeUs=0;
@@ -1157,406 +777,16 @@ class Comprobante extends CI_Controller {
 			{
 				foreach($filas as $fila)
 				{
+					$importeDebe=0;
+					$importeHaber=0;
+					$importeDebeUs=0;
+					$importeHaberUs=0;
 					if(!empty($fila) && $fila != "undefined" && $fila != "null")
 					{
 						$row = explode("*", $fila);
 						if(!isset($row[0]) || empty($row[0]))
 						{
-							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta) = $row;
-
-							$codigoCuenta = explode("-",$cuenta);
-							list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
-							if($tipo_movimiento == "DB")
-							{
-								$importeDebe=$importe;
-								// $importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
-							elseif ($tipo_movimiento == "HB") {
-								$importeHaber=$importe;
-								// $importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
 							
-
-						}
-					}
-				}
-			}
-				
-
-
-			foreach($verificarBandejaSinDerivar as $fila)
-			{	
-				$i++;
-				$hoja_rutaSD 	    = $fila->origen."-".$fila->correlativo."-".$fila->destino;
-				$fecha_creacionSD	= formato_fecha_hora_slash($fila->fecha_registro);
-				$referenciaSD		= $fila->referencia;
-				$destinatarioSD		= datosPerfilId($fila->id_perfil_destinatario);
-				
-				$table->easyCell($hoja_rutaSD ,'valign:M;bgcolor:#fff;font-size:7;' );
-				$table->easyCell($fecha_creacionSD,'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-				$table->easyCell(utf8_decode($referenciaSD),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-				$table->easyCell(utf8_decode($destinatarioSD),'valign:M;bgcolor:#fff;font-size:7;' );
-				$table->printRow();
-
-			}
-			$table->endTable(5);
-
-
-		}
-
-
-
-
-
-
-		
-		
-
-
-
-
-
-
-
-		// $table=new easyTable($pdf, '{50,140}', 'width:190;align:{LL}; font-size:8; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell("Nombre Funcionario",'font-style:B;' );
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_nombre)),'bgcolor:#fff;font-size:7;' );
-		// $table->printRow();
-
-		// $table->easyCell("Puesto " ,'font-style:B;' );
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_puesto)) ,' bgcolor:#fff; font-size:7;' );
-		// $table->printRow();
-
-		// $table->endTable(5);
-
-
-
-		/*================================================ */
-		// $pdf->SetTitle(utf8_decode("Reporte de Comprobante"));
-		// $pdf->tituloCabecera= utf8_decode("COMPROBANTE DE ......." ); 
-		// //Valores de parametrización para la función Row_Reportes
-        // $pdf->AliasNbPages();
-		// $pdf->AddPage(); 
-		/****************************/
-		/*DATOS CABECERA DEL REPORTE*/
-		/****************************/
-
-		// $datosPerfil    = $this->comunes_model->getPerfilUsuariosID($id_perfil);
-		// $funcionario_nombre_dependencia = $datosPerfil[0]->nombre_dependencia;
-		// $funcionario_nombre				= $datosPerfil[0]->nombres." ".$datosPerfil[0]->primer_apellido." ".$datosPerfil[0]->segundo_apellido;
-		// $funcionario_puesto				= $datosPerfil[0]->nombre_puesto;
-		// $funcionario_cargo				= $datosPerfil[0]->nombre_cargo;
-
-		// $table=new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_nombre_dependencia)),'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-		// $table=new easyTable($pdf, '{50,140}', 'width:190;align:{LL}; font-size:8; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell("Nombre Funcionario",'font-style:B;' );
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_nombre)),'bgcolor:#fff;font-size:7;' );
-
-		// $table->printRow();
-		// $table->easyCell("Puesto " ,'font-style:B;' );
-		// $table->easyCell(utf8_decode(mb_strtoupper($funcionario_puesto)) ,' bgcolor:#fff; font-size:7;' );
-
-		// $table->printRow();
-		// $table->endTable(5);
-		// $i=0;
-		
-
-		// ///// CUERPO
-		// /******************************/
-		// /*BANDEJA DE HOJAS SIN DERIVAR*/
-		// /******************************/
-		// /*CABECERA*/
-		// $verificarBandejaSinDerivar = $this->cites_model->hojasRutaPendientePerfil($id_perfil);
-		// $totalB_SD = count($verificarBandejaSinDerivar);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:7; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_s$table->endTable(2);trtoupper("CORRESPONDENCIA CREADA SIN DERIVAR")),'valign:M;font-style:B' );
-		// $table->easyCell("(".$totalB_SD.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-			
-		// $table=new easyTable($pdf, '{20,20,60,90}', 'width:190;align:{CLLLL}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// $table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("FECHA CREACIÓN"),'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("REFERENCIA") ,'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("DESTINATARIO"),'valign:M;font-style:B;font-size:6;' );
-		// $table->printRow(true);
-
-		// foreach($verificarBandejaSinDerivar as $fila)
-		// {	
-		// 	$i++;
-		// 	$hoja_rutaSD 	    = $fila->origen."-".$fila->correlativo."-".$fila->destino;
-		// 	$fecha_creacionSD	= formato_fecha_hora_slash($fila->fecha_registro);
-		// 	$referenciaSD		= $fila->referencia;
-		// 	$destinatarioSD		= datosPerfilId($fila->id_perfil_destinatario);
-			
-		// 	$table->easyCell($hoja_rutaSD ,'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell($fecha_creacionSD,'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($referenciaSD),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($destinatarioSD),'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->printRow();
-
-		// }
-		// $table->endTable(5);
-		// /********************/
-		// /*BANDEJA DE ENTRADA*/
-		// /********************/
-		// /*CABECERA*/
-		// $verificarBandejaEntrada = $this->cites_model->hojasRutaEntradaPerfil($id_perfil);
-		// $totalB_E = count($verificarBandejaEntrada);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:7; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper("CORRESPONDENCIA POR RECIBIR")),'valign:M;font-style:B' );
-		// $table->easyCell("(".$totalB_E.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-		
-		// $table=new easyTable($pdf, '{20,20,60,90}', 'width:190;align:{CLLLL}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// 	$table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// 	$table->easyCell("FECHA ENVIO ",'valign:M;font-style:B;font-size:6;' );
-		// 	$table->easyCell(utf8_decode("REMITENTE") ,'valign:M;font-style:B;font-size:6;' );
-		// 	$table->easyCell(utf8_decode("PROVEIDO"),'valign:M;font-style:B;font-size:6;' );
-		// 	$table->printRow(true);
-
-		// foreach($verificarBandejaEntrada as $fila)
-		// {	
-		// 	$i++;
-		// 	$hoja_rutaE		= $fila->hoja_ruta;
-		// 	$fecha_envioE	= formato_fecha_hora_slash($fila->fecha_derivacion);
-		// 	$remitenteE		= datosPerfilIdCargoDerivacion($fila->id_perfil_remitente,$fila->origen_sicenad);
-		// 	$proveidoE		= $fila->proveido;
-			
-		// 	$table->easyCell($hoja_rutaE,'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell($fecha_envioE,'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($remitenteE),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($proveidoE),'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->printRow();
-
-		// }
-		// $table->endTable(5);
-
-		// /***********************/
-		// /*BANDEJA DE PENDIENTES*/
-		// /***********************/
-		// /*CABECERA*/
-		// $verificarBandejaPendiente = $this->cites_model->derivacionesPendientePerfil($id_perfil);
-
-		// $totalB_P = count($verificarBandejaPendiente);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:7; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper("CORRESPONDENCIA PENDIENTE")),'valign:M;font-style:B; font-size:7;' );
-		// $table->easyCell("(".$totalB_P.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-
-		// $table=new easyTable($pdf, '{20,20,40,55,55}', 'width:190;align:{CLLLL}; font-size:8; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// $table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("FECHA RECEPCIÓN"),'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("REMITENTE") ,'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("REFERENCIA") ,'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("PROVEÍDO"),'valign:M;font-style:B;font-size:6;' );
-		// $table->printRow(true);
-		
-		// foreach($verificarBandejaPendiente as $fila)
-		// {	
-		// 	$i++;
-		// 	$hoja_rutaP      = $fila->hoja_ruta;
-		// 	$fecha_recepcionP= formato_fecha_hora_slash($fila->fecha_recepcion);
-		// 	if($fila->id_remitente_externo>0)
-		// 	{
-		// 		$remitenteP = datosPerfilIdCargoDerivacionExterno($fila->id_remitente_externo);
-		// 	}
-		// 	else
-		// 	{
-		// 		$remitenteP = datosPerfilIdCargoDerivacion($fila->id_perfil_remitente,$fila->origen_sicenad);
-		// 	}
-
-		// 	$referenciaP     = $fila->referencia;
-		// 	$proveidoP       = $fila->proveido;
-
-		// 	$table->easyCell($hoja_rutaP,'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell($fecha_recepcionP,'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($remitenteP),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($referenciaP),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($proveidoP),'valign:M;bgcolor:#fff;font-size:7; ' );
-		// 	$table->printRow();
-
-		// }
-		// $table->endTable(5);
-
-		// /*******************/
-		// /*BANDEJA DE SALIDA*/
-		// /*******************/
-		// /*CABECERA*/
-		// $verificarBandejaSalida = $this->cites_model->hojasRutaSalidaPerfil($id_perfil);
-		// $totalB_S = count ($verificarBandejaSalida);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:8; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper("CORRESPONDENCIA ENVIADA")),'valign:M;font-style:B ;font-size:7;' );
-		// $table->easyCell("(".$totalB_S.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-		// $table=new easyTable($pdf, '{20,60,90,20}', 'width:190;align:{CLLLL}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// $table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell("DESTINATARIO",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("PROVEÍDO") ,'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("FECHA ENVIO"),'valign:M;font-style:B;font-size:6;' );
-		// $table->printRow(true);
-
-		// foreach($verificarBandejaSalida as $fila)
-		// {	
-		// 	$i++;
-		// 	$hoja_rutaS         =$fila->hoja_ruta;
-		// 	$destinatarioS      =datosPerfilIdCargoDerivacaionDestinatario($fila->id_perfil_destinatario,$fila->destinatario_sicenad);
-		// 	$proveidoS     		=$fila->proveido;//
-		// 	$fecha_derivacionS  =formato_fecha_hora_slash($fila->fecha_derivacion);
-		// 	$table->easyCell($hoja_rutaS,'valign:M;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($destinatarioS),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell(utf8_decode($proveidoS),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		// 	$table->easyCell($fecha_derivacionS,'valign:M;bgcolor:#fff;font-size:7; ' );
-		// 	$table->printRow();
-
-		// }
-		// $table->endTable(5);
-
-		// /***********************/
-		// /*BANDEJA DE RECHAZADOS*/
-		// /***********************/
-		// /*CABECERA*/
-		// $verificarBandejaRechazados= $this->cites_model->hojasRutaRechazadasPerfil($id_perfil);
-		// $totalB_REC = count($verificarBandejaRechazados);
-		// $table=new easyTable($pdf, '{180,10}', 'width:190;align:{LL}; font-size:7; bgcolor:#F2F2F2;border:1;border-color:#c0c0c0;valign:M;');
-		// $table->easyCell(utf8_decode(mb_strtoupper("CORRESPONDENCIA RECHAZADA")),'valign:M;font-style:B; font-size:7;' );
-		// $table->easyCell("(".$totalB_REC.")",'valign:M;font-style:B' );
-		// $table->printRow();
-		// $table->endTable(0);
-
-		// $table=new easyTable($pdf, '{20,20,60,90}', 'width:190;align:{CLLLL}; font-size:8; paddingY:1;bgcolor:#F2F2F2;border:TB;border-color:#c0c0c0;line-height:1.2;');
-		// $table->easyCell("HOJA RUTA ",'valign:M;font-style:B;font-size:6;' );
-		// $table->easyCell(utf8_decode("FECHA RECEPCIÓN"),'valig$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-		$datos_json = $this->input->post('datos');
-		$detalle_json = $this->input->post('detalleComprobante');
-		parse_str($datos_json,$data);
-		// echo("<pre>");
-		// print_r($datos_json);
-		// echo("<br>");
-		// print_r($detalle_json);
-		// echo("</pre>");
-		// die();
-
-
-		$orden = array("\r\n", "\n", "\r" ,'"') ;
-		$pdf=new exFPDFCartaContable('P','mm','Letter');
-		$pdf->fechahora_impresion='SI';
-		$pdf->opcion_pie ="PAGINADOR_FECHA";
-		$pdf->SetFont('Arial','',14);
-		$pdf->AddPage(); 
-
-
-		/****************************/
-		/*DATOS CABECERA DEL REPORTE*/
-		/****************************/
-		$accion = $data['txtAccionComprobante'];
-		if($accion === 'nuevo'){
-			$nombre_entidad					= descripcion_nombre_entidad($data['id_entidad']);
-			$sigla_entidad					= "XXXXXX";/*CONSULTAR*/
-			$sigla_senape					= "SENAPE";
-			$paginador 						= "Pag. 1/2";
-			$fecha_comprobante  			= formato_fecha_slash($data['txtFecha']);
-			$tipo_cambio					= number_format($data['txtTipoCambio'],2,'.',',');
-			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $data['txtTipo']);
-			$mes							= date("m", strtotime($fecha_comprobante));
-			$periodo						= mb_strtolower(getValor2Configuraciones("MESES", $mes));
-			$gestion						= date("Y", strtotime($fecha_comprobante));			
-			$tipoCorrelativo  				= $data['txtTipo'] ;
-			$datosCorrelativo   			= json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
-			$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
-			$correlativo      		        = $datosCorrelativo[0]->correlativo;
-			$correlativo_comprobante		= $correlativo;
-			$referencia_comprobante 		= ".....";
-
-			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
-
-			$texto_cabecera_izquierda = utf8_decode(mb_strtoupper($nombre_entidad)) . "\n" .
-										utf8_decode(mb_strtoupper($sigla_entidad)) . "\n" .
-										utf8_decode(mb_strtoupper($sigla_senape));
-			$table->easyCell($texto_cabecera_izquierda, 'valign:M;halign:C;font-size:7');
-
-			$table->easyCell(' ', 'valign:M;halign:C;font-size:7');
-
-			$texto_cabecera_derecha = utf8_decode($paginador) . "\n" .
-									utf8_decode($fecha_comprobante) . "\n" .
-									utf8_decode("T.C.:".$tipo_cambio);
-			$table->easyCell($texto_cabecera_derecha, 'valign:M;halign:R;font-size:7');
-
-			$table->printRow();
-			$table->endTable(0);
-
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
-			$table->easyCell(utf8_decode(mb_strtoupper($tipo_comprobante)), 'valign:M;halign:C;font-size:8 ;font-style:BU');
-			$table->printRow();
-			$table->endTable(0);
-
-			$table = new easyTable($pdf, '{40,35,30,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
-
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-
-			$texto_periodo =  utf8_decode("Periodo: <b>".$periodo."-".$gestion."</b>");
-			$table->easyCell($texto_periodo, 'valign:M;font-size:8;halign:R;html=true');
-
-			$texto_nrocomprobante =  utf8_decode("Nro: <b>".$correlativo_comprobante."</b>");
-			$table->easyCell($texto_nrocomprobante, 'valign:M;font-size:8;halign:L;html=true');
-
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-
-			$table->printRow();
-			$table->endTable(2);
-
-
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{L}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-			$table->easyCell(utf8_decode("<b>Ref.:</b>".$referencia_comprobante), 'valign:M;halign:L;font-size:8 ;font-style:N');
-			$table->printRow();
-			$table->endTable(2);
-
-			/******************************/
-			/*CUERPO*/
-			/******************************/
-			/*CABECERA*/
-			$table=new easyTable($pdf, '{30,80,20,20,20,20}', 'width:190;align:{CLCCCC}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
-			$table->easyCell(utf8_decode("CÓDIGO"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DESCRIPCIÓN"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DEBE") ,'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("HABER"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DEBE Us."),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("HABER Us."),'valign:M;font-style:B;font-size:6;' );
-			$table->printRow(true);
-			
-			$filas = explode("|", $detalleComprobante);
-			$importeDebe=0;
-			$importeHaber=0;
-			$importeDebeUs=0;
-			$importeHaberUs=0;
-			$totalimporteDebe=0;
-			$totalimporteHaber=0;
-			$totalimporteDebeUs=0;
-			$totalimporteHaberUs=0;
-			$nro_registros=0;
-
-			if(!empty($filas))
-			{
-				foreach($filas as $fila)
-				{
-					if(!empty($fila) && $fila != "undefined" && $fila != "null")
-					{
-						$row = explode("*", $fila);
-						if(!isset($row[0]) || empty($row[0]))
-						{
 							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta) = $row;
 
 							$codigoCuenta = explode("-",$cuenta);
@@ -1572,23 +802,112 @@ class Comprobante extends CI_Controller {
 								// $importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
 								$importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
 							}
-							$cuenta_registro = "<b><u>".$descripcion_cuenta."</u></b><br>".$glosa_cuenta;
-							$table->easyCell($codigo_cuenta,'valign:M;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(utf8_decode($cuenta_registro),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(number_format($importeDebe, 2, '.', ','),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(number_format($importeHaber,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(number_format($importeDebeUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(number_format($importeHaberUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
+							$cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta;
+							$table->easyCell($codigo_cuenta,'valign:M;bgcolor:#fff;font-size:7;rowspam:2;' );
+							$table->easyCell(utf8_decode("<b>".$descripcion_cuenta."</b>"),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;font-style:BU' );
+							
+							if($importeDebe > 0)
+							{
+								$table->easyCell(number_format($importeDebe, 2, '.', ','),'valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							}
+							else
+							{
+								$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							}
+							if($importeHaber > 0)
+							{
+								$table->easyCell(number_format($importeHaber,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							else
+							{
+								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							if($importeDebeUs>0)
+							{
+								$table->easyCell(number_format($importeDebeUs,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							else
+							{
+								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							if($importeHaberUs>0)
+							{
+								$table->easyCell(number_format($importeHaberUs,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							else
+							{
+								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
 							$table->printRow();
-							
+							$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							$table->easyCell(utf8_decode($glosa_cuenta),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->printRow();
+
+							$totalimporteDebe+=$importeDebe;
+							$totalimporteHaber+=$importeHaber;
+							$totalimporteDebeUs+=$importeDebeUs;
+							$totalimporteHaberUs+=$importeHaberUs;
 
 						}
 					}
 				}
 			}
-			$table->endTable(5);	
-		}		
+				
+			$table->endTable(0);
+		}
+		$table=new easyTable($pdf, '{110,40,40}', 'width:190;align:{RRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
+		$table->easyCell(utf8_decode("TOTALES:"),'valign:M;font-style:B;font-size:6;' );
+		$table->easyCell(number_format($totalimporteDebe, 2, '.', ','),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
+		$table->easyCell(number_format($totalimporteHaber,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
+		$table->easyCell(number_format($totalimporteDebeUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
+		$table->easyCell(number_format($totalimporteHaberUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
+		$table->printRow(true);
+		$table->endTable(3);
+		$table=new easyTable($pdf, '{110,7,30,7,30,6}', 'width:190;align:{LCCCCC}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border-color:#c0c0c0;line-height:1.2;');
 
+		$table->easyCell(utf8_decode("<b>Glosa:</b> ".$glosa_general), 'valign:T;rowspan:5;font-size:7;');
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->printRow(true);	
+
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->printRow(true);	
+
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->printRow(true);	
+
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->printRow(true);	
+		$pie_contador="CONTADOR";
+		$pie_gerentegeneral="GERENTE GENERAL";
+		
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
+		$table->easyCell(utf8_decode("$pie_contador"),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;T;' );	
+		$table->easyCell(utf8_decode($pie_gerentegeneral),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
+		$table->printRow(true);	
+		$table->endTable(5);
+				
 		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
 	}
 	
