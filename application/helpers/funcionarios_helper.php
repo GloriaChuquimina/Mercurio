@@ -25,5 +25,19 @@ function tipopuesto_principal_funcionario($id_funcionario)
 
   return $tipo_puesto;
 }
+function datos_persona_nombre2($id)
+{
+  $fila =& get_instance();
+  $fila->load->model('Funcionarios_model');
+  $datos = $fila->Funcionarios_model->datosPersonas($id);
+  if($datos)
+  {
+    return $datos[0]->nombres." ".$datos[0]->primer_apellido." ".$datos[0]->segundo_apellido ;
+  }
+  else
+  {
+    return "";
+  }
+}
 
 ?>

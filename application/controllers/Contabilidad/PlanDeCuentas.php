@@ -31,7 +31,7 @@ class PlanDeCuentas extends CI_Controller {
 		$dato['roles']  = $this->session->userdata('roles');
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
 
-		$titulo = "PLAN DE CUENTAS";		
+		$titulo = "Plan de Cuentas";		
 		$dato['titulo'] = $titulo;
 
 		$this->load->view('inicio/cabecera',$dato);
@@ -143,16 +143,29 @@ class PlanDeCuentas extends CI_Controller {
 			// 	$tipo =getCuenta($partes[1]);
 			// }
 			// $tipo=$partes[0];
-
+			$estado =getValor2Configuraciones("ESTADO REGISTRO", $fila['estado']);
+			switch ($fila['estado']) {
+			case "ACT":
+				$estado="<span class='badge badge-success'>".$estado."</span>";
+				break;
+			case "ANU":
+				$estado="<span class='badge badge-danger'>".$estado."</span>";
+				break;
+			default:
+				$estado="<span class='badge badge-secondary'>".$estado."</span>";
+				break;
+			}
+			
 			$data[] = array(
 				$boton,
 				$num++,
-				$indentacion.$codigo,
+				// $indentacion."<span class='badge badge-secondary'>".$codigo."</span>",
+				"<span class='badge badge-secondary'>".$codigo."</span>",
 				$descripcion,	
 				$tipo,
                 $fila['nivel'],
                 $fila['sigla'],
-				$fila['estado']
+				$estado
 			);
 		}
 
@@ -496,8 +509,8 @@ class PlanDeCuentas extends CI_Controller {
 		{   
 
 			$boton   = "
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
-                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-edit'></i></button>     
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
+                            <button type='button' class='btn btn-success btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i>✓</i></button>     
                         </span>				
                         ";		
 
@@ -510,8 +523,8 @@ class PlanDeCuentas extends CI_Controller {
 				$codigo =  "<strong><u>{$codigo}</u></strong>";
 			}
 			$data[] = array(
-				$boton,
-				$codigo,
+				"<div style='text-align: center;'>$boton</div>",
+				"<span class='badge badge-secondary'>".$codigo."</span>",
 				$descripcion
 			);
 		}

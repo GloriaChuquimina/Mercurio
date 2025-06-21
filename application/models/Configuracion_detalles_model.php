@@ -8,6 +8,7 @@ class Configuracion_detalles_model extends CI_Model
 	{
 		parent::__construct();
 		$this->db_rrhh = $this->load->database('db_recursos_humanos', TRUE);
+		$this->db_mercurio = $this->load->database('db_mercurio', TRUE);
 	}
 
 	function getGestionVigente()
@@ -32,7 +33,7 @@ class Configuracion_detalles_model extends CI_Model
 			                              from administracion.dominios
 			                             where concepto ='".$concepto."'
 			                               and valor1 ='".$valor."'
-			                               and estado = 'AC'
+			                               and estado = 'ACT'
 			                             order by orden asc");
         return $query->result();
 	}
@@ -41,7 +42,7 @@ class Configuracion_detalles_model extends CI_Model
 		$query = $this->db_rrhh->query("select *
 			                              from administracion.dominios
 			                             where descripcion ='".$direccion."'
-			                               and estado = 'AC'
+			                               and estado = 'ACT'
 			                             order by orden asc");
         return $query->result();
 	}
@@ -50,7 +51,7 @@ class Configuracion_detalles_model extends CI_Model
 		$query = $this->db_rrhh->query("select *
 			                              from boletas.permisos_dominio
 			                             where id ='".$valor."'
-			                               and estado = 'AC'");
+			                               and estado = 'ACT'");
         return $query->result();
 	}
 	function getValoresDominiosCombos($concepto)
@@ -58,7 +59,7 @@ class Configuracion_detalles_model extends CI_Model
 		$query = $this->db_rrhh->query("select valor2, valor1
 			                              from administracion.dominios
 			                             where concepto ='".$concepto."'
-			                               and estado = 'AC'
+			                               and estado = 'ACT'
 										   order by valor2");
         return $query->result();
 	}
@@ -74,20 +75,20 @@ class Configuracion_detalles_model extends CI_Model
 		$query = $this->db_rrhh->query("select valor2, valor1
 			                              from administracion.dominios
 			                             where concepto ='".$concepto."'
-			                               and estado = 'AC' and valor1 not in('".$excluir."')
+			                               and estado = 'ACT' and valor1 not in('".$excluir."')
 										   order by valor2");
         return $query->result();
 	}
-	function getValoresDominiosConcepto($concepto,$valor) 
-	{
-		$query = $this->db_rrhh->query("select *
-			                              from administracion.dominios
-			                             where concepto ='".$concepto."'
-			                               and valor1 ='".$valor."'
-			                               and estado = 'AC'
-			                             order by orden asc");
-        return $query->result();
-	}
+	// function getValoresDominiosConcepto($concepto,$valor) 
+	// {
+	// 	$query = $this->db_rrhh->query("select *
+	// 		                              from administracion.dominios
+	// 		                             where concepto ='".$concepto."'
+	// 		                               and valor1 ='".$valor."'
+	// 		                               and estado = 'ACT'
+	// 		                             order by orden asc");
+    //     return $query->result();
+	// }
 
 	function getValoresDominiosDescripcion($descripcion,$valor)
 	{
@@ -95,7 +96,7 @@ class Configuracion_detalles_model extends CI_Model
 			                              from administracion.dominios
 			                             where descripcion ='".$descripcion."'
 			                               and valor1 ='".$valor."'
-			                               and estado = 'AC'
+			                               and estado = 'ACT'
 			                             order by orden asc");
         return $query->result();
 	}
@@ -189,6 +190,17 @@ class Configuracion_detalles_model extends CI_Model
 		$query = $this->db_rrhh->query("select count(*) as hijos
 										  from ficha_personal.hijos
 										where id_funcionario =".$id_funcionario);
+        return $query->result();
+	}
+	/*MERCURIO */
+	function getValoresDominiosConcepto($concepto,$valor) 
+	{
+		$query = $this->db_mercurio->query("select *
+			                              from administracion.dominios
+			                             where concepto ='".$concepto."'
+			                               and valor1 ='".$valor."'
+			                               and estado = 'ACT'
+			                          order by orden asc");
         return $query->result();
 	}
 }

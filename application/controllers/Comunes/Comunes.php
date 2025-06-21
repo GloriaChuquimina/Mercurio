@@ -8,6 +8,7 @@ class Comunes extends CI_Controller
 		$this->_is_logued_in();
 		$this->load->model('Comunes_model');
 		$this->load->model('Entidades_model');
+		$this->load->model('PlanDeCuentas_model');
 		$this->load->helper('configuraciones_helper');
 
 	}
@@ -113,6 +114,17 @@ class Comunes extends CI_Controller
 	    foreach ($filas as $fila)
 	    {
 	        $option.="<option value = '".$fila->valor1."'>".$fila->valor2."</option>";
+	    }
+   		 echo $option;
+	}
+	function cargarCuentaContableEntidad()
+	{
+
+	    $filas = $this->PlanDeCuentas_model->getPlanDeCuentas();
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->id."'>".$fila->codigo."-".$fila->descripcion."</option>";
 	    }
    		 echo $option;
 	}

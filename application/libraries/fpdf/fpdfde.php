@@ -7,10 +7,15 @@
 * Author:  Olivier PLATHEY                                                     *
 *******************************************************************************/
 
-define('FPDF_VERSION','1.83');
+define('FPDF_VERSION','1.84');
 
 class FPDFDE
 {
+
+
+public $marcaDeAguaDeclaracion;
+
+
 protected $page;               // current page number
 protected $n;                  // current object number
 protected $offsets;            // array of object offsets
@@ -362,9 +367,10 @@ function Header()
 	// To be implemented in your own inherited class
 }
 
-function Footer()
+public function Footer()
 {
 	// To be implemented in your own inherited class
+	
 }
 
 function PageNo()

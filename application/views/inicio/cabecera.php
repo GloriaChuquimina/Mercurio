@@ -46,10 +46,10 @@
 
 
 
-  <div class="modal " id="pdfModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal fade show" id="pdfModal" style ="background-color:rgba(0,0,0,0.4)" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" style="max-width: 1300px;" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-light">
                 <h3 class="modal-title" id="exampleModalCenter"><b></b></h3>
                 <button type="button" class="close cerrarPDF" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>

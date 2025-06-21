@@ -97,6 +97,7 @@ function agregarSubCuentas(id_cuenta,codigo,nombreCuenta,nivel,padre,ruta)
     $('#nivel_padre').val(nivel);
     $('#id_padre').val(padre);
     $('#ruta').val(ruta);
+    $('#tituloSubcuentas').text(Cuenta);
     $('#modalPlanDeSubCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanDeSubCuentas').modal('show');  
     cargarTablaPlanDeSubCuentas(id_cuenta)

@@ -93,6 +93,20 @@ function datos_dominio_valor($concepto,$valor)
   return $datos;
 }
 
+function getValor2Configuraciones($concepto, $valor)
+{
+    $fila_m =& get_instance();
+    $fila_m->load->model('Configuracion_detalles_model');
+
+    $fila = $fila_m->Configuracion_detalles_model->getValoresDominiosConcepto($concepto,$valor);
+    $respuesta = "";
+    if($fila)
+    {
+       $respuesta = $fila[0]->valor2;
+    } 
+    return $respuesta;
+}
+
 function datos_dominio_descripcion($descripcion)
 {
   $fila =& get_instance();
