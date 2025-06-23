@@ -27,15 +27,33 @@ INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, ico
 INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(136, 378, 'LIBRO MAYOR', '...', NULL, 1, 0, 'AC', 11);
 INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(137, 380, 'SUMAS Y SALDOS', '...', NULL, 1, 0, 'AC', 11);
 INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(138, 382, 'ESTADO DE RESULTADOS', '...', NULL, 1, 0, 'AC', 11);
-INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(142, 388, 'BALANCE GENERAL', '...', NULL, 1, 0, 'AN', 11);
-INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(139, 384, 'BALANCE GENERAL', '...', NULL, 1, 0, 'AC', 11);
-INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(141, 386, 'ESTADO DE CUENTA', '...', NULL, 1, 0, 'AC', 11);
-INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(134, 373, 'COMPROBANTES DE TRASPASO', '...', NULL, 2, 2, 'AN', 11);
-INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(132, 367, 'PLAN DE CUENTAS', 'Contabilidad/PlanDeCuentas', NULL, 2, 1, 'AC', 11);
-INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(134, 373, 'COMPROBANTES', 'Contabilidad/Comprobante', NULL, 2, 1, 'AC', 11);
-INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(137, 380, 'SUMAS Y SALDOS', 'Contabilidad/SumasYSaldos', NULL, 2, 1, 'AC', 11);
-INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(142, 388, 'BALANCE GENERAL', '...', NULL, 2, 1, 'AN', 11);
-INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(133, 369, 'ENTIDADES', 'Entidades/Entidades', NULL, 2, 1, 'AC', 11);
+INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, ordupdate aplicaciones.opciones set icono = 'nav-icon fas fa-book' where id = 367 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-book' where id = 368 and id_aplicacion = 11;
+
+update aplicaciones.opciones set icono = 'nav-icon fas fa-building' where id = 369 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-building' where id = 370 and id_aplicacion = 11;
+
+update aplicaciones.opciones set icono = 'nav-icon fas fa-tags' where id = 373 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-tags' where id = 374 and id_aplicacion = 11;
+
+update aplicaciones.opciones set icono = 'nav-icon fas fa-envelope-open-text' where id = 376 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-envelope-open-text' where id = 377 and id_aplicacion = 11;
+
+update aplicaciones.opciones set icono = 'nav-icon fas fa-briefcase' where id = 378 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-briefcase' where id = 379 and id_aplicacion = 11;
+
+update aplicaciones.opciones set icono = 'nav-icon fas fa-calculator' where id = 381 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-calculator' where id = 380 and id_aplicacion = 11;
+
+update aplicaciones.opciones set icono = 'nav-icon fas fa-chart-line' where id = 382 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-chart-line' where id = 383 and id_aplicacion = 11;
+
+update aplicaciones.opciones set icono = 'nav-icon fas fa-balance-scale' where id = 384 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-balance-scale' where id = 385 and id_aplicacion = 11;
+
+update aplicaciones.opciones set icono = 'nav-icon fas fa-asterisk' where id = 386 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-asterisk' where id = 387 and id_aplicacion = 11;
+en, estado, id_aplicacion) VALUES(133, 369, 'ENTIDADES', 'Entidades/Entidades', NULL, 2, 1, 'AC', 11);
 INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(135, 376, 'LIBRO DIARIO', 'Contabilidad/LibroDiario', NULL, 2, 1, 'AC', 11);
 INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(136, 378, 'LIBRO MAYOR', 'Contabilidad/LibroMayor', NULL, 2, 1, 'AC', 11);
 INSERT INTO aplicaciones.opciones (id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(138, 382, 'ESTADO DE RESULTADOS', 'Contabilidad/EstadoDeResultados', NULL, 2, 1, 'AC', 11);
@@ -92,3 +110,25 @@ INSERT INTO aplicaciones.opciones (id, id_modulo, codigo_opciones, opcion, link,
 INSERT INTO aplicaciones.opciones (id, id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(375, 141, 374, 'ESTADO DE CUENTA', 'Contabilidad/EstadoDeCuenta', NULL, 2, 1, 'AC', 11);
 INSERT INTO aplicaciones.opciones (id, id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(376, 142, 376, 'BALANCE GENERAL', '...', NULL, 1, 0, 'AN', 11);
 INSERT INTO aplicaciones.opciones (id, id_modulo, codigo_opciones, opcion, link, icono, nivel, orden, estado, id_aplicacion) VALUES(377, 142, 376, 'BALANCE GENERAL', '...', NULL, 2, 1, 'AN', 11);
+
+
+
+/*ICONOS DEL MENU*/
+update aplicaciones.opciones set icono = 'nav-icon fas fa-book' where id = 367 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-book' where id = 368 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-building' where id = 369 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-building' where id = 370 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-tags' where id = 373 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-tags' where id = 374 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-envelope-open-text' where id = 376 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-envelope-open-text' where id = 377 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-briefcase' where id = 378 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-briefcase' where id = 379 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-calculator' where id = 381 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-calculator' where id = 380 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-chart-line' where id = 382 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-chart-line' where id = 383 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-balance-scale' where id = 384 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-balance-scale' where id = 385 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-asterisk' where id = 386 and id_aplicacion = 11;
+update aplicaciones.opciones set icono = 'nav-icon fas fa-asterisk' where id = 387 and id_aplicacion = 11;

@@ -1,7 +1,8 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="<?php echo base_url()?>Inicio" class="brand-link">      
+    <a href="<?php echo base_url()?>Inicio" class="brand-link">
+			<img src="<?php echo base_url();?>resources/dist/img/AdminLTELogo.png" class="brand-image img-circle elevation-3" style="opacity: .8">      
       <span class="brand-text font-weight-light"><?= $nombre_sistema?></span>
     </a>
 
@@ -9,7 +10,9 @@
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <!-- <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image"> -->
+				<div class="image">
+        	<img src="<?php echo base_url();?>resources/dist/img/user1-128x128.jpg" class="img-circle elevation-2" alt="User Image">
+				</div>
         <div class="info">
           <a href="<?php echo site_url("Usuarios/Datos");?>" class="d-block"><?= $nombre_usuario?></a>
         </div>
@@ -47,10 +50,7 @@
           <?php if ($rol->nivel == 2){?>                  
 
               <li class="nav-item">
-                <a  href="<?php echo site_url($rol->link);?>" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?=$rol->opcion?></p></a>
-
-                
-
+                <a  href="<?php echo site_url($rol->link);?>" class="nav-link"><i class="<?php echo $rol->icono; ?>"></i><p><?=$rol->opcion?></p></a>
               </li>  
           <?php }?>
           <?php $nivelanterior = $rol->nivel;  ?>
