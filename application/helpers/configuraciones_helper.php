@@ -313,6 +313,18 @@ function formato_fecha_slash_invertido($fecha)
       return "";
     }
 }
+function formato_fecha_slash_invertido2($fecha)
+{
+    if($fecha)
+    {
+      $timestamp = strtotime($fecha);
+      return date('Y-m-d', $timestamp);
+    }
+    else
+    {
+      return "";
+    }
+}
 function formato_fecha_hora($fecha)
 {
     if($fecha)
@@ -923,6 +935,19 @@ function getCuenta($id_cuenta)
     if($fila)
     {
        $respuesta = $fila[0]->descripcion;
+    } 
+    return $respuesta;
+}
+function getCodigoCuenta($id_cuenta)
+{
+    $fila_m =& get_instance();
+    $fila_m->load->model('PlanDeCuentas_model');
+
+    $fila = $fila_m->PlanDeCuentas_model->getPlanDeCuentasById($id_cuenta);
+    $respuesta = "";
+    if($fila)
+    {
+       $respuesta = $fila[0]->codigo;
     } 
     return $respuesta;
 }

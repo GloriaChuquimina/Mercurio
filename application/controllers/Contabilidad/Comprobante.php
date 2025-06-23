@@ -46,7 +46,28 @@ class Comprobante extends CI_Controller {
 		$this->load->view('contabilidad/comprobantes',$dato);
 		$this->load->view('inicio/pie');
 	}
-	public function registroComprobante($entidad,$accion='nuevo')
+	public function principalComprobante($entidad=-1)
+	{
+
+		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
+		$dato['nombre_sistema']  = "SISTEMA CONTABLE <BR>MERCURIO";
+		
+		
+		$id_usuario = $this->session->userdata('id_usuario');
+		$dato['rolescero'] = $this->session->userdata('rolescero');
+		$dato['roles']  = $this->session->userdata('roles');
+		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
+
+		$titulo = "Gestión de Comprobantes";		
+		$dato['titulo'] = $titulo;
+		$dato['entidad'] = $entidad;
+
+		$this->load->view('inicio/cabecera',$dato);
+		$this->load->view('inicio/menu',$dato);
+		$this->load->view('contabilidad/comprobantes',$dato);
+		$this->load->view('inicio/pie');
+	}
+	public function registroComprobante($entidad,$accion='nuevo',$id_comprobante=0)
 	{
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
 		$dato['nombre_sistema']  = "SISTEMA CONTABLE <BR>MERCURIO";
@@ -57,6 +78,7 @@ class Comprobante extends CI_Controller {
 		$dato['nombre_entidad']  = descripcion_nombre_entidad($entidad);
 		$dato['entidad']  = $entidad;
 		$dato['accion']  = $accion;
+		$dato['id_comprobante']  = $id_comprobante;
 
 		$titulo = "Comprobante Contable";		
 		$dato['titulo'] = $titulo;
@@ -89,29 +111,28 @@ class Comprobante extends CI_Controller {
 		}
 		return TRUE;
 	}
-	function verificarEntidad($idEntidad)
+	function verificarEntidad()
 	{
 
-		// $idEntidad = $this->input->post('id_entidad');
-		// $idEntidad = '123';
-		// return ($idEntidad);
-		// die();
-
-		if (empty($idEntidad) || !is_numeric($idEntidad)) {
+		$idEntidad = $this->input->post('nombre_entidad');
+		// if (empty($idEntidad) || (!is_numeric($idEntidad) && $idEntidad == -1)) {
+		if (empty($idEntidad)) {
 			$this->form_validation->set_message('verificarEntidad', 'No se ha registrado una entidad para asociar el comprobante.');
 			return FALSE;
 		}
 		return TRUE;
 	}
-	public function fecha_valida()
+	public function fecha_valida($fecha)
 	{
-		$fecha = $this->input->post('txtFecha');
+		// $fecha = $this->input->post('txtFecha');
+		// echo ($fecha);
 		if (DateTime::createFromFormat('Y-m-d', $fecha) !== false) {
 			return true;
 		} else {
 			$this->form_validation->set_message('fecha_valida', 'El campo {field} no contiene una fecha válida.');
 			return false;
 		}
+		
 	}
 
 	function validarDatosRegistroCuenta()
@@ -283,8 +304,13 @@ class Comprobante extends CI_Controller {
 
  		$txtAccion 	= $data['txtAccionComprobante'];
 		$idEntidad  = $data['id_entidad'];
-		$verifica =$this->verificarEntidad($idEntidad);
-		// echo $idEntidad;
+		$fecha      = $data['txtFecha'];
+
+		// $verifica =$this->verificarEntidad($idEntidad);
+		$verifica_fecha =$this->fecha_valida($fecha);
+		// echo $verifica;	
+		// echo $verifica_fecha;	
+		// die();
 
  		$this->form_validation->set_data($data);
  		$resul = 1;
@@ -490,7 +516,7 @@ class Comprobante extends CI_Controller {
 		          "mensaje":"'.$mensaje.'"}]';
 
 	}
-	 public function cargarComprobantesByEntidad()
+	public function cargarComprobantesByEntidad()
 	{
 		$id_usuario  = $this->session->userdata('id_usuario');
 			
@@ -507,7 +533,10 @@ class Comprobante extends CI_Controller {
 		{   
 			$boton   = "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
-                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarEntidad(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
+                            <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
+                        </span>	
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Imprimir'>
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"generarReportePComprobanteRegistrado(". $fila->id . ")\"><i class='fas fa-print'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
                             <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaEntidad(". $fila->id . ")'><i class='fas fa-trash-alt'></i></button>     
@@ -648,6 +677,274 @@ class Comprobante extends CI_Controller {
 		echo json_encode($output);
 		exit();
     }
+	function ReporteComprobanteRegistradoPDF($id_comprobante,$accion)
+	{
+
+		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
+		// $datos_json = json_decode($this->input->post('datos'));
+		// $detalle_json =json_decode($this->input->post('detalleComprobante'));
+		
+		// parse_str($datos_json, $datos1);		
+		
+		$datosComprobante    = $this->Comprobantes_model->getComprobanteById($id_comprobante);
+		// echo json_encode($datosComprobante);
+		/****************************/
+		/*INICIO DEL REPORTE*/
+		/****************************/
+		$orden = array("\r\n", "\n", "\r" ,'"') ;
+		$pdf=new exFPDFCartaContable('P','mm','Letter');
+		// $this->load->library('fpdf/pdf2');
+		// $pdf=new Pdf2('P','mm','Letter');
+		$pdf->fechahora_impresion='SI';
+		// $pdf->opcion_pie ="PAGINADOR_FECHA";
+		$pdf->SetFont('Arial','',14);
+		$pdf->AliasNbPages();
+		$pdf->opcion_pie='COMPROBANTE';
+		// $pdf->marcaDeAgua = $marcaAgua;
+		$pdf->AddPage(); 
+
+
+		/****************************/
+		/*DATOS CABECERA DEL REPORTE*/
+		/****************************/
+		// $accion = $datos1['txtAccionComprobante'];
+		if($accion === 'editar'){
+
+			$id_comprobante					= $datosComprobante[0]->id;
+			$marcaAgua='SI';
+			$nombre_entidad					= descripcion_nombre_entidad($datosComprobante[0]->id_entidad);
+			$sigla_entidad					= "XXXXXX";/*CONSULTAR*/
+			$sigla_senape					= "SENAPE";
+			// $this->Cell(20, 3, utf8_decode('Página ' . $this->PageNo() . '/{nb}'), 0, 0, 'C');
+			$paginador 						= "Pag. 1/2";
+			// $paginador 						= utf8_decode('Página ' . $pdf->PageNo() . '/{nb}');
+			$fecha_comprobante  			= formato_fecha_slash($datosComprobante[0]->fecha_comprobante);
+			$tipo_cambio					= number_format($datosComprobante[0]->tipo_cambio,2,'.',',');
+			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $datosComprobante[0]->tipo_comprobante);
+			// $mes							= date("n", strtotime($fecha_comprobante));
+			$mes							= $datosComprobante[0]->periodo;
+			$periodo						= mb_strtolower(getValor2Configuraciones("MESES", $mes));
+			$gestion						= $datosComprobante[0]->gestion;
+			$correlativo      		        = $datosComprobante[0]->correlativo;
+			$correlativo_comprobante		= $correlativo;
+			$referencia_comprobante 		= ".....";
+			$glosa_general					= $datosComprobante[0]->glosa_comprobante;
+
+
+			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+
+			$texto_cabecera_izquierda = utf8_decode(mb_strtoupper($nombre_entidad)) . "\n" .
+										utf8_decode(mb_strtoupper($sigla_entidad)) . "\n" .
+										utf8_decode(mb_strtoupper($sigla_senape));
+			$table->easyCell($texto_cabecera_izquierda, 'valign:M;halign:C;font-size:7');
+
+			$table->easyCell(' ', 'valign:M;halign:C;font-size:7');
+
+			$texto_cabecera_derecha = utf8_decode($paginador) . "\n" .
+									utf8_decode($fecha_comprobante) . "\n" .
+									utf8_decode("T.C.:".$tipo_cambio);
+			$table->easyCell($texto_cabecera_derecha, 'valign:M;halign:R;font-size:7');
+
+			$table->printRow();
+			$table->endTable(0);
+
+			$table = new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+			$table->easyCell(utf8_decode(mb_strtoupper($tipo_comprobante)), 'valign:M;halign:C;font-size:8 ;font-style:BU');
+			$table->printRow();
+			$table->endTable(0);
+
+			$table = new easyTable($pdf, '{40,25,40,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+
+			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
+			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
+
+			$texto_periodo =  utf8_decode("Periodo: <b>".$periodo."-".$gestion."</b>");
+			$table->easyCell($texto_periodo, 'val
+			// $filas = explode("|", $detalleComprobante);ign:M;font-size:8;halign:R;');
+
+			$texto_nrocomprobante =  utf8_decode("Nro: <b>".$correlativo_comprobante."</b>");
+			$table->easyCell($texto_nrocomprobante, 'valign:M;font-size:8;halign:L;');
+
+			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
+
+			$table->printRow();
+			$table->endTable(2);
+
+
+			$table = new easyTable($pdf, '{190}', 'width:190;align:{L}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
+			$table->easyCell(utf8_decode("<b>Ref.:</b>".$referencia_comprobante), 'valign:M;halign:L;font-size:8 ;font-style:N');
+			$table->printRow();
+			$table->endTable(2);
+
+			/******************************/
+			/*CUERPO*/
+			/******************************/
+			/*CABECERA*/
+			$table=new easyTable($pdf, '{30,80,20,20,20,20}', 'width:190;align:{CLCCCC}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
+			$table->easyCell(utf8_decode("CÓDIGO"),'valign:M;font-style:B;font-size:6;' );
+			$table->easyCell(utf8_decode("DESCRIPCIÓN"),'valign:M;font-style:B;font-size:6;' );
+			$table->easyCell(utf8_decode("DEBE") ,'valign:M;font-style:B;font-size:6;' );
+			$table->easyCell(utf8_decode("HABER"),'valign:M;font-style:B;font-size:6;' );
+			$table->easyCell(utf8_decode("DEBE Us."),'valign:M;font-style:B;font-size:6;' );
+			$table->easyCell(utf8_decode("HABER Us."),'valign:M;font-style:B;font-size:6;' );
+			$table->printRow(true);
+			$table->endTable(0);
+
+			$table=new easyTable($pdf, '{30,80,20,20,20,20}', 'width:190;align:{LLRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LR;border-color:#c0c0c0;line-height:1.2;');
+			// $detalleComprobante=$detalle_json;		
+			// $filas = explode("|", $detalleComprobante);
+			$detalleComprobante    = $this->Comprobantes_model->getDetalleComprobanteById($id_comprobante);
+			// echo json_encode($detalleComprobante);
+			$importeDebe=0;
+			$importeHaber=0;
+			$importeDebeUs=0;
+			$importeHaberUs=0;
+			$totalimporteDebe=0;
+			$totalimporteHaber=0;
+			$totalimporteDebeUs=0;
+			$totalimporteHaberUs=0;
+			$nro_registros=0;
+
+			if(!empty($detalleComprobante))
+			{
+				foreach($detalleComprobante as $fila)
+				{
+							$importeDebe=0;
+							$importeHaber=0;
+							$importeDebeUs=0;
+							$importeHaberUs=0;
+
+							$id_registro 			   = $fila->id;
+							$id_cuenta   			   = $fila->id_cuenta;
+							$descripcion_cuenta		   = getCuenta($id_cuenta);
+							$tipo_movimiento		   = $fila->tipo_movimiento;
+							$tipo_movimiento_literal   = getValor2Configuraciones("TIPO MOVIMIENTO", $fila->tipo_movimiento);
+							$importe				   = $fila->importe_moneda_nacional;
+							$importe_moneda_extranjera = $fila->importe_moneda_extranjera;
+							$tipo_cambio			   = $fila->tipo_cambio;
+							$glosa_cuenta			   = $fila->glosa_cuenta;
+							$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
+							
+							if($tipo_movimiento == "DB")
+							{
+								$importeDebe   = $importe;
+								$importeDebeUs = $importe_moneda_extranjera;
+								// $importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
+							}
+							elseif ($tipo_movimiento == "HB") {
+								$importeHaber   = $importe;
+								$importeHaberUs = $importe_moneda_extranjera;
+								// $importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
+							}
+
+							$cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta;
+							$table->easyCell($codigo_cuenta,'valign:M;bgcolor:#fff;font-size:7;rowspam:2;' );
+							$table->easyCell(utf8_decode("<b>".$descripcion_cuenta."</b>"),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;font-style:BU' );
+							
+							if($importeDebe > 0)
+							{
+								$table->easyCell(number_format($importeDebe, 2, '.', ','),'valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							}
+							else
+							{
+								$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							}
+							if($importeHaber > 0)
+							{
+								$table->easyCell(number_format($importeHaber,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							else
+							{
+								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							if($importeDebeUs>0)
+							{
+								$table->easyCell(number_format($importeDebeUs,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							else
+							{
+								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							if($importeHaberUs>0)
+							{
+								$table->easyCell(number_format($importeHaberUs,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							else
+							{
+								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							}
+							$table->printRow();
+							$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
+							$table->easyCell(utf8_decode($glosa_cuenta),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
+							$table->printRow();
+
+							$totalimporteDebe+=$importeDebe;
+							$totalimporteHaber+=$importeHaber;
+							$totalimporteDebeUs+=$importeDebeUs;
+							$totalimporteHaberUs+=$importeHaberUs;
+				}
+			}
+				
+			$table->endTable(0);
+		}
+		
+		$table=new easyTable($pdf, '{110,20,20,20,20}', 'width:190;align:{RRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
+		$table->easyCell(utf8_decode("TOTALES:"),'valign:M;font-style:B;font-size:6;' );
+		$table->easyCell(number_format($totalimporteDebe, 2, '.', ','),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
+		$table->easyCell(number_format($totalimporteHaber,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
+		$table->easyCell(number_format($totalimporteDebeUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
+		$table->easyCell(number_format($totalimporteHaberUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
+		$table->printRow(true);
+		$table->endTable(3);
+		$table=new easyTable($pdf, '{110,7,30,7,30,6}', 'width:190;align:{LCCCCC}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border-color:#c0c0c0;line-height:1.2;');
+
+		$table->easyCell(utf8_decode("<b>Glosa:</b> ".$glosa_general), 'valign:T;rowspan:5;font-size:7;');
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->printRow(true);	
+
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->printRow(true);	
+
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->printRow(true);	
+
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
+		$table->printRow(true);	
+
+
+		$pie_contador="CONTADOR";
+		$pie_gerentegeneral="GERENTE GENERAL";
+		
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
+		$table->easyCell(utf8_decode("$pie_contador"),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;T;' );	
+		$table->easyCell(utf8_decode($pie_gerentegeneral),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	
+		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
+		$table->printRow(true);	
+		$table->endTable(5);
+				
+		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
+	}
 	function ReporteComprobantePDF()
 	{
 
@@ -655,11 +952,13 @@ class Comprobante extends CI_Controller {
 		// $datos_json = $this->input->post('datos');
 		$datos_json = json_decode($this->input->post('datos'));
 		$detalle_json =json_decode($this->input->post('detalleComprobante'));
-		parse_str($datos_json, $datos1);		// echo("<pre>");
+		// ******parse_str($this->input->post('datos'), $data1);
+		parse_str($datos_json, $datos1);		
+		// echo("<pre>");
 		// print_r($datos1);
 		// echo("<br>");
 		// print_r($detalle_json);
-		// echo("</pre>");os1);
+		// echo("</pre>");
 		// parse_str($this->input->post('datos'), $data);
 		$orden = array("\r\n", "\n", "\r" ,'"') ;
 		$pdf=new exFPDFCartaContable('P','mm','Letter');
@@ -859,7 +1158,7 @@ class Comprobante extends CI_Controller {
 				
 			$table->endTable(0);
 		}
-		$table=new easyTable($pdf, '{110,40,40}', 'width:190;align:{RRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
+		$table=new easyTable($pdf, '{110,20,20,20,20}', 'width:190;align:{RRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
 		$table->easyCell(utf8_decode("TOTALES:"),'valign:M;font-style:B;font-size:6;' );
 		$table->easyCell(number_format($totalimporteDebe, 2, '.', ','),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
 		$table->easyCell(number_format($totalimporteHaber,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
@@ -909,6 +1208,161 @@ class Comprobante extends CI_Controller {
 		$table->endTable(5);
 				
 		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
+	}
+	/*EDITAR*/
+	public function cargarComprobanteByIdComprobanteEntidad()
+	{
+		$id_usuario       = $this->session->userdata('id_usuario');
+		$id_entidad  = $this->input->post('id_entidad');
+		$id_comprobanteP  = $this->input->post('id_comprobanteP');
+
+		/*DATOS CABECERA*/
+		
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		
+		$datos_comprobante  	 = $this->Comprobantes_model->getComprobanteById($id_comprobanteP);
+
+		if($datos_comprobante)
+		{
+			$id_comprobante  		 = $id_comprobanteP;
+			$id_entidad      		 = $id_entidad;
+			$tipo_comprobante 		 = $datos_comprobante[0]->tipo_comprobante;
+			$correlativo     		 = $datos_comprobante[0]->correlativo;
+			$periodo     		     = $datos_comprobante[0]->periodo;
+			$gestion      		     = $datos_comprobante[0]->gestion ;
+			$glosa_comprobante     	 = $datos_comprobante[0]->glosa_comprobante;
+			$fecha_comprobante     	 = formato_fecha_slash_invertido2($datos_comprobante[0]->fecha_comprobante);
+			$tipo_cambio     		 = $datos_comprobante[0]->tipo_cambio;
+			$estado     		     = $datos_comprobante[0]->estado;
+			$resul 				     = 1;
+			$mensaje				 = "OK";	
+		}
+	
+		$data = array(
+						'id_comprobante'  		 => $id_comprobante,
+						'id_entidad'      		 => $id_entidad,
+						'tipo_comprobante' 		 => $tipo_comprobante,
+						'correlativo'     		 => $correlativo,
+						'periodo'     		     => $periodo,
+						'gestion'      		     => $gestion ,
+						'glosa_comprobante'    	 => $glosa_comprobante,
+						'fecha_comprobante'    	 => $fecha_comprobante,
+						'tipo_cambio'     		 => $tipo_cambio,
+						'estado'     		     => $estado,
+						'resultado'				 => $resul,
+						'mensaje'				 => $mensaje
+					);
+		echo json_encode($data);
+		// exit();
+	}
+	public function cargarDetalleComprobanteByIdComprobanteEntidad()
+	{
+		$id_usuario  = $this->session->userdata('id_usuario');
+			
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		$id_comprobante  = $this->input->post('id_comprobante');
+		$detalleComprobante    = $this->Comprobantes_model->getDetalleComprobanteById($id_comprobante);
+		// echo json_encode($detalleComprobante);
+		$importeDebe=0;
+		$importeHaber=0;
+		$importeDebeUs=0;
+		$importeHaberUs=0;
+		$totalimporteDebe=0;
+		$totalimporteHaber=0;
+		$totalimporteDebeUs=0;
+		$totalimporteHaberUs=0;
+		$nro_registros=0;	
+
+		foreach ($detalleComprobante as $fila)
+		{   
+			$boton   = "
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
+                            <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
+                        </span>	
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
+                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaEntidad(". $fila->id . ")'><i class='fas fa-trash-alt'></i></button>     
+                        </span>	
+                        ";	
+			$importeDebe=0;
+			$importeHaber=0;
+			$importeDebeUs=0;
+			$importeHaberUs=0;
+
+			$id_registro 			   = $fila->id;
+			$id_cuenta   			   = $fila->id_cuenta;
+			$descripcion_cuenta		   = getCuenta($id_cuenta);
+			$tipo_movimiento		   = $fila->tipo_movimiento;
+			$tipo_movimiento_literal   = getValor2Configuraciones("TIPO MOVIMIENTO", $fila->tipo_movimiento);
+			$importe				   = $fila->importe_moneda_nacional;
+			$importe_moneda_extranjera = $fila->importe_moneda_extranjera;
+			$tipo_cambio			   = $fila->tipo_cambio;
+			$glosa_cuenta			   = $fila->glosa_cuenta;
+			$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
+			
+			if($tipo_movimiento == "DB")
+			{
+				$importeDebe   = $importe;
+				$importeDebeUs = $importe_moneda_extranjera;
+				// $importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
+			}
+			elseif ($tipo_movimiento == "HB") {
+				$importeHaber   = $importe;
+				$importeHaberUs = $importe_moneda_extranjera;
+				// $importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
+			}
+
+			$cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta;			
+
+
+			$botonEditar = "<div style='text-align: center;'>
+						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar Registro Cuenta'>
+							<button type='button' class='btn btn-primary btn-xs mr-1' onclick=\"editarRegistroCuentaComprobante(".$fila->id.")\"><i>✏️</i></button>
+						</span>										
+					</div>";
+			$botonEliminar = "<div style='text-align: center;'>
+						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro Cuenta'>
+							<button type='button' class='btn btn-danger btn-xs' onclick=\"eliminarRegistroCuentaComprobante(".$fila->id.")\"><i>🗑️</i></button>
+						</span>										
+					</div>";
+			$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
+			$data[] = array(
+				"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
+				$cuenta_registro,
+				"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
+				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
+				"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
+				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
+				$botonEliminar.$botonEditar
+			);
+			$totalimporteDebe+=$importeDebe;
+			$totalimporteHaber+=$importeHaber;
+			$totalimporteDebeUs+=$importeDebeUs;
+			$totalimporteHaberUs+=$importeHaberUs;
+
+		}
+		$output = array(
+            "draw" => $draw,
+            "recordsTotal" => count($detalleComprobante)-1,
+            "recordsFiltered" => count($detalleComprobante)-1,
+            "nro_registros" => $nro_registros,
+            "totalimporteDebe" => number_format($totalimporteDebe,2,'.',','),
+            "totalimporteHaber" => number_format($totalimporteHaber,2,'.',','),
+            "totalimporteDebeUs" => number_format($totalimporteDebeUs,2,'.',','),
+            "totalimporteHaberUs" => number_format($totalimporteHaberUs,2,'.',','),
+            "data" => $data
+        );
+	    echo json_encode($output);
+	    exit();
 	}
 	
 }

@@ -13,8 +13,18 @@ function obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo, $id_entid
 
 	// echo json_encode($datosCorrelativo);
 	// die();
-    $id_correlativoentidadgestion = $datosCorrelativo[0]->id;
-    $correlativo                  = $datosCorrelativo[0]->correlativo+1;
+	if($datosCorrelativo)
+	{
+		$id_correlativoentidadgestion = $datosCorrelativo[0]->id;
+    	$correlativo                  = $datosCorrelativo[0]->correlativo+1;
+	}
+	else
+	{
+		$id_correlativoentidadgestion = 0;
+    	$correlativo                  = 1;
+	}
+    // $id_correlativoentidadgestion = $datosCorrelativo[0]->id;
+    // $correlativo                  = $datosCorrelativo[0]->correlativo+1;
 
     $resul = 1;
     $mensaje = "OK";

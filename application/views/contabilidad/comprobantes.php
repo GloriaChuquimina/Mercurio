@@ -248,7 +248,8 @@
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
-      cargarCombos();
+      id_entidad = <?= json_encode($entidad) ?>;
+      cargarComboPrincipal();
     //   cargarTablaComprobantesEntidades();
     });
 </script>  

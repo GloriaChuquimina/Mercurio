@@ -13,7 +13,10 @@
                             <div class="card card-primary">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <div class="col-md-8">
-                                        <h3 class="card-title mb-0" id="nombre_entidad">
+                                        <!-- <h3 class="card-title mb-0" id="nombre_entidad" name="nombre_entidad">
+                                            ENTIDAD: <b><?= $nombre_entidad ?></b>
+                                        </h3> -->
+                                        <h3 class="card-title mb-0" id="nombre_entidad" name="nombre_entidad" value="?= $nombre_entidad ?">
                                             ENTIDAD: <b><?= $nombre_entidad ?></b>
                                         </h3>
                                     </div>
@@ -44,8 +47,8 @@
                                 <form id="formregistrocontable">
                                     <div class="card-body">
                                     <input type="hidden" id="txtAccionComprobante" name="txtAccionComprobante" />
-                                    <input type="hidden" id="id_comprobante" name="id_comprobante" />
-                                    <input type="hidden" id="id_entidad" name="id_entidad" />
+                                    <input  id="id_comprobanteP" name="id_comprobanteP" />
+                                    <input  id="id_entidad" name="id_entidad" />
                                     <input type="hidden" id="cant_cuentas" name="cant_cuentas" />
                                     <div class="row">
                                         <div class="col-md-3">
@@ -92,7 +95,7 @@
                                             <strong>ESTADO:</strong>
                                             </label>
                                             <div class="mt-2">
-                                            <span class="badge badge-warning">Borrador</span>
+                                            <span class="badge badge-warning" id="estado_comprobante" name="estado_comprobante">Borrador</span>
                                             </div>
                                         </div>
                                         </div>
@@ -330,14 +333,19 @@
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
-      cargarCombos();
+    //   cargarCombos();
        id_entidad = <?= json_encode($entidad) ?>;
        nombre_entidad = <?= json_encode($nombre_entidad) ?>;
        accion = <?= json_encode($accion) ?>;
+       id_comprobante = <?= json_encode($id_comprobante) ?>;
        $('#id_entidad').val(id_entidad);
+       $('#id_comprobanteP').val(id_comprobante);
        cargarCuentasLista();
-    //   cargarPerfilesUsuarios(tipoPerfil); 
-    //   cargarTablaComprobantes();
+       if(id_comprobante>0)
+       {
+            cargarCombos();
+            cargarDatosComprobante(id_comprobante,id_entidad);
+       }
     });
 </script>  
 <script src="<?php echo  base_url() ?>scriptjs/cleave.min.js"></script>

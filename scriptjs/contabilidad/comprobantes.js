@@ -2,20 +2,30 @@ var base_url;
 var id_entidad;
 var nombre_entidad;
 var accion;
+var id_comprobante;
 function baseurl(enlace) {
    base_url = enlace;
 }
-function cargarCombos()
+function cargarComboPrincipal()
 {
-    var enlace = base_url + "Comunes/Comunes/cargarEntidad";
+     var enlace = base_url + "Comunes/Comunes/cargarEntidad";
     $.ajax({
         type: "GET",
         url: enlace,
         success: function(data) {
             $('#entidades').html(data);
+            if(id_entidad > -1){
+                $('#entidades option[value="'+id_entidad+'"]').prop('selected','selected');
+                nombre_entidad = $('#entidades option:selected').text();
+                $('#nombre_entidad').text(nombre_entidad);
+                cargarTablaComprobantesEntidades(id_entidad); 
+            }
         }
     });
-
+}
+function cargarCombos()
+{
+   
     var enlace = base_url + "Comunes/Comunes/cargarTipoComprobante";
     $.ajax({
         type: "GET",
@@ -32,6 +42,7 @@ function cargarCombos()
             $('#txtTipoMovimiento').html(data);
         }
     });
+    
 
 }
 function cargarCuentas(){
@@ -451,8 +462,8 @@ function guardarDatosComprobanteMasDetalle()
 }
 function cargarComprobantesPrincipal()
 {
-    // var entidad =$('#entidades').val();
-    window.location.href = base_url + "Contabilidad/Comprobante/";
+    var entidad =$('#id_entidad').val();
+    window.location.href = base_url + "Contabilidad/Comprobante/principalComprobante/"+entidad;
 }
 function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,tipo_movimiento_literal,importe,tipo_cambio,glosa_cuenta,cadRegistroCuenta)
 {
@@ -496,54 +507,28 @@ function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,t
         }
     });
 }
+function generarReportePComprobanteRegistrado(id_comprobante)
+{
+    // $('#txtAccionComprobante').val('editar');
+    // var accion= $('#txt
+    $('#divPDF').html('');   
+    var accion= 'editar';
+    var iframe = document.createElement("iframe");
+                iframe.width = '100%';
+                iframe.height = '700px';
+                iframe.src = base_url+'Contabilidad/Comprobante/ReporteComprobanteRegistradoPDF/'+id_comprobante+'/'+accion; 
+                $('#divPDF').append(iframe);
+                $('#divCapa').addClass('overlay');    
+                $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+                $('#pdfModal > .modal-dialog ').css("max-width","85%"); 
+                $('#pdfModal').show();   
+    
+}
 function generarPDFComprobante()
 {
-
-    // $('#divPDF').html('');   
-    // //  var data = idhr+"/"+gestion;
-    // var data = $('#servidorPublicoBusqueda').val();
-    // var direccion = $('#direccionBusqueda').val();
-    // if(data == "-1" || direccion =="-1")
-    // {
-    //     swal({
-    //         title: 'ATENCIÓN',
-    //         text: "Seleccione a un funcionario para la busqueda",
-    //         icon: 'warning',
-    //         dangerMode: true,
-    //         buttons: {
-    //             cancel: "Cerrar"
-    //         },
-    //     })
-    // }
-    // else
-    // {
-    //     buscarBandejasPerfil();
-    //     var iframe = document.createElement("iframe");
-    //             iframe.width = '100%';
-    //             iframe.height = '700px';
-    //             iframe.src = base_url+'Reportes/ReporteCorrespondencia/getReporteCorrespondenciaPDF/'+data; 
-    //             $('#divPDF').append(iframe);
-    //             $('#divCapa').addClass('overlay');    
-    //             $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
-    //             $('#pdfModal > .modal-dialog ').css("max-width","85%"); 
-    //             $('#pdfModal').show();   
-                
-    // }  
-
-    // var detalleComprobante = $('#registroCuentaT').val();
-    // var datos = $('#formregistrocontable').serialize();
-
-    // var iframe = document.createElement("iframe");
-    // iframe.width = '100%';
-    // iframe.height = '700px';
-    // iframe.src = base_url+'Contabilidad/Comprobante/ReporteComprobantePDF/'+datos+'/'+detalleComprobante; 
-    // $('#divPDF').append(iframe);
-    // $('#divCapa').addClass('overlay');    
-    // $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
-    // $('#pdfModal > .modal-dialog ').css("max-width","85%"); 
-    // $('#pdfModal').show();   
     $('#txtAccionComprobante').val(accion);
-    var datos = $('#formregistrocontable').serializeArray();
+    // var datos = $('#formregistrocontable').serializeArray();
+    var datos = $('#formregistrocontable').serialize();
     var detalleComprobante = $('#registroCuentaT').val();
 
     let form = document.createElement("form");
@@ -576,7 +561,6 @@ function generarPDFComprobante()
         iframe.style.height = "700px";
         $('#divPDF').html(iframe);
     }
-
     // Agregar el form al DOM y enviarlo
     document.body.appendChild(form);
     form.submit();
@@ -587,7 +571,78 @@ function generarPDFComprobante()
     $('#pdfModal > .modal-dialog ').css("max-width", "85%");
     $('#pdfModal').show();
 
+}
+function editarComprobante(id_comprobante)
+{
+    $('#txtAccionComprobante').val('editar');
+    var entidad =$('#entidades').val();
+    var accion ='editar';
+    window.location.href = base_url + "Contabilidad/Comprobante/registroComprobante/"+entidad+'/'+accion+'/'+id_comprobante;
+}
+function cargarDatosComprobante(id_comprobante,entidad)
+{
+     var enlace = base_url + "Contabilidad/Comprobante/cargarComprobanteByIdComprobanteEntidad";
+    $.ajax({
+        url: enlace,
+        method: 'POST',
+        data:{ id_comprobanteP:id_comprobante,
+                    id_entidad:entidad
+             },
+        dataType:'JSON',
+        success: function (data)
+        {
+            if(data.resultado == 1)
+            {
+                $('#txtTipo option[value="'+data.tipo_comprobante+'"]').prop('selected','selected'); 
+                $('#txtFecha').val(data.fecha_comprobante);
+                $('#txtTipoCambio').val(data.tipo_cambio);
+                $('#txtGlosaGeneral').val(data.glosa_comprobante);
+                $('#txtFecha').val(data.fecha_comprobante);
+                if(data.estado=='ACT')
+                {
+                    $('#estado_comprobante')
+                    .removeClass('badge-warning') // Quita cualquier clase previa
+                    .addClass('badge-success') // Agrega la nueva
+                    .text('Registrado');
+                }
 
+                /*DETALLE COMPROBANTE */
+                var enlace = base_url + "Contabilidad/Comprobante/cargarDetalleComprobanteByIdComprobanteEntidad";
+                $('#tablaRegistroCuenta').DataTable({
+                    destroy: true,
+                    searching: false,
+                    paging: false,
+                    "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+                    "iDisplayLength": 5,
+                    "ajax": {
+                        type: "POST",
+                        url: enlace,
+                        // data: { accion: accion, 
+                        //         cuenta: cadRegistroCuenta, 
+                        //     id_entidad: id_entidad
+                        //     },
+                        data: { id_comprobante: id_comprobante},
 
+                        dataSrc: function(json) {
 
+                                // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
+                                // $('.txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
+                                // $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
+                                // $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
+                                // $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
+
+                                // return json.data; // Data para el cuerpo de la tabla
+                                $('.txtTotalImporteDebe').text(json.totalimporteDebe);
+                                $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+                                $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
+                                $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+                                $('#cant_cuentas').val(json.nro_registros);
+                                return json.data;
+                            }
+                    },
+                });
+                
+            }
+        }
+    });
 }

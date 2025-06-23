@@ -32,6 +32,26 @@ class Comprobantes_model extends CI_Model
 										  );
 		return $query->result();
 	}
+	function getComprobanteById($id_comprobante)
+	{
+		$query = $this->db_mercurio->query("select *
+											  from contabilidad.comprobante
+											 where id= ".$id_comprobante.";
+											"
+										  );
+		return $query->result();
+	}
+	function getDetalleComprobanteById($id_comprobante)
+	{
+		$query = $this->db_mercurio->query("
+										  select dc.*
+											from contabilidad.comprobante c 
+								 left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante and dc.estado ='ACT'
+										   where c.id=".$id_comprobante.";
+											"
+										  );
+		return $query->result();
+	}
 	function guardarComprobante($dataComprobante)
 	{
 		$this->db_mercurio->insert('contabilidad.comprobante', $dataComprobante);

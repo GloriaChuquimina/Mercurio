@@ -30,7 +30,7 @@ $config = array(
 
 		array ('field' => 'nombre_entidad',
 			   'label' => 'ENTIDAD',
-		  	   'rules' => 'callback_verificarEntidad'),
+		  	   'rules' => 'trim|required'),
 
 		array ('field' => 'txtTipo',
 			   'label' => 'TIPO DE COMPROBANTE',
