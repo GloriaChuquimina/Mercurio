@@ -62,5 +62,16 @@ class Comprobantes_model extends CI_Model
 		$this->db_mercurio->insert('contabilidad.detalle_comprobante', $dataDetalleComprobante);
 		return $this->db_mercurio->insert_id();
 	}
+	function updateComprobante($id_comprobante,$data)
+	{
+		$this->db_mercurio->where('id',$id_comprobante);
+		return $this->db_mercurio->update('contabilidad.comprobante',$data);
+	}
+	function updateRegistroDetalleComprobante($id_comprobante,$id_detalle_comprobante,$data)
+	{
+		$this->db_mercurio->where('id',$id_detalle_comprobante);
+		$this->db_mercurio->where('id_comprobante',$id_comprobante);
+		return $this->db_mercurio->update('contabilidad.comprobante',$data);
+	}
 
 }

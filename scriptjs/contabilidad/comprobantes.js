@@ -155,20 +155,33 @@ function agregarRegistroComprobante()
     eliminaMensajeError();
     eliminaMensajeErrorCombos();
     limpiarModalRegistro();
-    $('#txtAccionMovimiento').val('nuevo');
+    if($('#txtAccionComprobante').val()=== 'editar')
+    {
+        $('#txtAccionComprobanteCuenta').val('editar');
+        $('#txtAccionMovimiento').val('nuevo');
+        id_comprobante = $('#id_comprobanteP').val();
+        $('#id_comprobante').val(id_comprobante);
+    }
+    else
+    {
+        $('#txtAccionComprobanteCuenta').val('nuevo');
+        $('#txtAccionMovimiento').val('nuevo');
+    }
     // alert (id_entidad);
     $('#id_entidad_registro').val(id_entidad);
     $('#nombreEntidad').text(nombre_entidad);
     var tipo_cambio=$('#txtTipoCambio').val();
     $('#tipoCambio').text(tipo_cambio);
-    $('#tipo_cambio_movimiento').text(tipo_cambio);
+    $('#tipo_cambio_movimiento').val(tipo_cambio);
     $('#modalRegistroMovimiento').modal({backdrop: 'static', keyboard: false})
     $('#modalRegistroMovimiento').modal('show');  
 }
 function guardarRegistroCuenta()
 {
-    var accion                    = $('#txtAccionMovimiento').val();
+    var accion_comprobante        = $('#txtAccionComprobanteCuenta').val();
+    var accion_cuenta             = $('#txtAccionMovimiento').val();
     var id_entidad                = $('#id_entidad_registro').val();
+    var id_comprobante            = $('#id_comprobante').val();
     var id_cuenta                 = $('#id_cuenta').val();
     var cuenta                    = $('#txtCuenta').val();
     var tipo_movimiento           = $('#txtTipoMovimiento').val();
@@ -183,6 +196,8 @@ function guardarRegistroCuenta()
 
     var enlace = base_url + "Contabilidad/Comprobante/validarDatosRegistroCuenta";
     var datos = $('#formularioRegistroCuenta').serialize();
+    var datos_cuenta = $('#formularioRegistroCuenta').serialize();
+    // var datos_cuenta = datos;
     $.ajax({
                 type:"POST",
                 url:enlace,
@@ -203,11 +218,13 @@ function guardarRegistroCuenta()
                             /****************************************************** */
                             // quitarComaNumeroDecimal1();
 
-                            if(accion == 'nuevo')
-                            {
+                            // if(accion_comprobante == 'nuevo' && accion_cuenta == 'nuevo')
+                            // {
                                 var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
                                 $('#registroCuentaT').val(cadRegistroCuentaT);
                                 var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
+                                // var datos_cuenta = $('#formularioRegistroCuenta').serialize();
+                                // console.log(datos_cuenta);
                                 $('#tablaRegistroCuenta').DataTable({
                                     destroy: true,
                                     searching: true,
@@ -220,10 +237,14 @@ function guardarRegistroCuenta()
                                     "ajax": {
                                         type: "POST",
                                         url: enlace,
-                                        data: { accion: accion, 
-                                                cuenta: cadRegistroCuentaT, 
-                                                id_entidad: id_entidad
-                                            },
+                                        // data: { 
+                                        //         accion_comprobante: accion_comprobante, 
+                                        //         accion_cuenta: accion_cuenta, 
+                                        //         cuenta: cadRegistroCuentaT, 
+                                        //         id_entidad: id_entidad
+                                        //     },
+                                        data: { datos_cuenta:datos_cuenta },
+                                        // data: datos,
 
                                         dataSrc: function(json) {
 
@@ -240,7 +261,9 @@ function guardarRegistroCuenta()
                                 });
                                 swal("!Excelente!","SE REGISTRO CORRECTAMENTE","success");
                                 registro();
-                            }
+                            // }
+
+                            
                             /****************************************************** */
 
                             
@@ -322,14 +345,12 @@ function  guardarRegistroCuentaTemporal()
                     },
 
                 dataSrc: function(json) {listaCuentas
-
-                        // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-                        $('.txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-                        $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
-                        $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
-                        $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
-
-                        return json.data; // Data para el cuerpo de la tabla
+                        $('.txtTotalImporteDebe').text(json.totalimporteDebe);
+                        $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+                        $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
+                        $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+                        $('#cant_cuentas').val(json.nro_registros);
+                        return json.data;
                     }
             }
             
@@ -360,14 +381,12 @@ function cargarCuentasComprobanteT()
                 },
 
             dataSrc: function(json) {
-
-                    // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-                    $('.txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-                    $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
-                    $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
-                    $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
-
-                    return json.data; // Data para el cuerpo de la tabla
+                    $('.txtTotalImporteDebe').text(json.totalimporteDebe);
+                    $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+                    $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
+                    $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+                    $('#cant_cuentas').val(json.nro_registros);
+                    return json.data;
                 }
         },
     });
@@ -384,43 +403,61 @@ function listaCuentasBusqueda()
 }
 function guardarDatosComprobanteMasDetalle()
 {
-
-    var nro_cuentas_comprobante = $('#cant_cuentas').val();
+    var accion = $('#txtAccionComprobante').val();
     var mensaje="";
     var icon="";
-    if(nro_cuentas_comprobante>0)
+    if(accion == "editar")
     {
-        mensaje="¿Está seguro de registrar el comprobante?";
-        icon="warning";
+        // editarCabeceraComprobante();
+        var nro_cuentas_comprobante = $('#cant_cuentas').val();        
+        if(nro_cuentas_comprobante>0)
+        {
+            mensaje="¿Está seguro de actualizar el comprobante?";
+            icon="warning";
+        }
+        else
+        {
+            mensaje="Está actualizar el comprobante sin cuentas contables asociadas.<strong>¿Desea continuar?</strong>";
+            icon="error";   
+        }
     }
     else
     {
-        mensaje="Está a punto de registrar un comprobante sin cuentas contables asociadas.<strong>¿Desea continuar?</strong>";
-        icon="error";
-
-
+        var nro_cuentas_comprobante = $('#cant_cuentas').val();        
+        if(nro_cuentas_comprobante>0)
+        {
+            mensaje="¿Está seguro de registrar el comprobante?";
+            icon="warning";
+        }
+        else
+        {
+            mensaje="Está a punto de registrar un comprobante sin cuentas contables asociadas.<strong>¿Desea continuar?</strong>";
+            icon="error";   
+        }
+        
     }
+    /*REGISTRO*/
     swal({
-        title: 'ATENCIÓN',
-        // text: mensaje,
-        content: {
-        element: "div",
-        attributes: {
-            innerHTML:mensaje
-            }
-        },
-
-
-        icon: icon,
-        dangerMode: true,
-        buttons: {
-            cancel: "Cancelar",
-            verificar: {
-                text: "Registrar",
-                value: "registrar",
-            }
-        },
-    })
+            title: 'ATENCIÓN',
+            // text: mensaje,
+            content: {
+            element: "div",
+            attributes: {
+                innerHTML:mensaje
+                }
+            },
+    
+    
+            icon: icon,
+            dangerMode: true,
+            buttons: {
+                cancel: "Cancelar",
+                verificar: {
+                    text: "Registrar",
+                    value: "registrar",
+                }
+            },
+        })
     .then(respuesta => {
         if (respuesta)
         {
@@ -428,7 +465,7 @@ function guardarDatosComprobanteMasDetalle()
             $('#txtAccionComprobante').val(accion);
             var detalleComprobante = $('#registroCuentaT').val();
             var enlace = base_url + "Contabilidad/Comprobante/guardarComprobante";
-            var datos = $('#formregistrocontable').serialize();
+            var datos = $('#formregistrocontablePrincipal').serialize();
             //alert (datos);
             $.ajax({
                 type: "POST",
@@ -458,7 +495,82 @@ function guardarDatosComprobanteMasDetalle()
         }
     });
 
+
     
+}
+function editarCabeceraComprobante()
+{
+    // var nro_cuentas_comprobante = $('#cant_cuentas').val();
+    var nro_cuentas_comprobante = 2;
+    var mensaje="";
+    var icon="";
+    if(nro_cuentas_comprobante>0)
+    {
+        mensaje="¿Está seguro de registrar el comprobante?";
+        icon="warning";
+    }
+    else
+    {
+        mensaje="Está a punto de registrar un comprobante sin cuentas contables asociadas.<strong>¿Desea continuar?</strong>";
+        icon="error";
+    }
+    swal({
+        title: 'ATENCIÓN',
+        // text: mensaje,
+        content: {
+        element: "div",
+        attributes: {
+            innerHTML:mensaje
+            }
+        },
+
+
+        icon: icon,
+        dangerMode: true,
+        buttons: {
+            cancel: "Cancelar",
+            verificar: {
+                text: "Registrar",
+                value: "registrar",
+            }
+        },
+    })
+    .then(respuesta => {
+        if (respuesta)
+        {
+
+            $('#txtAccionComprobante').val(accion);
+            var detalleComprobante = $('#registroCuentaT').val();
+            var enlace = base_url + "Contabilidad/Comprobante/guardarComprobante";
+            var datos = $('#formregistrocontablePrincipal').serialize();
+            //alert (datos);
+            $.ajax({
+                type: "POST",
+                url: enlace,
+                data: {datos:datos,
+                    detalleComprobante:detalleComprobante
+                },
+                success: function(data)
+                {
+                    var result = JSON.parse(data);
+                    $.each(result, function(i, datos)
+                    {
+                        if(datos.resultado == 1)
+                        {
+                            swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
+                            // cargarComprobantesPrincipal();
+                        }
+                        else
+                        {
+                            visualizarValidaciones(datos.mensaje);
+                            swal({title:"ALERTA",text:"Existen Observaciones.",icon:"warning",button:"OK",dangerMode:true});
+                            // swal({title: "ERROR",text: datos.mensaje,icon: "error",button: "Error",});
+                        }
+                    });
+                }
+            });
+        }
+    });
 }
 function cargarComprobantesPrincipal()
 {
@@ -581,7 +693,8 @@ function editarComprobante(id_comprobante)
 }
 function cargarDatosComprobante(id_comprobante,entidad)
 {
-     var enlace = base_url + "Contabilidad/Comprobante/cargarComprobanteByIdComprobanteEntidad";
+
+    var enlace = base_url + "Contabilidad/Comprobante/cargarComprobanteByIdComprobanteEntidad";
     $.ajax({
         url: enlace,
         method: 'POST',
@@ -594,10 +707,13 @@ function cargarDatosComprobante(id_comprobante,entidad)
             if(data.resultado == 1)
             {
                 $('#txtTipo option[value="'+data.tipo_comprobante+'"]').prop('selected','selected'); 
+                $('#txtTipo').prop('disabled', true);
                 $('#txtFecha').val(data.fecha_comprobante);
                 $('#txtTipoCambio').val(data.tipo_cambio);
+                $('#txtReferencia').val(data.referencia_comprobante);
                 $('#txtGlosaGeneral').val(data.glosa_comprobante);
                 $('#txtFecha').val(data.fecha_comprobante);
+                $('#btnGuardar').html('<i class="fas fa-save mr-1"></i> Editar Comprobante');
                 if(data.estado=='ACT')
                 {
                     $('#estado_comprobante')
@@ -605,7 +721,7 @@ function cargarDatosComprobante(id_comprobante,entidad)
                     .addClass('badge-success') // Agrega la nueva
                     .text('Registrado');
                 }
-
+                
                 /*DETALLE COMPROBANTE */
                 var enlace = base_url + "Contabilidad/Comprobante/cargarDetalleComprobanteByIdComprobanteEntidad";
                 $('#tablaRegistroCuenta').DataTable({
@@ -625,13 +741,6 @@ function cargarDatosComprobante(id_comprobante,entidad)
 
                         dataSrc: function(json) {
 
-                                // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-                                // $('.txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
-                                // $('.txtTotalImporteHaber').text(parseFloat(json.totalimporteHaber).toFixed(2));
-                                // $('.txtTotalImporteDebeUs').text(parseFloat(json.totalimporteDebeUs).toFixed(2));
-                                // $('.txtTotalImporteHaberUs').text(parseFloat(json.totalimporteHaberUs).toFixed(2));
-
-                                // return json.data; // Data para el cuerpo de la tabla
                                 $('.txtTotalImporteDebe').text(json.totalimporteDebe);
                                 $('.txtTotalImporteHaber').text(json.totalimporteHaber);
                                 $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);

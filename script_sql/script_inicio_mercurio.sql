@@ -142,6 +142,7 @@ CREATE TABLE contabilidad.comprobante (
 	correlativo int4 null,
 	periodo varchar(25) not null,
 	gestion int4 null,	
+	referencia_comprobante text null,
 	glosa_comprobante text null,
 	fecha_comprobante timestamp not NULL,
 	tipo_cambio numeric null,

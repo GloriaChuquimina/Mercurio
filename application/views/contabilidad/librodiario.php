@@ -73,3 +73,12 @@
 </div>
 </section>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+      var enlace  = "<?php echo base_url();?>";    
+      baseurl(enlace);
+      cargarCombos();
+    //   cargarTablaComprobantesEntidades();
+    });
+</script>  

@@ -5,7 +5,7 @@
 
 <div class="wrapper">
     <div class="content-wrapper" style="margin-left: 0;">
-        <form id="formregistrocontable">
+        <form id="formregistrocontablePrincipal">
             <div>
                 <div>
                     <section class="content">
@@ -16,12 +16,14 @@
                                         <!-- <h3 class="card-title mb-0" id="nombre_entidad" name="nombre_entidad">
                                             ENTIDAD: <b><?= $nombre_entidad ?></b>
                                         </h3> -->
-                                        <h3 class="card-title mb-0" id="nombre_entidad" name="nombre_entidad" value="?= $nombre_entidad ?">
+                                        <!-- <h3 class="card-title mb-0" id="nombre_entidad" name="nombre_entidad" value="?= $nombre_entidad ?"> -->
+                                        <h3 class="card-title mb-0">
                                             ENTIDAD: <b><?= $nombre_entidad ?></b>
                                         </h3>
+                                        <input  type="hidden" id="nombre_entidad" name="nombre_entidad" value="<?= $nombre_entidad ?>"/>
                                     </div>
                                     <div class="col-md-4 text-right">
-                                        <button type="button" class="btn btn-success mr-2" onclick="guardarDatosComprobanteMasDetalle()">
+                                        <button id ="btnGuardar" name="btnGuardar"type="button" class="btn btn-success mr-2" onclick="guardarDatosComprobanteMasDetalle()">
                                             <i class="fas fa-save mr-1"></i> Guardar Comprobante
                                         </button>
                                         <button type="button" class="btn btn-warning mr-2" onclick="generarPDFComprobante()">
@@ -44,80 +46,96 @@
                                     </h3>
                                 </div>
 
-                                <form id="formregistrocontable">
+                                <!-- <form id="formregistrocontableDetalle"> -->
                                     <div class="card-body">
-                                    <input type="hidden" id="txtAccionComprobante" name="txtAccionComprobante" />
-                                    <input  id="id_comprobanteP" name="id_comprobanteP" />
-                                    <input  id="id_entidad" name="id_entidad" />
-                                    <input type="hidden" id="cant_cuentas" name="cant_cuentas" />
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label htmlFor="txtTipo">
-                                            <i class="text-danger">*</i>
-                                            <strong> TIPO:</strong>
-                                            </label>
-                                            <select class="form-control" id="txtTipo" name="txtTipo"></select>
-                                        </div>
-                                        </div>
+                                        <input  id="txtAccionComprobante" name="txtAccionComprobante" />
+                                        <input  id="id_comprobanteP" name="id_comprobanteP" />
+                                        <input  id="id_entidad" name="id_entidad" />
+                                        <input  id="cant_cuentas" name="cant_cuentas" />
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label htmlFor="txtTipo">
+                                                    <i class="text-danger">*</i>
+                                                    <strong> TIPO:</strong>
+                                                    </label>
+                                                    <select class="form-control" id="txtTipo" name="txtTipo"></select>
+                                                </div>
+                                            </div>
 
-                                        <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label htmlFor="txtFecha">
-                                            <i class="text-danger">*</i>
-                                            <strong> FECHA:</strong>
-                                            </label>
-                                            <input type="date" class="form-control" id="txtFecha" name="txtFecha" />
-                                        </div>
-                                        </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label htmlFor="txtFecha">
+                                                    <i class="text-danger">*</i>
+                                                    <strong> FECHA:</strong>
+                                                    </label>
+                                                    <input type="date" class="form-control" id="txtFecha" name="txtFecha" />
+                                                </div>
+                                            </div>
 
-                                        <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label htmlFor="txtTipoCambio">
-                                            <i class="text-danger">*</i>
-                                            <strong> TIPO DE CAMBIO:</strong>
-                                            </label>
-                                            <input
-                                            type="text"
-                                            class="form-control"
-                                            id="txtTipoCambio"
-                                            name="txtTipoCambio"
-                                            style="background-color: #f3d6d6;"
-                                            placeholder="0.00"
-                                            value="6.96"
-                                            />
-                                        </div>
-                                        </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label htmlFor="txtTipoCambio">
+                                                    <i class="text-danger">*</i>
+                                                    <strong> TIPO DE CAMBIO:</strong>
+                                                    </label>
+                                                    <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    id="txtTipoCambio"
+                                                    name="txtTipoCambio"
+                                                    style="background-color: #f3d6d6;"
+                                                    placeholder="0.00"
+                                                    value="6.96"
+                                                    />
+                                                </div>
+                                            </div>
 
-                                        <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label>
-                                            <strong>ESTADO:</strong>
-                                            </label>
-                                            <div class="mt-2">
-                                            <span class="badge badge-warning" id="estado_comprobante" name="estado_comprobante">Borrador</span>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>
+                                                    <strong>ESTADO:</strong>
+                                                    </label>
+                                                    <div class="mt-2">
+                                                    <span class="badge badge-warning" id="estado_comprobante" name="estado_comprobante">Borrador</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label htmlFor="txtReferencia">
+                                                    <i class="text-danger">*</i>
+                                                    <strong> REFERENCIA:</strong>
+                                                    </label>
+                                                    <textarea
+                                                    class="form-control"
+                                                    id="txtReferencia"
+                                                    name="txtReferencia"
+                                                    placeholder="Descripción de la referencia del comprobante..."
+                                                    ></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label htmlFor="txtGlosaGeneral">
+                                                    <i class="text-danger">*</i>
+                                                    <strong> GLOSA GENERAL:</strong>
+                                                    </label>
+                                                    <textarea
+                                                    class="form-control"
+                                                    id="txtGlosaGeneral"
+                                                    name="txtGlosaGeneral"
+                                                    placeholder="Descripción de glosa general del comprobante..."
+                                                    ></textarea>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label htmlFor="txtGlosaGeneral">
-                                            <i class="text-danger">*</i>
-                                            <strong> GLOSA GENERAL:</strong>
-                                            </label>
-                                            <textarea
-                                            class="form-control"
-                                            id="txtGlosaGeneral"
-                                            name="txtGlosaGeneral"
-                                            placeholder="Descripción de glosa general del comprobante..."
-                                            ></textarea>
-                                        </div>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </form>
+                                <!-- </form> -->
                             </div>
                         </div>
                         <div class="container-fluid" >
@@ -198,13 +216,13 @@
             <div class="modal-body">
                 <form id="formularioRegistroCuenta">
                 <!-- CAMPOS OCULTOS -->
-                <input type="hidden" class="form-control" id="txtAccionComprobante" name="txtAccionComprobante">
-                <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
-                <input type="hidden" class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
-                <input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
-                <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                <input type="hidden" class="form-control" id="registroCuentaT" name="registroCuentaT">
-                <input type="hidden" class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
+                <input class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
+                <input class="form-control" id="id_comprobante" name="id_comprobante">
+                <input class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
+                <input class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+                <input class="form-control" id="id_cuenta" name="id_cuenta">
+                <input class="form-control" id="registroCuentaT" name="registroCuentaT">
+                <input class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
                 <div class="card card-outline card-info">
                     <div class="card-header">
                     <h7 class="card-title">
@@ -230,7 +248,7 @@
                                         name="txtCuenta"
                                     />
                                     <datalist id='listaCuentas'></datalist>
-                                    <input type='hidden' name='idCuenta' id='idCuenta' >
+                                    <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
                                     <div class="input-group-append">
                                         <button
                                         type="button"
@@ -340,10 +358,11 @@
        id_comprobante = <?= json_encode($id_comprobante) ?>;
        $('#id_entidad').val(id_entidad);
        $('#id_comprobanteP').val(id_comprobante);
+       $('#txtAccionComprobante').val(accion);
        cargarCuentasLista();
+       cargarCombos();
        if(id_comprobante>0)
        {
-            cargarCombos();
             cargarDatosComprobante(id_comprobante,id_entidad);
        }
     });
