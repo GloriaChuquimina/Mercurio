@@ -965,4 +965,23 @@ function descripcion_nombre_entidad($id_entidad)
     return '';
   }
 }
+
+
+function getTipoCambio($fecha)
+{
+  $fila =& get_instance();
+  $fila->load->model('TipoCambio_model');
+  $datos = $fila->TipoCambio_model->getTipoCambioFecha($fecha);
+  $valor=0.00;
+  if($datos)
+  {
+    return $datos[0]->valor;
+  }
+  else
+  {
+    return $valor;
+  }
+}
+
+
 ?>

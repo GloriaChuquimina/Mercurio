@@ -36,17 +36,23 @@ function valoresIniciales(){
         // $('#tablaLibroMayor').show();
     }
 }
-function cargarCuentasEntidad(){
+function cargarTipoCambio(){
 
 
-    var enlace = base_url + "Comunes/Comunes/cargarCuentaContableEntidad";
-    $.ajax({
-        type: "GET",
-        url: enlace,
-        success: function(data) {
-            $('#cuentaContable').html(data);
-        }
+    var enlace = base_url + "Contabilidad/TipoCambio/cargarTipoCambio";
+     $('#tablaTipoCambio').DataTable({
+        destroy: true,
+        "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
+        "iDisplayLength": 15,
+        "font-size":6,
+        "ajax": {
+            type: "POST",
+            url: enlace
+        },
     });
+
+
+
 }
 $(function (){
 

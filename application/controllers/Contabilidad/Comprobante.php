@@ -198,6 +198,7 @@ class Comprobante extends CI_Controller {
 		$datos    	        = $this->input->post('datos_cuenta');
 		// $data 			= $this->input->post(); 
 		parse_str($datos, $datos_registro_cuenta);
+		$cuentas    	    = $this->input->post('cuentas');
 		// // echo("<pre>");
 		// // print_r ($datos_registro_cuenta);
 		// // echo("</pre>");
@@ -212,7 +213,8 @@ class Comprobante extends CI_Controller {
 		$tipo_movimiento   		   = $datos_registro_cuenta['txtTipoMovimiento'];
 		$importe   		           = $datos_registro_cuenta['txtImporte'];
 		$glosa_cuenta   		   = $datos_registro_cuenta['txtGlosaCuenta'];
-		$cadRegistroCuenta		   = $datos_registro_cuenta['registroCuentaT'];
+		// $cadRegistroCuenta		   = $datos_registro_cuenta['registroCuentaT'];
+		$cadRegistroCuenta		   = $cuentas;
 		
 				
 		// $accion_cuenta 		   = $this->input->post('accion_cuenta');
@@ -238,10 +240,13 @@ class Comprobante extends CI_Controller {
 		{
 				if($accion_comprobante == "nuevo" && $accion_cuenta == "nuevo")
 				{  
+					// echo ("CUENTAS CADENA".$cadRegistroCuenta);
 					$filas = explode("|", $cadRegistroCuenta);  
 					$nro_registros = count($filas)-1;
-					echo ($filas);
-					echo ($nro_registros);
+					// echo("<pre>");
+					// print_r ($filas);
+					// echo("</pre>");
+					// echo ($nro_registros);
 					foreach($filas as $fila )
 					{
 						$importeDebe=0;
@@ -269,12 +274,12 @@ class Comprobante extends CI_Controller {
 
 							$botonEditar = "<div style='text-align: center;'>
 										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
-											<button type='button' class='btn btn-primary btn-xs mr-1' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."','". $glosa_cuenta."' )\"><i>✏️</i></button>
+											<button type='button' class='btn btn-block btn-success btn-sm' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."','". $glosa_cuenta."' )\"><i>✏️</i></button>
 										</span>										
 									</div>";
 							$botonEliminar = "<div style='text-align: center;'>
 										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro'>
-											<button type='button' class='btn btn-danger btn-xs' onclick=\"eliminarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$cadRegistroCuenta."')\"><i>🗑️</i></button>
+											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$cadRegistroCuenta."')\"><i>🗑️</i></button>
 										</span>										
 									</div>";
 							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
@@ -321,6 +326,7 @@ class Comprobante extends CI_Controller {
 					if($save_count_record)
 					{
 						$filas = $this->Comprobantes_model->getDetalleComprobanteById($id_comprobante);
+						$nro_registros = count($filas);
 						foreach($filas as $fila )
 						{
 
@@ -355,13 +361,13 @@ class Comprobante extends CI_Controller {
 							}
 
 							$botonEditar = "<div style='text-align: center;'>
-										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
-											<button type='button' class='btn btn-primary btn-xs mr-1' onclick=\"eliminarDocumentoT(".$id_cuenta.")\"><i>✏️</i></button>
+										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar Registro Cuenta'>
+											<button type='button' class='btn btn-block btn-success btn-sm' onclick=\"editarRegistroCuentaComprobante(".$id_registro.")\"><i>✏️</i></button>
 										</span>										
 									</div>";
 							$botonEliminar = "<div style='text-align: center;'>
 										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro'>
-											<button type='button' class='btn btn-danger btn-xs' onclick=\"eliminarRegistroCuentaTemporal(".$id_cuenta.")\"><i>🗑️</i></button>
+											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaComprobante(".$id_registro.")\"><i>🗑️</i></button>
 										</span>										
 									</div>";
 
@@ -380,15 +386,6 @@ class Comprobante extends CI_Controller {
 							$totalimporteDebeUs+=$importeDebeUs;
 							$totalimporteHaberUs+=$importeHaberUs;
 
-
-							// $boton = "<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'><button type='button' class='btn btn-danger btn-circle' onclick=\"eliminarDocumento('".$fila->id."' )\"><i class='mdi mdi-delete'></i></button></span>";
-							// $data[] = array(
-							// 			$num++,
-							// 			$fila->documento,
-							// 			$fila->numero_documento,
-							// 			$fila->fecha_documento,
-							// 			$boton 
-							// );
 						}
 
 					}
@@ -649,7 +646,7 @@ class Comprobante extends CI_Controller {
                             <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Imprimir'>
-                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"generarReportePComprobanteRegistrado(". $fila->id . ")\"><i class='fas fa-print'></i></button>     
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"generarReporteComprobanteRegistrado(". $fila->id . ")\"><i class='fas fa-print'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
                             <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaEntidad(". $fila->id . ")'><i class='fas fa-trash-alt'></i></button>     
@@ -678,7 +675,7 @@ class Comprobante extends CI_Controller {
 		echo json_encode($output);
 		exit();
 	}
-	function eliminarRegistroCuenta()
+	function eliminarRegistroCuentaTemporal()
 	{				
 		$accion 				  = $this->input->post('accion');
 		$id_cuenta   			  = $this->input->post('id_cuenta');
@@ -1062,16 +1059,17 @@ class Comprobante extends CI_Controller {
 	{
 
 		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-		// $datos_json = $this->input->post('datos');
-		$datos_json = json_decode($this->input->post('datos'));
-		$detalle_json =json_decode($this->input->post('detalleComprobante'));
+		$datos_json = $this->input->post('datos');
+		// $datos_json = json_decode($this->input->post('datos'));
+		// $detalle_json =json_decode($this->input->post('detalleComprobante'));
+		$detalle_json =$this->input->post('detalleComprobante');
 		// ******parse_str($this->input->post('datos'), $data1);
 		parse_str($datos_json, $datos1);		
-		// echo("<pre>");
-		// print_r($datos1);
-		// echo("<br>");
-		// print_r($detalle_json);
-		// echo("</pre>");
+		// // echo("<pre>");
+		// // print_r($datos1);
+		// // echo("<br>");
+		// // print_r($detalle_json);
+		// // echo("</pre>");
 		// parse_str($this->input->post('datos'), $data);
 		$orden = array("\r\n", "\n", "\r" ,'"') ;
 		$pdf=new exFPDFCartaContable('P','mm','Letter');
@@ -1397,74 +1395,91 @@ class Comprobante extends CI_Controller {
 		$totalimporteDebeUs=0;
 		$totalimporteHaberUs=0;
 		$nro_registros=count($detalleComprobante);	
+		// echo($nro_registros);
+		// $data[] = array();
+		if($nro_registros>0)
+		{
+			foreach ($detalleComprobante as $fila)
+			{   
+				$boton   = "
+							<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
+								<button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
+							</span>	
+							<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
+								<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaEntidad(". $fila->id . ")'><i class='fas fa-trash-alt'></i></button>     
+							</span>	
+							";	
+				$importeDebe=0;
+				$importeHaber=0;
+				$importeDebeUs=0;
+				$importeHaberUs=0;
 
-		foreach ($detalleComprobante as $fila)
-		{   
-			$boton   = "
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
-                            <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
-                        </span>	
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaEntidad(". $fila->id . ")'><i class='fas fa-trash-alt'></i></button>     
-                        </span>	
-                        ";	
-			$importeDebe=0;
-			$importeHaber=0;
-			$importeDebeUs=0;
-			$importeHaberUs=0;
+				$id_registro 			   = $fila->id;
+				$id_cuenta   			   = $fila->id_cuenta;
+				$descripcion_cuenta		   = getCuenta($id_cuenta);
+				$tipo_movimiento		   = $fila->tipo_movimiento;
+				$tipo_movimiento_literal   = getValor2Configuraciones("TIPO MOVIMIENTO", $fila->tipo_movimiento);
+				$importe				   = $fila->importe_moneda_nacional;
+				$importe_moneda_extranjera = $fila->importe_moneda_extranjera;
+				$tipo_cambio			   = $fila->tipo_cambio;
+				$glosa_cuenta			   = $fila->glosa_cuenta;
+				$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
+				
+				if($tipo_movimiento == "DB")
+				{
+					$importeDebe   = $importe;
+					$importeDebeUs = $importe_moneda_extranjera;
+					// $importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
+				}
+				elseif ($tipo_movimiento == "HB") {
+					$importeHaber   = $importe;
+					$importeHaberUs = $importe_moneda_extranjera;
+					// $importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
+				}
 
-			$id_registro 			   = $fila->id;
-			$id_cuenta   			   = $fila->id_cuenta;
-			$descripcion_cuenta		   = getCuenta($id_cuenta);
-			$tipo_movimiento		   = $fila->tipo_movimiento;
-			$tipo_movimiento_literal   = getValor2Configuraciones("TIPO MOVIMIENTO", $fila->tipo_movimiento);
-			$importe				   = $fila->importe_moneda_nacional;
-			$importe_moneda_extranjera = $fila->importe_moneda_extranjera;
-			$tipo_cambio			   = $fila->tipo_cambio;
-			$glosa_cuenta			   = $fila->glosa_cuenta;
-			$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
-			
-			if($tipo_movimiento == "DB")
-			{
-				$importeDebe   = $importe;
-				$importeDebeUs = $importe_moneda_extranjera;
-				// $importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
+				$cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta;			
+
+
+				$botonEditar = "<div style='text-align: center;'>
+							<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar Registro Cuenta'>
+								<button type='button' class='btn btn-block btn-success btn-sm' onclick=\"editarRegistroCuentaComprobante(".$fila->id.")\"><i>✏️</i></button>
+							</span>										
+						</div>";
+				$botonEliminar = "<div style='text-align: center;'>
+							<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro Cuenta'>
+								<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaComprobante(".$fila->id.")\"><i>🗑️</i></button>
+							</span>										
+						</div>";
+				$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
+				$data[] = array(
+					"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
+					$cuenta_registro,
+					"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
+					"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
+					"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
+					"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
+					$botonEliminar.$botonEditar
+				);
+				$totalimporteDebe+=$importeDebe;
+				$totalimporteHaber+=$importeHaber;
+				$totalimporteDebeUs+=$importeDebeUs;
+				$totalimporteHaberUs+=$importeHaberUs;
+
 			}
-			elseif ($tipo_movimiento == "HB") {
-				$importeHaber   = $importe;
-				$importeHaberUs = $importe_moneda_extranjera;
-				// $importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-			}
-
-			$cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta;			
-
-
-			$botonEditar = "<div style='text-align: center;'>
-						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar Registro Cuenta'>
-							<button type='button' class='btn btn-primary btn-xs mr-1' onclick=\"editarRegistroCuentaComprobante(".$fila->id.")\"><i>✏️</i></button>
-						</span>										
-					</div>";
-			$botonEliminar = "<div style='text-align: center;'>
-						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro Cuenta'>
-							<button type='button' class='btn btn-danger btn-xs' onclick=\"eliminarRegistroCuentaComprobante(".$fila->id.")\"><i>🗑️</i></button>
-						</span>										
-					</div>";
-			$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
-			$data[] = array(
-				"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
-				$cuenta_registro,
-				"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
-				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
-				"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
-				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
-				$botonEliminar.$botonEditar
-			);
-			$totalimporteDebe+=$importeDebe;
-			$totalimporteHaber+=$importeHaber;
-			$totalimporteDebeUs+=$importeDebeUs;
-			$totalimporteHaberUs+=$importeHaberUs;
-
 		}
+		else {
+			
+			$data[] = array(
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					""
+				);
+		}
+		
 		$output = array(
             "draw" => $draw,
             "recordsTotal" => count($detalleComprobante)-1,
@@ -1478,6 +1493,102 @@ class Comprobante extends CI_Controller {
         );
 	    echo json_encode($output);
 	    exit();
+	}
+	function getTipoCambio()
+	{
+		$fecha_buscar  = $this->input->post('fecha');
+		// echo ($fecha_buscar);
+		$tipoCambio    = number_format(getTipoCambio(formato_fecha_slash_invertido2($fecha_buscar)),2,'.',',');
+        echo json_encode(['tipo_cambio_fecha' => $tipoCambio]);
+
+	}
+	public function eliminarRegistroCuentaComprobante()
+	{
+		$id_usuario       = $this->session->userdata('id_usuario');
+		$id_funcionario   = $this->session->userdata('id_funcionario');
+
+		$id_registro_cuenta        = $this->input->post('id_registro_cuenta');
+		$cantidad_cuentas          = $this->input->post('cant_cuenta');
+		$fecha_actual	  = getFechaHoraActual();
+		$estado  		  = 'ANU';
+		$dataRegistroCuenta     = array(
+									'fecha_modificacion'    => $fecha_actual,
+									'id_funcionario_update' => $id_funcionario,
+									'estado'       		    => $estado
+								 );
+		
+		$updateRegistroCuenta = $this->Comprobantes_model->updateRegistroCuentaComprobante($id_registro_cuenta,$dataRegistroCuenta);
+		if($updateRegistroCuenta)
+		{
+			$cantidad_cuentas--;
+			$resul = 1;
+			$mensaje = "SE ELIMINO LA CUENTA DEL COMPROBANTE CORRECTAMENTE.";
+		}
+		else
+		{
+			$resul = 0;
+			$mensaje = "ERROR EN LA ELIMINACIÓN!!!";
+		}
+		
+
+		$resultado ='[{
+						"resultado":"'.$resul.'",
+						"mensaje":"'.$mensaje.'",
+						"cant_cuentas":"'.$cantidad_cuentas.'"
+					 }]';
+
+		echo $resultado;
+	}
+	/*EDITAR*/
+	public function cargarComprobanteCuentaByIdRegistro()
+	{
+		$id_usuario       = $this->session->userdata('id_usuario');
+		$id_entidad  = $this->input->post('id_entidad');
+		$id_registro_cuenta  = $this->input->post('id_registro_cuenta');
+
+		/*DATOS CABECERA*/
+		
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		
+		$datos_cuenta_comprobante  	 = $this->Comprobantes_model->getDetalleComprobanteByIdDetalle($id_registro_cuenta);
+
+		if($datos_cuenta_comprobante)
+		{
+			$id_cuenta_comprobante	   = $id_registro_cuenta;
+			$id_entidad      		   = $datos_cuenta_comprobante[0]->id_entidad;
+			$id_comprobante 		   = $datos_cuenta_comprobante[0]->id_comprobante;
+			$id_cuenta     		       = $datos_cuenta_comprobante[0]->id_cuenta;
+			$tipo_movimiento	       = $datos_cuenta_comprobante[0]->tipo_movimiento;
+			$tipo_cambio  		       = $datos_cuenta_comprobante[0]->tipo_cambio ;
+			$importe_moneda_nacional   = $datos_cuenta_comprobante[0]->importe_moneda_nacional;
+			$importe_moneda_extranjera = $datos_cuenta_comprobante[0]->importe_moneda_extranjera;
+			$glosa_cuenta     	       = $datos_cuenta_comprobante[0]->glosa_cuenta;
+			$estado     		       = $datos_cuenta_comprobante[0]->estado;
+			$resul 				       = 1;
+			$mensaje				   = "OK";	
+		}
+	
+		$data = array(
+						'id_cuenta_comprobante'  	=> $id_cuenta_comprobante,
+						'id_entidad'      		    => $id_entidad,
+						'id_comprobante' 		    => $id_comprobante,
+						'id_cuenta'     		    => $id_cuenta,
+						'tipo_movimiento'     		=> $tipo_movimiento,
+						'tipo_cambio'      		    => $tipo_cambio ,
+						'importe_moneda_nacional'   => number_format($importe_moneda_nacional,2,'.',','),
+						'importe_moneda_extranjera' => number_format($importe_moneda_extranjera,2,'.',','),
+						'glosa_cuenta'    	        => $glosa_cuenta,
+						'estado'     		        => $estado,
+						'resultado'				    => $resul,
+						'mensaje'				    => $mensaje
+					);
+		echo json_encode($data);
+		// exit();
 	}
 	
 }

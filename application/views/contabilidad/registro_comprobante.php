@@ -53,7 +53,7 @@
                                         <input  id="id_entidad" name="id_entidad" />
                                         <input  id="cant_cuentas" name="cant_cuentas" />
                                         <div class="row">
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label htmlFor="txtTipo">
                                                     <i class="text-danger">*</i>
@@ -73,7 +73,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label htmlFor="txtTipoCambio">
                                                     <i class="text-danger">*</i>
@@ -84,9 +84,10 @@
                                                     class="form-control"
                                                     id="txtTipoCambio"
                                                     name="txtTipoCambio"
-                                                    style="background-color: #f3d6d6;"
+                                                    style="background-color: #f3d6d6; text-align: right;"
                                                     placeholder="0.00"
-                                                    value="6.96"
+                                                    readonly
+                                                    
                                                     />
                                                 </div>
                                             </div>
@@ -98,6 +99,14 @@
                                                     </label>
                                                     <div class="mt-2">
                                                     <span class="badge badge-warning" id="estado_comprobante" name="estado_comprobante">Borrador</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2" style="display:none;" id="info_numero" name="info_numero">
+                                                <div class="info-box bg-info" style="min-height: 60px;">                                                    
+                                                    <div class="info-box-content p-1" style="line-height: 1.1;">
+                                                        <span class="info-box-text">#  Comprobante</span>
+                                                        <span class="info-box-number" style="font-size: 24px; font-weight: bold;" id= "nro_comprobante" name= "nro_comprobante" >...</span>
                                                     </div>
                                                 </div>
                                             </div>

@@ -105,6 +105,28 @@ $(function (){
                     event.preventDefault();
             }
         });
+        $('#txtFecha').change(function(){
+            fecha = $(this).val();
+            // alert(fecha);
+            // nombre_entidad = $('#entidades option:selected').text();
+            // $('#nombre_entidad').text(nombre_entidad);
+            // cargarTablaComprobantesEntidades(id_entidad);
+            var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+            $.ajax({
+                     url: enlace,
+                    type: 'POST',
+                    data: { fecha: fecha },
+                    success: function(response) {
+                        var resultado = JSON.parse(response);
+                        alert(resultado.tipo_cambio_fecha); 
+                        var tipo_cambio = resultado.tipo_cambio_fecha; 
+                        $('#txtTipoCambio').val(tipo_cambio);
+                    }
+                });
+
+
+
+        });
 
 });
 
@@ -167,6 +189,28 @@ function agregarRegistroComprobante()
         $('#txtAccionComprobanteCuenta').val('nuevo');
         $('#txtAccionMovimiento').val('nuevo');
     }
+    // alert (id_entidad);
+    $('#id_entidad_registro').val(id_entidad);
+    $('#nombreEntidad').text(nombre_entidad);
+    var tipo_cambio=$('#txtTipoCambio').val();
+    $('#tipoCambio').text(tipo_cambio);
+    $('#tipo_cambio_movimiento').val(tipo_cambio);
+    $('#modalRegistroMovimiento').modal({backdrop: 'static', keyboard: false})
+    $('#modalRegistroMovimiento').modal('show');  
+}
+function editarRegistroCuentaComprobante(id_registro_cuenta,id_cuenta,)
+{
+    eliminaMensajeError();
+    eliminaMensajeErrorCombos();
+    limpiarModalRegistro();
+    if($('#txtAccionComprobante').val()=== 'editar')
+    {
+        $('#txtAccionComprobanteCuenta').val('editar');
+        $('#txtAccionMovimiento').val('editar');
+        id_comprobante = $('#id_comprobanteP').val();
+        $('#id_comprobante').val(id_comprobante);
+    }
+    
     // alert (id_entidad);
     $('#id_entidad_registro').val(id_entidad);
     $('#nombreEntidad').text(nombre_entidad);
@@ -243,7 +287,9 @@ function guardarRegistroCuenta()
                                         //         cuenta: cadRegistroCuentaT, 
                                         //         id_entidad: id_entidad
                                         //     },
-                                        data: { datos_cuenta:datos_cuenta },
+                                        data: { datos_cuenta:datos_cuenta,
+                                                     cuentas:cadRegistroCuentaT
+                                              },
                                         // data: datos,
 
                                         dataSrc: function(json) {
@@ -387,6 +433,39 @@ function cargarCuentasComprobanteT()
                     $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
                     $('#cant_cuentas').val(json.nro_registros);
                     return json.data;
+                }
+        },
+    });
+}
+function cargarCuentasComprobanteRegistrado(id_comprobante)
+{
+    /*DETALLE COMPROBANTE */
+    var enlace = base_url + "Contabilidad/Comprobante/cargarDetalleComprobanteByIdComprobanteEntidad";
+    $('#tablaRegistroCuenta').DataTable({
+        destroy: true,
+        searching: false,
+        paging: false,
+        "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+        "iDisplayLength": 5,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            // data: { accion: accion, 
+            //         cuenta: cadRegistroCuenta, 
+            //     id_entidad: id_entidad
+            //     },
+            data: { id_comprobante: id_comprobante},
+
+            dataSrc: function(json) {
+
+                    
+                        $('.txtTotalImporteDebe').text(json.totalimporteDebe);
+                        $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+                        $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
+                        $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+                        $('#cant_cuentas').val(json.nro_registros);
+                        return json.data;
+                    
                 }
         },
     });
@@ -577,6 +656,59 @@ function cargarComprobantesPrincipal()
     var entidad =$('#id_entidad').val();
     window.location.href = base_url + "Contabilidad/Comprobante/principalComprobante/"+entidad;
 }
+function eliminarRegistroCuentaComprobante(id_registro_CuentaComprobante)
+{
+    var id_comprobante = $('#id_comprobanteP').val();
+    var cant_cuentas   = $('#cant_cuentas').val();
+    // alert (cant_cuentas);
+    // alert(id_comprobante);
+    swal({
+        title: 'ATENCIÓN',
+        text: "¿Está seguro de que desea eliminar este registro de cuenta del comprobante?",
+        icon: 'warning',
+        dangerMode: true,
+        buttons: {
+            cancel: "Cancelar",
+            verificar: {
+                text: "ELIMINAR",
+                value: "eliminar",
+            }
+        },
+    })
+    .then(respuesta => {
+        if (respuesta)
+        {
+            var enlace = base_url + "Contabilidad/Comprobante/eliminarRegistroCuentaComprobante";
+            $.ajax({
+                type: "POST",
+                url: enlace,
+                data: { id_registro_cuenta: id_registro_CuentaComprobante,
+                               cant_cuenta: cant_cuentas
+                },
+                // dataType: 'JSON',
+                success: function(data) {
+                            // $('#registroCuentaT').val(data.cuentas);
+
+                            var result = JSON.parse(data);
+                            $.each(result, function(i, datos)
+                            {
+                                // alert(datos.resultado);
+                                // alert(datos.cant_cuentas);
+                                if(datos.resultado == 1)
+                                {
+                                    swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
+                                    cargarCuentasComprobanteRegistrado(id_comprobante);
+                                }
+                                else
+                                {
+                                    swal({title:"ALERTA",text:datos.mensaje,icon:"warning",button:"OK",dangerMode:true});
+                                }
+                            });                            
+                }
+            });
+        }
+    });
+}
 function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,tipo_movimiento_literal,importe,tipo_cambio,glosa_cuenta,cadRegistroCuenta)
 {
     swal({
@@ -596,7 +728,7 @@ function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,t
         if (respuesta)
         {
             var accion  = $('#txtAccionMovimiento').val();
-            var enlace = base_url + "Contabilidad/Comprobante/eliminarRegistroCuenta";
+            var enlace = base_url + "Contabilidad/Comprobante/eliminarRegistroCuentaTemporal";
             $.ajax({
                 type: "POST",
                 url: enlace,
@@ -619,7 +751,7 @@ function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,t
         }
     });
 }
-function generarReportePComprobanteRegistrado(id_comprobante)
+function generarReporteComprobanteRegistrado(id_comprobante)
 {
     // $('#txtAccionComprobante').val('editar');
     // var accion= $('#txt
@@ -638,50 +770,67 @@ function generarReportePComprobanteRegistrado(id_comprobante)
 }
 function generarPDFComprobante()
 {
-    $('#txtAccionComprobante').val(accion);
-    // var datos = $('#formregistrocontable').serializeArray();
-    var datos = $('#formregistrocontable').serialize();
-    var detalleComprobante = $('#registroCuentaT').val();
-
-    let form = document.createElement("form");
-    form.setAttribute("target", "iframePDF");
-    form.setAttribute("method", "POST");
-    form.setAttribute("action", base_url + "Contabilidad/Comprobante/ReporteComprobantePDF");
-    form.style.display = "none";
-
-    // Input para los datos generales
-    let inputDatos = document.createElement("input");
-    inputDatos.setAttribute("type", "hidden");
-    inputDatos.setAttribute("name", "datos");
-    inputDatos.setAttribute("value", JSON.stringify(datos));
-    form.appendChild(inputDatos);
-
-    // Input para el detalle contable
-    let inputDetalle = document.createElement("input");
-    inputDetalle.setAttribute("type", "hidden");
-    inputDetalle.setAttribute("name", "detalleComprobante");
-    inputDetalle.setAttribute("value", JSON.stringify(detalleComprobante));
-    form.appendChild(inputDetalle);
-
-    // Crear iframe si no existe
-    let iframe = document.getElementById("iframePDF");
-    if (!iframe) {
-        iframe = document.createElement("iframe");
-        iframe.setAttribute("name", "iframePDF");
-        iframe.setAttribute("id", "iframePDF");
-        iframe.style.width = "100%";
-        iframe.style.height = "700px";
-        $('#divPDF').html(iframe);
+    if(accion=='editar')
+    {
+        var id_comprobante = $('#id_comprobanteP').val();
+        generarReporteComprobanteRegistrado(id_comprobante);
     }
-    // Agregar el form al DOM y enviarlo
-    document.body.appendChild(form);
-    form.submit();
+    else
+    {
 
-    // Mostrar modal
-    $('#divCapa').addClass('overlay');
-    $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
-    $('#pdfModal > .modal-dialog ').css("max-width", "85%");
-    $('#pdfModal').show();
+        $('#txtAccionComprobante').val(accion);
+
+        // Obtener datos del formulario principal
+        var datos = $('#formregistrocontablePrincipal').serialize();
+        var detalleComprobante = $('#registroCuentaT').val();
+
+        // Crear el formulario oculto
+        let form = document.createElement("form");
+        form.setAttribute("target", "iframePDF");
+        form.setAttribute("method", "POST");
+        form.setAttribute("action", base_url + "Contabilidad/Comprobante/ReporteComprobantePDF");
+        form.style.display = "none";
+
+        // Input para los datos generales
+        let inputDatos = document.createElement("input");
+        inputDatos.setAttribute("type", "hidden");
+        inputDatos.setAttribute("name", "datos");
+        inputDatos.setAttribute("value", datos);
+        form.appendChild(inputDatos);
+
+        // Input para el detalle contable
+        let inputDetalle = document.createElement("input");
+        inputDetalle.setAttribute("type", "hidden");
+        inputDetalle.setAttribute("name", "detalleComprobante");
+        inputDetalle.setAttribute("value", detalleComprobante);
+        form.appendChild(inputDetalle);
+
+        // Crear iframe si no existe
+        let iframe = document.getElementById("iframePDF");
+        if (!iframe) {
+            iframe = document.createElement("iframe");
+            iframe.setAttribute("name", "iframePDF");
+            iframe.setAttribute("id", "iframePDF");
+            iframe.style.width = "100%";
+            iframe.style.height = "700px";
+            document.getElementById('divPDF').appendChild(iframe);
+        }
+
+        // Agregar el form al DOM, enviarlo y limpiar
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form); // opcional, limpia el DOM
+
+        // Mostrar el modal
+        $('#divCapa').addClass('overlay');
+        $('#pdfModal > .modal-dialog').parent().css('z-index', 1999);
+        $('#pdfModal > .modal-dialog').css("max-width", "85%");
+        $('#pdfModal').show();
+
+    }
+
+
+
 
 }
 function editarComprobante(id_comprobante)
@@ -706,6 +855,8 @@ function cargarDatosComprobante(id_comprobante,entidad)
         {
             if(data.resultado == 1)
             {
+                $('#info_numero').show();
+                $('#nro_comprobante').text(data.correlativo);
                 $('#txtTipo option[value="'+data.tipo_comprobante+'"]').prop('selected','selected'); 
                 $('#txtTipo').prop('disabled', true);
                 $('#txtFecha').val(data.fecha_comprobante);
@@ -751,6 +902,43 @@ function cargarDatosComprobante(id_comprobante,entidad)
                     },
                 });
                 
+            }
+        }
+    });
+}
+function cargarDatosCuentaComprobante(id_registro_cuenta)
+{
+    var enlace = base_url + "Contabilidad/Comprobante/cargarComprobanteCuentaByIdRegistro";
+    $.ajax({
+        url: enlace,
+        method: 'POST',
+        data:{ id_registro_cuenta:id_registro_cuenta },
+        dataType:'JSON',
+        success: function (data)
+        {
+            if(data.resultado == 1)
+            {
+                $('#id_cuenta').val(data.id_cuenta);
+                $('#txtTipoMovimiento option[value="'+data.tipo_movimiento+'"]').prop('selected','selected'); 
+                $('#txtGlosaCuenta').val(data.glosa_comprobante);
+
+
+
+                $('#info_numero').show();
+                $('#nro_comprobante').text(data.correlativo);
+                $('#txtTipo').prop('disabled', true);
+                $('#txtFecha').val(data.fecha_comprobante);
+                $('#txtTipoCambio').val(data.tipo_cambio);
+                $('#txtReferencia').val(data.referencia_comprobante);
+                $('#txtFecha').val(data.fecha_comprobante);
+                $('#btnGuardar').html('<i class="fas fa-save mr-1"></i> Editar Comprobante');
+                if(data.estado=='ACT')
+                {
+                    $('#estado_comprobante')
+                    .removeClass('badge-warning') // Quita cualquier clase previa
+                    .addClass('badge-success') // Agrega la nueva
+                    .text('Registrado');
+                }                
             }
         }
     });

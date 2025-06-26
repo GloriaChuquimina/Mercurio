@@ -260,3 +260,26 @@ COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.fecha_registro IS 'F
 COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.fecha_modificacion IS 'Fecha de la última modificación del registro.';
 COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.estado IS 'Estado del detalle (AC = Activo, AN = Anulado, etc.).';
 
+CREATE TABLE contabilidad.tipo_cambio (
+	id serial4 NOT NULL,
+	fecha date NULL,
+	valor numeric null,
+	id_usuario_registro int4 NULL,
+	fecha_registro timestamp DEFAULT now() NULL,
+	fecha_modificacion timestamp NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	sec_log numeric(10,0),
+	CONSTRAINT tipo_cambio_pkey PRIMARY KEY (id)
+);
+
+
+COMMENT ON TABLE  contabilidad.tipo_cambio  IS 'Define los valores de los tipo de cambio registrados por fecha.';
+
+COMMENT ON COLUMN contabilidad.tipo_cambio.id IS 'Identificador único del tipo de cambio.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.fecha IS 'Fecha a la que corresponde el tipo de cambio registrado.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.valor IS 'Valor del tipo de cambio.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.id_usuario_registro IS 'ID del usuario que registró el valor. Se usa para trazabilidad.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.fecha_registro IS 'Fecha y hora en que se registró el tipo de cambio. Por defecto: now().';
+COMMENT ON COLUMN contabilidad.tipo_cambio.fecha_modificacion IS 'Fecha de la última modificación (si la hubo). Puede ser NULL si no se modificó.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.estado IS 'Define el estado del registro(AC = Activo, AN = Anulado, etc.).';
+COMMENT ON COLUMN contabilidad.tipo_cambio.sec_log IS 'Campo para fines de auditoría o bitácora';

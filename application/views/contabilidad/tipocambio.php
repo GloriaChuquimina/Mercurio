@@ -1,40 +1,8 @@
 <script src="<?php echo  base_url() ?>scriptjs/jquery.js"></script>
-<script src="<?php echo  base_url() ?>scriptjs/contabilidad/librodiario.js"></script>
+<script src="<?php echo  base_url() ?>scriptjs/contabilidad/tipocambio.js"></script>
 <div class="wapper">
     <section class="content">
         <div class="container-fluid">
-             <!-- SECCION ENTIDAD -->
-            <!-- <div class="card card-warning card-outline">
-                <div class="card-header">
-                    <h3 class="card-title">
-                    <i class="mr-2">🏢</i>
-                    Selección de Entidad
-                    </h3>
-                    <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" >
-                      <i>🔼🔽</i>
-                    </button>
-                  </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                        <label>
-                            <i class="text-danger">*</i>
-                            <strong> ENTIDAD:</strong>
-                        </label>
-                        <select
-                            class="form-control"
-                            id="entidades"
-                            name="entidades"
-                        >
-                        </select>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            </div> -->
             <!-- SECCION ENTIDAD SELECCIONADA -->
             <div class="card" style="background-color: #f0f0ff; border-left: 4px solid #3c8dbc;">
                 <div class="card-body p-3">
@@ -121,7 +89,7 @@
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
-      cargarCombos();
+      cargarTipoCambio();
     //   cargarTablaComprobantesEntidades();
     });
 </script>  
