@@ -119,7 +119,6 @@ class Comunes extends CI_Controller
 	}
 	function cargarCuentaContableEntidad()
 	{
-
 	    $filas = $this->PlanDeCuentas_model->getPlanDeCuentas();
 	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
 	    foreach ($filas as $fila)

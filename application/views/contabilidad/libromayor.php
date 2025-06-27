@@ -224,6 +224,8 @@
                   </div>
                 </div>
                 <div class="card-body">
+                    <input class="form-control" id="id_entidad" name="id_entidad">
+                    <input class="form-control" id="id_cuenta" name="id_cuenta">
                     <div class="row">
                       <div class="col-md-6">
                         <div class="form-group">
@@ -231,12 +233,33 @@
                             <i class="text-danger">*</i>
                             <strong> CUENTA CONTABLE:</strong>
                           </label>
-                          <select
+                          <!-- <select
                             id="cuentaContable"
                             name="cuentaContable"
                             class="form-control"
                           >
-                          </select>
+                          </select> -->
+                          <div class="input-group">
+                              <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Buscar cuenta..."
+                                  list="listaCuentas"
+                                  id="txtCuenta" 
+                                  name="txtCuenta"
+                              />
+                              <datalist id='listaCuentas'></datalist>
+                              <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
+                              <div class="input-group-append">
+                                  <button
+                                  type="button"
+                                  class="btn btn-warning"
+                                  onclick="listaCuentasBusqueda();"
+                                  >
+                                  <i>🔍</i>
+                                  </button>
+                              </div>
+                          </div>
                         </div>
                       </div>
                       <div class="col-md-3">
@@ -389,12 +412,41 @@
         </div>
     </section>
 </div>
+<div class="modal fade show" id="modalListaCuentas" style="backgroundColor: rgba(0,0,0,0.4)" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="max-width: 700px">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary">
+                <h7 class="modal-title text-white">
+                    <i class="mr-2">🔍</i>
+                    BÚSQUEDA DE CUENTAS CONTABLES
+                </h7>
+                <button type="button" class="close text-white" data-dismiss="modal" >
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover" id="tbl_CuentasContables" style="width: 100%;">
+                    <thead class="bg-dark">
+                      <tr>
+                        <th style="color: white; text-align: center;">OPCIONES</th>
+                        <th style="color: white;">CÓDIGO</th>
+                        <th style="color: white;">DESCRIPCIÓN</th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
       cargarCombos();
+      cargarCuentasLista();
     //   cargarTablaComprobantesEntidades();
     });
 </script>  
