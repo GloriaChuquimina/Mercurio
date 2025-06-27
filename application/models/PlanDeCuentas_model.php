@@ -22,6 +22,17 @@ class PlanDeCuentas_model extends CI_Model
 										  );
 		return $query->result();
 	}
+	function getPlanDeCuentasBusqueda()
+	{
+		$query = $this->db_mercurio->query("select *
+											 from contabilidad.plancuentas
+										    where estado='ACT'
+										 order by nivel ASC,
+  												  codigo ASC;
+											" 
+										  );
+		return $query->result();
+	}
 	function getPlanDeCuentasById($id)
     {
         $query = $this->db_mercurio->query("select *

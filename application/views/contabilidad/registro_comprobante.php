@@ -48,10 +48,11 @@
 
                                 <!-- <form id="formregistrocontableDetalle"> -->
                                     <div class="card-body">
-                                        <input  id="txtAccionComprobante" name="txtAccionComprobante" />
-                                        <input  id="id_comprobanteP" name="id_comprobanteP" />
-                                        <input  id="id_entidad" name="id_entidad" />
-                                        <input  id="cant_cuentas" name="cant_cuentas" />
+                                        <input  type="hidden" id="txtAccionComprobante" name="txtAccionComprobante" />
+                                        <input  type="hidden" id="id_comprobanteP" name="id_comprobanteP" />
+                                        <input  type="hidden" id="id_entidad" name="id_entidad" />
+                                        <input  type="hidden" id="cant_cuentas" name="cant_cuentas" />
+                                        <input  type="hidden" id="tipo_cambio_comprobante" name="tipo_cambio_comprobante" />
                                         <div class="row">
                                             <div class="col-md-2">
                                                 <div class="form-group">
@@ -225,13 +226,15 @@
             <div class="modal-body">
                 <form id="formularioRegistroCuenta">
                 <!-- CAMPOS OCULTOS -->
-                <input class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
-                <input class="form-control" id="id_comprobante" name="id_comprobante">
-                <input class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
-                <input class="form-control" id="id_entidad_registro" name="id_entidad_registro">
-                <input class="form-control" id="id_cuenta" name="id_cuenta">
-                <input class="form-control" id="registroCuentaT" name="registroCuentaT">
-                <input class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
+                <input type="hidden" class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
+                <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
+                <input type="hidden" class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
+                <input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+                <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                <input type="hidden" class="form-control" id="registroCuentaT" name="registroCuentaT">
+                <input type="hidden" class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
+                <input type="hidden" class="form-control" id="id_registroCuentaComprobante" name="id_registroCuentaComprobante">
+                <input type="hidden" class="form-control" id="mensaje" name="mensaje">
                 <div class="card card-outline card-info">
                     <div class="card-header">
                     <h7 class="card-title">

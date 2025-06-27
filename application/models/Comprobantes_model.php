@@ -26,8 +26,9 @@ class Comprobantes_model extends CI_Model
 	{
 		$query = $this->db_mercurio->query("select *
 											 from contabilidad.comprobante
-											where estado='ACT'
-											  and id_entidad = ".$id_entidad.";
+											where id_entidad = ".$id_entidad."
+											 -- and estado='ACT'
+											  ;
 											"
 										  );
 		return $query->result();
@@ -69,6 +70,11 @@ class Comprobantes_model extends CI_Model
 		$this->db_mercurio->where('id',$id_comprobante);
 		return $this->db_mercurio->update('contabilidad.comprobante',$data);
 	}
+	function updateDetalleComprobante($id_registroCuenta,$data)
+	{
+		$this->db_mercurio->where('id',$id_registroCuenta);
+		return $this->db_mercurio->update('contabilidad.detalle_comprobante',$data);
+	}
 	function updateRegistroDetalleComprobante($id_comprobante,$id_detalle_comprobante,$data)
 	{
 		$this->db_mercurio->where('id',$id_detalle_comprobante);
@@ -85,6 +91,16 @@ class Comprobantes_model extends CI_Model
 		$query = $this->db_mercurio->query("select *
 											  from contabilidad.detalle_comprobante
 											 where id= ".$id_registro_cuenta.";
+											"
+										  );
+		return $query->result();
+	}
+	function getDetalleComprobanteByIdComprobante($id_comprobante)
+	{
+		$query = $this->db_mercurio->query("select *
+											  from contabilidad.detalle_comprobante
+											 where id_comprobante= ".$id_comprobante."
+											   and estado = 'ACT';
 											"
 										  );
 		return $query->result();
