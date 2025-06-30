@@ -111,3 +111,49 @@ $(function (){
             });
 
 });
+function consultar()
+{
+     $('#cuentaSeleccionada').show();
+     $('#tablaLibroMayor').show();
+     $("#mensajeSeleccion").hide();
+    var id_entidad =$('#id_entidad').val();
+    alert (id_entidad);
+    /*CARGAR TABLA BUSQUEDA LIBRO MAYOR */
+     var enlace = base_url + "Contabilidad/LibroMayor/listarBusquedaLibroMayor";
+    $.ajax({
+        url: enlace,
+        method: "POST",
+        data: { id_entidad : id_entidad}, 
+        dataType:'JSON',
+        success: function (data) 
+        {
+            if(data.resultado == '1')
+            {   
+                // $('#formularioSeguimientoModal').modal('hide') ;
+                $("#tbl_libroMayor").html(data.tabla);
+                $('#tbl_libroMayor').DataTable({
+                    destroy: true,
+                    order: [[0, 'asc']],
+                    "columnDefs": [
+                                    { "width": "7%", "targets": 0 }
+                                    ],
+                    "aLengthMenu": [[ 30,50,100, -1], [  30, 50, 100,"Todos"]],
+                    "iDisplayLength": 30,
+                    "searching": true
+                });
+                // setTimeout( function () {
+                // $('#formularioSeguimientoModal > .modal-dialog ').css("max-width","95%"); 
+                // $('#formularioSeguimientoModal').modal({backdrop: 'static', keyboard: false})
+                // $('#formularioSeguimientoModal').modal('show');   
+                // } ,350);
+            }
+            else
+            {
+                swal({title: "ERROR",text: "Error",icon: "error",button: "OK",dangerMode:true,});
+            }
+        }
+    });
+
+
+
+}

@@ -293,7 +293,8 @@
                     </div>
                     <div class="row">
                       <div class="col-md-12 text-right">
-                        <button class="btn btn-primary mr-2">
+                        <button class = "btn btn-primary mr-2"
+                              onClick = "consultar()">
                           <i class="mr-1">🔍</i> Consultar
                         </button>
                         <button class="btn btn-success mr-2">
@@ -353,8 +354,8 @@
                 </div>
                 <div class="card-body p-0">
                   <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                      <thead class="bg-dark">
+                    <table class="table table-striped table-hover" id="tbl_libroMayor" name ="tbl_libroMayor">
+                      <!-- <thead class="bg-dark">
                         <tr>
                           <th style="color: white; width:100px ">FECHA</th>
                           <th style="color: white; width:120px ">COMPROBANTE</th>
@@ -366,7 +367,7 @@
                           <th style="color: white; width:80px">ACCIONES</th>
                         </tr>
                       </thead>
-                      <tr class="bg-primary">
+                      <tr class="bg-primary"> -->
                           <td colSpan="4" style="color: white; fontWeight: bold">
                             TOTALES
                           </td>
