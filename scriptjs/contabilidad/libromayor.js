@@ -129,23 +129,25 @@ function consultar()
         {
             if(data.resultado == '1')
             {   
-                // $('#formularioSeguimientoModal').modal('hide') ;
-                $("#tbl_libroMayor").html(data.tabla);
-                $('#tbl_libroMayor').DataTable({
-                    destroy: true,
-                    order: [[0, 'asc']],
-                    "columnDefs": [
-                                    { "width": "7%", "targets": 0 }
-                                    ],
-                    "aLengthMenu": [[ 30,50,100, -1], [  30, 50, 100,"Todos"]],
-                    "iDisplayLength": 30,
-                    "searching": true
-                });
-                // setTimeout( function () {
-                // $('#formularioSeguimientoModal > .modal-dialog ').css("max-width","95%"); 
-                // $('#formularioSeguimientoModal').modal({backdrop: 'static', keyboard: false})
-                // $('#formularioSeguimientoModal').modal('show');   
-                // } ,350);
+                $("#contenedor_libroMayor").html(data.tabla);
+                // setTimeout(() => {
+                //         if ($.fn.DataTable.isDataTable("#tbl_libroMayor")) {
+                //             $("#tbl_libroMayor").DataTable().destroy();
+                //         }
+
+                //         $("#tbl_libroMayor").DataTable({
+                //             scrollY: '300px',
+                //             scrollCollapse: true,
+                //             paging: false,
+                //             searching: true,
+                //             fixedHeader: true,
+                //             dom: 'ftip',
+                //             language: {
+                //                 search: "Buscar:",
+                //                 zeroRecords: "No se encontraron resultados"
+                //             }
+                //         });
+                //     }, 150);
             }
             else
             {
@@ -153,7 +155,28 @@ function consultar()
             }
         }
     });
+}
+function generarReporteLibroMayor()
+{
 
-
-
+    var fecha_inicio=$('#fechaDesde').val();
+    var fecha_fin=$('#fechaHasta').val();
+    if(fecha_inicio!='' && fecha_fin !='')
+    {
+        $('#divPDF').html('');
+        var iframe = document.createElement("iframe");
+            iframe.width = '100%';
+            iframe.height = '700px';
+            iframe.src = base_url+'Contabilidad/LibroMayor/ReporteLibroMayorPDF/'+fecha_inicio+"/"+fecha_fin; 
+            $('#divPDF').append(iframe);
+        $('#divCapa').addClass('overlay');    
+        $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+        $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
+        $('#pdfModal').show();   
+        
+    }
+    else
+    {
+        alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
+    }
 }

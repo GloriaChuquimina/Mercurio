@@ -297,7 +297,8 @@
                               onClick = "consultar()">
                           <i class="mr-1">🔍</i> Consultar
                         </button>
-                        <button class="btn btn-success mr-2">
+                        <button class="btn btn-success mr-2"
+                                onClick="generarReporteLibroMayor()">
                           <i class="mr-1">📄</i> Exportar PDF
                         </button>
                         <button class="btn btn-info">
@@ -353,21 +354,9 @@
                   </div>
                 </div>
                 <div class="card-body p-0">
-                  <div class="table-responsive">
-                    <table class="table table-striped table-hover" id="tbl_libroMayor" name ="tbl_libroMayor">
-                      <!-- <thead class="bg-dark">
-                        <tr>
-                          <th style="color: white; width:100px ">FECHA</th>
-                          <th style="color: white; width:120px ">COMPROBANTE</th>
-                          <th style="color: white; width:100px ">TIPO</th>
-                          <th style="color: white;">GLOSA</th>                      
-                          <th style="color: white; width:120px;text-align: right" >DEBE</th>
-                          <th style="color: white; width:120px;text-align: right">HABER</th>
-                          <th style="color: white; width:120px;text-align: right">SALDO</th>
-                          <th style="color: white; width:80px">ACCIONES</th>
-                        </tr>
-                      </thead>
-                      <tr class="bg-primary"> -->
+                  <!-- <div class="table-responsive"> -->
+                    <!-- <table class="table table-striped table-hover" id="tbl_libroMayor" name ="tbl_libroMayor"> -->
+                      <!--<tr class="bg-primary"> 
                           <td colSpan="4" style="color: white; fontWeight: bold">
                             TOTALES
                           </td>
@@ -381,9 +370,11 @@
                             0000
                           </td>
                           <td></td>
-                        </tr>
-                    </table>
-                  </div>
+                        </tr> -->
+                    <!-- </table> -->
+                     <div id="contenedor_libroMayor" class="table-responsive" style="height: 320px;">
+                     </div>
+                  <!-- </div> -->
                 </div>
                 <div class="card-footer">
                     <div class="row">

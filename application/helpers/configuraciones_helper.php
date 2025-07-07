@@ -965,6 +965,20 @@ function descripcion_nombre_entidad($id_entidad)
     return '';
   }
 }
+function sigla_entidad($id_entidad)
+{
+  $fila =& get_instance();
+  $fila->load->model('Entidades_model');
+  $datos = $fila->Entidades_model->getEntidadesById($id_entidad);
+  if($datos)
+  {
+    return $datos[0]->sigla;
+  }
+  else
+  {
+    return '';
+  }
+}
 
 
 function getTipoCambio($fecha)

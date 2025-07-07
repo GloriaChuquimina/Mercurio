@@ -3,7 +3,7 @@ ini_set("allow_url_fopen", 1);
 
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
-require_once APPPATH . "/libraries/fpdf_rrhh/fpdf/fpdf.php";
+require_once APPPATH . "/libraries/fpdf/fpdf.php";
 // include_once  "fpdf/easyTable.php";
 
 class Pdf2 extends FPDF {
@@ -13,6 +13,8 @@ class Pdf2 extends FPDF {
     public $anchoheader = 205; 
     public $cabecera;
     public $tituloCabecera;
+    public $subtituloCabecera1;
+    public $subtituloCabecera2;
     public $gestion;
     public $opcion_cabecera;
     public $opcion_pie;
@@ -47,679 +49,13 @@ class Pdf2 extends FPDF {
     public function Header() {
         $this->SetFont('Arial', 'B', 8);
 
-        //OPCIÓN PARA LA PROGRAMACIÓN DE VACACIONES
-        if($this->opcion_cabecera==1)
-        {
-            //$this->Image('resources/images/logos/200BicentenarioBolivia_Vectores-9.png', 10, 6, 50);
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 18, 6, 20);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 100, 6, 73);
-            $this->Image('resources/images/logos/chakana.png', 225, 4, 42);
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(23);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(6);
-
-            $this->SetFont('Times','B',12);
-            //encabezado grilla
-            $this->Cell(0,0,utf8_decode($this->subTitulo),0,1,'C',0);
-            $this->Ln();
-
-            $this->SetFont('Arial','B',10);
-            $this->SetXY(94,34);
-            $this->SetFillColor(200,200,200);
-            $this->SetTextColor(0);
-            $this->Cell(168,7,utf8_decode('GESTIÓN: '.$this->gestion),1,0,'C',1);
-            $this->Ln(8);
-
-            //Cabecera
-            $this->SetFillColor(31,73,125);
-            $this->SetTextColor(255);
-            $this->SetFont('Arial','B',7);
-
-            $this->MultiCell(33,10,utf8_decode('Nombres y Apellidos'),1,'C',1);
-            $this->SetXY(38, 42);
-            $this->MultiCell(14,5,utf8_decode('Fecha Ingreso'),1,'C',1);
-            $this->SetFont('Arial','B',6);
-            $this->SetXY(52,42);
-            $this->MultiCell(14,5,utf8_decode('Saldo al 31/12/'.($this->gestion-1)),1,'C',1);
-            $this->SetXY(66,42);
-            $this->MultiCell(14,5,utf8_decode('Días a ganar '.$this->gestion),1,'C',1);
-            $this->SetXY(80,42);
-            $this->MultiCell(14,5,utf8_decode('Total Días a Programar'),1,'C',1);
-            $this->SetXY(94,42);
-            $this->Cell(14,5,utf8_decode('Enero'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Febrero'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Marzo'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Abril'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Mayo'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Junio'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Julio'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Agosto'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Septiembre'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Octubre'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Noviembre'),1,0,'C',1);
-            $this->Cell(14,5,utf8_decode('Diciembre'),1,0,'C',1);
-            $this->SetFont('Arial','B',7);
-            $this->Cell(10,10,utf8_decode('TOTAL'),1,1,'C',1);
-            $this->SetXY(94,47);
-            for($i=1;$i<=12;$i++){
-                $this->Cell(7,5,utf8_decode('DE'),1,0,'C',1);
-                $this->Cell(7,5,utf8_decode('A'),1,0,'C',1);
-            }
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Ficha Personal *****//
-        if($this->opcion_cabecera==2)
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 170, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(23);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(6);
-            $this->SetFont('Times','B',12);
-            $this->Cell(0,0,utf8_decode($this->subTitulo),0,1,'C',0);
-            $this->Ln(5);
-        }
-
-        //***** Cabecera de Ficha Personal *****//
-        if($this->opcion_cabecera=='AcuerdoConfidencialidad')
-        {
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(23);
-            $this->Cell(180,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-        }
-
-        //***** Cabecera de Datos Por Género *****//
-        if($this->opcion_cabecera=='ReporteGenero')
-        {
-            
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 170, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(10,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(35,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(35,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(35,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(30,5,utf8_decode('NRO DE CÉDULA DE IDENTIDAD'),1,'C',1);
-            $this->SetXY(155,$y);
-            $this->Cell(10,10,utf8_decode('EXT.'),1,0,'C',1);
-            $this->Cell(20,10,utf8_decode('GÉNERO'),1,0,'C',1);
-            $this->Cell(15,10,utf8_decode('EDAD'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos Por Lugar de Nacimiento *****//
-        if($this->opcion_cabecera=='ReporteLugarNacimiento')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 18, 6, 20);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 100, 6, 73);
-            $this->Image('resources/images/logos/chakana.png', 225, 4, 42);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(20,5,utf8_decode('Nro Cédula de Identidad'),1,'C',1);
-            $this->SetXY(128,$y);
-            $this->Cell(10,10,utf8_decode('EXT.'),1,0,'C',1);
-            $this->Cell(17,10,utf8_decode('GÉNERO'),1,0,'C',1);
-            $this->Cell(15,10,utf8_decode('EDAD'),1,0,'C',1);
-            $this->MultiCell(25,5,utf8_decode('FECHA DE NACIMIENTO'),1,'C',1);
-            $this->SetXY(195,$y);
-            $this->Cell(75,5,utf8_decode('LUGAR DE NACIMIENTO'),1,0,'C',1);
-            $this->SetXY(195,$y+5);
-            $this->Cell(25,5,utf8_decode('Departamento'),1,0,'C',1);
-            $this->Cell(25,5,utf8_decode('Provincia'),1,0,'C',1);
-            $this->Cell(25,5,utf8_decode('Municipio'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos Por formación Académica *****//
-        if($this->opcion_cabecera=='ReporteFormacionAcademica')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 18, 6, 20);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 100, 6, 73);
-            $this->Image('resources/images/logos/chakana.png', 225, 4, 42);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',7);
-            $this->Cell(7,8,utf8_decode('Nro'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(20,4,utf8_decode('PRIMER APELLIDO'),1,'C',1);
-            $this->SetXY(37,$y);
-            $this->MultiCell(20,4,utf8_decode('SEGUNDO APELLIDO'),1,'C',1);
-            $this->SetXY(57,$y);
-            $this->Cell(20,8,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(20,8,utf8_decode('CARGO'),1,0,'C',1);
-            $this->Cell(30,8,utf8_decode('PUESTO'),1,0,'C',1);
-            $this->Cell(40,8,utf8_decode('UNIDAD / DIRECCIÓN'),1,0,'C',1);
-            $this->MultiCell(18,4,utf8_decode('Nro Cédula de Identidad'),1,'C',1);
-            $this->SetXY(185,$y);
-            $this->Cell(7,8,utf8_decode('EXT.'),1,0,'C',1);
-            $this->Cell(15,8,utf8_decode('GÉNERO'),1,0,'C',1);
-            $this->Cell(15,8,utf8_decode('GRADO'),1,0,'C',1);
-            $this->Cell(50,8,utf8_decode('FORMACIÓN ACADÉMICA'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos Por Madre / Padre *****//
-        if($this->opcion_cabecera=='ReporteMadrePadre')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 61, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 158, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(10,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(40,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(40,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(40,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(25,10,utf8_decode('EDAD'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('PADRE/MADRE'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos Por AFP *****//
-        if($this->opcion_cabecera=='ReporteAfp')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 61, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 158, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(25,5,utf8_decode('NRO. CÉDULA DE IDENTIDAD'),1,'C',1);
-            $this->SetXY(133,$y);
-            $this->Cell(10,10,utf8_decode('EXT.'),1,0,'C',1);
-            $this->SetXY(143,$y);
-            $this->Cell(50,5,utf8_decode('AFP (CUA/NUA)'),1,0,'C',1);
-            $this->SetXY(143,$y+5);
-            $this->Cell(25,5,utf8_decode('PREVISIÓN'),1,0,'C',1);
-            $this->Cell(25,5,utf8_decode('FUTURO'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos C.A.S. *****//
-        if($this->opcion_cabecera=='ReporteCas')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 170, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(10,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(95,5,utf8_decode('C.A.S.'),1,'C',1);
-            $this->SetXY(110,$y+5);
-            $this->Cell(15,5,utf8_decode('AÑOS'),1,0,'C',1);
-            $this->Cell(15,5,utf8_decode('MESES'),1,0,'C',1);
-            $this->Cell(15,5,utf8_decode('DÍAS'),1,0,'C',1);
-            $this->Cell(25,5,utf8_decode('FECHA DE CAS'),1,0,'C',1);
-            $this->Cell(25,5,utf8_decode('ESTADO CAS'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos Inamovilidad Laboral (Discapacidad) *****//
-        if($this->opcion_cabecera=='ReporteDiscapacidad')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 170, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(10,12,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,12,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,12,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,12,utf8_decode('NOMBRES'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(50,6,utf8_decode('PERSONA CON DISCAPACIDAD/ PADRE-MADRE/TUTOR'),1,'C',1);
-            $this->SetXY(160,$y);
-            $this->MultiCell(25,6,utf8_decode('TIPO DE DISCAPACIDAD'),1,'C',1);
-            $this->SetXY(185,$y);
-            $this->MultiCell(25,4,utf8_decode('VIGENCIA DE CARNET DE DISCAPACIDAD'),1,'C',1);
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos Reporte Cursos normativa *****//
-        if($this->opcion_cabecera=='ReporteCursosNormativa')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 18, 6, 20);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 100, 6, 73);
-            $this->Image('resources/images/logos/chakana.png', 225, 4, 42);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,12,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,12,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,12,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,12,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->SetFont('Arial','B',7);
-            $this->Cell(40,6,utf8_decode('IDIOMA'),1,0,'C',1);
-            $this->Cell(30,6,utf8_decode('LEY 1178'),1,0,'C',1);
-            $this->Cell(30,6,utf8_decode('POLÍTICAS PÚBLICAS'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(35,3,utf8_decode('RESPONSABILIDAD POR LA FUNCIÓN PÚBLICA'),1,'C',1);
-            $this->SetXY(243,$y);
-            $this->MultiCell(30,3,utf8_decode('PREVENCIÓN DE LA VIOLENCIA'),1,'C',1);
-            $this->SetFont('Arial','B',6);
-            $this->SetXY(108,$y+6);
-            $this->MultiCell(12,3,utf8_decode('CARGA HORARIA'),1,'C',1);
-            $this->SetXY(120,$y+6);
-            $this->Cell(28,6,utf8_decode('INSTITUCIÓN'),1,0,'C',1);
-            $this->MultiCell(12,3,utf8_decode('CARGA HORARIA'),1,'C',1);
-            $this->SetXY(160,$y+6);
-            $this->Cell(18,6,utf8_decode('INSTITUCIÓN'),1,0,'C',1);
-            $this->MultiCell(12,3,utf8_decode('CARGA HORARIA'),1,'C',1);
-            $this->SetXY(190,$y+6);
-            $this->Cell(18,6,utf8_decode('INSTITUCIÓN'),1,0,'C',1);
-            $this->MultiCell(12,3,utf8_decode('CARGA HORARIA'),1,'C',1);
-            $this->SetXY(220,$y+6);
-            $this->Cell(23,6,utf8_decode('INSTITUCIÓN'),1,0,'C',1);
-            $this->MultiCell(12,3,utf8_decode('CARGA HORARIA'),1,'C',1);
-            $this->SetXY(255,$y+6);
-            $this->Cell(18,6,utf8_decode('INSTITUCIÓN'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos Asuetos *****//
-        if($this->opcion_cabecera=='ReporteAsuetos')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 170, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            //$this->MultiCell(0,5,utf8_decode($this->tituloCabecera),0,'C',0);
-            $this->Cell(0,0,utf8_decode("REPORTE DE ".$this->subTitulo." QUE TOMARON EL ASUETO ".$this->otroSubTitulo),0,1,'C',0);
-            $this->Ln(6);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(60,10,utf8_decode('UNIDAD ORGANIZACIONAL'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(40,5,utf8_decode('FECHA'),1,'C',1);
-            $this->SetXY(168,$y+5);
-            $this->Cell(20,5,utf8_decode('DE'),1,0,'C',1);
-            $this->Cell(20,5,utf8_decode('A'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        /***** Cabecera de Datos Horarios Especiales ****
-        if($this->opcion_cabecera=='ReporteHorariosEspeciales')
-        {
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 10, 6, 75);
-            $this->Image('resources/images/logos/chakana.png', 170, 5, 38);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            //$this->MultiCell(0,5,utf8_decode($this->tituloCabecera),0,'C',0);
-            $this->Cell(0,0,utf8_decode("REPORTE DE ".$this->subTitulo." QUE TOMARON EL ASUETO DEL "),0,1,'C',0);
-            $this->Ln(5);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(60,10,utf8_decode('UNIDAD ORGANIZACIONAL'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(40,5,utf8_decode('FECHA'),1,'C',1);
-            $this->SetXY(168,$y+5);
-            $this->Cell(20,5,utf8_decode('DE'),1,0,'C',1);
-            $this->Cell(20,5,utf8_decode('A'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-        */
-
-        //***** Cabecera de Datos Cronograma de Vacaciones Mensuales *****//
-        if($this->opcion_cabecera=='ReporteCronogramaVacacionesMensual')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 18, 6, 20);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 100, 6, 73);
-            $this->Image('resources/images/logos/chakana.png', 225, 4, 42);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(55,10,utf8_decode('UNIDAD ORGANIZACIONAL'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(34,5,utf8_decode('FECHA'),1,'C',1);
-            $this->SetXY(197,$y);
-            $this->MultiCell(28,3.33,utf8_decode('  PROGRAMADO  / A CUENTA / REPROGRAMADO'),1,'C',1);
-            $this->SetXY(225,$y);
-            $this->MultiCell(25,5,utf8_decode('DÍA COMPLETO/ MEDIODÍA'),1,'C',1);
-            $this->SetXY(250,$y);
-            $this->Cell(20,10,utf8_decode('TURNO'),1,0,'C',1);
-            $this->SetXY(163,$y+5);
-            $this->Cell(17,5,utf8_decode('DE'),1,0,'C',1);
-            $this->Cell(17,5,utf8_decode('A'),1,0,'C',1);
-
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos de Bajas Médicas *****//
-        if($this->opcion_cabecera=='ReporteBajaMedica')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 170, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode("REPORTE DE SERVIDORES PÚBLICOS CON ".$this->otroSubTitulo),0,1,'C',0);
-            $this->Ln(6);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,10,utf8_decode('Nro'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(22,5,utf8_decode('PRIMER APELLIDO'),1,'C',1);
-            $this->SetXY(40,$y);
-            $this->MultiCell(22,5,utf8_decode('SEGUNDO APELLIDO'),1,'C',1);
-            $this->SetXY(62,$y);
-            $this->Cell(30,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(50,10,utf8_decode('UNIDAD ORGANIZACIONAL'),1,0,'C',1);
-            $this->Cell(26,10,utf8_decode('TIPO BAJA'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(40,5,utf8_decode('FECHA'),1,'C',1);
-            $this->SetXY(168,$y+5);
-            $this->Cell(20,5,utf8_decode('DE'),1,0,'C',1);
-            $this->Cell(20,5,utf8_decode('A'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos de Comisiones de Viaje *****//
-        if($this->opcion_cabecera=='ReporteComisionViaje')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 170, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode("REPORTE DE SERVIDORES PÚBLICOS CON ".$this->otroSubTitulo),0,1,'C',0);
-            $this->Ln(6);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(60,10,utf8_decode('UNIDAD ORGANIZACIONAL'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(40,5,utf8_decode('FECHA'),1,'C',1);
-            $this->SetXY(168,$y+5);
-            $this->Cell(20,5,utf8_decode('DE'),1,0,'C',1);
-            $this->Cell(20,5,utf8_decode('A'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos de Comisiones de Trabajo *****//
-        if($this->opcion_cabecera=='ReporteComisionTrabajo')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 18, 6, 20);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 100, 6, 73);
-            $this->Image('resources/images/logos/chakana.png', 225, 4, 42);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode("REPORTE DE SERVIDORES PÚBLICOS CON ".$this->otroSubTitulo),0,1,'C',0);
-            $this->Ln(6);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(35,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(35,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(35,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(65,10,utf8_decode('UNIDAD ORGANIZACIONAL'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(40,5,utf8_decode('FECHA'),1,'C',1);
-            $this->SetXY(228,$y);
-            $this->Cell(40,10,utf8_decode('HORARIO'),1,0,'C',1);
-            $this->SetXY(188,$y+5);
-            $this->Cell(20,5,utf8_decode('DE'),1,0,'C',1);
-            $this->Cell(20,5,utf8_decode('A'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-        //***** Cabecera de Datos de Permisos Particulares *****//
-        if($this->opcion_cabecera=='ReportePermisosParticulares')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 18, 6, 20);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 100, 6, 73);
-            $this->Image('resources/images/logos/chakana.png', 225, 4, 42);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode("REPORTE DE SERVIDORES PÚBLICOS CON ".$this->otroSubTitulo),0,1,'C',0);
-            $this->Ln(6);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',8);
-            $this->Cell(8,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(30,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(60,10,utf8_decode('UNIDAD ORGANIZACIONAL'),1,0,'C',1);
-            $y=$this->GetY();
-            $this->MultiCell(40,5,utf8_decode('FECHA'),1,'C',1);
-            $this->SetXY(208,$y);
-            $this->Cell(25,10,utf8_decode('TIPO PERMISO'),1,0,'C',1);
-            $this->Cell(35,10,utf8_decode('TURNO'),1,0,'C',1);
-            $this->SetXY(168,$y+5);
-            $this->Cell(20,5,utf8_decode('DE'),1,0,'C',1);
-            $this->Cell(20,5,utf8_decode('A'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
-
-        //***** Cabecera de Datos Resumen Asistencia *****//
-        if($this->opcion_cabecera=='ReporteResumenAsistencia')
-        {
-            $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
-            $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 6, 70);
-            $this->Image('resources/images/logos/chakana.png', 170, 4, 40);
-            $this->Ln();
-            $this->SetTextColor(0);
-            $this->SetFont('Times','B',14);
-            $this->SetY(26);
-            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
-            $this->Ln(5);
-
-            //Cabecera
-            $this->SetFillColor(222,222,222);
-            $this->SetTextColor(0);
-            $this->SetFont('Arial','B',6);
-            $this->Cell(7,10,utf8_decode('Nro'),1,0,'C',1);
-            $this->Cell(8,10,utf8_decode('ITEM'),1,0,'C',1);
-            $this->Cell(22,10,utf8_decode('PRIMER APELLIDO'),1,0,'C',1);
-            $this->Cell(24,10,utf8_decode('SEGUNDO APELLIDO'),1,0,'C',1);
-            $this->Cell(25,10,utf8_decode('NOMBRES'),1,0,'C',1);
-            $this->Cell(14,10,utf8_decode('DIRECCIÓN'),1,0,'C',1);
-            $this->SetFont('Arial','B',4.5);
-            $y=$this->GetY();
-            $this->MultiCell(10,3.33,utf8_decode('Días Hábiles del Mes'),1,'C',1);
-            $this->SetXY(120,$y);
-            $this->MultiCell(11,3.33,utf8_decode('Medios Días Trabajados'),1,'C',1);
-            $this->SetXY(131,$y);
-            $this->MultiCell(11,3.33,utf8_decode('Días con Permisos/ Vacaciones'),1,'C',1);
-            $this->SetXY(142,$y);
-            $this->MultiCell(11,3.33,utf8_decode('Días No Trabajados en el Mes'),1,'C',1);
-            $this->SetXY(153,$y);
-            $this->MultiCell(10,3.33,utf8_decode('Días en Comisión de Viaje'),1,'C',1);
-            $this->SetXY(163,$y);
-            $this->MultiCell(11,3.33,utf8_decode('Días Completos Trabajados'),1,'C',1);
-            $this->SetXY(174,$y);
-            $this->SetFont('Arial','B',5);
-            $this->MultiCell(14,5,utf8_decode('MONTO (Bs.) REFRIGERIO'),1,'C',1);
-            $this->SetXY(188,$y);
-            $this->Cell(18,10,utf8_decode('ESTADO'),1,0,'C',1);
-            $this->Ln();
-            $this->SetWidths($this->wi);
-        }
-
         //***** Cabecera Vacía *****//
-        if($this->opcion_cabecera==3)
+        if($this->opcion_cabecera==1)
         {
             //Sin cabecera
         }
-
         //***** Cabecera con solo Logos *****//
-        if($this->opcion_cabecera==4)
+        if($this->opcion_cabecera==2)
         {
             $this->Image('resources/images/logos/200BicentenarioBoliviavertical.png', 10, 6, 19);
             $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 6, 70);
@@ -727,7 +63,70 @@ class Pdf2 extends FPDF {
             $this->SetY(20);
             //$this->Ln();
         }
-        //$this->SetWidths($this->wi);
+        if($this->opcion_cabecera==3)
+        {
+            // $this->Image('resources/images/logos/bicentenario.jpg', 17, 10,23);
+            // $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 10, 74.5);
+            // $this->Image('resources/images/logos/chakana.png', 160, 8, 43);
+
+            $this->Ln();
+            $this->SetTextColor(0);
+            $this->SetFont('Times','B',7);
+            $this->SetX(12);
+            $this->Cell(15,5,utf8_decode($this->entidad),0,1,'C',0);
+            $y=$this->GetY();
+            $this->SetXY(200,$y);
+            $this->Cell(0,-7, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'C');
+            $this->Ln(1);
+
+            $this->SetX(10);
+            $this->Cell(18,-2,utf8_decode($this->sigla),0,1,'C',0);
+            $this->SetXY(190,$y);            
+            $fecha_hoy = $this->fechaformato();
+            $this->Cell(0, -2,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
+            $this->Ln(3);
+
+            $this->SetX(10);
+            $this->Cell(18,0,utf8_decode('SENAPE'),0,1,'C',0);
+            $this->Ln(3);
+
+            $this->SetXY(0,30);
+            $this->SetFont('Arial', 'BU', 12);
+            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
+            $this->Ln(4);
+            $this->SetFont('Times','B',7);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera1),0,1,'C',0);
+            $this->Ln(3);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera2),0,1,'C',0);
+            $this->Ln(3);
+            
+            //Cabecera
+            // Cabecera superior agrupada
+            $this->SetXY(5, 40); // Coordenada superior izquierda
+            $this->SetFillColor(230, 230, 225);
+            $this->SetTextColor(0);
+            $this->SetFont('Arial','B',7);
+            $this->SetX(5);
+            $this->Cell(20,13,utf8_decode('Fecha'), 1, 0, 'C', 1);
+            $this->Cell(15,13,utf8_decode('Tipo'), 1, 0, 'C', 1);
+            $this->Cell(20,13,utf8_decode('Número'), 1, 0, 'C', 1);
+            $this->Cell(90,13,utf8_decode('Descripción(Glosa)'), 1, 0, 'C', 1);
+            $this->SetXY(150,40);
+            $this->Cell(30,5,utf8_decode('Movimientos'),1,0,'C',1);
+            $this->SetXY(150,45);
+            $this->Cell(15,8,utf8_decode('Debe'),1, 0, 'C', 1);
+            $this->SetXY(165,45);
+            $this->Cell(15,8,utf8_decode('Haber'),1, 0, 'C', 1);
+            $this->SetXY(180,40);
+            $this->Cell(30,5,utf8_decode('Saldos'),1,1,'C',1);
+            $this->SetXY(180,45);
+            $this->Cell(15,8,utf8_decode('Deudor'),1, 0, 'C', 1);
+            $this->SetXY(195,45);
+            $this->Cell(15,8,utf8_decode('Acreedor'),1, 1, 'C', 1);
+
+        }
     }
 
     public function Footer() {
@@ -1063,7 +462,7 @@ class Pdf2 extends FPDF {
 
     function Row_Reportes($data,$code=false,$fills='',$fh='')
     {
-        //Calculate the height of the row
+         //Calculate the height of the row
         $nb=0;
         for($i=0;$i<count($data);$i++)
             $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
@@ -1074,8 +473,11 @@ class Pdf2 extends FPDF {
             if ($h < $fh)
                 $h = $fh;
         }
+         
         //Issue a page break first if needed
-        $this->CheckPageBreak($h);
+        $this->CheckPageBreak_LM($h);
+        // Forzar margen izquierdo deseado tras salto
+        // $this->SetX(5);
         //Draw the cells of the row
         for($i=0;$i<count($data);$i++)
         {
@@ -1087,6 +489,43 @@ class Pdf2 extends FPDF {
             //Draw the border
             $ax=$x; $ay=$y; $aw=$w; $ah=$h;
             $this->Rect($x,$y,$w,$h,$fills);
+            //Print the text
+            $this->MultiCell($w,4,$data[$i],0,$a);
+            //Put the position to the right of the cell
+            $this->SetXY($x+$w,$y);
+        }
+        //Go to the next line
+        $this->Ln($h);
+    }
+    function Row_Reportes_LM($data,$code=false,$fills='',$fh='')
+    {
+         //Calculate the height of the row
+        $nb=0;
+        for($i=0;$i<count($data);$i++)
+            $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
+        if ($fh==""){
+            $h=4*$nb;
+        }else{
+            $h=4*$nb;
+            if ($h < $fh)
+                $h = $fh;
+        }
+         
+        //Issue a page break first if needed
+        $this->CheckPageBreak_LM($h);
+        // Forzar margen izquierdo deseado tras salto
+        $this->SetX(5);
+        //Draw the cells of the row
+        for($i=0;$i<count($data);$i++)
+        {
+            $w=$this->widths[$i];
+            $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
+            //Save the current position
+            $x=$this->GetX();
+            $y=$this->GetY();
+            //Draw the border
+            $ax=$x; $ay=$y; $aw=$w; $ah=$h;
+            // $this->Rect($x,$y,$w,$h,$fills);
             //Print the text
             $this->MultiCell($w,4,$data[$i],0,$a);
             //Put the position to the right of the cell
@@ -1171,6 +610,14 @@ class Pdf2 extends FPDF {
         //If the height h would cause an overflow, add a new page immediately
         if($this->GetY()+$h>$this->PageBreakTrigger)
             $this->AddPage($this->CurOrientation);
+    }
+    function CheckPageBreak_LM($h)
+    {
+        if ($this->GetY() + $h > $this->PageBreakTrigger) {
+            // Forzar orientación y tamaño igual al primero
+            $this->AddPage($this->CurOrientation, 'Letter');
+            $this->SetX(5);  // si usas margen personalizado
+        }
     }
 
     function NbLines($w,$txt)
@@ -1285,6 +732,10 @@ class Pdf2 extends FPDF {
         );
         //return $verd[$GetD['wday']].", ".$GetD['mday']." de ".$verm[$GetD['mon']]." del ".$GetD['year'];
         return " ".$GetD['mday']." de ".$verm[$GetD['mon']]." de ".$GetD['year']."  Hora:  ".$GetD['hours'].":".$GetD['minutes'].":".$GetD['seconds'];*/
+    }
+    function fechaformato(){
+       $fecha = date('j/m/Y');
+        return  $fecha;
     }
 
     function fechacompleta2(){
