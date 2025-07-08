@@ -350,6 +350,7 @@
                         <th style="color: white; text-align: center;">OPCIONES</th>
                         <th style="color: white;">CÓDIGO</th>
                         <th style="color: white;">DESCRIPCIÓN</th>
+                        <th style="color: white;">NIVEL</th>
                       </tr>
                     </thead>
                   </table>

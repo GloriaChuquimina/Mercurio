@@ -71,25 +71,24 @@ class Pdf2 extends FPDF {
 
             $this->Ln();
             $this->SetTextColor(0);
-            $this->SetFont('Times','B',7);
-            $this->SetX(12);
-            $this->Cell(15,5,utf8_decode($this->entidad),0,1,'C',0);
-            $y=$this->GetY();
-            $this->SetXY(200,$y);
-            $this->Cell(0,-7, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'C');
-            $this->Ln(1);
-
+            $this->SetFont('Times','B',6);
+            $y = $this->GetY();
             $this->SetX(10);
-            $this->Cell(18,-2,utf8_decode($this->sigla),0,1,'C',0);
-            $this->SetXY(190,$y);            
+            $this->MultiCell(30,3,utf8_decode($this->entidad),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode($this->sigla),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode('SENAPE'),0,'C',0);
+            $this->Ln(3);
+
+            $this->SetXY(200, $y); 
+            $this->Cell(10, 5, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
+            $this->SetXY(190,$y+3);            
             $fecha_hoy = $this->fechaformato();
-            $this->Cell(0, -2,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
+            $this->Cell(10, 5,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
             $this->Ln(3);
 
-            $this->SetX(10);
-            $this->Cell(18,0,utf8_decode('SENAPE'),0,1,'C',0);
-            $this->Ln(3);
-
+           
             $this->SetXY(0,30);
             $this->SetFont('Arial', 'BU', 12);
             $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);

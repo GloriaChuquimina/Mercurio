@@ -77,22 +77,18 @@ class PlanDeCuentas_model extends CI_Model
     {
         $this->db_mercurio->insert('contabilidad.plancuenta_dependencia',$data);
         return $this->db_mercurio->insert_id();
-    }
+    }	
 
-
-
-
-
-
-
-	
-	function getAplicacionId($id_aplicacion)
+	function getPlanDeCuentasBusquedaIds($ids)
 	{
-		$query = $this->db_entorno->query("select a.*
-											 from aplicaciones.aplicaciones as a
-											where a.id= ".$id_aplicacion."
-											  and estado='AC'" 
-										 );
+		$query = $this->db_mercurio->query("select *
+											 from contabilidad.plancuentas
+										    where estado='ACT'
+											  and id in(".$ids.")
+										 order by nivel ASC,
+  												  codigo ASC;
+											" 
+										  );
 		return $query->result();
 	}
 

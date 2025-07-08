@@ -789,6 +789,7 @@ class Comprobante extends CI_Controller {
 			$indentacion = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
 			$descripcion = $fila['descripcion'];
 			$codigo      = $fila['codigo'];
+			$nivel       = $fila['nivel'];
 
 			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
 				$descripcion = "<strong><u>{$descripcion}</u></strong>";
@@ -797,7 +798,8 @@ class Comprobante extends CI_Controller {
 			$data[] = array(
 				"<div style='text-align: center;'>$boton</div>",
 				"<span class='badge badge-secondary'>".$codigo."</span>",
-				$descripcion
+				$descripcion,
+				$nivel
 			);
 		}
 

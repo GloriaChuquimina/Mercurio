@@ -72,7 +72,7 @@
                 </div>
             </div>
             <!-- SECCION TOTALES -->
-            <div class="row" id="totales" style="display: none">
+            <!-- <div class="row" id="totales" style="display: none">
                         <div class="col-md-3 col-sm-6 col-12">
                             <div
                             class="info-box"
@@ -184,7 +184,6 @@
                                 border-radius: 0.25rem;"
                             >
                             <span class="info-box-icon bg-danger">
-                                <!-- <i class="far-solid fa-xmark"> ❌</i> -->
                                 <i class="far fa-file-alt"></i>
                             </span>
                             <div class="info-box-content" style=" padding:15px">
@@ -209,7 +208,7 @@
                             </div>
                             </div>
                         </div>
-            </div>
+            </div> -->
             <!-- FILTROS DE BUSQUEDA -->
             <div class="card card-primary card-outline" id ="filtrosConsulta" style="display: none">
                 <div class="card-header">
@@ -226,6 +225,7 @@
                 <div class="card-body">
                     <input class="form-control" id="id_entidad" name="id_entidad">
                     <input class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
                       <div class="col-md-6">
                         <div class="form-group">
@@ -251,6 +251,13 @@
                               <datalist id='listaCuentas'></datalist>
                               <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
                               <div class="input-group-append">
+                                  <button
+                                  type="button"
+                                  class="btn btn-success"
+                                  onclick="añadirCuenta();"
+                                  >
+                                  <i>➕</i>
+                                  </button>
                                   <button
                                   type="button"
                                   class="btn btn-warning"
@@ -312,7 +319,7 @@
             <div class="card" style="background-color: #f0f8ff; border-left: 4px solid #007bff" id="cuentaSeleccionada" style="display: none">
                 <div class="card-body p-3">
                     <div class="row align-items-center">
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <div class="d-flex align-items-center">
                                     <div
                                     style="
@@ -330,10 +337,10 @@
                                     >
                                     </div>
                                     <div class="ml-3">
-                                    <h7 class="mb-0">CUENTA:|EMPRESA:</h7>
-                                    <h4 class="mb-0" style="color: #007bff; font-weight: bold;">
-                                        ....
-                                    </h4>
+                                    <h7 class="mb-0">CUENTA(s):</h7>
+                                    <h8 class="mb-0" style="color: #007bff; font-weight: bold;" id="cuentas" name="cuentas">
+                                        
+                                    </h8>
                                     </div>
                             </div>
                         </div>
@@ -416,19 +423,24 @@
                     <span>&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                  <table class="table table-striped table-hover" id="tbl_CuentasContables" style="width: 100%;">
-                    <thead class="bg-dark">
-                      <tr>
-                        <th style="color: white; text-align: center;">OPCIONES</th>
-                        <th style="color: white;">CÓDIGO</th>
-                        <th style="color: white;">DESCRIPCIÓN</th>
-                      </tr>
-                    </thead>
-                  </table>
-                </div>
+            <form id="formListaCuentas" name="formListaCuentas">
+              <div class="modal-body">
+                  <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="tbl_CuentasContables" style="width: 100%;">
+                      <thead class="bg-dark">
+                        <tr>
+                          <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th>
+                          <!-- <th style="color: white; text-align: center;">SELECCIONAR</th> -->
+                          <th style="color: white; text-align: center;">OPCIONES</th>
+                          <th style="color: white;">CÓDIGO</th>
+                          <th style="color: white;">DESCRIPCIÓN</th>
+                          <th style="color: white;">NIVEL</th>
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
               </div>
+            </form>
         </div>
     </div>
 </div>

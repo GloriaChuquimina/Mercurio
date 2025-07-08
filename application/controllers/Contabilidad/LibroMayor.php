@@ -46,10 +46,33 @@ class LibroMayor extends CI_Controller {
 	}
 	public function listarBusquedaLibroMayor()
     {
-		$plandecuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda();
 		$id_entidad      = $this->input->post('id_entidad');
+		$cuentas		 = $this->input->post('cuentas');
+		$fecha_inicio    = $this->input->post('fecha_inicio');
+		$fecha_fin       = $this->input->post('fecha_fin');
+
+		// echo("<pre>");
 		// echo($id_entidad);
-		
+		// echo("<br>");
+		// echo($cuentas);
+		// echo("<br>");
+		// 1. Reemplazar guiones por comas
+		$cadena = str_replace('-', ',', $cuentas);
+		// 2. Eliminar la última coma si existe
+		$cadena = rtrim($cadena, ',');
+		// echo($cadena);
+		// echo("<br>");
+		// echo($fecha_inicio);
+		// echo("<br>");
+		// echo($fecha_fin);
+		// echo("<br>");
+		// echo("</pre>");
+		// die();
+		$plandecuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusquedaIds($cadena);
+		// print_r($plandecuentas);
+		// echo("</pre>");
+		// die();
+
 		// $cuentas = json_decode(json_encode($cuentas), true);
 		// $ordenadas = $this->ordenarJerarquicamente($cuentas);
 		
@@ -104,13 +127,13 @@ class LibroMayor extends CI_Controller {
 				{
 					if(count($cuentas_ruta) === $nro_ruta)
 					{
-						$cabercera2_cuenta .="<b>".getCuenta($ruta)."-->".$cuenta->descripcion."</b>";
+						$cabercera2_cuenta .="<b>".getCuenta($ruta)." ➝ " .$cuenta->descripcion."</b>";
 					}
 					else
 					{
 						if($ruta != 0)
 						{
-							$cabercera2_cuenta .="<b>".getCuenta($ruta)."--></b>";
+							$cabercera2_cuenta .="<b>".getCuenta($ruta)." ➝ </b>";
 						}
 					}					
 					$nro_ruta++;
@@ -127,7 +150,7 @@ class LibroMayor extends CI_Controller {
 					".$cabercera2_cuenta."
 					</td>
 					</tr>";
-			$cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda1($id_entidad,$cuenta->id);
+			$cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda2($id_entidad,$cuenta->id,$fecha_inicio,$fecha_fin);
 			$totalImporteDebe =0;
 			$totalImporteHaber =0;
 			$totalImporteDeudor=0;
@@ -230,12 +253,14 @@ class LibroMayor extends CI_Controller {
 		echo json_encode($output);
 		exit();
     }
-	function ReporteLibroMayorPDF($fecha_inicio,$fecha_fin)
+	function ReporteLibroMayorPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin)
 	{			
 		// $id_entidad      = $this->input->post('id_entidad');		
 		/****************************/
 		/*INICIO DEL REPORTE*/
 		/****************************/
+		// echo ($id_entidad);
+		// die();
 		
 		$this->load->library('fpdf/pdf2');
         $pdf = new Pdf2();
@@ -243,7 +268,7 @@ class LibroMayor extends CI_Controller {
         $pdf->SetAutoPageBreak(true, 30);
         $pdf->SetMargins(20,15,10);		
 		$pdf->SetTitle(utf8_decode("Reporte Libro Mayor"));
-		$pdf->entidad="PRUEBAS";
+		$pdf->entidad=descripcion_nombre_entidad($id_entidad);
 		$pdf->sigla="xxx";
 		$pdf->tituloCabecera = 'LIBRO MAYOR';
 		$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
@@ -257,7 +282,7 @@ class LibroMayor extends CI_Controller {
 		$pdf->SetFillColor(255,255,255);
         $pdf->SetTextColor(0);
         $pdf->SetFont('Arial','',6);
-		$pdf->Ln(2);
+		$pdf->Ln(1);
 		/*CUERPO DEL REPORTE*/
 		$pdf->SetFillColor(255,255,255);
         $pdf->SetTextColor(0);
@@ -265,9 +290,11 @@ class LibroMayor extends CI_Controller {
         $num = 0;
         $total=0;
 
-		$plandecuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda();
-		// $id_entidad      = $this->input->post('id_entidad');
-		$id_entidad      = 1;
+		// 1. Reemplazar guiones por comas
+		$cadena = str_replace('-', ',', $cuentas);
+		// 2. Eliminar la última coma si existe
+		$cadena = rtrim($cadena, ',');
+		$plandecuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusquedaIds($cadena);
 
 		$totalGeneralImporteDebe =0;
 		$totalGeneralImporteHaber =0;
@@ -276,7 +303,6 @@ class LibroMayor extends CI_Controller {
         foreach ($plandecuentas as $cuenta)
 		{   
 			$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;			   
-
 			$cabercera2_cuenta="";
 			
 			if($cuenta->ruta == 0)
@@ -291,13 +317,14 @@ class LibroMayor extends CI_Controller {
 				{
 					if(count($cuentas_ruta) === $nro_ruta)
 					{
-						$cabercera2_cuenta .=getCuenta($ruta)."-->".$cuenta->descripcion;
+						$cabercera2_cuenta .=getCuenta($ruta)." --> ".$cuenta->descripcion;
+						
 					}
 					else
 					{
 						if($ruta != 0)
 						{
-							$cabercera2_cuenta .=getCuenta($ruta)."-->";
+							$cabercera2_cuenta .=getCuenta($ruta)." --> " ;
 						}
 					}					
 					$nro_ruta++;
@@ -308,14 +335,17 @@ class LibroMayor extends CI_Controller {
 			$pdf->SetFont('Arial', 'B', 8);
 			$pdf->setX(5);     
 	        $pdf->Cell(205,6,utf8_decode($cabercera1_cuenta),0,0,'L',1);
+			
 			$pdf->Ln();
 			$y=$pdf->GetY();
             $pdf->SetXY(5,$y);
-			$pdf->setX(5);     
+			// $pdf->setX(5);     
 	        $pdf->Cell(205,6,utf8_decode($cabercera2_cuenta),0,0,'L',1);
+
 			$pdf->Ln();
 
-			$cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda1($id_entidad,$cuenta->id);
+			// $cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda1($id_entidad,$cuenta->id);
+			$cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda2($id_entidad,$cuenta->id,$fecha_inicio,$fecha_fin);
 			$totalImporteDebe =0;
 			$totalImporteHaber =0;
 			$totalImporteDeudor=0;
@@ -337,20 +367,23 @@ class LibroMayor extends CI_Controller {
 				$pdf->setX(5);     
 				// $pdf->SetAligns(['R','R','R','C','C']);
 				$pdf->Cell(145,2,"",0,0,'R',1);
-				$pdf->Cell(60,2,"","BR",0,'R',1);
+				$x=$pdf->GetX();
+				$y=$pdf->GetY();
+				$pdf->Line($x, $y, $x + 60, $y);
+				$pdf->Cell(60,2,"",0,0,'R',1);
 				$pdf->Ln();
 
 				$TOTALES="SUBTOTALES";
 				$pdf->SetFillColor(255,255,255);
 				$y=$pdf->GetY();
 				$pdf->SetXY(5,$y);
-				$pdf->setX(5);     
+				// $pdf->setX(5);     
 				$pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
 				$pdf->Cell(15,8,utf8_decode($totalImporteDebe),0,0,'R',1);
 				$pdf->Cell(15,8,utf8_decode($totalImporteHaber),0,0,'R',1);
 				$pdf->Cell(15,8,utf8_decode("-"),0,0,'C',1);
 				$pdf->Cell(15,8,utf8_decode("-"),0,0,'C',1);
-				$pdf->Ln();
+				// $pdf->Ln();
 			}
 			else
 			{
@@ -411,7 +444,11 @@ class LibroMayor extends CI_Controller {
 				$pdf->setX(5);     
 				// $pdf->SetAligns(['R','R','R','C','C']);
 				$pdf->Cell(145,2,"",0,0,'R',1);
-				$pdf->Cell(60,2,"","BR",0,'R',1);
+				// $pdf->SetXY();
+				$x=$pdf->GetX();
+				$y=$pdf->GetY();
+				$pdf->Line($x, $y, $x + 60, $y);
+				$pdf->Cell(60,2,"",0,0,'R',1);
 				$pdf->Ln();
 
 				$TOTALES="SUBTOTALES";
@@ -421,18 +458,15 @@ class LibroMayor extends CI_Controller {
 				$pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
 				$pdf->Cell(15,8,utf8_decode($totalImporteDebe),0,0,'R',1);
 				$pdf->Cell(15,8,utf8_decode($totalImporteHaber),0,0,'R',1);
-				$pdf->Cell(15,8,utf8_decode($totalImporteDeudor),0,0,'C',1);
-				$pdf->Cell(15,8,utf8_decode($totalImporteAcreedor),0,0,'C',1);
+				$pdf->Cell(15,8,utf8_decode($totalImporteDeudor),0,0,'R',1);
+				$pdf->Cell(15,8,utf8_decode($totalImporteAcreedor),0,0,'R',1);
 
 			}
 			
 			$totalGeneralImporteDebe =$totalGeneralImporteDebe+$totalImporteDebe;
 			$totalGeneralImporteHaber =$totalGeneralImporteHaber+$totalImporteHaber;
 			$totalGeneralImporteDeudor=$totalGeneralImporteDeudor+$totalImporteDeudor;
-			$totalGeneralImporteAcreedor =$totalGeneralImporteAcreedor+$totalImporteAcreedor;
-
-			
-
+			$totalGeneralImporteAcreedor =$totalGeneralImporteAcreedor+$totalImporteAcreedor;		
 			$pdf->opcion_pie='FOOTER_VACIO';
 			$pdf->Ln();
 	    }      
@@ -440,10 +474,13 @@ class LibroMayor extends CI_Controller {
 		$pdf->SetFillColor(255,255,255);
 		$y=$pdf->GetY();
 		$pdf->SetXY(5,$y);
-		$pdf->setX(5);     
+		// $pdf->setX(5);     
 		// $pdf->SetAligns(['R','R','R','C','C']);
 		$pdf->Cell(145,2,"",0,0,'R',1);
-		$pdf->Cell(60,2,"","BR",0,'R',1);
+		$x=$pdf->GetX();
+		$y=$pdf->GetY();
+		$pdf->Line($x, $y, $x + 60, $y);
+		$pdf->Cell(60,2,"",0,0,'R',1);
 		$pdf->Ln();
 		$TOTALES="TOTALES";
 		$y=$pdf->GetY();
@@ -452,12 +489,184 @@ class LibroMayor extends CI_Controller {
 		$pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
 		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteDebe),0,0,'R',1);
 		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteHaber),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteDeudor),0,0,'C',1);
-		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteAcreedor),0,0,'C',1);  
+		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteDeudor),0,0,'R',1);
+		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteAcreedor),0,0,'R',1);  
 		// $pdf->AddPage('P', 'Letter'); 
 		// $pdf->setX(5); 
 		// $pdf->opcion_pie='FOOTER_VACIO';
 		$pdf->Footer();
 		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
+	}
+	private function ordenarJerarquicamente($cuentas, $padreId = 0, $indentacion = 0)
+	{
+		$ordenadas = [];
+
+		foreach ($cuentas as $cuenta) {
+			if ($cuenta['padre'] == $padreId) {
+				// Buscar si esta cuenta tiene hijos
+				$tieneHijos = false;
+				foreach ($cuentas as $posibleHijo) {
+					if ($posibleHijo['padre'] == $cuenta['id']) {
+						$tieneHijos = true;
+						break;
+					}
+					elseif($posibleHijo['padre'] == $cuenta['ruta'])/*ojo*/
+					{
+						$tieneHijos = true;
+						break;
+					}
+				}
+				// Añadir campo extra
+				$cuenta['indentacion'] = $indentacion;
+				$cuenta['es_padre'] = $tieneHijos;
+
+				// Agregar la cuenta ordenada
+				$ordenadas[] = $cuenta;
+
+				// Agregar recursivamente los hijos
+				$ordenadas = array_merge($ordenadas, $this->ordenarJerarquicamente($cuentas, $cuenta['id'], $indentacion + 1));
+			}
+		}
+
+		return $ordenadas;
+	}
+	public function listarPlanDeCuentasBusqueda()
+    {
+
+		$marcarRegistro       = $this->input->post('marcareg');
+		$cuentasSeleccionadas = $this->input->post('cuentasSeleccionadas');
+		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda();
+		$totalCuentas = count($cuentas);
+		$cuentas = json_decode(json_encode($cuentas), true);
+		$ordenadas = $this->ordenarJerarquicamente($cuentas);
+		
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+		
+		foreach ($ordenadas as $fila)
+		{   
+			$cuenta= $fila['codigo']."-". $fila['descripcion'];
+			$boton   = "
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Seleccionar'>
+                            <button type='button' class='btn btn-success btn-sm' onclick=\"busquedaIDCuenta(".$fila['id'].",'".$cuenta."')\"><i>✓</i></button>     
+                        </span>				
+                        ";		
+
+			$indentacion = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
+			$descripcion = $fila['descripcion'];
+			$codigo      = $fila['codigo'];
+			$nivel       = $fila['nivel'];
+
+			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
+				$descripcion = "<strong><u>{$descripcion}</u></strong>";
+				$codigo =  "<strong><u>{$codigo}</u></strong>";
+			}
+			$valor=$fila['id'];
+			$nameId1 = "chkCuenta_".$valor;
+
+			$cuentasBuscadas = explode("-", $cuentasSeleccionadas);
+			// echo("<pre>");
+			// echo(count($cuentasSeleccionadas));
+			// echo("<br>");
+			// echo($totalCuentas);
+			// echo("</pre>");
+			// die();
+			if($marcarRegistro == 1)
+			{
+				$checkedCom = "checked";	
+			}
+			else
+			{
+				
+				if($marcarRegistro == 0 && (count($cuentasBuscadas)-1) == $totalCuentas)
+				{
+					$checkedCom = "";	
+				}
+				else
+				{
+					if(count($cuentasBuscadas)>0)
+					{
+						foreach($cuentasBuscadas as $cuenta)
+						{
+							if($cuenta == $fila['id'])
+							{
+								$checkedCom = "checked";
+								break;
+							}
+							else
+							{
+								$checkedCom = "";
+							}
+						}
+					}
+					else
+					{
+						$checkedCom = "";
+					}
+				}
+				
+			}
+			
+			$seleccion ="<input type='checkbox' value='".$valor."' name = '".$nameId1."' id='".$nameId1."' ".$checkedCom." >";
+			$data[] = array(
+				$seleccion,
+				"<div style='text-align: center;'>$boton</div>",
+				"<span class='badge badge-secondary'>".$codigo."</span>",
+				$descripcion,
+				$nivel
+			);
+		}
+
+		// die();
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($ordenadas),
+			"recordsFiltered" => count($ordenadas),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
+    }
+	function seleccionDeCuentas()
+	{
+		$id_usuario_administrador 	= $this->session->userdata('id_usuario');
+		$resul = 1;
+        $mensaje = "OK";  
+        $contador  = 0;      	
+        $check  = 0;
+
+		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda();
+		$cuentas   = json_decode(json_encode($cuentas), true);
+		$ordenadas = $this->ordenarJerarquicamente($cuentas);
+		$cuentas   = "";
+		$cuentasLiteral   = "";
+
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+    	
+    	foreach ($ordenadas as $fila)
+        {
+            $checkCuenta     = "chkCuenta_".$fila['id'];
+            $id_check_cuenta = $fila['id'];
+            $check = $this->input->post($checkCuenta);
+            if($check > 0)
+            {
+				$contador++;
+				$cuentas= $cuentas.$id_check_cuenta."-";
+				$cuentasLiteral= $cuentasLiteral.$fila['codigo']."-".$fila['descripcion']."|";
+            }
+			     
+        }
+		$output = array(
+			"totalCuentas"    => $contador,
+			"cuentas"         => $cuentas,
+			"cuentasLiteral"  => $cuentasLiteral
+		);
+		echo json_encode($output);
+		exit();
 	}
 }
