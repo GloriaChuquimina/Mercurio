@@ -131,45 +131,6 @@ $(function (){
         // var id_entidad = $('#cbEntidades').val();
         cargarCuentas(marcar);
     });
-    //  $('#txtCuenta' ).on({
-    //             'change': function(event) {
-    //                 $('#idCuenta').val('');
-    //                 var target = event.target.value;
-    //                 var datalist = document.getElementById('listaCuentas').childNodes;
-    //                 for (var i = 0; i < datalist.length; i++) 
-    //                 {                 
-    //                     if (datalist[i].value === target) {
-    //                         $('#id_cuenta').val( datalist[i].dataset.value) ;
-    //                         $('#cuentaSeleccionada').show();
-    //                         break;
-    //                     }
-    //                 }
-    //             },
-    //             'blur':  function(event) {
-    //                 $('#idCuenta').val('');
-    //                 var target = event.target.value;
-    //                 var datalist = document.getElementById('listaCuentas').childNodes;
-    //                 for (var i = 0; i < datalist.length; i++) 
-    //                 {     
-    //                     if (datalist[i].value  == target) {
-    //                         $('#id_cuenta').val( datalist[i].dataset.value) ;
-    //                         var cuenta = datalist[i].dataset.value+"-";
-    //                         var cuentaLiteral =$('#txtCuenta').val()+"|";
-    //                         if(cuenta != '')
-    //                         {
-    //                             var cuentas = $('#id_cuenta_seleccionadas').val()+ cuenta;
-    //                             $('#id_cuenta_seleccionadas').val(cuentas);
-    //                             var cuentasLiteral = $('#cuentas').val()+ cuentaLiteral;
-    //                             $('#cuentas').val(cuentasLiteral);
-    //                             $('#cuentaSeleccionada').show();
-    //                         }
-    //                         // $('#txtCodigo').val( datalist[i].dataset.value) ;
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-
-    //     });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
         alert('El modal se ha cerrado');
         $('#cuentaSeleccionada').show();
