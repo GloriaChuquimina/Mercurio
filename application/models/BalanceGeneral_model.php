@@ -1,0 +1,59 @@
+<?php
+/*
+*/
+class BalanceGeneral_model extends CI_Model
+{
+    function __construct()
+	{
+		parent::__construct();	
+		$this->db_mercurio = $this->load->database('db_mercurio', TRUE);		
+	}
+    // function getGeneralBalanceGeneral($id_entidad,$cuentas,$fecha_inicio,$fecha_fin)
+    function getGeneralBalanceGeneral()
+	{
+        $query = $this->db_mercurio->query("
+                                           SELECT 
+                                                   pc.id
+                                                  ,pc.nivel
+                                                  ,pc.codigo
+                                                  ,pc.padre
+                                                  ,pc.ruta
+                                                  ,pc.descripcion
+                                                  ,pc.nivel
+                                                  ,cuentas_con_movimiento.id_entidad
+                                                  ,cuentas_con_movimiento.nombre
+                                                    --,cuentas_con_movimiento.importe_moneda_nacional   
+                                                  ,case 
+                                                        when cuentas_con_movimiento.importe_moneda_nacional  is null then 0.00
+                                                        else cuentas_con_movimiento.importe_moneda_nacional 
+                                                  end  AS importe_moneda_nacional   
+                                             FROM contabilidad.plancuentas pc
+                                        LEFT JOIN (
+                                                    SELECT     pc.id						     
+                                                              ,pc.codigo
+                                                              ,pc.descripcion
+                                                              ,pc.nivel
+                                                              ,pc.padre
+                                                              ,pc.ruta
+                                                              ,e.nombre
+                                                              ,SUM(dc.importe_moneda_nacional) AS importe_moneda_nacional                      
+                                                              ,e.id as id_entidad
+                                                         FROM contabilidad.plancuentas pc
+                                                    LEFT JOIN contabilidad.detalle_comprobante dc ON pc.id = dc.id_cuenta
+                                                    LEFT JOIN contabilidad.comprobante c ON dc.id_comprobante = c.id
+                                                    LEFT JOIN administracion.entidad e ON c.id_entidad = e.id 
+                                                        WHERE pc.estado IN ('ACT')
+                                                        AND c.estado IN ('ACT')
+                                                        AND dc.estado IN ('ACT')
+                                                        AND e.id = 3
+                                                        AND c.fecha_comprobante between '2023-01-01' AND '2025-07-09'
+                                                                                    GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre,e.id
+                                                                                        ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
+                                    
+                                                                                order by nivel ASC,
+                                                                                codigo ASC;
+		    							   " 
+										  );
+		return $query->result();
+    }
+}
