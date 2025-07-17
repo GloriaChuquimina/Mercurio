@@ -655,6 +655,151 @@ class Pdf2 extends FPDF {
         //Go to the next line
         $this->Ln($h);
     }
+    // function Row_Reportes_BG($data,$code=false,$fills='',$fh='',$indentacion_invertida2=0,$nivel)
+    // {
+    //     //Aplicar sangría al último campo (por ejemplo, nombre cuenta)
+    //     // if (!empty($data)) {
+    //     //     $espacios = str_repeat('   ', $indentacion_invertida2);  // 3 espacios por nivel
+    //     //     $ultimoIndice = count($data) - 1;
+    //     //     $data[$ultimoIndice] = $espacios . $data[$ultimoIndice];
+    //     // }
+    //     // echo($data[$ultimoIndice]);
+    //     //Calculate the height of the row
+    //     $nb=0;
+    //     for($i=0;$i<count($data);$i++)
+    //         $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
+    //     if ($fh==""){
+    //         $h=4*$nb;
+    //     }else{
+    //         $h=4*$nb;
+    //         if ($h < $fh)
+    //             $h = $fh;
+    //     }
+         
+    //     //Issue a page break first if needed
+    //     $this->CheckPageBreak_LM($h);
+    //     // Forzar margen izquierdo deseado tras salto
+    //     $this->SetX(12);
+    //     //Draw the cells of the row
+    //     for($i=0;$i<count($data);$i++)
+    //     {
+    //         $w=$this->widths[$i];
+    //         $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
+    //         //Save the current position
+    //         $x=$this->GetX();
+    //         $y=$this->GetY();
+    //         //Draw the border
+    //         $ax=$x; $ay=$y; $aw=$w; $ah=$h;
+    //         // $this->Rect($x,$y,$w,$h,$fills);
+    //         //Print the text
+    //         // Si es la última columna y hay indentación invertida
+    //         if ($i == count($data) - 1 ) {
+    //             $extraX = $indentacion_invertida2 * 5;  // o el ancho que uses por nivel
+    //             $this->SetX($x + $extraX);
+    //             // $this->MultiCell($w,4,'xxx',0,$a);
+    //         }
+    //         if($nivel==1)
+    //         {
+    //             $this->SetFillColor(230, 230, 225);
+    //             if ($i == count($data) - 1 ) {
+    //                 $this->Rect($x, $y, 25, 4, 'F');
+    //             }
+    //             $this->SetTextColor(0);
+    //             $this->SetFont('Arial','BU',7);
+    //             $this->MultiCell($w,4,$data[$i],0,$a,true);
+    //         }
+    //         else{
+    //             $this->SetFillColor(230, 230, 255);
+    //             $this->SetTextColor(0);
+    //             $this->SetFont('Arial','',7);
+    //             $this->MultiCell($w,4,$data[$i],0,$a,false);
+    //         }
+
+    //         //Put the position to the right of the cell
+    //         $this->SetXY($x+$w,$y);
+    //     }
+    //     //Go to the next line
+    //     $this->Ln($h);
+    // }
+    function Row_Reportes_BG($data,$code=false,$fills='',$fh='',$indentacion_invertida2=0,$nivel)
+    {
+        //Aplicar sangría al último campo (por ejemplo, nombre cuenta)
+        // if (!empty($data)) {
+        //     $espacios = str_repeat('   ', $indentacion_invertida2);  // 3 espacios por nivel
+        //     $ultimoIndice = count($data) - 1;
+        //     $data[$ultimoIndice] = $espacios . $data[$ultimoIndice];
+        // }
+        // echo($data[$ultimoIndice]);
+        //Calculate the height of the row
+        $nb=0;
+        for($i=0;$i<count($data);$i++)
+            $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
+        if ($fh==""){
+            $h=4*$nb;
+        }else{
+            $h=4*$nb;
+            if ($h < $fh)
+                $h = $fh;
+        }
+         
+        //Issue a page break first if needed
+        $this->CheckPageBreak_LM($h);
+        // Forzar margen izquierdo deseado tras salto
+        $this->SetX(12);
+        //Draw the cells of the row
+        for($i=0;$i<count($data);$i++)
+        {
+           $w=$this->widths[$i];
+
+           $realWidth = $w; // lo que realmente se usará
+
+           
+           if ($i == 0) {
+               $realWidth += 40; // Solo se suma a la primera columna
+            }
+            
+            // echo "Ancho real: $realWidth, Ancho original: $w\n"; // Debugging
+
+            $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
+            //Save the current position
+            $x=$this->GetX();
+            $y=$this->GetY();
+            //Draw the border
+            $ax=$x; $ay=$y; $aw=$w; $ah=$h;
+            // $this->Rect($x,$y,$w,$h,$fills);
+            //Print the text
+            // Si es la última columna
+            if ($i == count($data) - 1 ) {
+                $extraX = $indentacion_invertida2 * 5;  // o el ancho que uses por nivel
+                $this->SetX($x + $extraX);
+                // $this->MultiCell($w,4,'xxx',0,$a);
+            }
+            if($nivel==1)
+            {
+                $this->SetFillColor(230, 230, 225);
+                $this->SetTextColor(0);
+                $this->SetFont('Arial','BU',7);
+                if ($i == count($data) - 1 ) {
+                    $this->Rect($x, $y, 25, 4, 'F');
+                }
+                
+                $this->MultiCell($realWidth,4,$data[$i],0,$a,true);
+                
+            }
+            else{
+                $this->SetFillColor(230, 230, 255);
+                $this->SetTextColor(0);
+                $this->SetFont('Arial','',7);
+                // $this->MultiCell($w,4,$data[$i],0,$a,false);
+                $this->MultiCell($realWidth,4,$data[$i],0,$a,false);
+            }
+
+            //Put the position to the right of the cell
+            $this->SetXY($x+$realWidth,$y);
+        }
+        //Go to the next line
+        $this->Ln($h);
+    }
 
     function Row_SinLinea($data,$code=false,$fills='',$fh='')
     {

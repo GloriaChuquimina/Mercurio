@@ -238,6 +238,39 @@
         </div>
     </section>
 </div>
+<div class="modal fade show" id="modalListaCuentas" style="backgroundColor: rgba(0,0,0,0.4)" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="max-width: 700px">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary">
+                <h7 class="modal-title text-white">
+                    <i class="mr-2">🔍</i>
+                    BÚSQUEDA DE CUENTAS CONTABLES
+                </h7>
+                <button type="button" class="close text-white" data-dismiss="modal" >
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="formListaCuentas" name="formListaCuentas">
+              <div class="modal-body">
+                  <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="tbl_CuentasContables" style="width: 100%;">
+                      <thead class="bg-dark">
+                        <tr>
+                          <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th>
+                          <!-- <th style="color: white; text-align: center;">SELECCIONAR</th> -->
+                          <th style="color: white; text-align: center;">OPCIONES</th>
+                          <th style="color: white;">CÓDIGO</th>
+                          <th style="color: white;">DESCRIPCIÓN</th>
+                          <th style="color: white;">NIVEL</th>
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    

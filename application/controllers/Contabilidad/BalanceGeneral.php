@@ -148,9 +148,6 @@ class BalanceGeneral extends CI_Controller {
 
 		// $cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral($id_entidad,$cadena,$fecha_desde,$fecha_hasta);
 		$cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral();
-		// echo("<br>");
-		// print_r($cuentas);
-		// echo("</pre>");
 		$cuentas = json_decode(json_encode($cuentas), true);
 		// $ordenadas = $this->ordenarJerarquicamente($cuentas);
 		// list($cuentasOrdenadas, $importeTotalGeneral) = $this->ordenarJerarquicamente($cuentas);
@@ -177,7 +174,6 @@ class BalanceGeneral extends CI_Controller {
 			$indentacion_invertida 	= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion_invertida']);
 			$descripcion 			= $fila['descripcion'];
 			$codigo      			= $fila['codigo'];
-			// $importe_total      	= $fila['importe_total'];
 			$importe_total      	= $fila['importe_total'] ? number_format($fila['importe_total'], 2, '.', ',') : '0.00';
 
 			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
@@ -212,6 +208,96 @@ class BalanceGeneral extends CI_Controller {
 		echo json_encode($output);
 		exit();
     }
+	// function ReporteBalanceGeneralPDF($id_entidad,$cuentasBuscadas,$fecha_inicio,$fecha_fin)
+	// {			
+	// 	// $id_entidad      = $this->input->post('id_entidad');		
+	// 	/****************************/
+	// 	/*INICIO DEL REPORTE*/
+	// 	/****************************/
+	// 	// echo ($id_entidad);
+	// 	// die();
+		
+	// 	$this->load->library('fpdf/pdf2');
+    //     $pdf = new Pdf2();
+    //     $pdf->AliasNbPages();
+    //     $pdf->SetAutoPageBreak(true, 30);
+    //     $pdf->SetMargins(20,15,10);		
+	// 	$pdf->SetTitle(utf8_decode("BALANCE GENERAL"));
+	// 	$pdf->entidad=descripcion_nombre_entidad($id_entidad);
+	// 	$pdf->sigla="xxx";
+	// 	$pdf->tituloCabecera = 'BALANCE GENERAL';
+	// 	$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
+	// 	$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
+    //     $w = array(15,115,40,50);
+    //     $pdf->setWidthsG($w);
+    //     $pdf->SetAligns(array('C','L','C','C'));
+	// 	$pdf->AddPage('P','Letter');
+	// 	$pdf->opcion_cabecera=5;
+	// 	$pdf->Header();
+	// 	$pdf->SetFillColor(255,255,255);
+    //     $pdf->SetTextColor(0);
+    //     $pdf->SetFont('Arial','',6);
+	// 	$pdf->Ln(1);
+	// 	/*CUERPO DEL REPORTE*/
+	// 	$pdf->SetFillColor(255,255,255);
+    //     $pdf->SetTextColor(0);
+    //     $pdf->SetFont('Arial','',6);
+    //     $num = 0;
+    //     $total=0;
+
+	// 	// 1. Reemplazar guiones por comas
+	// 	$cadena = str_replace('-', ',', $cuentasBuscadas);
+	// 	// 2. Eliminar la última coma si existe
+	// 	$cadena = rtrim($cadena, ',');
+
+	// 	$cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral();
+	// 	$cuentas = json_decode(json_encode($cuentas), true);
+	// 	$ordenadas = $this->ordenarJerarquicamente($cuentas);
+	// 	$cuentasOrdenadas = $ordenadas[0];
+	// 	$sumaTotalGlobal  = $ordenadas[1];
+
+	// 	// echo("<pre>");
+	// 	// print_r ($cuentasOrdenadas);
+	// 	// echo("</pre>");
+	// 	// die();
+
+	// 	$pdf->SetFillColor(255,255,255);
+	// 	$pdf->SetFont('Arial', '', 8);
+	// 	$ini_x=$pdf->GetX();
+	// 	// $ini_y=$pdf->GetY();
+		
+	// 	$pdf->setX(12); 
+	// 	$pdf->SetWidths([25, 120, 15, 15, 15, 15]);
+	// 	$pdf->SetAligns(['L','L','R','R','R','R']);
+
+
+	// 	foreach ($cuentasOrdenadas as $fila)
+	// 	{  
+	// 		$indentacion 			= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
+	// 		$indentacion_invertida 	= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion_invertida']);
+	// 		$nivel 					= $fila['nivel'];
+	// 		$indentacion_invertida2 = $fila['indentacion_invertida'];
+	// 		$descripcion 			= $fila['descripcion'];
+	// 		$codigo      			= $fila['codigo'];
+	// 		$importe_total      	= $fila['importe_total'] ? number_format($fila['importe_total'], 2, '.', ',') : '0.00';
+			
+	// 		$fila = array(
+
+	// 			$codigo,
+	// 			$descripcion,
+	// 			$importe_total
+	// 		);
+
+	// 		$pdf->setX(5); 
+	// 		$pdf->Row_Reportes_BG($fila,true, '', 4,$indentacion_invertida2,$nivel);								
+	// 		$pdf->opcion_pie='FOOTER_VACIO';
+	// 	}
+
+	// 	$pdf->Ln();
+
+	// 	$pdf->Footer();
+	// 	$pdf->Output('I',utf8_decode('ReporteBalanceGeneral.pdf')); 
+	// }
 	function ReporteBalanceGeneralPDF($id_entidad,$cuentasBuscadas,$fecha_inicio,$fecha_fin)
 	{			
 		// $id_entidad      = $this->input->post('id_entidad');		
@@ -260,48 +346,46 @@ class BalanceGeneral extends CI_Controller {
 		$cuentasOrdenadas = $ordenadas[0];
 		$sumaTotalGlobal  = $ordenadas[1];
 
+		// echo("<pre>");
+		// print_r ($cuentasOrdenadas);
+		// echo("</pre>");
+		// die();
+
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetFont('Arial', '', 8);
 		$ini_x=$pdf->GetX();
 		// $ini_y=$pdf->GetY();
 		
 		$pdf->setX(12); 
-		$pdf->SetWidths([25, 120, 15, 15, 15, 15]);
-		$pdf->SetAligns(['L','L','R','R','R','R']);
+		$pdf->SetWidths([110, 15]);
+		$pdf->SetAligns(['L','R']);
 
 
 		foreach ($cuentasOrdenadas as $fila)
 		{  
 			$indentacion 			= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
 			$indentacion_invertida 	= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion_invertida']);
+			$nivel 					= $fila['nivel'];
+			$indentacion_invertida2 = $fila['indentacion_invertida'];
 			$descripcion 			= $fila['descripcion'];
 			$codigo      			= $fila['codigo'];
 			$importe_total      	= $fila['importe_total'] ? number_format($fila['importe_total'], 2, '.', ',') : '0.00';
-			// $importe_total			= number_format($importe_total,2,'.',',');
-							
+			
 			$fila = array(
 
-				$codigo,
+				// $codigo,
 				$descripcion,
 				$importe_total
 			);
 
-
-			// $xBase = 10;
-			// foreach ($lista as $c) {
-			// 	$pdf->SetX($xBase + $c['indentacion_invertida'] * 5);
-			// 	…
-			// }
-
-			
-			$pdf->setX(5); 
-			$pdf->Row_Reportes_LM($fila,true, '', 4);								
+			// $pdf->setX(5); 
+			$pdf->Row_Reportes_BG($fila,true, '', 4,$indentacion_invertida2,$nivel);								
 			$pdf->opcion_pie='FOOTER_VACIO';
 		}
 
 		$pdf->Ln();
 
 		$pdf->Footer();
-		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
+		$pdf->Output('I',utf8_decode('ReporteBalanceGeneral.pdf')); 
 	}
 }
