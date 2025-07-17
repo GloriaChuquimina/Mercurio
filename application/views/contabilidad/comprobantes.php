@@ -250,6 +250,7 @@
       baseurl(enlace);
       id_entidad = <?= json_encode($entidad) ?>;
       cargarComboPrincipal();
+      cargarCombos();
     //   cargarTablaComprobantesEntidades();
     });
 </script>  

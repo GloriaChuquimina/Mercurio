@@ -122,7 +122,13 @@ $(function (){
                         var id_comprobante = $('#id_comprobanteP').val();
                         if(nuevo_tipocambio !== comprobante_tipocambio)
                         {
-                            recalcularCuentasDelComprobante(id_comprobante,nuevo_tipocambio,fecha);
+                            var mensaje="Atención: El tipo de cambio ha sido modificado. Para garantizar la exactitud de los datos, actualizar los montos en moneda extranjera según el tipo de cambio introducido.";
+                           swal({title:"ALERTA",text:mensaje,icon:"warning",button:"OK",dangerMode:true});
+                           $('#btnRecalcularTipoCambio').show();
+                        }
+                        else
+                        {
+                            $('#btnRecalcularTipoCambio').hide();
                         }
                     }
                 });
@@ -601,7 +607,7 @@ function guardarDatosComprobanteMasDetalle()
                         {
                             visualizarValidaciones(datos.mensaje);
                             swal({title:"ALERTA",text:"Existen Observaciones.",icon:"warning",button:"OK",dangerMode:true});
-                            // swal({title: "ERROR",text: datos.mensaje,icon: "error",button: "Error",});
+                            
                         }
                     });
                 }
@@ -670,13 +676,13 @@ function editarCabeceraComprobante()
                         if(datos.resultado == 1)
                         {
                             swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
-                            // cargarComprobantesPrincipal();
+                            
                         }
                         else
                         {
                             visualizarValidaciones(datos.mensaje);
                             swal({title:"ALERTA",text:"Existen Observaciones.",icon:"warning",button:"OK",dangerMode:true});
-                            // swal({title: "ERROR",text: datos.mensaje,icon: "error",button: "Error",});
+                            
                         }
                     });
                 }
@@ -693,8 +699,7 @@ function eliminarRegistroCuentaComprobante(id_registro_CuentaComprobante)
 {
     var id_comprobante = $('#id_comprobanteP').val();
     var cant_cuentas   = $('#cant_cuentas').val();
-    // alert (cant_cuentas);
-    // alert(id_comprobante);
+
     swal({
         title: 'ATENCIÓN',
         text: "¿Está seguro de que desea eliminar este registro de cuenta del comprobante?",
@@ -972,8 +977,16 @@ function cargarDatosCuentaComprobante(id_registro_cuenta)
             }
     });
 }
-function recalcularCuentasDelComprobante(id_comprobante, tipo_cambio,fecha_tipocambio)
+// function recalcularCuentasDelComprobante(id_comprobante, tipo_cambio,fecha_tipocambio)
+function recalcularCuentasDelComprobante()
 {
+    
+
+    var id_comprobante    = $('#id_comprobanteP').val();
+    var tipo_cambio       = $('#txtTipoCambio').val();
+    var fecha_tipocambio  = $('#txtFecha').val();
+
+
     swal({
         title: 'ATENCIÓN',
         text: "¿Desea actualizar los montos en moneda extranjera de las cuentas del comprobante con el nuevo tipo de cambio?",
@@ -990,6 +1003,7 @@ function recalcularCuentasDelComprobante(id_comprobante, tipo_cambio,fecha_tipoc
     .then(respuesta => {
         if (respuesta)
         {
+            guardarDatosComprobanteMasDetalle();
             var enlace = base_url + "Contabilidad/Comprobante/recalcularCuentasDelComprobante";
             $.ajax({
                 type: "POST",
@@ -1003,6 +1017,7 @@ function recalcularCuentasDelComprobante(id_comprobante, tipo_cambio,fecha_tipoc
                     if(data.resultado==1){
                         swal({title: "OK",text: data.mensaje,icon: "success",button: "OK",});
                         cargarCuentasComprobanteRegistrado(id_comprobante);
+                        $('#btnRecalcularTipoCambio').hide();
                     }
                     else
                     {

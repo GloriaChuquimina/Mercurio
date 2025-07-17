@@ -849,11 +849,12 @@ class Comprobante extends CI_Controller {
 			$id_comprobante					= $datosComprobante[0]->id;
 			$marcaAgua='SI';
 			$nombre_entidad					= descripcion_nombre_entidad($datosComprobante[0]->id_entidad);
-			$sigla_entidad					= "XXXXXX";/*CONSULTAR*/
+			$sigla_entidad					= sigla_entidad($datosComprobante[0]->id_entidad);
 			$sigla_senape					= "SENAPE";
 			// $this->Cell(20, 3, utf8_decode('Página ' . $this->PageNo() . '/{nb}'), 0, 0, 'C');
-			$paginador 						= "Pag. 1/2";
-			// $paginador 						= utf8_decode('Página ' . $pdf->PageNo() . '/{nb}');
+			// $paginador 						= "Pag. 1/2";
+			// $paginador 						= 'Pág.' . $pdf->PageNo().'/{nb}';
+			$paginador 						= 'Pág.' . $pdf->PageNo();
 			$fecha_comprobante  			= formato_fecha_slash($datosComprobante[0]->fecha_comprobante);
 			$tipo_cambio					= number_format($datosComprobante[0]->tipo_cambio,2,'.',',');
 			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $datosComprobante[0]->tipo_comprobante);
@@ -876,7 +877,7 @@ class Comprobante extends CI_Controller {
 
 			$table->easyCell(' ', 'valign:M;halign:C;font-size:7');
 
-			$texto_cabecera_derecha = utf8_decode($paginador) . "\n" .
+			$texto_cabecera_derecha = utf8_decode($paginador) ."\n" .
 									utf8_decode($fecha_comprobante) . "\n" .
 									utf8_decode("T.C.:".$tipo_cambio);
 			$table->easyCell($texto_cabecera_derecha, 'valign:M;halign:R;font-size:7');
@@ -1118,7 +1119,7 @@ class Comprobante extends CI_Controller {
 
 			$marcaAgua='SI';
 			$nombre_entidad					= descripcion_nombre_entidad($datos1['id_entidad']);
-			$sigla_entidad					= "XXXXXX";/*CONSULTAR*/
+			$sigla_entidad					= sigla_entidad($datos1['id_entidad']);
 			$sigla_senape					= "SENAPE";
 			// $this->Cell(20, 3, utf8_decode('Página ' . $this->PageNo() . '/{nb}'), 0, 0, 'C');
 			$paginador 						= "Pag. 1/2";

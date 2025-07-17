@@ -80,16 +80,31 @@
                                                     <i class="text-danger">*</i>
                                                     <strong> TIPO DE CAMBIO:</strong>
                                                     </label>
-                                                    <input
-                                                    type="text"
-                                                    class="form-control"
-                                                    id="txtTipoCambio"
-                                                    name="txtTipoCambio"
-                                                    style="background-color: #f3d6d6; text-align: right;"
-                                                    placeholder="0.00"
-                                                    readonly
-                                                    
-                                                    />
+                                                    <div class="input-group">
+                                                        <input
+                                                        type="text"
+                                                        class="form-control"
+                                                        id="txtTipoCambio"
+                                                        name="txtTipoCambio"
+                                                        style="background-color: #f3d6d6; text-align: right;"
+                                                        placeholder="0.00"
+                                                        readonly
+                                                        
+                                                        />   
+                                                        <div class="input-group-append">
+                                                            <button
+                                                            type="button"
+                                                            class="btn btn-danger"
+                                                            id="btnRecalcularTipoCambio"
+                                                            name="btnRecalcularTipoCambio"
+                                                            title='Actualizar detalle del comprobante al Tipo de Cambio'
+                                                            onclick="recalcularCuentasDelComprobante();"
+                                                            style="display: none"
+                                                            >
+                                                            <i>🔃</i>
+                                                            </button>
+                                                        </div>  
+                                                    </div>
                                                 </div>
                                             </div>
 

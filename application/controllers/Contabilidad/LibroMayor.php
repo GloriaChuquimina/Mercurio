@@ -269,7 +269,7 @@ class LibroMayor extends CI_Controller {
         $pdf->SetMargins(20,15,10);		
 		$pdf->SetTitle(utf8_decode("Reporte Libro Mayor"));
 		$pdf->entidad=descripcion_nombre_entidad($id_entidad);
-		$pdf->sigla="xxx";
+		$pdf->sigla=sigla_entidad($id_entidad);
 		$pdf->tituloCabecera = 'LIBRO MAYOR';
 		$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
 		$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
