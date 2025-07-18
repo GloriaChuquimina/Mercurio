@@ -16,6 +16,11 @@ function cargarCombos()
             valoresIniciales();
         }
     }); 
+    cargarCuentasLista();
+}
+function cargarCuentasLista()
+{
+    $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
 }
 function valoresIniciales(){
     var entidad = $('#entidades').val();    
@@ -54,6 +59,7 @@ $(function (){
                 id_entidad = $(this).val();
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
+                $('#id_entidad').val(id_entidad);
                 cargarCuentasEntidad();
                 valoresIniciales();
             });
@@ -76,3 +82,134 @@ $(function (){
             });
 
 });
+
+function listaCuentasBusqueda()
+{
+    var cuentasSeleccionadas=$('#id_cuenta_seleccionadas').text();
+    $('#opcionSeleccionar').checked = false;
+    cargarCuentas(0,cuentasSeleccionadas);
+    $('#modalListaCuentas').modal({backdrop: 'static', keyboard: false})
+    $('#modalListaCuentas').modal('show');  
+}
+function cargarCuentas(marcar){
+    var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
+    var enlace = base_url + "Contabilidad/LibroDiario/listarPlanDeCuentasBusqueda";
+    $('#tbl_CuentasContables').DataTable({
+        destroy: true,
+        "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
+        "iDisplayLength": 10,
+        "font-size":5,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            data:{          
+                marcareg:marcar,
+                cuentasSeleccionadas:cuentasSeleccionadas
+            }
+        },
+    });
+}
+function agregarCuenta()
+{
+    var cuenta = $('#txtCuenta').val();
+    var id_cuenta = $('#id_cuenta').val();
+    $('#idCuenta').val('');
+    // var target = event.target.value;
+    var datalist = document.getElementById('listaCuentas').childNodes;
+    for (var i = 0; i < datalist.length; i++) 
+    {                 
+        if (datalist[i].value === cuenta) {
+            $('#id_cuenta').val( datalist[i].dataset.value) ;
+            id_cuenta= datalist[i].dataset.value;
+            break;
+        }
+    }
+    if(cuenta != '' && id_cuenta != '')
+    {
+        var cuenta = $('#id_cuenta').val()+"-";
+        var cuentas = $('#id_cuenta_seleccionadas').val()+ cuenta;
+        $('#id_cuenta_seleccionadas').val(cuentas);
+        var cuentaLiteral =$('#txtCuenta').val()+"|";
+        var cuentasLiteral = $('#cuentas').text()+ cuentaLiteral;
+        $('#cuentas').text(cuentasLiteral);
+        $('#cuentaSeleccionada').show();
+         
+    }
+    $('#cuentaSeleccionada').show();
+}
+function cargarDatosLibroDiario(){
+    var id_entidad = $('#id_entidad').val();
+    var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
+    var fecha_desde = $('#fechaDesde').val();
+    var fecha_hasta = $('#fechaHasta').val();
+    var enlace = base_url + "Contabilidad/LibroDiario/cargarDatosLibroDiario";
+    $('#tablaSumasySaldos').DataTable({
+        destroy: true,
+        "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
+        "iDisplayLength": 10,
+        "font-size":5,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            data:{          
+                id_entidad:id_entidad,
+                cuentasSeleccionadas:cuentasSeleccionadas,
+                fecha_desde:fecha_desde,
+                fecha_hasta:fecha_hasta
+            }
+        },
+    });
+}
+function consultar()
+{
+     $('#cuentaSeleccionada').show();
+     $('#tablaLibroDiario').show();
+     $("#mensajeSeleccion").hide();
+    var id_entidad =$('#id_entidad').val();
+    var cuentas =$('#id_cuenta_seleccionadas').val();
+    var fecha_inicio = $('#fechaDesde').val();
+    var fecha_fin = $('#fechaHasta').val();
+    alert (id_entidad);
+    /*CARGAR TABLA BUSQUEDA LIBRO MAYOR */
+     var enlace = base_url + "Contabilidad/LibroDiario/cargarDatosLibroDiario";
+    $.ajax({
+        url: enlace,
+        method: "POST",
+        data: { id_entidad : id_entidad,
+                cuentas:cuentas,
+                fecha_inicio: fecha_inicio,
+                fecha_fin: fecha_fin
+               }, 
+        dataType:'JSON',
+        success: function (data) 
+        {
+            if(data.resultado == '1')
+            {   
+                // $("#contenedor_libroMayor").html(data.tabla);
+                 $('#tbodyLibroDiario').html(data.tabla);
+                // setTimeout(() => {
+                //         if ($.fn.DataTable.isDataTable("#tbl_libroMayor")) {
+                //             $("#tbl_libroMayor").DataTable().destroy();
+                //         }
+
+                //         $("#tbl_libroMayor").DataTable({
+                //             scrollY: '300px',
+                //             scrollCollapse: true,
+                //             paging: false,
+                //             searching: true,
+                //             fixedHeader: true,
+                //             dom: 'ftip',
+                //             language: {
+                //                 search: "Buscar:",
+                //                 zeroRecords: "No se encontraron resultados"
+                //             }
+                //         });
+                //     }, 150);
+            }
+            else
+            {
+                swal({title: "ERROR",text: "Error",icon: "error",button: "OK",dangerMode:true,});
+            }
+        }
+    });
+}

@@ -117,3 +117,46 @@ function editarEntidad(id_entidad)
     });
  
 }
+function bajaEntidad(id_entidad)
+{
+
+    swal({
+        title:'ATENCIÓN',
+        text:"¿Está seguro de dar de baja a la entidad?",
+        icon:'warning',
+        dangerMode:true,
+        buttons:{
+            cancel:"Cancelar",
+            verificar:{
+                text:"GUARDAR",
+                value:"verificar",
+            }
+        }
+    })
+    .then(respuesta=>{
+        if(respuesta)
+        {
+            var enlace = base_url + "Entidades/Entidades/bajaEntidad";
+            $.ajax({
+                type:"POST",
+                url:enlace,
+                data:{ id_entidad: id_entidad},
+                success:function(data)
+                {
+                    var result =JSON.parse(data);
+                    $.each(result,function(i,datos){
+                        if(datos.resultado == 0)
+                        {
+                            swal({title:"ALERTA",text:"Existen Observaciones.",icon:"warning",button:"OK",dangerMode:true});
+                        }
+                        else
+                        {
+                            swal("!Excelente!","SE REGISTRO CORRECTAMENTE LA BAJA.","success");
+                            cargarTablaEntidades();
+                        }
+                    });
+                }
+            });
+        }
+    });
+}

@@ -198,4 +198,31 @@ class Entidades extends CI_Controller {
         }
 		echo $resultado;
 	}
+	public function bajaEntidad()
+	{
+		$id_usuario   = $this->session->userdata('id_usuario');
+		$id_entidad   = $this->input->post('id_entidad');
+		$fecha_actual = getFechaHoraActual();
+		$estado       = 'ANU';
+		$updateEntidad = array(
+			'fecha_modificacion' => $fecha_actual,
+			'estado'           => $estado
+		);
+
+		$entidad = $this->Entidades_model->updateEntidad($id_entidad, $updateEntidad);
+		if ($entidad) {
+			$resul = 1;
+			$mensaje = "SE REGISTRO LA BAJA DE LA ENTIDAD CORRECTAMENTE.";
+		} else {
+			$resul = 0;
+			$mensaje = "ERROR EN EL REGISTRO DE LA BAJA!!!";
+		}
+
+		$resultado = '[{
+						"resultado":"' . $resul . '",
+						"mensaje":"' . $mensaje . '"
+					 }]';
+
+		echo $resultado;
+	}
 }
