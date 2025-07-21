@@ -41,6 +41,7 @@ class LibroDiario_model extends CI_Model
                                                  ,c.fecha_comprobante 
                                                  ,c.tipo_comprobante
                                                  ,c.glosa_comprobante
+																								 ,c.correlativo
                                             from contabilidad.comprobante c 
                                  left outer join administracion.entidad e on c.id_entidad =e.id
                                            where e.id=3

@@ -75,21 +75,22 @@ class LibroDiario extends CI_Controller {
 		{   
 
 			$id_comprobante 	 = $comprobante->id_comprobante;
-			$fecha_comprobante   = $comprobante->fecha_comprobante;
-			$tipo_comprobante    = $comprobante->tipo_comprobante;
+			$fecha_comprobante   = formato_fecha_slash_invertido2($comprobante->fecha_comprobante);
+			// $tipo_comprobante    = $comprobante->tipo_comprobante;
+			$tipo_comprobante    = "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE",  $comprobante->tipo_comprobante);
 			$glosa_comprobante   = $comprobante->glosa_comprobante;
 
-			$tr.="<tr>
+			$tr.="<tr style='background-color:rgb(209, 226, 239); font-weight: bold;'>
 					<td>
 						".$fecha_comprobante."
 					</td>
 					<td>
 						".$tipo_comprobante."
 					</td>
-					<td>
+					<td style='text-align: right;'>
 						---
 					</td>
-					<td>
+					<td style='text-align: right;'>
 						---
 					</td>
 				  </tr>";
@@ -111,10 +112,10 @@ class LibroDiario extends CI_Controller {
 							$resul 				       = 1;
 							$mensaje				   = "OK";	
 							if($tipo_movimiento == "DB"){
-								$importeDebe=$importe_moneda_nacional;
+								$importeDebe=number_format($importe_moneda_nacional,2,'.',''); ;
 							}
 							elseif ($tipo_movimiento == "HB") {
-								$importeHaber=$importe_moneda_nacional;
+								$importeHaber=number_format($importe_moneda_nacional,2,'.',''); ;
 							}
 							$tr.="<tr>
 									<td>
@@ -123,12 +124,12 @@ class LibroDiario extends CI_Controller {
 									<td>
 									".$descripcion_cuenta."
 									</td>
-									<td style='text-align: right'>
+									<td style='text-align: right; color: #28a745; font-weight: bold;'>
 									".$importeDebe."
 									</td>
-									<td style='text-align: right'>
+									<td style='text-align: right;  color: #dc3545; font-weight: bold;'>
 									".$importeHaber."
-									</td>							
+									</td>		
 								</tr>";				
 							// $data[] = array(
 							// 	$codigo,
@@ -140,10 +141,10 @@ class LibroDiario extends CI_Controller {
 							$totalHaber += $importeHaber;
 					}
 				$tr.="<tr style='background-color:rgb(248, 232, 228); font-weight: bold;'>
-						<td style='text-align: right'>
+						<td style='text-align: left'>
 							---
 						</td>
-						<td style='text-align: center'>
+						<td style='text-align: left'>
 						".$glosa_comprobante."
 						</td>
 						<td style='text-align: right'>
@@ -301,4 +302,171 @@ class LibroDiario extends CI_Controller {
 		echo json_encode($output);
 		exit();
     }
+	function ReporteLibroDiarioPDF($id_entidad,$cuentas,$fecha_desde,$fecha_hasta)
+	{			
+		// $id_entidad      = $this->input->post('id_entidad');		
+		/****************************/
+		/*INICIO DEL REPORTE*/
+		/****************************/
+		// echo ($id_entidad);
+		// die();
+		
+		$this->load->library('fpdf/pdf2');
+        $pdf = new Pdf2();
+        $pdf->AliasNbPages();
+        $pdf->SetAutoPageBreak(true, 30);
+        $pdf->SetMargins(20,15,10);		
+		$pdf->SetTitle(utf8_decode("Reporte Libro Diario"));
+		$pdf->entidad=descripcion_nombre_entidad($id_entidad);
+		$pdf->sigla=sigla_entidad($id_entidad);
+		$pdf->tituloCabecera = 'LIBRO DIARIO';
+		// $pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
+		$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
+        $w = array(15,115,40,50);
+        $pdf->setWidthsG($w);
+        $pdf->SetAligns(array('C','L','C','C'));
+		$pdf->AddPage('P','Letter');
+		$pdf->opcion_cabecera=6;
+		$pdf->Header();
+		$pdf->SetFillColor(255,255,255);
+        $pdf->SetTextColor(0);
+        // $pdf->SetFont('Arial','',6);
+		// $pdf->Ln(1);
+		/*CUERPO DEL REPORTE*/
+		$pdf->SetFillColor(255,255,255);
+        $pdf->SetTextColor(0);
+        $pdf->SetFont('Arial','',8);
+        $num = 0;
+        $total=0;
+
+		// 1. Reemplazar guiones por comas
+		$cadena = str_replace('-', ',', $cuentas);
+		// 2. Eliminar la última coma si existe
+		$cadena = rtrim($cadena, ',');
+		$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRango($id_entidad,$fecha_desde,$fecha_hasta);
+		$totalDebe =0;
+		$totalHaber =0;
+		$importeDebe=0;
+		$importeHaber=0;
+		$totalGeneralImporteDebe=0;
+		$totalGeneralImporteHaber=0;
+
+        foreach ($libroDiarioComprobante as $comprobante)
+		{   
+
+
+			$id_comprobante 	 = $comprobante->id_comprobante;
+			$fecha_comprobante   = formato_fecha_slash_invertido2($comprobante->fecha_comprobante);
+			$tipo_comprobante    = "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE",  $comprobante->tipo_comprobante);
+			$numero_correlativo  = " Nro.:".$comprobante->correlativo;
+			$glosa_comprobante   = $comprobante->glosa_comprobante;
+
+			$detalle_comprobante = $tipo_comprobante." ".$numero_correlativo ;	
+			$fila = array(
+				$fecha_comprobante,
+				$detalle_comprobante,
+				'---',
+				'---'
+			);	
+			$pdf->setXY(10, 50); 
+			// $pdf->Row_Reportes_LM($fila,true, '', 4);
+			$pdf->Cell(30,8,utf8_decode($fecha_comprobante),0,0,'L',1);
+			$pdf->Cell(140,8,utf8_decode($detalle_comprobante),0,0,'C',1);
+			$pdf->Cell(15,8,utf8_decode("---"),0,0,'L',1);
+			$pdf->Cell(15,8,utf8_decode("---"),0,0,'L',1);
+
+			$pdf->Ln();
+
+			$datosComprobante    = $this->Comprobantes_model->getDetalleComprobanteByIdComprobante($id_comprobante);
+			if($datosComprobante)	
+			{
+				$pdf->SetFillColor(255,255,255);
+				$pdf->SetFont('Arial', '', 8);
+				$pdf->setX(5); 
+				$pdf->SetWidths([30, 140, 15, 15]);
+				$pdf->SetAligns(['L','L','R','R']);
+				foreach ($datosComprobante as $detalle_comprobante) 
+				{			
+						$id_entidad      		   = $detalle_comprobante->id_entidad;
+						$id_comprobante 		   = $detalle_comprobante->id_comprobante;
+						$id_cuenta     		       = $detalle_comprobante->id_cuenta;
+						$tipo_movimiento	       = $detalle_comprobante->tipo_movimiento;
+						$tipo_cambio  		       = $detalle_comprobante->tipo_cambio ;
+						$importe_moneda_nacional   = $detalle_comprobante->importe_moneda_nacional;
+						$importe_moneda_extranjera = $detalle_comprobante->importe_moneda_extranjera;
+						$glosa_cuenta     	       = $detalle_comprobante->glosa_cuenta;
+						$estado     		       = $detalle_comprobante->estado;
+						$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
+						$descripcion_cuenta		   = getCuenta($id_cuenta);
+						$codigo_descripcion		   = $codigo_cuenta."-".$descripcion_cuenta;
+						$resul 				       = 1;
+						$mensaje				   = "OK";	
+						if($tipo_movimiento == "DB"){
+							$importeDebe=number_format($importe_moneda_nacional,2,',','.'); ;
+						}
+						elseif ($tipo_movimiento == "HB") {
+							$importeHaber=number_format($importe_moneda_nacional,2,',','.'); ;
+						}
+
+
+						$fila = array(
+							$codigo_cuenta,
+							$descripcion_cuenta,
+							number_format($importeDebe,0,',','.') ,
+							number_format($importeHaber,0,',','.') 
+						);	
+						// $pdf->setX(5); 
+						$y=$pdf->GetY();
+						$pdf->SetXY(5,$y);
+						// $pdf->Row_Reportes_LM($fila,true, '', 4);	
+						$pdf->Cell(30,8,utf8_decode($codigo_cuenta),0,0,'L',1);
+						$pdf->Cell(140,8,utf8_decode($descripcion_cuenta),0,0,'L',1);
+						$pdf->Cell(15,8,utf8_decode(number_format($importeDebe,0,',','.')),0,0,'L',1);
+						$pdf->Cell(15,8,utf8_decode(number_format($importeHaber,0,',','.')),0,0,'L',1);						
+						$pdf->Ln();
+						$totalDebe     = $totalDebe+$importeDebe;
+						$totalHaber    = $totalHaber+$importeHaber;				
+				
+				}
+			}	
+			
+			// $y=$pdf->GetY();
+			// $pdf->SetXY(5,$y);
+			// $pdf->setX(5);     
+			// $pdf->Cell(30,8,utf8_decode("    "),0,0,'c',1);
+			// $pdf->Cell(140,8,utf8_decode($glosa_comprobante),0,0,'L',1);
+			// $pdf->Cell(15,8,utf8_decode(number_format($totalDebe,2,',','.')),0,0,'R',1);
+			// $pdf->Cell(15,8,utf8_decode(number_format($totalHaber,2,',','.')),0,0,'R',1);
+			// $pdf->Ln(2);
+			// $totalGeneralImporteDebe =$totalGeneralImporteDebe+$totalDebe;
+			// $totalGeneralImporteHaber =$totalGeneralImporteHaber+$totalHaber;
+			
+	    }  		
+		
+		$pdf->Ln();
+		// $pdf->SetFillColor(255,255,255);
+		// $y=$pdf->GetY();
+		// $pdf->SetXY(5,$y);
+		// // $pdf->setX(5);     
+		// // $pdf->SetAligns(['R','R','R','C','C']);
+		// $pdf->Cell(145,2,"",0,0,'R',1);
+		// $x=$pdf->GetX();
+		// $y=$pdf->GetY();
+		// $pdf->Line($x, $y, $x + 60, $y);
+		// $pdf->Cell(60,2,"",0,0,'R',1);
+		// $pdf->Ln(2);
+		// $TOTALES="TOTALES";
+		// $y=$pdf->GetY();
+		// $pdf->SetXY(5,$y);
+		// $pdf->setX(5);     
+		// $pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
+		// $pdf->Cell(15,8,utf8_decode($totalGeneralImporteDebe),0,0,'R',1);
+		// $pdf->Cell(15,8,utf8_decode($totalGeneralImporteHaber),0,0,'R',1);
+		// $pdf->Ln(2);
+		// $pdf->AddPage('P', 'Letter'); 
+		// $pdf->setX(5); 
+		$pdf->opcion_pie='FOOTER_VACIO';
+		$pdf->Footer();
+		$pdf->Output('I',utf8_decode('ReporteLibroDiario.pdf')); 
+	}
 }

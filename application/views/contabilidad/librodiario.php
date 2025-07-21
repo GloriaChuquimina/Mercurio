@@ -183,7 +183,7 @@
                           <i class="mr-1">🔍</i> Consultar
                         </button>
                         <button class="btn btn-success mr-2"
-                                onClick="generarReporteLibroMayor()">
+                                onClick="generarReporteLibroDiario()">
                           <i class="mr-1">📄</i> Exportar PDF
                         </button>
                         <button class="btn btn-info">

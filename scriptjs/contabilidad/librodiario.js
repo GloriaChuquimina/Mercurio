@@ -213,3 +213,29 @@ function consultar()
         }
     });
 }
+function generarReporteLibroDiario()
+{
+    var id_entidad   = $('#id_entidad').val();
+    var cuentas =$('#id_cuenta_seleccionadas').val();
+    var fecha_inicio = $('#fechaDesde').val();
+    var fecha_fin    = $('#fechaHasta').val();
+    alert(id_entidad);
+    if(fecha_inicio!='' && fecha_fin !='')
+    {
+        $('#divPDF').html('');
+        var iframe = document.createElement("iframe");
+            iframe.width = '100%';
+            iframe.height = '700px';
+            iframe.src = base_url+'Contabilidad/LibroDiario/ReporteLibroDiarioPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin; 
+            $('#divPDF').append(iframe);
+        $('#divCapa').addClass('overlay');    
+        $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+        $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
+        $('#pdfModal').show();   
+        
+    }
+    else
+    {
+        alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
+    }
+}

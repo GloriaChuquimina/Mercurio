@@ -248,6 +248,61 @@ class Pdf2 extends FPDF {
             // $this->Cell(15,8,utf8_decode('ACREEDOR'),1, 1, 'C', 1);
 
         }
+		if($this->opcion_cabecera==6)
+        {
+            // $this->Image('resources/images/logos/bicentenario.jpg', 17, 10,23);
+            // $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 10, 74.5);
+            // $this->Image('resources/images/logos/chakana.png', 160, 8, 43);
+
+            $this->Ln();
+            $this->SetTextColor(0);
+            $this->SetFont('Times','B',6);
+            $y = $this->GetY();
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode($this->entidad),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode($this->sigla),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode('SENAPE'),0,'C',0);
+            $this->Ln(3);
+
+            $this->SetXY(200, $y); 
+            $this->Cell(10, 5, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
+            $this->SetXY(190,$y+3);            
+            $fecha_hoy = $this->fechaformato();
+            $this->Cell(10, 5,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
+            $this->Ln(3);
+
+           
+            $this->SetXY(0,30);
+            $this->SetFont('Arial', 'BU', 12);
+            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
+            $this->Ln(4);
+            $this->SetFont('Times','B',7);
+            // $this->SetX(0);
+            // $this->Cell(0,0,utf8_decode($this->subtituloCabecera1),0,1,'C',0);
+            // $this->Ln(3);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera2),0,1,'C',0);
+            $this->Ln(3);
+            
+            //Cabecera
+            // Cabecera superior agrupada
+            $this->SetXY(5, 40); // Coordenada superior izquierda
+            $this->SetFillColor(230, 230, 225);
+            $this->SetTextColor(0);
+            $this->SetFont('Arial','B',7);
+            $this->SetX(10);
+            $this->Cell(30,13,utf8_decode('FECHA/CÓDIGO'), 1, 0, 'C', 1);
+            $this->Cell(140,13,utf8_decode('DETALLE'), 1, 0, 'C', 1);
+            $this->SetXY(170,40);
+            $this->Cell(34,5,utf8_decode('BOLIVIANOS'),1,0,'C',1);
+            $this->SetXY(170,45);
+            $this->Cell(18,8,utf8_decode('DEBE'),1, 0, 'C', 1);
+            $this->SetXY(185,45);
+            $this->Cell(18,8,utf8_decode('HABER'),1, 0, 'C', 1);
+			$this->Ln(3);
+        }
     }
 
     public function Footer() {
