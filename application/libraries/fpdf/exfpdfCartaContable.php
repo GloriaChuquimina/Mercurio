@@ -453,6 +453,23 @@ class exFPDFCartaContable extends FPDFDE{
               //$this->Image('resources/images/logos/pie_rumbo_bicentenario.jpg', 22, 194, 187, 80,'','', '', false, 100, '', false, false, 0);
               $this->Image('resources/images/logos/pie_rumbo_bicentenario.jpg',22,194,187,80);
              break;
+            case 'COMPROBANTE_TEMPORAL':
+                 // Obtener el centro de la página
+               $pageWidth = $this->GetPageWidth();
+               $pageHeight = $this->GetPageHeight();
+
+               $this->SetFont('Arial', 'B', 45); // Tamaño más impactante
+               $this->SetTextColor(245, 245, 245); // Color más claro (más translúcido visualmente)
+
+               // Texto centrado con rotación
+               $texto = utf8_decode('COMPROBANTE BORRADOR');
+               // Coordenadas aproximadas al centro (ajustables)
+               $x = $pageWidth / 2 - 80;  // Desfase horizontal según el texto
+               // $y = $pageHeight / 2;
+               $y = $pageHeight-50 ;
+
+               $this->TextWithRotation($x, $y, $texto, 45); // Rotado en ángulo
+              break;
       }          
       switch($this->pieFirmas){
          case 'ANCHO':

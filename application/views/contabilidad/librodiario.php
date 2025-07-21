@@ -4,7 +4,7 @@
     <section class="content">
         <div class="container-fluid">
              <!-- SECCION ENTIDAD -->
-            <div class="card card-warning card-outline">
+            <div class="card card-warning card-outline" id="cardEntidad">
                 <div class="card-header">
                     <h3 class="card-title">
                     <i class="mr-2">🏢</i>
@@ -14,7 +14,7 @@
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" >
                       <i>🔼🔽</i>
                     </button>
-                  </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -84,22 +84,22 @@
                   </div>
                 </div>
                 <div class="card-body">
-                    <input class="form-control" id="id_entidad" name="id_entidad">
-                    <input class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
+                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
-                      <div class="col-md-5">
+                      <!-- <div class="col-md-5">
                         <div class="form-group">
                           <label>
                             <i class="text-danger">*</i>
                             <strong> CUENTA CONTABLE:</strong>
                           </label>
-                          <!-- <select
+                          <select
                             id="cuentaContable"
                             name="cuentaContable"
                             class="form-control"
                           >
-                          </select> -->
+                          </select>
                           <div class="input-group">
                               <input
                                   type="text"
@@ -110,7 +110,7 @@
                                   name="txtCuenta"
                               />
                               <datalist id='listaCuentas'></datalist>
-                              <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
+                              <input type='hidden' name='idCuenta' id='idCuenta' >
                               <div class="input-group-append">
                                   <button
                                   type="button"
@@ -129,8 +129,8 @@
                               </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="col-md-3">
+                      </div> -->
+                      <!-- <div class="col-md-3">
                         <div class="form-group">
                           <label>
                             <strong>OPCIONES:</strong>
@@ -146,7 +146,7 @@
                             </label>
                           </div>
                         </div>
-                      </div>
+                      </div> -->
                       <div class="col-md-2">
                         <div class="form-group">
                           <label>
@@ -175,26 +175,31 @@
                           />
                         </div>
                       </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12 text-right">
-                        <button class = "btn btn-primary mr-2"
-                              onClick = "consultar()">
-                          <i class="mr-1">🔍</i> Consultar
-                        </button>
-                        <button class="btn btn-success mr-2"
-                                onClick="generarReporteLibroDiario()">
-                          <i class="mr-1">📄</i> Exportar PDF
-                        </button>
-                        <button class="btn btn-info">
-                          <i class="mr-1">📊</i> Exportar Excel
-                        </button>
+                      <div class="col-md-3">
+                      </div>
+                      <div class="col-md-5">
+                        <div class="form-group">
+                            <br>
+                            <div class="col-md-12 text-right">
+                                <button class = "btn btn-primary mr-2"
+                                        onClick = "consultar()">
+                                    <i class="mr-1">🔍</i> Consultar
+                                </button>
+                                <button class="btn btn-success mr-2"
+                                        onClick="generarReporteLibroDiario()">
+                                    <i class="mr-1">📄</i> Exportar PDF
+                                </button>
+                                <!-- <button class="btn btn-info">
+                                    <i class="mr-1">📊</i> Exportar Excel
+                                </button> -->
+                            </div>
+                        </div>
                       </div>
                     </div>
                 </div>                
             </div>
             <!-- CUENTA SELECCIONADA -->
-            <div class="card" style="background-color: #f0f8ff; border-left: 4px solid #007bff" id="cuentaSeleccionada" style="display: none">
+            <!-- <div class="card" style="background-color: #f0f8ff; border-left: 4px solid #007bff" id="cuentaSeleccionada" style="display: none">
                 <div class="card-body p-3">
                     <div class="row align-items-center">
                         <div class="col-md-12">
@@ -224,7 +229,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <!-- TABLA LIBRO DIARIO-->
             <div class="card" id="tablaLibroDiario" style="display: none">
                 <div class="card-header bg-gradient-secondary">

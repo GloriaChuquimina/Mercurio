@@ -31,6 +31,8 @@ class Pdf2 extends FPDF {
     private $cds220;
     private $rubro;
 
+    public $totalLD_Debe=0;
+    public $totalLD_Haber=0;
 
     public $marcaDeAguaDeclaracion;
 
@@ -265,15 +267,12 @@ class Pdf2 extends FPDF {
             $this->SetX(10);
             $this->MultiCell(30,3,utf8_decode('SENAPE'),0,'C',0);
             $this->Ln(3);
-
             $this->SetXY(200, $y); 
             $this->Cell(10, 5, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
             $this->SetXY(190,$y+3);            
             $fecha_hoy = $this->fechaformato();
             $this->Cell(10, 5,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
             $this->Ln(3);
-
-           
             $this->SetXY(0,30);
             $this->SetFont('Arial', 'BU', 12);
             $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
@@ -288,7 +287,7 @@ class Pdf2 extends FPDF {
             
             //Cabecera
             // Cabecera superior agrupada
-            $this->SetXY(5, 40); // Coordenada superior izquierda
+            $this->SetXY(10, 40); // Coordenada superior izquierda
             $this->SetFillColor(230, 230, 225);
             $this->SetTextColor(0);
             $this->SetFont('Arial','B',7);
@@ -296,11 +295,11 @@ class Pdf2 extends FPDF {
             $this->Cell(30,13,utf8_decode('FECHA/CÓDIGO'), 1, 0, 'C', 1);
             $this->Cell(140,13,utf8_decode('DETALLE'), 1, 0, 'C', 1);
             $this->SetXY(170,40);
-            $this->Cell(34,5,utf8_decode('BOLIVIANOS'),1,0,'C',1);
+            $this->Cell(40,5,utf8_decode('BOLIVIANOS'),1,0,'C',1);
             $this->SetXY(170,45);
-            $this->Cell(18,8,utf8_decode('DEBE'),1, 0, 'C', 1);
-            $this->SetXY(185,45);
-            $this->Cell(18,8,utf8_decode('HABER'),1, 0, 'C', 1);
+            $this->Cell(20,8,utf8_decode('DEBE'),1, 0, 'C', 1);
+            $this->SetXY(190,45);
+            $this->Cell(20,8,utf8_decode('HABER'),1, 0, 'C', 1);
 			$this->Ln(3);
         }
     }
@@ -309,6 +308,15 @@ class Pdf2 extends FPDF {
         switch ($this->opcion_pie) {
             case 'FOOTER_VACIO':
 
+                break;
+            case 'FOOTER_LIBRODIARIO':
+                $y=$this->GetY();
+                $this->setXY(10,$y);
+                $this->setXY(10,$y);
+                $TOTALES="TOTALES";		    
+                $this->Cell(160,8,utf8_decode($TOTALES),1,0,'R',1);
+                $this->Cell(20,8,utf8_decode(number_format($this->totalLD_Debe,2,',','.')),1,0,'R',1);
+                $this->Cell(20,8,utf8_decode(number_format($this->totalLD_Haber,2,',','.')),1,0,'R',1);
                 break;
             case 'ASISTENCIA_NO_CONSOLIDADA':
                     $this->SetY(-22);
@@ -710,73 +718,8 @@ class Pdf2 extends FPDF {
         //Go to the next line
         $this->Ln($h);
     }
-    // function Row_Reportes_BG($data,$code=false,$fills='',$fh='',$indentacion_invertida2=0,$nivel)
-    // {
-    //     //Aplicar sangría al último campo (por ejemplo, nombre cuenta)
-    //     // if (!empty($data)) {
-    //     //     $espacios = str_repeat('   ', $indentacion_invertida2);  // 3 espacios por nivel
-    //     //     $ultimoIndice = count($data) - 1;
-    //     //     $data[$ultimoIndice] = $espacios . $data[$ultimoIndice];
-    //     // }
-    //     // echo($data[$ultimoIndice]);
-    //     //Calculate the height of the row
-    //     $nb=0;
-    //     for($i=0;$i<count($data);$i++)
-    //         $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
-    //     if ($fh==""){
-    //         $h=4*$nb;
-    //     }else{
-    //         $h=4*$nb;
-    //         if ($h < $fh)
-    //             $h = $fh;
-    //     }
-         
-    //     //Issue a page break first if needed
-    //     $this->CheckPageBreak_LM($h);
-    //     // Forzar margen izquierdo deseado tras salto
-    //     $this->SetX(12);
-    //     //Draw the cells of the row
-    //     for($i=0;$i<count($data);$i++)
-    //     {
-    //         $w=$this->widths[$i];
-    //         $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
-    //         //Save the current position
-    //         $x=$this->GetX();
-    //         $y=$this->GetY();
-    //         //Draw the border
-    //         $ax=$x; $ay=$y; $aw=$w; $ah=$h;
-    //         // $this->Rect($x,$y,$w,$h,$fills);
-    //         //Print the text
-    //         // Si es la última columna y hay indentación invertida
-    //         if ($i == count($data) - 1 ) {
-    //             $extraX = $indentacion_invertida2 * 5;  // o el ancho que uses por nivel
-    //             $this->SetX($x + $extraX);
-    //             // $this->MultiCell($w,4,'xxx',0,$a);
-    //         }
-    //         if($nivel==1)
-    //         {
-    //             $this->SetFillColor(230, 230, 225);
-    //             if ($i == count($data) - 1 ) {
-    //                 $this->Rect($x, $y, 25, 4, 'F');
-    //             }
-    //             $this->SetTextColor(0);
-    //             $this->SetFont('Arial','BU',7);
-    //             $this->MultiCell($w,4,$data[$i],0,$a,true);
-    //         }
-    //         else{
-    //             $this->SetFillColor(230, 230, 255);
-    //             $this->SetTextColor(0);
-    //             $this->SetFont('Arial','',7);
-    //             $this->MultiCell($w,4,$data[$i],0,$a,false);
-    //         }
 
-    //         //Put the position to the right of the cell
-    //         $this->SetXY($x+$w,$y);
-    //     }
-    //     //Go to the next line
-    //     $this->Ln($h);
-    // }
-    function Row_Reportes_BG($data,$code=false,$fills='',$fh='',$indentacion_invertida2=0,$nivel)
+    function Row_Reportes_BG($data,$code=false,$fills='',$fh='',$indentacion_invertida2=0,$nivel=0)
     {
         //Aplicar sangría al último campo (por ejemplo, nombre cuenta)
         // if (!empty($data)) {

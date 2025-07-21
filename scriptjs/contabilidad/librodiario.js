@@ -37,6 +37,16 @@ function valoresIniciales(){
         $('#totales').show();
         $('#filtrosConsulta').show();
         $("#mensajeSeleccion").show();
+
+        // Obtener la fecha actual en formato YYYY-MM-DD
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const fechaActual = `${yyyy}-${mm}-${dd}`;
+        $('#fechaDesde').val(fechaActual);
+        $('#fechaHasta').val(fechaActual);
+        consultar();
         // $('#cuentaSeleccionada').show();
         // $('#tablaLibroMayor').show();
     }
@@ -62,6 +72,8 @@ $(function (){
                 $('#id_entidad').val(id_entidad);
                 cargarCuentasEntidad();
                 valoresIniciales();
+                // $('.card [data-card-widget="collapse"]').click();
+                $('#cardEntidad').find('[data-card-widget="collapse"]').click();
             });
     $('#cuentaContable').change(function(){
                 id_cuenta = $(this).val();
@@ -162,21 +174,16 @@ function cargarDatosLibroDiario(){
 }
 function consultar()
 {
-     $('#cuentaSeleccionada').show();
-     $('#tablaLibroDiario').show();
-     $("#mensajeSeleccion").hide();
+    $('#tablaLibroDiario').show();
+    $("#mensajeSeleccion").hide();
     var id_entidad =$('#id_entidad').val();
-    var cuentas =$('#id_cuenta_seleccionadas').val();
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin = $('#fechaHasta').val();
-    alert (id_entidad);
-    /*CARGAR TABLA BUSQUEDA LIBRO MAYOR */
-     var enlace = base_url + "Contabilidad/LibroDiario/cargarDatosLibroDiario";
+    var enlace = base_url + "Contabilidad/LibroDiario/cargarDatosLibroDiario";
     $.ajax({
         url: enlace,
         method: "POST",
         data: { id_entidad : id_entidad,
-                cuentas:cuentas,
                 fecha_inicio: fecha_inicio,
                 fecha_fin: fecha_fin
                }, 
@@ -185,26 +192,7 @@ function consultar()
         {
             if(data.resultado == '1')
             {   
-                // $("#contenedor_libroMayor").html(data.tabla);
                  $('#tbodyLibroDiario').html(data.tabla);
-                // setTimeout(() => {
-                //         if ($.fn.DataTable.isDataTable("#tbl_libroMayor")) {
-                //             $("#tbl_libroMayor").DataTable().destroy();
-                //         }
-
-                //         $("#tbl_libroMayor").DataTable({
-                //             scrollY: '300px',
-                //             scrollCollapse: true,
-                //             paging: false,
-                //             searching: true,
-                //             fixedHeader: true,
-                //             dom: 'ftip',
-                //             language: {
-                //                 search: "Buscar:",
-                //                 zeroRecords: "No se encontraron resultados"
-                //             }
-                //         });
-                //     }, 150);
             }
             else
             {
@@ -216,17 +204,15 @@ function consultar()
 function generarReporteLibroDiario()
 {
     var id_entidad   = $('#id_entidad').val();
-    var cuentas =$('#id_cuenta_seleccionadas').val();
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
-    alert(id_entidad);
     if(fecha_inicio!='' && fecha_fin !='')
     {
         $('#divPDF').html('');
         var iframe = document.createElement("iframe");
             iframe.width = '100%';
             iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/LibroDiario/ReporteLibroDiarioPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin; 
+            iframe.src = base_url+'Contabilidad/LibroDiario/ReporteLibroDiarioPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin; 
             $('#divPDF').append(iframe);
         $('#divCapa').addClass('overlay');    
         $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);

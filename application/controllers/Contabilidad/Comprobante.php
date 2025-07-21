@@ -511,7 +511,8 @@ class Comprobante extends CI_Controller {
 			$referencia_general   = $data['txtReferencia'];
 			$glosa_general	      = $data['txtGlosaGeneral'];
 			$correlativo		  = 0;
-			$periodo        	  = date("m", strtotime($fecha_comprobante));
+			// $periodo        	  = date("m", strtotime($fecha_comprobante));
+			$periodo        	  = (int)date('m', strtotime($fecha_comprobante));
 			$gestion        	  = date("Y", strtotime($fecha_comprobante));
 			
 			if($accion === 'nuevo')
@@ -553,8 +554,8 @@ class Comprobante extends CI_Controller {
 								if(!isset($row[0]) || empty($row[0]))
 								{
 									list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta) = $row;
-									$importe=$importe;
-									$importeUs=$importe*$tipo_cambio;
+									$importe   = number_format($importe,2,'.',',');
+									$importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
 									$datosComprobanteDetalle = array(
 										'id_entidad'	            => $id_entidad,
 										'id_comprobante'            => $saveComprobante,
@@ -577,7 +578,7 @@ class Comprobante extends CI_Controller {
 										$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
 
 										$resul = 1;
-										$mensaje = "SE REGISTRO CORRECTAMENTE XXXXX";
+										$mensaje = "SE REGISTRO CORRECTAMENTE";
 									}
 									else
 									{
@@ -620,7 +621,7 @@ class Comprobante extends CI_Controller {
 				if($saveComprobante)
 				{
 					$resul = 1;
-					$mensaje = "SE REGISTRO CORRECTAMENTE XXXXX";
+					$mensaje = "SE ACTUALIZÓ CORRECTAMENTE EL COMPROBANTE";
 				}
 				else
 				{
@@ -653,13 +654,25 @@ class Comprobante extends CI_Controller {
 
 		$id_entidad  = $this->input->post('id_entidad');
 		$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidad($id_entidad);
-
+		
 		foreach ($filas as $fila)
 		{   
+			$boton      			   = "";
 			$tipo_comprobante_generado = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
-			$correlativo = $fila->correlativo;
-			$nombre_entidad = descripcion_nombre_entidad($fila->id_entidad);
-			$boton   = "
+			$correlativo	 		   = $fila->correlativo;
+			$nombre_entidad 		   = descripcion_nombre_entidad($fila->id_entidad);
+			$tipo_comprobante = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
+			$nombre_entidad =descripcion_nombre_entidad($fila->id_entidad);
+			// "<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
+			if($fila->estado == 'ANU')
+			{
+				$estado ="<span class='badge badge-danger'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
+				// $boton.   = " ";	
+			}
+			else
+			{
+				$estado ="<span class='badge badge-success'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
+				$boton .= "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
                             <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
                         </span>	
@@ -670,17 +683,6 @@ class Comprobante extends CI_Controller {
                             <button type='button' class='btn btn-block btn-danger btn-sm' onclick=\"eliminarComprobante(". $fila->id .",'".$tipo_comprobante_generado."',".$correlativo.",'".$nombre_entidad."')\"><i class='fas fa-trash-alt'></i></button>     
                         </span>	
                         ";	
-						
-			$tipo_comprobante = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
-			$nombre_entidad =descripcion_nombre_entidad($fila->id_entidad);
-			// "<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
-			if($fila->estado == 'ANU')
-			{
-				$estado ="<span class='badge badge-danger'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
-			}
-			else
-			{
-				$estado ="<span class='badge badge-success'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
 			}
 			$data[] = array(
 				$boton,
@@ -835,11 +837,7 @@ class Comprobante extends CI_Controller {
 		// $pdf->opcion_pie ="PAGINADOR_FECHA";
 		$pdf->SetFont('Arial','',14);
 		$pdf->AliasNbPages();
-		$pdf->opcion_pie='COMPROBANTE';
-		// $pdf->marcaDeAgua = $marcaAgua;
 		$pdf->AddPage(); 
-
-
 		/****************************/
 		/*DATOS CABECERA DEL REPORTE*/
 		/****************************/
@@ -868,29 +866,29 @@ class Comprobante extends CI_Controller {
 			$glosa_general					= $datosComprobante[0]->glosa_comprobante;
 
 
-			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
 
 			$texto_cabecera_izquierda = utf8_decode(mb_strtoupper($nombre_entidad)) . "\n" .
 										utf8_decode(mb_strtoupper($sigla_entidad)) . "\n" .
 										utf8_decode(mb_strtoupper($sigla_senape));
-			$table->easyCell($texto_cabecera_izquierda, 'valign:M;halign:C;font-size:7');
+			$table->easyCell("<b>".$texto_cabecera_izquierda."</b>", 'valign:M;halign:C;font-size:7');
 
 			$table->easyCell(' ', 'valign:M;halign:C;font-size:7');
 
 			$texto_cabecera_derecha = utf8_decode($paginador) ."\n" .
 									utf8_decode($fecha_comprobante) . "\n" .
 									utf8_decode("T.C.:".$tipo_cambio);
-			$table->easyCell($texto_cabecera_derecha, 'valign:M;halign:R;font-size:7');
+			$table->easyCell("<b>".$texto_cabecera_derecha."</b>", 'valign:M;halign:R;font-size:7');
 
 			$table->printRow();
 			$table->endTable(0);
 
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+			$table = new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
 			$table->easyCell(utf8_decode(mb_strtoupper($tipo_comprobante)), 'valign:M;halign:C;font-size:8 ;font-style:BU');
 			$table->printRow();
 			$table->endTable(0);
 
-			$table = new easyTable($pdf, '{40,25,40,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+			$table = new easyTable($pdf, '{40,25,40,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
 
 			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
 			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
@@ -1082,11 +1080,11 @@ class Comprobante extends CI_Controller {
 				
 		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
 	}
-	function ReporteComprobantePDF()
+	function ReporteComprobanteTemporalPDF()
 	{
 
 		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-		$datos_json = $this->input->post('datos');
+		$datos_json 		 = $this->input->post('datos');
 		// $datos_json = json_decode($this->input->post('datos'));
 		// $detalle_json =json_decode($this->input->post('detalleComprobante'));
 		$detalle_json =$this->input->post('detalleComprobante');
@@ -1097,70 +1095,65 @@ class Comprobante extends CI_Controller {
 		// // echo("<br>");
 		// // print_r($detalle_json);
 		// // echo("</pre>");
-		// parse_str($this->input->post('datos'), $data);
 		$orden = array("\r\n", "\n", "\r" ,'"') ;
 		$pdf=new exFPDFCartaContable('P','mm','Letter');
-		// $this->load->library('fpdf/pdf2');
-		// $pdf=new Pdf2('P','mm','Letter');
-		$pdf->fechahora_impresion='SI';
-		// $pdf->opcion_pie ="PAGINADOR_FECHA";
 		$pdf->SetFont('Arial','',14);
 		$pdf->AliasNbPages();
-		$pdf->opcion_pie='COMPROBANTE';
-		// $pdf->marcaDeAgua = $marcaAgua;
+		$pdf->opcion_pie='COMPROBANTE_TEMPORAL';
+		$pdf->SetTextColor(0); 
+		$pdf->SetFont('Arial', '', 10);
 		$pdf->AddPage(); 
-
-
 		/****************************/
 		/*DATOS CABECERA DEL REPORTE*/
 		/****************************/
 		$accion = $datos1['txtAccionComprobante'];
 		if($accion === 'nuevo'){
 
-			$marcaAgua='SI';
+			$marcaAgua					    = 'SI';
 			$nombre_entidad					= descripcion_nombre_entidad($datos1['id_entidad']);
 			$sigla_entidad					= sigla_entidad($datos1['id_entidad']);
 			$sigla_senape					= "SENAPE";
 			// $this->Cell(20, 3, utf8_decode('Página ' . $this->PageNo() . '/{nb}'), 0, 0, 'C');
-			$paginador 						= "Pag. 1/2";
-			// $paginador 						= utf8_decode('Página ' . $pdf->PageNo() . '/{nb}');
+			$paginador 					    = 'Pág.' . $pdf->PageNo();
 			$fecha_comprobante  			= formato_fecha_slash($datos1['txtFecha']);
 			$tipo_cambio					= number_format($datos1['txtTipoCambio'],2,'.',',');
 			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $datos1['txtTipo']);
+			
 			$mes							= date("n", strtotime($fecha_comprobante));
 			$periodo						= mb_strtolower(getValor2Configuraciones("MESES", $mes));
 			$gestion						= date("Y", strtotime($fecha_comprobante));	
+
 			$tipoCorrelativo  				= $datos1['txtTipo'] ;
 			$datosCorrelativo   			= json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$datos1["id_entidad"],$id_dependencia, $gestion));
 			$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
 			$correlativo      		        = $datosCorrelativo[0]->correlativo;
 			$correlativo_comprobante		= $correlativo;
-			$referencia_comprobante 		= ".....";
+			$referencia_comprobante 		= $datos1['txtReferencia'];
 			$glosa_general					= $datos1['txtGlosaGeneral'];
 
-			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
 
 			$texto_cabecera_izquierda = utf8_decode(mb_strtoupper($nombre_entidad)) . "\n" .
 										utf8_decode(mb_strtoupper($sigla_entidad)) . "\n" .
 										utf8_decode(mb_strtoupper($sigla_senape));
-			$table->easyCell($texto_cabecera_izquierda, 'valign:M;halign:C;font-size:7');
+			$table->easyCell("<b>".$texto_cabecera_izquierda."</b>", 'valign:M;halign:C;font-size:7');
 
 			$table->easyCell(' ', 'valign:M;halign:C;font-size:7');
 
 			$texto_cabecera_derecha = utf8_decode($paginador) . "\n" .
 									utf8_decode($fecha_comprobante) . "\n" .
 									utf8_decode("T.C.:".$tipo_cambio);
-			$table->easyCell($texto_cabecera_derecha, 'valign:M;halign:R;font-size:7');
+			$table->easyCell("<b>".$texto_cabecera_derecha."</b>", 'valign:M;halign:R;font-size:7');
 
 			$table->printRow();
 			$table->endTable(0);
 
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+			$table = new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
 			$table->easyCell(utf8_decode(mb_strtoupper($tipo_comprobante)), 'valign:M;halign:C;font-size:8 ;font-style:BU');
 			$table->printRow();
 			$table->endTable(0);
 
-			$table = new easyTable($pdf, '{40,25,40,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#F2F2F2;border:0;border-color:#c0c0c0;valign:M;');
+			$table = new easyTable($pdf, '{40,25,40,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
 
 			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
 			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');

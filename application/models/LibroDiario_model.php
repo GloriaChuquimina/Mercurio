@@ -44,11 +44,11 @@ class LibroDiario_model extends CI_Model
 																								 ,c.correlativo
                                             from contabilidad.comprobante c 
                                  left outer join administracion.entidad e on c.id_entidad =e.id
-                                           where e.id=3
+                                           where e.id=".$id_entidad."
                                              and c.estado in ('ACT')
-                                             and c.fecha_comprobante between '01-01-2023' and '18-07-2025'
-		    							   " 
-										  );
+                                             and c.fecha_comprobante between '".$fecha_inicio."' and '".$fecha_fin."'
+                                        order by c.fecha_comprobante asc
+		    							                ");
 		return $query->result();
 	}
     

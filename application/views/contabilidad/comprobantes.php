@@ -6,12 +6,17 @@
 <div class="wapper">
     <section class="content">
         <div class="container-fluid">
-            <div class="card card-primary card-outline">
+            <div class="card card-primary card-outline" id="cardEntidad">
               <div class="card-header">
                 <h3 class="card-title">
                   <i class="mr-2">🏢</i>
                   Selección de Entidad
                 </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" >
+                      <i>🔼🔽</i>
+                    </button>
+                </div>
               </div>
               <div class="card-body">
                 <div class="row">
@@ -40,15 +45,41 @@
                     <div class="d-flex align-items-center">
                       <div>
                         <h5 class="mb-0">ENTIDAD:</h5>
-                        <h4 id="nombre_entidad" class="mb-0" style="color: #3c8dbc; font-weight: bold;">...
-                        </h4>
+                        <h5 id="nombre_entidad" class="mb-0" style="color: #3c8dbc; font-weight: bold;">...
+                        </h5>
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-4 text-right">
+
+                  <!-- <div class="col-md-3 d-flex align-items-center justify-content-end">
+                    <br>
                     <button class="btn btn-success" onclick="agregarComprobante()">
                       <i class="fa fa-plus-circle"></i> Registro de Comprobante
                     </button>
+                  </div> -->
+
+                  <div class="col-md-4">
+                      <div class="form-group">
+                          <div class="d-flex align-items-end">
+                              <div style="flex-grow: 1; margin-right: 10px;">
+                                  <label for="tipo_comprobante">
+                                      <strong>TIPO COMPROBANTE:</strong>
+                                  </label>
+                                  <select
+                                      class="form-control"
+                                      id="tipo_comprobante"
+                                      name="tipo_comprobante"
+                                      value="selectedEntity"
+                                  >
+                                  </select>
+                              </div>
+                              <div>
+                                  <button class="btn btn-success" onclick="agregarComprobante()">
+                                      <i class="fa fa-plus-circle"></i> Registro de Comprobante
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
                   </div>
                 </div>
               </div>
