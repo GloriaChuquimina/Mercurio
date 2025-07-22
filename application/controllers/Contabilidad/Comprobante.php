@@ -30,7 +30,8 @@ class Comprobante extends CI_Controller {
 	{
 
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "SISTEMA CONTABLE <BR>MERCURIO";
+		$dato['nombre_sistema']  = "MERCURIO";
+		$dato['tipo_sistema']  = "Sistema Contable";
 		
 		
 		$id_usuario = $this->session->userdata('id_usuario');
@@ -46,11 +47,12 @@ class Comprobante extends CI_Controller {
 		$this->load->view('contabilidad/comprobantes',$dato);
 		$this->load->view('inicio/pie');
 	}
-	public function principalComprobante($entidad=-1)
+	public function principalComprobante($entidad=-1,$tipo_comprobante=-1)
 	{
 
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "SISTEMA CONTABLE <BR>MERCURIO";
+		$dato['nombre_sistema']  = "MERCURIO";
+		$dato['tipo_sistema']  = "Sistema Contable";
 		
 		
 		$id_usuario = $this->session->userdata('id_usuario');
@@ -61,6 +63,7 @@ class Comprobante extends CI_Controller {
 		$titulo = "Gestión de Comprobantes";		
 		$dato['titulo'] = $titulo;
 		$dato['entidad'] = $entidad;
+		$dato['tipo_comprobante'] =$tipo_comprobante;
 
 		$this->load->view('inicio/cabecera',$dato);
 		$this->load->view('inicio/menu',$dato);
@@ -70,7 +73,8 @@ class Comprobante extends CI_Controller {
 	public function registroComprobante($entidad,$accion='nuevo',$id_comprobante=0)
 	{
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "SISTEMA CONTABLE <BR>MERCURIO";
+		$dato['nombre_sistema']  = "MERCURIO";
+		$dato['tipo_sistema']  = "Sistema Contable";
 		$id_usuario = $this->session->userdata('id_usuario');
 		$dato['rolescero'] = $this->session->userdata('rolescero');
 		$dato['roles']  = $this->session->userdata('roles');
@@ -652,8 +656,16 @@ class Comprobante extends CI_Controller {
 		$data    = array();
 		$num     = 1;
 
-		$id_entidad  = $this->input->post('id_entidad');
-		$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidad($id_entidad);
+		$id_entidad  		  = $this->input->post('id_entidad');
+		$id_tipo_comprobante  = $this->input->post('id_tipo_comprobante');
+		if($id_tipo_comprobante == -1)
+		{
+			$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidad($id_entidad);
+		}
+		else
+		{
+			$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidadTipoComprobante($id_entidad,$id_tipo_comprobante);
+		}
 		
 		foreach ($filas as $fila)
 		{   
@@ -686,7 +698,7 @@ class Comprobante extends CI_Controller {
 			}
 			$data[] = array(
 				$boton,
-				$num++,
+				// $num++,
 				$tipo_comprobante,
 				$fila->correlativo,
 				formato_fecha($fila->fecha_comprobante),

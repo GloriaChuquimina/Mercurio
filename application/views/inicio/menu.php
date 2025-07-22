@@ -1,12 +1,22 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="<?php echo base_url()?>Inicio" class="brand-link">
-			<img src="<?php echo base_url();?>resources/dist/img/AdminLTELogo.png" class="brand-image img-circle elevation-3" style="opacity: .8">      
-      <span class="brand-text font-weight-light"><?= $nombre_sistema?></span>
+    <a href="<?= base_url()?>Inicio" class="brand-link d-flex align-items-center">
+      <i class="fas fa-layer-group fa-2x mr-2" style="color: #ffffff;"></i>
+      <div class="info">
+        <div style="font-size: 18px; font-weight: bold; line-height: 1; padding-left: 20px;"> <?= $nombre_sistema ?> </div>
+        <div style="font-size: 12px; color: #d1d1d1; padding-left: 20px;"> <?= $tipo_sistema ?> </div>
+      </div>
     </a>
 
     <!-- Sidebar -->
+    <style>
+      .word-wrap {
+        white-space: normal; /* permite saltos de línea */
+        word-wrap: break-word; /* fuerza quiebres en palabras largas */
+        overflow-wrap: break-word; /* soporte moderno para quiebre */
+      }
+    </style>
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">

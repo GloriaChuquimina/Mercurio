@@ -131,7 +131,7 @@ class Login extends CI_Controller
 		}
 		else
 		{
-			$this->index('NOMBRE O CONTRASEÑA INCORRECTO');
+			$this->index('Credenciales inválidas. Intenta nuevamente.');
 		}
 
 	}

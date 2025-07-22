@@ -3,6 +3,7 @@ var id_entidad;
 var nombre_entidad;
 var accion;
 var id_comprobante;
+var tipo_comprobante;
 function baseurl(enlace) {
    base_url = enlace;
 }
@@ -18,7 +19,8 @@ function cargarComboPrincipal()
                 $('#entidades option[value="'+id_entidad+'"]').prop('selected','selected');
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
-                cargarTablaComprobantesEntidades(id_entidad); 
+                
+                cargarTablaComprobantesEntidades(id_entidad,tipo_comprobante); 
             }
         }
     });
@@ -34,6 +36,15 @@ function cargarCombos()
             $('#txtTipo').html(data);
         }
     });
+    var enlace = base_url + "Comunes/Comunes/cargarTipoComprobanteBusqueda";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#tipo_comprobante').html(data);
+            $('#tipo_comprobante option[value="'+tipo_comprobante+'"]').prop('selected','selected');
+        }
+    });
     var enlace = base_url + "Comunes/Comunes/cargarTipoMovimiento";
     $.ajax({
         type: "GET",
@@ -42,6 +53,7 @@ function cargarCombos()
             $('#txtTipoMovimiento').html(data);
         }
     });
+
     
 
 }
@@ -97,7 +109,13 @@ $(function (){
             // alert(id_entidad);
             nombre_entidad = $('#entidades option:selected').text();
             $('#nombre_entidad').text(nombre_entidad);
-            cargarTablaComprobantesEntidades(id_entidad);
+            cargarTablaComprobantesEntidades(id_entidad,-1);
+
+        });
+         $('#tipo_comprobante').change(function(){
+            id_entidad = $('#entidades').val();
+            var id_tipo_comprobante =  $(this).val();
+            cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante);
 
         });
         /* Valida  numeros en los textos */ 
@@ -152,7 +170,7 @@ function busquedaIDCuenta(id_cuenta,cuenta)
      $('#modalListaCuentas').modal('hide');  
 }
 
-function cargarTablaComprobantesEntidades(id_entidad)
+function cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante)
 {
     var enlace = base_url + "Contabilidad/Comprobante/cargarComprobantesByEntidad";
     $('#tablaComprobantesEntidades').DataTable({
@@ -163,7 +181,9 @@ function cargarTablaComprobantesEntidades(id_entidad)
         "ajax": {
             type: "POST",
             url: enlace,
-            data: { id_entidad: id_entidad }
+            data: { id_entidad: id_entidad ,
+                    id_tipo_comprobante:id_tipo_comprobante
+            }
         },
     });
 }
@@ -613,8 +633,7 @@ function guardarDatosComprobanteMasDetalle()
                             $('#estado_comprobante')
                             .removeClass('badge-warning') // Quita cualquier clase previa
                             .addClass('badge-success') // Agrega la nueva
-                            .text('Registrado');
-                             $('#cardEntidad').find('[data-card-widget="collapse"]').click();
+                            .text('Registrado');                             
                             generarPDFComprobante().then(() => {
                                 cargarComprobantesPrincipal();
                             });
@@ -709,7 +728,8 @@ function editarCabeceraComprobante()
 function cargarComprobantesPrincipal()
 {
     var entidad =$('#id_entidad').val();
-    window.location.href = base_url + "Contabilidad/Comprobante/principalComprobante/"+entidad;
+    var tipo_comprobante = $('#txtTipo').val();
+    window.location.href = base_url + "Contabilidad/Comprobante/principalComprobante/"+entidad+"/"+tipo_comprobante;
 }
 function eliminarRegistroCuentaComprobante(id_registro_CuentaComprobante)
 {

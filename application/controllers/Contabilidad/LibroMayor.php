@@ -28,7 +28,8 @@ class LibroMayor extends CI_Controller {
 	{
 
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "SISTEMA CONTABLE<BR>MERCURIO";
+		$dato['nombre_sistema']  = "MERCURIO";
+		$dato['tipo_sistema']  = "Sistema Contable";
 		
 		
 		$id_usuario = $this->session->userdata('id_usuario');

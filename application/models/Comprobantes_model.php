@@ -28,6 +28,20 @@ class Comprobantes_model extends CI_Model
 											 from contabilidad.comprobante
 											where id_entidad = ".$id_entidad."
 											 -- and estado='ACT'
+										 order by correlativo desc
+											  ;
+											"
+										  );
+		return $query->result();
+	}
+	function getComprobanteByIdEntidadTipoComprobante($id_entidad,$tipo_comprobante)
+	{
+		$query = $this->db_mercurio->query("select *
+											  from contabilidad.comprobante
+											 where id_entidad = ".$id_entidad."
+											   and tipo_comprobante='".$tipo_comprobante."'
+											 -- and estado='ACT'
+										   order by correlativo desc
 											  ;
 											"
 										  );

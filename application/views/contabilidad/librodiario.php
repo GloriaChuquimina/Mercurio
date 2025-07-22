@@ -244,7 +244,7 @@
                   </div>
                 </div>
                 <div class="card-body p-0">
-                  <div class="table-responsive">
+                  <div class="table-responsive" style="overflow-x:auto;">
                     <table id="tablaLibroDiario" class="table table-striped table-hover" style="width: 100%;">
                       <thead class="bg-dark text-white">
                           <tr>
@@ -258,35 +258,18 @@
                           </tr>
                       </thead>
                       <tbody id="tbodyLibroDiario">
-                     </tbody>
-                      <!-- <tfoot>
-                        <tr class="bg-primary">
-                          <td colSpan="4" style="color: white; font-weight:bold">
-                            TOTALES
-                          </td>
-                          <td style=" text-align:right; color: white; font-weight:bold">
-                          </td>
-                          <td style=" text-align:right; color: white; font-weight:bold">
-                          </td>
-                          <td style=" text-align:right; color: white; font-weight:bold">
-                          </td>
-                          <td style=" text-align:right; color: white; font-weight:bold">
-                          </td>
-                          <td style=" text-align:right; color: white; font-weight:bold">
-                          </td>
-                        </tr>
-                        <tr class="bg-danger">
-                          <td colSpan="7" style="color: black; font-weight: bold">
-                            VERIFICACIÓN DE BALANCE
-                          </td>
-                          <td style="text-align: right; color:black; font-weight: bold">
-                            DIFERENCIA:
-                          </td>
-                          <td style="text-align: right; color: black; font-weight: bold">
-                            BALANCEADO ✅ : DESBALANCEADO ⚠️
-                          </td>
-                        </tr>
-                      </tfoot> -->
+                      </tbody>
+                      <tfoot>
+                          <tr class="bg-primary">
+                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              TOTALES
+                              </td>
+                                  <!-- <td style="text-align: right; color: white; font-weight: bold;" id="txtTotalImporteDebe">0.00</td> -->
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber">0.00</td>
+                              </td>
+                          </tr>
+                      </tfoot>
                     </table>
                   </div>
                 </div>
@@ -294,7 +277,7 @@
                     <div class="row">
                         <div class="col-md-6">
                         <p class="text-muted">
-                            Empresa: • Período:• Movimientos:
+                            <!-- Empresa: • Período:• Movimientos: -->
                         </p>
                         </div>
                         <div class="col-md-6 text-right">

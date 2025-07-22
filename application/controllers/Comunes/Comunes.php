@@ -117,6 +117,18 @@ class Comunes extends CI_Controller
 	    }
    		 echo $option;
 	}
+	function cargarTipoComprobanteBusqueda()
+	{
+	    $concepto = "TIPO COMPROBANTES CONTABLE";
+		$estado = "ACT";
+	    $filas = $this->Comunes_model->getCatalogoDominio($concepto,$estado);
+	    $option = "<option VALUE='-1'>TODOS</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->valor1."'>".$fila->valor2."</option>";
+	    }
+   		 echo $option;
+	}
 	function cargarCuentaContableEntidad()
 	{
 	    $filas = $this->PlanDeCuentas_model->getPlanDeCuentas();

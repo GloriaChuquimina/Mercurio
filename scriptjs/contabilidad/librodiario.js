@@ -193,6 +193,8 @@ function consultar()
             if(data.resultado == '1')
             {   
                  $('#tbodyLibroDiario').html(data.tabla);
+                 $('.txtTotalImporteDebe').text(data.totalimporteDebe);
+                 $('.txtTotalImporteHaber').text(data.totalimporteHaber);
             }
             else
             {

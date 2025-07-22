@@ -27,7 +27,8 @@ class LibroDiario extends CI_Controller {
 	{
 
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "SISTEMA CONTABLE<BR>MERCURIO";
+		$dato['nombre_sistema']  = "MERCURIO";
+		$dato['tipo_sistema']  = "Sistema Contable";
 		
 		
 		$id_usuario = $this->session->userdata('id_usuario');
@@ -66,7 +67,8 @@ class LibroDiario extends CI_Controller {
 		$importe_moneda_extranjera=0;
 		//  $tr .= "<tbody>";
 		 $tr = "";
-
+		$totalGeneralImporteDebe  = 0;
+		$totalGeneralImporteHaber = 0;
 		foreach ($libroDiarioComprobante as $comprobante)
 		{   
 
@@ -92,7 +94,12 @@ class LibroDiario extends CI_Controller {
 				  </tr>";
 			$datosComprobante    = $this->Comprobantes_model->getDetalleComprobanteByIdComprobante($id_comprobante);
 			if($datosComprobante)	{
-					foreach ($datosComprobante as $detalle_comprobante) {			
+					foreach ($datosComprobante as $detalle_comprobante) {	
+						
+						
+							$importeDebe=0;
+							$importeHaber=0;
+
 							$id_entidad      		   = $detalle_comprobante->id_entidad;
 							$id_comprobante 		   = $detalle_comprobante->id_comprobante;
 							$id_cuenta     		       = $detalle_comprobante->id_cuenta;
@@ -108,10 +115,10 @@ class LibroDiario extends CI_Controller {
 							$resul 				       = 1;
 							$mensaje				   = "OK";	
 							if($tipo_movimiento == "DB"){
-								$importeDebe=number_format($importe_moneda_nacional,2,'.',''); ;
+								$importeDebe=$importe_moneda_nacional; 
 							}
 							elseif ($tipo_movimiento == "HB") {
-								$importeHaber=number_format($importe_moneda_nacional,2,'.',''); ;
+								$importeHaber=$importe_moneda_nacional; 
 							}
 							$tr.="<tr>
 									<td>
@@ -121,10 +128,10 @@ class LibroDiario extends CI_Controller {
 									".$descripcion_cuenta."
 									</td>
 									<td style='text-align: right; color: #28a745; font-weight: bold;'>
-									".$importeDebe."
+									".number_format($importeDebe,2,'.',',')."
 									</td>
 									<td style='text-align: right;  color: #dc3545; font-weight: bold;'>
-									".$importeHaber."
+									".number_format($importeHaber,2,'.',',')."
 									</td>		
 								</tr>";				
 							// $data[] = array(
@@ -144,13 +151,15 @@ class LibroDiario extends CI_Controller {
 						".$glosa_comprobante."
 						</td>
 						<td style='text-align: right'>
-						".$totalDebe."
+						".number_format($totalDebe,2,'.',',')."
 						</td>
 						<td style='text-align: right'>
-						".$totalHaber."
+						".number_format($totalHaber,2,'.',',')."
 						</td>
 					 </tr>";
-			}			
+			}
+			$totalGeneralImporteDebe  = $totalGeneralImporteDebe+$totalDebe;
+			$totalGeneralImporteHaber = $totalGeneralImporteHaber+$totalHaber;			
 
 		}
 
@@ -159,6 +168,8 @@ class LibroDiario extends CI_Controller {
 		$output =( array(
 			            "resultado" 	 => 1, 
 		              "nro_comprobantes" => count($libroDiarioComprobante) , 
+					  "totalimporteDebe" => number_format($totalGeneralImporteDebe,2,'.',','),
+            		 "totalimporteHaber" => number_format($totalGeneralImporteHaber,2,'.',','),
 						    "tabla" 	 => $tr ) );
 
 		echo json_encode($output);

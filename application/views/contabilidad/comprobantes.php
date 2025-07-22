@@ -102,7 +102,7 @@
                     <thead class="bg-dark">
                       <tr>
                         <th style="color: white; width: 100px;">OPCIONES</th>
-                        <th style="color: white; width: 50px;">NRO</th>
+                        <!-- <th style="color: white; width: 50px;">NRO</th> -->
                         <th style="color: white;">TIPO</th>
                         <th style="color: white;">CORRELATIVO</th>
                         <th style="color: white;">FECHA</th>
@@ -280,6 +280,7 @@
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
       id_entidad = <?= json_encode($entidad) ?>;
+      tipo_comprobante = <?= json_encode($tipo_comprobante) ?>;
       cargarComboPrincipal();
       cargarCombos();
     //   cargarTablaComprobantesEntidades();
