@@ -15,7 +15,8 @@ class Login extends CI_Controller
 	function index($mensaje = "")
 	{
 		$dato['error'] =$mensaje;
-		$this->load->view("Login/logued",$dato);
+		// $this->load->view("Login/logued",$dato);
+		$this->load->view("Login/logued_new",$dato);
 	}
 	function logued()
 	{
