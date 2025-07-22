@@ -170,7 +170,7 @@ class LibroDiario extends CI_Controller {
 		              "nro_comprobantes" => count($libroDiarioComprobante) , 
 					  "totalimporteDebe" => number_format($totalGeneralImporteDebe,2,'.',','),
             		 "totalimporteHaber" => number_format($totalGeneralImporteHaber,2,'.',','),
-						    "tabla" 	 => $tr ) );
+						      "tabla" 	 => $tr ) );
 
 		echo json_encode($output);
 		exit();
