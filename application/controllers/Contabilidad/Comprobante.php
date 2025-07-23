@@ -488,20 +488,13 @@ class Comprobante extends CI_Controller {
 		$id_usuario          = $this->session->userdata('id_usuario');
 		$id_funcionario      = $this->session->userdata('id_funcionario');
 		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-		$fechaActual          = getFechaHoraActual();
-		// $data 			 	 = $this->input->post('datos');
+		$fechaActual         = getFechaHoraActual();
 		parse_str($this->input->post('datos'), $data);
-		// echo("<pre>");
-		// print_r ($data);
-		// echo("</pre>");
 		$detalleComprobante  = $this->input->post('detalleComprobante');
 	
 		$validacomprobante   = json_decode($this->validarDatos($data));	
 		$resultado   = $validacomprobante[0]->resultado;
 		$mensaje     = $validacomprobante[0]->mensaje;
-		// echo ($resultado);
-		// echo($mensaje);
-		// die();
         $idComprobante=0;
 		$this->db->trans_start();
         if($resultado == 1)
@@ -675,11 +668,9 @@ class Comprobante extends CI_Controller {
 			$nombre_entidad 		   = descripcion_nombre_entidad($fila->id_entidad);
 			$tipo_comprobante = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
 			$nombre_entidad =descripcion_nombre_entidad($fila->id_entidad);
-			// "<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
 			if($fila->estado == 'ANU')
 			{
 				$estado ="<span class='badge badge-danger'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
-				// $boton.   = " ";	
 			}
 			else
 			{

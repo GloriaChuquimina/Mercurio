@@ -1,11 +1,22 @@
 <script src="<?php echo  base_url() ?>scriptjs/jquery.js"></script>
 <script src="<?php echo  base_url() ?>scriptjs/contabilidad/libromayor.js"></script>
 
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- DataTables JS y CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<!-- Responsive y Scroll si necesitas -->
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/scroller/2.2.0/js/dataTables.scroller.min.js"></script>
+
+
 <div class="wapper">
     <section class="content">
         <div class="container-fluid">
              <!-- SECCION ENTIDAD -->
-            <div class="card card-warning card-outline">
+            <div class="card card-warning card-outline" id="cardEntidad">
                 <div class="card-header">
                     <h3 class="card-title">
                     <i class="mr-2">🏢</i>
@@ -223,9 +234,9 @@
                   </div>
                 </div>
                 <div class="card-body">
-                    <input class="form-control" id="id_entidad" name="id_entidad">
-                    <input class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <input type ="hidden" class="form-control" id="id_entidad" name="id_entidad">
+                    <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input type ="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
                       <div class="col-md-6">
                         <div class="form-group">
@@ -308,9 +319,9 @@
                                 onClick="generarReporteLibroMayor()">
                           <i class="mr-1">📄</i> Exportar PDF
                         </button>
-                        <button class="btn btn-info">
+                        <!-- <button class="btn btn-info">
                           <i class="mr-1">📊</i> Exportar Excel
-                        </button>
+                        </button> -->
                       </div>
                     </div>
                 </div>                
@@ -379,9 +390,49 @@
                           <td></td>
                         </tr> -->
                     <!-- </table> -->
-                     <div id="contenedor_libroMayor" class="table-responsive" style="height: 320px;">
-                     </div>
+                     <!-- <div id="contenedor_libroMayor" class="table-responsive" style="height: 320px;">
+                     </div> -->
                   <!-- </div> -->
+                  <!-- INICIO-->
+                  <div class="table-responsive" style="overflow-x:auto;">
+                    <table id="tablaDatosLibroMayor" class="table table-striped table-hover " style="width: 100%;">
+                      <thead class="bg-dark text-white">
+                          <tr>
+                            <th rowspan="2" style="width: 150px;">FECHA</th>
+                            <th rowspan="2" style="width: 150px;">COMPROBANTE</th>
+                            <th rowspan="2" style="width: 350px;">TIPO</th>
+                            <th rowspan="2" style="width: 350px;">DESCRIPCIÓN(GLOSA)</th>
+                            <th colspan="2" style="text-align: center;">MOVIMIENTOS</th>
+                            <th colspan="2" style="text-align: center;">SALDOS</th>
+                          </tr>
+                          <tr>
+                            <th style="width: 120px; text-align: center;">DEBE</th>
+                            <th style="width: 120px; text-align: center;">HABER</th>
+                            <th style="width: 120px; text-align: center;">DEUDOR</th>
+                            <th style="width: 120px; text-align: center;">ACREEDOR</th>
+                          </tr>
+                      </thead>
+                      <tbody id="tbodyLibroMayor">
+                      </tbody>
+                      <tfoot>
+                          <tr class="bg-primary">
+                              <td colSpan="4" style="color: white; font-weight: bold;">
+                              TOTALES LIBRO MAYOR:
+                              </td>
+                                  <!-- <td style="text-align: right; color: white; font-weight: bold;" id="txtTotalImporteDebe">0.00</td> -->
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDeudor">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteAcreedor">0.00</td>
+                              </td>
+                          </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+
+                  <!--FIN -->
+
+                  
                 </div>
                 <div class="card-footer">
                     <div class="row">
@@ -431,7 +482,7 @@
                         <tr>
                           <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th>
                           <!-- <th style="color: white; text-align: center;">SELECCIONAR</th> -->
-                          <th style="color: white; text-align: center;">OPCIONES</th>
+                          <!-- <th style="color: white; text-align: center;">OPCIONES</th> -->
                           <th style="color: white;">CÓDIGO</th>
                           <th style="color: white;">DESCRIPCIÓN</th>
                           <th style="color: white;">NIVEL</th>

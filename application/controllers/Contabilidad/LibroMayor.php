@@ -52,27 +52,11 @@ class LibroMayor extends CI_Controller {
 		$fecha_inicio    = $this->input->post('fecha_inicio');
 		$fecha_fin       = $this->input->post('fecha_fin');
 
-		// echo("<pre>");
-		// echo($id_entidad);
-		// echo("<br>");
-		// echo($cuentas);
-		// echo("<br>");
 		// 1. Reemplazar guiones por comas
 		$cadena = str_replace('-', ',', $cuentas);
 		// 2. Eliminar la última coma si existe
 		$cadena = rtrim($cadena, ',');
-		// echo($cadena);
-		// echo("<br>");
-		// echo($fecha_inicio);
-		// echo("<br>");
-		// echo($fecha_fin);
-		// echo("<br>");
-		// echo("</pre>");
-		// die();
 		$plandecuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusquedaIds($cadena);
-		// print_r($plandecuentas);
-		// echo("</pre>");
-		// die();
 
 		// $cuentas = json_decode(json_encode($cuentas), true);
 		// $ordenadas = $this->ordenarJerarquicamente($cuentas);
@@ -84,36 +68,34 @@ class LibroMayor extends CI_Controller {
 		$num     = 1;
 
 
-		$tr='';
+		$tr="";
 
-		$tr= "<table class='table table-striped table-hover' id='tbl_libroMayor' name ='tbl_libroMayor'>
-		      <thead class='bg-dark'>
-					<tr>
-					  <th rowspan='2' style='color: white; width:100px '>FECHA</th>
-					  <th rowspan='2' style='color: white; width:120px '>COMPROBANTE</th>
-					  <th rowspan='2' style='color: white; width:100px '>TIPO</th>
-					  <th rowspan='2' style='color: white;'>DESCRIPCIÓN(GLOSA)</th>                
-					  <th colspan='2' style='color: white; width:120px;text-align: right' >MOVIMIENTOS</th>
-					  <th colspan='2' style='color: white; width:120px;text-align: right'>SALDOS</th>
-					</tr>
-					<tr>
-					  <th style='color: white; width:120px;text-align: right' >DEBE</th>
-					  <th style='color: white; width:120px;text-align: right'>HABER</th>
-					  <th style='color: white; width:120px;text-align: right'>DEUDOR</th>
-					  <th style='color: white; width:120px;text-align: right'>ACREEDOR</th>
-					</tr>
-			  </thead>";
-			  $tr .= "<tbody>";
-
+		// $tr= "<table class='table table-striped table-hover' id='tbl_libroMayor' name ='tbl_libroMayor'>
+		//       <thead class='bg-dark'>
+		// 			<tr>
+		// 			  <th rowspan='2' style='color: white; width:100px '>FECHA</th>
+		// 			  <th rowspan='2' style='color: white; width:120px '>COMPROBANTE</th>
+		// 			  <th rowspan='2' style='color: white; width:100px '>TIPO</th>
+		// 			  <th rowspan='2' style='color: white;'>DESCRIPCIÓN(GLOSA)</th>                
+		// 			  <th colspan='2' style='color: white; width:120px;text-align: right' >MOVIMIENTOS</th>
+		// 			  <th colspan='2' style='color: white; width:120px;text-align: right'>SALDOS</th>
+		// 			</tr>
+		// 			<tr>
+		// 			  <th style='color: white; width:120px;text-align: right' >DEBE</th>
+		// 			  <th style='color: white; width:120px;text-align: right'>HABER</th>
+		// 			  <th style='color: white; width:120px;text-align: right'>DEUDOR</th>
+		// 			  <th style='color: white; width:120px;text-align: right'>ACREEDOR</th>
+		// 			</tr>
+		// 	  </thead>";
+		// 	  $tr .= "<tbody>";
+		$totalGeneralImporteDebe  = 0;
+		$totalGeneralImporteHaber = 0;
+		$totalGeneralImporteDeudor  = 0;
+		$totalGeneralImporteAcreedor = 0;
+		// $tr="<body>";
 		foreach ($plandecuentas as $cuenta)
 		{   
 			$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;			   
-			// echo($cuenta->ruta);
-			// echo("<br>");
-			// echo($cuentas_ruta);
-			// echo("<br>");
-			// echo(count($cuentas_ruta));
-			// die();
 			$cabercera2_cuenta="";
 			
 			if($cuenta->ruta == 0)
@@ -142,15 +124,43 @@ class LibroMayor extends CI_Controller {
 				}
 			}			
 			$tr.="<tr>
-					<td colspan ='8'>
+					<td style='min-width:300px; max-width:600px; word-wrap:break-word;'>
 					".$cabercera1_cuenta."
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
 					</td>
 					</tr>";
 			$tr.="<tr>
-					<td colspan ='8'>
+					<td style='min-width:500px; max-width:1900px; word-wrap:break-word;'>
 					".$cabercera2_cuenta."
 					</td>
-					</tr>";
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+				  </tr>";
 			$cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda2($id_entidad,$cuenta->id,$fecha_inicio,$fecha_fin);
 			$totalImporteDebe =0;
 			$totalImporteHaber =0;
@@ -160,8 +170,22 @@ class LibroMayor extends CI_Controller {
 			{
 				$detalle_movimiento ="SIN MOVIMIENTO";
 				$tr.="<tr>
-						<td colspan ='8'>
+						<td style='min-width:300px; max-width:600px; word-wrap:break-word;'>
 						".$detalle_movimiento."
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<td>
 						</td>
 					  </tr>";
 			}
@@ -185,7 +209,7 @@ class LibroMayor extends CI_Controller {
 					}
 					$importeDeudor=0;
 					$importeAcreedor=0;
-					$saldoCuenta=172966.50;
+					$saldoCuenta=0;
 					
 					$importeDeudor   = $importeDeudor + $importeDebe;
 					$importeAcreedor = $saldoCuenta-$importeHaber; 
@@ -225,7 +249,16 @@ class LibroMayor extends CI_Controller {
 				}
 				
 				$tr.="<tr style='background-color:rgb(248, 232, 228); font-weight: bold;'>
-						<td colspan ='4' style='text-align: right'>
+						<td  style='text-align: right'>
+						
+						</td>
+						<td  style='text-align: right'>
+						
+						</td>
+						<td  style='text-align: right'>
+						
+						</td>
+						<td style='text-align: right'>
 						TOTALES:
 						</td>
 						<td style='text-align: right'>
@@ -242,16 +275,27 @@ class LibroMayor extends CI_Controller {
 						</td>
 					  </tr>";
 			}
-		}
-		$tr .= "</tbody></table>";
-		// echo ($tr);
-		// die();
-		$output =( array(
-			            "resultado" => 1, 
-		              "nro_cuentas" => count($plandecuentas) , 
-						    "tabla" => $tr ) );
 
-		echo json_encode($output);
+			$totalGeneralImporteDebe     = $totalGeneralImporteDebe+$totalImporteDebe;
+			$totalGeneralImporteHaber    = $totalGeneralImporteHaber+$totalImporteHaber;	
+			$totalGeneralImporteDeudor   = $totalGeneralImporteDeudor+$totalImporteDeudor;
+			$totalGeneralImporteAcreedor = $totalGeneralImporteAcreedor+$totalImporteAcreedor;	
+		}
+		// $tr .= "</tbody>";
+		// $tr .= "</tbody></table>";
+
+		$output =( array(
+			            "resultado" 	 => 1, 
+		              "nro_cuentas" 	 => count($plandecuentas) ,
+					  "totalimporteDebe" => number_format($totalGeneralImporteDebe,2,'.',','),
+            		 "totalimporteHaber" => number_format($totalGeneralImporteHaber,2,'.',','),
+					 "totalimporteDeudor"=> number_format($totalGeneralImporteDeudor,2,'.',','),
+            	   "totalimporteAcreedor"=> number_format($totalGeneralImporteAcreedor,2,'.',','), 
+						          "tabla"=> $tr ) 
+				 );
+		header('Content-Type: application/json');
+		// echo json_encode($output);
+		echo json_encode($output, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 		exit();
     }
 	function ReporteLibroMayorPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin)
@@ -393,6 +437,8 @@ class LibroMayor extends CI_Controller {
 				$pdf->setX(5); 
 				$pdf->SetWidths([20, 15, 20, 90, 15, 15, 15, 15]);
 				$pdf->SetAligns(['C','C','C','L','R','R','R','R']);
+				$importeDeudor=0;
+				$importeAcreedor=0;
 				foreach($cuentasLibroMayor as $registro)
 				{
 					
@@ -406,27 +452,27 @@ class LibroMayor extends CI_Controller {
 					if($registro->tipo_movimiento == "DB")
 					{
 						$importeDebe   = $registro->importe_moneda_nacional;
+						$importeDeudor   = $importeDeudor + $importeDebe;
 					}
 					else
 					{
 						$importeHaber = $registro->importe_moneda_nacional;
+						$importeAcreedor = $importeAcreedor-$importeHaber; 
 					}
-					$importeDeudor=0;
-					$importeAcreedor=0;
-					$saldoCuenta=172966.50;
+					// $importeDeudor=0;
+					// $importeAcreedor=0;
+					$saldoCuenta=0;
 					
-					$importeDeudor   = $importeDeudor + $importeDebe;
-					$importeAcreedor = $saldoCuenta-$importeHaber; 
 										
 					$fila = array(
 							$fecha_comprobante,
 							$tipo_comprobante,
 							$numero_correlativo,
 							$glosa_cuenta,
-							number_format($importeDebe,0,',','.') ,
-							number_format($importeHaber,0,',','.') ,
-							number_format($importeDeudor,0,',','.') ,
-							number_format($importeAcreedor,0,',','.') 
+							number_format($importeDebe,2,',','.') ,
+							number_format($importeHaber,2,',','.') ,
+							number_format($importeDeudor,2,',','.') ,
+							number_format($importeAcreedor,2,',','.') 
 						);	
 					$pdf->setX(5); 
 					$pdf->Row_Reportes_LM($fila,true, '', 4);	
@@ -569,12 +615,6 @@ class LibroMayor extends CI_Controller {
 			$nameId1 = "chkCuenta_".$valor;
 
 			$cuentasBuscadas = explode("-", $cuentasSeleccionadas);
-			// echo("<pre>");
-			// echo(count($cuentasSeleccionadas));
-			// echo("<br>");
-			// echo($totalCuentas);
-			// echo("</pre>");
-			// die();
 			if($marcarRegistro == 1)
 			{
 				$checkedCom = "checked";	
@@ -614,7 +654,7 @@ class LibroMayor extends CI_Controller {
 			$seleccion ="<input type='checkbox' value='".$valor."' name = '".$nameId1."' id='".$nameId1."' ".$checkedCom." >";
 			$data[] = array(
 				$seleccion,
-				"<div style='text-align: center;'>$boton</div>",
+				// "<div style='text-align: center;'>$boton</div>",
 				"<span class='badge badge-secondary'>".$codigo."</span>",
 				$descripcion,
 				$nivel
@@ -662,6 +702,10 @@ class LibroMayor extends CI_Controller {
             }
 			     
         }
+		if($contador== 1)
+		{
+			$cuentasLiteral = substr($cuentasLiteral, 0, -1); 
+		}
 		$output = array(
 			"totalCuentas"    => $contador,
 			"cuentas"         => $cuentas,

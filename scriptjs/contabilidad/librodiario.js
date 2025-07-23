@@ -172,89 +172,75 @@ function cargarDatosLibroDiario(){
         },
     });
 }
-// function consultar()
-// {
-//     $('#tablaLibroDiario').show();
-//     $("#mensajeSeleccion").hide();
-//     var id_entidad =$('#id_entidad').val();
-//     var fecha_inicio = $('#fechaDesde').val();
-//     var fecha_fin = $('#fechaHasta').val();
-//     var enlace = base_url + "Contabilidad/LibroDiario/cargarDatosLibroDiario";
-//     $.ajax({
-//         url: enlace,
-//         method: "POST",
-//         data: { id_entidad : id_entidad,
-//                 fecha_inicio: fecha_inicio,
-//                 fecha_fin: fecha_fin
-//                }, 
-//         dataType:'JSON',
-//         success: function (data) 
-//         {
-//             if(data.resultado == '1')
-//             {   
-//                  $('#tbodyLibroDiario').html(data.tabla);
-//                  $('.txtTotalImporteDebe').text(data.totalimporteDebe);
-//                  $('.txtTotalImporteHaber').text(data.totalimporteHaber);
-//             }
-//             else
-//             {
-//                 swal({title: "ERROR",text: "Error",icon: "error",button: "OK",dangerMode:true,});
-//             }
-//         }
-//     });
-// }
-function consultar()
-{
-    alert("STEOH");
-    var id_entidad = $('#id_entidad').val();
-    var fecha_inicio = $('#fechaDesde').val();
-    var fecha_fin = $('#fechaHasta').val();
+function consultar() {
+  $('#tablaLibroDiario').show();
+  $("#mensajeSeleccion").hide();
 
-    $.ajax({
-        type: "POST",
-        url: base_url + "Contabilidad/LibroDiario/cargarDatosLibroDiario",
-        data: {
-        id_entidad: id_entidad,
-        fecha_inicio: fecha_inicio,
-        fecha_fin: fecha_fin
-        },
-        dataType: "json",
-        success: function(data) {
-        // Destruir DataTable si ya está inicializado
-        if ($.fn.DataTable.isDataTable('#tablaLibroDiario')) {
-            $('#tablaLibroDiario').DataTable().destroy();
+  var id_entidad = $('#id_entidad').val();
+  var fecha_inicio = $('#fechaDesde').val();
+  var fecha_fin = $('#fechaHasta').val();
+  var enlace = base_url + "Contabilidad/LibroDiario/cargarDatosLibroDiario";
+
+  $.ajax({
+    url: enlace,
+    method: "POST",
+    data: {
+      id_entidad: id_entidad,
+      fecha_inicio: fecha_inicio,
+      fecha_fin: fecha_fin
+    },
+    dataType: 'JSON',
+    success: function (data) {
+      if (data.resultado === 1) {
+
+
+        if ($.fn.DataTable.isDataTable('#tablaDatosLibroDiario')) {
+          $('#tablaDatosLibroDiario').DataTable().clear().destroy();
         }
 
-        // Insertar las filas HTML en el tbody
+
         $('#tbodyLibroDiario').html(data.tabla);
 
-        // Mostrar totales
+        // Actualizar totales
         $('.txtTotalImporteDebe').text(data.totalimporteDebe);
         $('.txtTotalImporteHaber').text(data.totalimporteHaber);
+        $('.txtTotalImporteDebe').text(data.totalimporteDeudor);
+        $('.txtTotalImporteHaber').text(data.totalimporteAcreedor);
 
-        // Inicializar nuevamente DataTable
-        $('#tablaLibroDiario').DataTable({
-            scrollX: true,
-            scrollY: '400px',
-            scrollCollapse: true,
-            paging: true,
-            language: {
-            search: "Buscar:",
-            lengthMenu: "Mostrar _MENU_ registros",
-            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            paginate: {
-                next: "Siguiente",
-                previous: "Anterior"
-            },
-            zeroRecords: "No se encontraron registros"
-            }
+        $('#tablaDatosLibroDiario').DataTable({
+        //   scrollY: true,
+          scrollY: '600px',   // Altura del contenedor visible
+          scrollCollapse: true,
+          responsive: true,
+          paging: true,
+          searching: true,
+          ordering: false,
+          "aLengthMenu": [[10,30, 50,  -1], [10,30, 50,  "Todos"]],
+          "iDisplayLength": 10,
         });
-        },
-        error: function(xhr, status, error) {
-        console.error("Error al cargar los datos del libro diario:", error);
-        }
-    });
+
+      } else {
+        swal({
+          title: "ERROR",
+          text: "No se encontraron datos.",
+          icon: "error",
+          button: "OK",
+          dangerMode: true,
+        });
+      }
+    },
+    error: function () {
+      swal({
+        title: "Error",
+        text: "No se pudo procesar la solicitud.",
+        icon: "error",
+        dangerMode: true,
+      });
+    }
+  });
 }
+
+
 function generarReporteLibroDiario()
 {
     var id_entidad   = $('#id_entidad').val();

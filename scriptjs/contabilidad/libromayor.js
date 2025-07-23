@@ -93,12 +93,12 @@ $(function (){
     $('#entidades').change(function(){
                 // id_entidad = $(this).val();
                 var id_entidad = $('#entidades').val();
-                alert(id_entidad);
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
                 $('#id_entidad').val(id_entidad);
                 cargarCuentasEntidad();
                 valoresIniciales();
+                $('#cardEntidad').find('[data-card-widget="collapse"]').click();
             });
     $('#cuentaContable').change(function(){
                 id_cuenta = $(this).val();
@@ -132,10 +132,9 @@ $(function (){
         cargarCuentas(marcar);
     });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
-        alert('El modal se ha cerrado');
+        // alert('El modal se ha cerrado');
         $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
-        // Aquí puedes ejecutar cualquier función adicional
     });
 
 });
@@ -208,22 +207,29 @@ function seleccionDeCuentas()
             // var result = JSON.parse(data);
             if(data.totalCuentas > 1)
             {
-                swal({title: "ALERTA",text: data.mensaje ,icon: "warning",button: "OK",dangerMode:true,});
+                // swal({title: "ALERTA",text: data.mensaje ,icon: "warning",button: "OK",dangerMode:true,});
                 $('#id_cuenta_seleccionadas').val(data.cuentas);
                 $('#cuentas').text(data.cuentasLiteral);
+                $('#txtCuenta').val("");
+                $('#txtCuenta').prop('readonly', true);
             }
             else
             {
                 if(data.totalCuentas == 1)
                 {
-                    swal({title: "EXITO",text: data.mensaje ,icon: "success",button: "OK",dangerMode:true,});
-                    $('#id_cuenta').val(data.id_cuenta);
+                    // swal({title: "EXITO",text: data.mensaje ,icon: "success",button: "OK",dangerMode:true,});
+                    $('#id_cuenta').val(data.cuentas);
+                    $('#txtCuenta').val(data.cuentasLiteral);
+                    $('#id_cuenta_seleccionadas').val(data.cuentas);
+                    $('#cuentas').text(data.cuentasLiteral);
+                    $('#txtCuenta').prop('readonly', false);
                 }
                 else
                 {
                     swal({title: "ERROR",text: "No se encontraron cuentas seleccionadas",icon: "error",button: "OK",dangerMode:true,});
                     $('#id_cuenta_seleccionadas').val("");
                     $('#cuentas').text("");
+                    $('#txtCuenta').prop('readonly', false);
                 }
             }
         }
@@ -238,7 +244,6 @@ function consultar()
     var cuentas =$('#id_cuenta_seleccionadas').val();
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin = $('#fechaHasta').val();
-    alert (id_entidad);
     /*CARGAR TABLA BUSQUEDA LIBRO MAYOR */
      var enlace = base_url + "Contabilidad/LibroMayor/listarBusquedaLibroMayor";
     $.ajax({
@@ -254,29 +259,42 @@ function consultar()
         {
             if(data.resultado == '1')
             {   
-                $("#contenedor_libroMayor").html(data.tabla);
-                // setTimeout(() => {
-                //         if ($.fn.DataTable.isDataTable("#tbl_libroMayor")) {
-                //             $("#tbl_libroMayor").DataTable().destroy();
-                //         }
 
-                //         $("#tbl_libroMayor").DataTable({
-                //             scrollY: '300px',
-                //             scrollCollapse: true,
-                //             paging: false,
-                //             searching: true,
-                //             fixedHeader: true,
-                //             dom: 'ftip',
-                //             language: {
-                //                 search: "Buscar:",
-                //                 zeroRecords: "No se encontraron resultados"
-                //             }
-                //         });
-                //     }, 150);
+                // console.log(data); 
+                if ($.fn.DataTable.isDataTable('#tablaDatosLibroMayor')) {
+                $('#tablaDatosLibroMayor').DataTable().clear().destroy();
+                }
+
+                $("#tbodyLibroMayor").html(data.tabla);
+
+                // Actualizar totales
+                // $('.txtTotalImporteDebe').text(data.totalimporteDebe ?? '0.00');
+                // $('.txtTotalImporteHaber').text(data.totalimporteHaber ?? '0.00');
+                // $('.txtTotalImporteDeudor').text(data.totalimporteDeudor ?? '0.00');
+                // $('.txtTotalImporteAcreedor').text(data.totalimporteAcreedor ?? '0.00');
+
+                $('#tablaDatosLibroMayor').DataTable({
+                    //   scrollY: true,
+                    scrollY: '600px',   // Altura del contenedor visible
+                    scrollCollapse: true,
+                    responsive: true,
+                    paging: true,
+                    searching: true,
+                    ordering: false,
+                    "aLengthMenu": [[10,30, 50,  -1], [10,30, 50,  "Todos"]],
+                    "iDisplayLength": 10,
+                 });
+                
             }
             else
             {
-                swal({title: "ERROR",text: "Error",icon: "error",button: "OK",dangerMode:true,});
+                swal({
+                    title: "ERROR",
+                    text: "No se encontraron datos.",
+                    icon: "error",
+                    button: "OK",
+                    dangerMode: true,
+                });
             }
         }
     });
@@ -287,7 +305,6 @@ function generarReporteLibroMayor()
     var cuentas =$('#id_cuenta_seleccionadas').val();
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
-    alert(id_entidad);
     if(fecha_inicio!='' && fecha_fin !='')
     {
         $('#divPDF').html('');
@@ -304,6 +321,6 @@ function generarReporteLibroMayor()
     }
     else
     {
-        alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
+         swal({title: "ERROR",text: "SELECCIONE UN RANGO DE FECHA VÁLIDA, POR FAVOR.",icon: "error",button: "OK",dangerMode:true,});
     }
 }

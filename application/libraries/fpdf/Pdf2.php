@@ -256,7 +256,7 @@ class Pdf2 extends FPDF {
             // $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 10, 74.5);
             // $this->Image('resources/images/logos/chakana.png', 160, 8, 43);
 
-            $this->Ln();
+            // $this->Ln();
             $this->SetTextColor(0);
             $this->SetFont('Times','B',6);
             $y = $this->GetY();
@@ -267,20 +267,20 @@ class Pdf2 extends FPDF {
             $this->SetX(10);
             $this->MultiCell(30,3,utf8_decode('SENAPE'),0,'C',0);
             $this->Ln(3);
-            $this->SetXY(200, $y); 
-            $this->Cell(10, 5, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
-            $this->SetXY(190,$y+3);            
+            $this->SetXY(196, $y); 
+            $this->Cell(10, 5, utf8_decode('Página:') . $this->PageNo() . '/{nb}', 0, 0, 'R');
+            $this->SetXY(180,$y+3);            
             $fecha_hoy = $this->fechaformato();
-            $this->Cell(10, 5,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
+            $this->Cell(10, 5,utf8_decode('Fecha de Impresión:').$fecha_hoy, 0, 0, 'L');
             $this->Ln(3);
             $this->SetXY(0,30);
             $this->SetFont('Arial', 'BU', 12);
             $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
             $this->Ln(4);
             $this->SetFont('Times','B',7);
-            // $this->SetX(0);
-            // $this->Cell(0,0,utf8_decode($this->subtituloCabecera1),0,1,'C',0);
-            // $this->Ln(3);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera1),0,1,'C',0);
+            $this->Ln(3);
             $this->SetX(0);
             $this->Cell(0,0,utf8_decode($this->subtituloCabecera2),0,1,'C',0);
             $this->Ln(3);
@@ -300,23 +300,30 @@ class Pdf2 extends FPDF {
             $this->Cell(20,8,utf8_decode('DEBE'),1, 0, 'C', 1);
             $this->SetXY(190,45);
             $this->Cell(20,8,utf8_decode('HABER'),1, 0, 'C', 1);
-			$this->Ln(3);
+			$this->Ln();
         }
     }
 
     public function Footer() {
         switch ($this->opcion_pie) {
             case 'FOOTER_VACIO':
-
                 break;
             case 'FOOTER_LIBRODIARIO':
                 $y=$this->GetY();
+                // $y=$this->SetY(-10);
                 $this->setXY(10,$y);
                 $this->setXY(10,$y);
                 $TOTALES="TOTALES";		    
-                $this->Cell(160,8,utf8_decode($TOTALES),1,0,'R',1);
-                $this->Cell(20,8,utf8_decode(number_format($this->totalLD_Debe,2,',','.')),1,0,'R',1);
-                $this->Cell(20,8,utf8_decode(number_format($this->totalLD_Haber,2,',','.')),1,0,'R',1);
+                $this->Cell(160,5,utf8_decode($TOTALES),1,0,'R',1);
+                $this->Cell(20,5,utf8_decode(number_format($this->totalLD_Debe,2,',','.')),1,0,'R',1);
+                $this->Cell(20,5,utf8_decode(number_format($this->totalLD_Haber,2,',','.')),1,0,'R',1);
+                break;
+            case 'FOOTER_SIN_MOVIMIENTO_LD':
+                $y=$this->GetY();
+                $this->setXY(10,$y);
+                $this->SetFont('Arial','B',40);
+                $this->SetTextColor(170,170,170);
+                $this->TextWithRotation(20,190,utf8_decode('LIBRO DIARIO SIN MOVIMIENTO'),35);
                 break;
             case 'ASISTENCIA_NO_CONSOLIDADA':
                     $this->SetY(-22);
