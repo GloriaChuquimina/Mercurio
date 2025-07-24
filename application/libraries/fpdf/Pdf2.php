@@ -105,11 +105,11 @@ class Pdf2 extends FPDF {
             
             //Cabecera
             // Cabecera superior agrupada
-            $this->SetXY(5, 40); // Coordenada superior izquierda
+            $this->SetXY(20, 40); // Coordenada superior izquierda
             $this->SetFillColor(230, 230, 225);
             $this->SetTextColor(0);
             $this->SetFont('Arial','B',7);
-            $this->SetX(5);
+            $this->SetX(20);
             $this->Cell(20,13,utf8_decode('Fecha'), 1, 0, 'C', 1);
             $this->Cell(15,13,utf8_decode('Tipo'), 1, 0, 'C', 1);
             $this->Cell(20,13,utf8_decode('Número'), 1, 0, 'C', 1);
@@ -172,21 +172,21 @@ class Pdf2 extends FPDF {
             $this->SetFillColor(230, 230, 225);
             $this->SetTextColor(0);
             $this->SetFont('Arial','B',7);
-            $this->SetX(5);
+            $this->SetX(12);
             $this->Cell(25,13,utf8_decode('CÓDIGO'), 1, 0, 'C', 1);
-            $this->Cell(120,13,utf8_decode('DESCRIPCIÓN'), 1, 0, 'C', 1);
-            $this->SetXY(150,40);
-            $this->Cell(30,5,utf8_decode('SUMAS'),1,0,'C',1);
-            $this->SetXY(150,45);
-            $this->Cell(15,8,utf8_decode('DEBE'),1, 0, 'C', 1);
-            $this->SetXY(165,45);
-            $this->Cell(15,8,utf8_decode('HABER'),1, 0, 'C', 1);
-            $this->SetXY(180,40);
-            $this->Cell(30,5,utf8_decode('SALDOS'),1,1,'C',1);
-            $this->SetXY(180,45);
-            $this->Cell(15,8,utf8_decode('DEUDOR'),1, 0, 'C', 1);
-            $this->SetXY(195,45);
-            $this->Cell(15,8,utf8_decode('ACREEDOR'),1, 1, 'C', 1);
+            $this->Cell(100,13,utf8_decode('DESCRIPCIÓN'), 1, 0, 'C', 1);
+            $this->SetXY(137,40);
+            $this->Cell(36,5,utf8_decode('SUMAS'),1,0,'C',1);
+            $this->SetXY(137,45);
+            $this->Cell(18,8,utf8_decode('DEBE'),1, 0, 'C', 1);
+            $this->SetXY(155,45);
+            $this->Cell(18,8,utf8_decode('HABER'),1, 0, 'C', 1);
+            $this->SetXY(173,40);
+            $this->Cell(36,5,utf8_decode('SALDOS'),1,1,'C',1);
+            $this->SetXY(173,45);
+            $this->Cell(18,8,utf8_decode('DEUDOR'),1, 0, 'C', 1);
+            $this->SetXY(191,45);
+            $this->Cell(18,8,utf8_decode('ACREEDOR'),1, 1, 'C', 1);
 
         }
         if($this->opcion_cabecera==5)
@@ -680,6 +680,43 @@ class Pdf2 extends FPDF {
             //Draw the border
             $ax=$x; $ay=$y; $aw=$w; $ah=$h;
             $this->Rect($x,$y,$w,$h,$fills);
+            //Print the text
+            $this->MultiCell($w,4,$data[$i],0,$a);
+            //Put the position to the right of the cell
+            $this->SetXY($x+$w,$y);
+        }
+        //Go to the next line
+        $this->Ln($h);
+    }
+    function Row_Reportes_SS($data,$code=false,$fills='',$fh='')
+    {
+         //Calculate the height of the row
+        $nb=0;
+        for($i=0;$i<count($data);$i++)
+            $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
+        if ($fh==""){
+            $h=4*$nb;
+        }else{
+            $h=4*$nb;
+            if ($h < $fh)
+                $h = $fh;
+        }
+         
+        //Issue a page break first if needed
+        $this->CheckPageBreak_LM($h);
+        // Forzar margen izquierdo deseado tras salto
+        $this->SetX(12);
+        //Draw the cells of the row
+        for($i=0;$i<count($data);$i++)
+        {
+            $w=$this->widths[$i];
+            $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
+            //Save the current position
+            $x=$this->GetX();
+            $y=$this->GetY();
+            //Draw the border
+            $ax=$x; $ay=$y; $aw=$w; $ah=$h;
+            // $this->Rect($x,$y,$w,$h,$fills);
             //Print the text
             $this->MultiCell($w,4,$data[$i],0,$a);
             //Put the position to the right of the cell

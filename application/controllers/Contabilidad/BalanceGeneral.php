@@ -148,7 +148,7 @@ class BalanceGeneral extends CI_Controller {
 		$fecha_hasta           = $this->input->post('fecha_hasta');
 
 		// $cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral($id_entidad,$cadena,$fecha_desde,$fecha_hasta);
-		$cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral();
+		$cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral($id_entidad,$fecha_desde,$fecha_hasta);
 		$cuentas = json_decode(json_encode($cuentas), true);
 		// $ordenadas = $this->ordenarJerarquicamente($cuentas);
 		// list($cuentasOrdenadas, $importeTotalGeneral) = $this->ordenarJerarquicamente($cuentas);
@@ -341,7 +341,7 @@ class BalanceGeneral extends CI_Controller {
 		// 2. Eliminar la última coma si existe
 		$cadena = rtrim($cadena, ',');
 
-		$cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral();
+		$cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral($id_entidad,$fecha_inicio,$fecha_fin);
 		$cuentas = json_decode(json_encode($cuentas), true);
 		$ordenadas = $this->ordenarJerarquicamente($cuentas);
 		$cuentasOrdenadas = $ordenadas[0];

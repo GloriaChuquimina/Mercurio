@@ -271,8 +271,16 @@ function cargarDatosSumasySaldos(){
                 cuentasSeleccionadas:cuentasSeleccionadas,
                 fecha_desde:fecha_desde,
                 fecha_hasta:fecha_hasta,
-				cuentas_con_movimiento
-            }
+				cuentas_con_movimiento:cuentas_con_movimiento
+            },
+            dataSrc: function(json) {listaCuentas
+                    $('.txtTotalImporteDebe').text(json.totalimporteDebe);
+                    $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+                    $('.txtTotalImporteDeudor').text(json.totalimporteDeudor);
+                    $('.txtTotalImporteAcreedor').text(json.totalimporteAcreedor);
+                    $('#cant_cuentas').val(json.nro_registros);
+                    return json.data;
+                }
         },
     });
 }
@@ -282,9 +290,10 @@ function ReporteSumasySaldosPDF()
     var cuentas      = $('#id_cuenta_seleccionadas').val();
 	if (cuentas == null || cuentas.length === 0) {
 		cuentas = '0'; // o algún valor por defecto
-	} else if (Array.isArray(cuentas)) {
-		cuentas = cuentas.join('-'); // convierte a cadena separada por guiones u otro separador
-	}
+	} 
+    // else if (Array.isArray(cuentas)) {
+	// 	cuentas = cuentas.join('-'); // convierte a cadena separada por guiones u otro separador
+	// }
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
 	var cuentas_con_movimiento = $('#soloConMovimientos').prop('checked');

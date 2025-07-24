@@ -291,9 +291,9 @@
                 </div>
 
                   <div class="card-body">
-                    <input class="form-control" id="id_entidad" name="id_entidad">
-                    <input class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
+                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
                       <div class="col-md-3">
                         <div class="form-group">
@@ -436,7 +436,7 @@
                 </div>
             </div>
             <!-- ESTADO DEL BALANCE -->
-            <div class="card" style="background-color:#D9F6F5;  border-left: 4px solid #10707f;" id="entidadSeleccionada" style="display: none">
+            <!-- <div class="card" style="background-color:#D9F6F5;  border-left: 4px solid #10707f;" id="entidadSeleccionada" style="display: none">
                 <div class="">
                     <div class="d-flex align-items-center">
                         <div style="font-size: 24px; margin-right: 15px">✅⚠️</div>
@@ -449,7 +449,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
            <!-- TABLA DE BALANCE DE SUMAS Y SALDOS -->
             <div class="card">
                 <div class="card-header bg-gradient-secondary">
@@ -508,6 +508,19 @@
                           </td>
                         </tr>
                       </tfoot> -->
+                      <tfoot>
+                          <tr class="bg-primary">
+                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              TOTALES:
+                              </td>
+                                  <!-- <td style="text-align: right; color: white; font-weight: bold;" id="txtTotalImporteDebe">0.00</td> -->
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDeudor">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteAcreedor">0.00</td>
+                              </td>
+                          </tr>
+                      </tfoot>
                     </table>
                   </div>
                 </div>

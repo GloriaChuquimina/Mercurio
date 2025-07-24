@@ -304,6 +304,9 @@ function generarReporteLibroMayor()
 {
     var id_entidad   = $('#id_entidad').val();
     var cuentas =$('#id_cuenta_seleccionadas').val();
+    if (cuentas == null || cuentas.length === 0) {
+		cuentas = '0'; // o algún valor por defecto
+	} 
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
     if(fecha_inicio!='' && fecha_fin !='')

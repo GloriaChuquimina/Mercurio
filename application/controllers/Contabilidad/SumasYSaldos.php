@@ -108,10 +108,10 @@ class SumasYSaldos extends CI_Controller {
 			$data[] = array(
 				$codigo,
 				$descripcion,
-				number_format($debe,2,'.',','),
-				number_format($haber,2,'.',','),
-				number_format($deudor,2,'.',','),
-				number_format($acreedor,2,'.',',')
+				"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($debe,2,'.',',')."</div>",
+				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($haber,2,'.',',')."</div>",
+				"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($deudor,2,'.',',')."</div>",
+				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($acreedor,2,'.',',')."</div>"
 			    );
 			$totalDebe += $debe;
 			$totalHaber += $haber;		
@@ -119,10 +119,14 @@ class SumasYSaldos extends CI_Controller {
 			$totalAcreedor += $acreedor;
 		}
 		$output = array(
-			"draw" => $draw,
-			"recordsTotal" => count($filas),
-			"recordsFiltered" => count($filas),
-			"data" => $data
+			             "draw" => $draw,
+			    "recordsTotal"  => count($filas),
+			 "recordsFiltered"  => count($filas),
+			"totalimporteDebe"  => number_format($totalDebe,2,'.',','),
+		   "totalimporteHaber"  => number_format($totalHaber,2,'.',','),
+		  "totalimporteDeudor"  => number_format($totalDeudor,2,'.',','),
+		"totalimporteAcreedor"  => number_format($totalAcreedor,2,'.',','), 
+					    "data"  => $data
 		);
 		echo json_encode($output);
 		exit();
@@ -143,7 +147,7 @@ class SumasYSaldos extends CI_Controller {
         $pdf->SetMargins(20,15,10);		
 		$pdf->SetTitle(utf8_decode("Reporte Libro Mayor"));
 		$pdf->entidad=descripcion_nombre_entidad($id_entidad);
-		$pdf->sigla="xxx";
+		$pdf->sigla=sigla_entidad($id_entidad);
 		$pdf->tituloCabecera = 'BALANCE SUMAS Y SALDOS';
 		$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
 		$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
@@ -165,13 +169,18 @@ class SumasYSaldos extends CI_Controller {
         $total=0;
 
 
-		if($cuentas_con_movimiento)
+		if($cuentas_con_movimiento === 'true')
 		{
 			// echo("Cuentas con movimiento");
 			$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_inicio,$fecha_fin);
 		}
 		else
 		{
+			// echo("TODAS LAS CUENTAS");
+			// 1. Reemplazar guiones por comas
+			$cadena = str_replace('-', ',', $cuentas);
+			// 2. Eliminar la última coma si existe
+			$cadena = rtrim($cadena, ',');
 			$sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
 		}
 
@@ -183,12 +192,11 @@ class SumasYSaldos extends CI_Controller {
 		$totalAcreedor=0;
 
 		$pdf->SetFillColor(255,255,255);
-		$pdf->SetFont('Arial', '', 8);
+		$pdf->SetFont('Arial', '', 7);
 		$ini_x=$pdf->GetX();
-		// $ini_y=$pdf->GetY();
-		
-		$pdf->setX(12); 
-		$pdf->SetWidths([25, 120, 15, 15, 15, 15]);
+		// $ini_y=$pdf->GetY();		
+		// $pdf->setX(12); 
+		$pdf->SetWidths([25, 100, 18, 18, 18, 18]);
 		$pdf->SetAligns(['L','L','R','R','R','R']);
         foreach ($sumasysaldos as $fila)
 		{   		
@@ -220,68 +228,71 @@ class SumasYSaldos extends CI_Controller {
 				
 				}
 			}
-			// number_format($totalimporteDebe,2,'.',','),
+			if($deudor==0 )
+			{
+				$deudor_dato='';
+				$acreedor_dato = number_format($acreedor,2,'.',',');
+			}
+			else
+			{
+				if($acreedor ==0)
+				{
+					$acreedor_dato = '';
+					$deudor_dato   = number_format($deudor,2,'.',',');
+				}
+				else
+				{
+					$deudor_dato='';
+					$acreedor_dato='';
+				}
+			}
 			$fila = array(
 				$codigo,
 				$descripcion,
 				number_format($debe,2,'.',','),
 				number_format($haber,2,'.',','),
-				number_format($deudor,2,'.',','),
-				number_format($acreedor,2,'.',',')
+				// number_format($deudor,2,'.',','),
+				// number_format($acreedor,2,'.',',')
+				$deudor_dato,
+				$acreedor_dato
 			    );
 			$totalDebe += $debe;
 			$totalHaber += $haber;		
 			$totalDeudor += $deudor;
 			$totalAcreedor += $acreedor;
-
-			$pdf->setX(5); 
-			$pdf->Row_Reportes_LM($fila,true, '', 4);								
+			$pdf->Row_Reportes_SS($fila,true, '', 4);								
 			$pdf->opcion_pie='FOOTER_VACIO';
-			// $pdf->Ln();
 	    }      
-		// $pdf->Ln();
 		$pdf->SetFillColor(255,255,255);
-		$y=$pdf->GetY();
-		$pdf->SetXY(5,$y);
-		// $pdf->setX(5);     
-		// $pdf->SetAligns(['R','R','R','C','C']);
-		
-		// $x=$pdf->GetX();
-		
-
 		/*LINEA HORIZONTAL*/
-		$x=5;
+		$x=12;
 		$y=$pdf->GetY();
-		$pdf->Line($x, $y, $x + 205, $y);
+		$pdf->Line($x, $y, $x + 197, $y);
 		$pdf->Cell(145,2,"",0,0,'R',1);
 		$pdf->Cell(60,2,"",0,0,'R',1);
-		// $pdf->Ln();
-		$pdf->SetFont('Arial','B',8);
+		$pdf->SetFont('Arial','B',7);
 		$TOTALES="TOTALES";
 		$y=$pdf->GetY();
-		$pdf->SetXY(5,$y);
-		$pdf->setX(5);     
-		$pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode(number_format($totalDebe,2,'.',',')),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode(number_format($totalHaber,2,'.',',')),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode(number_format($totalDeudor,2,'.',',')),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode(number_format($totalAcreedor,2,'.',',')),0,0,'R',1);  
-
-
-
+		$pdf->SetXY(12,$y);
+		$pdf->setX(12);     
+		$pdf->Cell(125,8,utf8_decode($TOTALES),0,0,'R',1);
+		$pdf->Cell(18,8,utf8_decode(number_format($totalDebe,2,'.',',')),0,0,'R',1);
+		$pdf->Cell(18,8,utf8_decode(number_format($totalHaber,2,'.',',')),0,0,'R',1);
+		$pdf->Cell(18,8,utf8_decode(number_format($totalDeudor,2,'.',',')),0,0,'R',1);
+		$pdf->Cell(18,8,utf8_decode(number_format($totalAcreedor,2,'.',',')),0,0,'R',1);  
 	    /*DIBUJANDO LINEAS*/
 		$ini_y=46;
 		$y_fin=$pdf->GetY();
 		// $pdf->SetXY(5,$ini_y);
-	    $pdf->Line(5, $ini_y, 5, $y_fin+7);
+	    $pdf->Line(12, $ini_y, 12, $y_fin+7);
 		// $pdf->Setxy(30, $ini_y);
-		$pdf->Line(30, $ini_y, 30, $y_fin);
-		$pdf->Line(150, $ini_y, 150, $y_fin+7);
-		$pdf->Line(180, $ini_y, 180, $y_fin+7);
-		$pdf->Line(210, $ini_y, 210, $y_fin+7);
+		$pdf->Line(37, $ini_y, 37, $y_fin);
+		$pdf->Line(137, $ini_y, 137, $y_fin+7);
+		$pdf->Line(173, $ini_y, 173, $y_fin+7);
+		$pdf->Line(209, $ini_y, 209, $y_fin+7);
 
-		$x_fin=5;
-		$pdf->Line($x_fin, $y_fin+7, $x_fin + 205, $y_fin+7);
+		$x_fin=12;
+		$pdf->Line($x_fin, $y_fin+7, $x_fin + 197, $y_fin+7);
 
 		$pdf->Footer();
 		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 

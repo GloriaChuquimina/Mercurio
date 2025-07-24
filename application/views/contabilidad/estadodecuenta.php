@@ -4,7 +4,7 @@
     <section class="content">
         <div class="container-fluid">
              <!-- SECCION ENTIDAD -->
-            <div class="card card-warning card-outline">
+            <div class="card card-warning card-outline" id="cardEntidad">
                 <div class="card-header">
                     <h3 class="card-title">
                     <i class="mr-2">🏢</i>
@@ -70,6 +70,186 @@
                     </div>
                 </div>
             </div>
+            <!-- FILTROS DE BUSQUEDA -->
+            <div class="card card-primary card-outline" id ="filtrosConsulta" style="display: none">
+                <div class="card-header">
+                  <h3 class="card-title">
+                    <i class="mr-2">🔍</i>
+                    Filtros de Consulta
+                  </h3>
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" >
+                      <i>🔼🔽</i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body">
+                    <input type ="hidden" class="form-control" id="id_entidad" name="id_entidad">
+                    <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input type ="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>
+                            <i class="text-danger">*</i>
+                            <strong> CUENTA CONTABLE:</strong>
+                          </label>
+                          <!-- <select
+                            id="cuentaContable"
+                            name="cuentaContable"
+                            class="form-control"
+                          >
+                          </select> -->
+                          <div class="input-group">
+                              <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Buscar cuenta..."
+                                  list="listaCuentas"
+                                  id="txtCuenta" 
+                                  name="txtCuenta"
+                              />
+                              <datalist id='listaCuentas'></datalist>
+                              <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
+                              <div class="input-group-append">
+                                  <button
+                                  type="button"
+                                  class="btn btn-success"
+                                  onclick="añadirCuenta();"
+                                  >
+                                  <i>➕</i>
+                                  </button>
+                                  <button
+                                  type="button"
+                                  class="btn btn-warning"
+                                  onclick="listaCuentasBusqueda();"
+                                  >
+                                  <i>🔍</i>
+                                  </button>
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>
+                            <strong>FECHA DESDE:</strong>
+                          </label>
+                          <input
+                            id="fechaDesde"
+                            name="fechaDesde"
+                            placeHolder="Fecha Desde"
+                            type="date"
+                            class="form-control"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>
+                            <strong>FECHA HASTA:</strong>
+                          </label>
+                          <input
+                            id="fechaHasta"
+                            name="fechaHasta"
+                            placeHolder="Fecha Hasta"
+                            type="date"
+                            class="form-control"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12 text-right">
+                        <button class = "btn btn-primary mr-2"
+                              onClick = "consultar()">
+                          <i class="mr-1">🔍</i> Consultar
+                        </button>
+                        <button class="btn btn-success mr-2"
+                                onClick="generarReporteLibroMayor()">
+                          <i class="mr-1">📄</i> Exportar PDF
+                        </button>
+                        <!-- <button class="btn btn-info">
+                          <i class="mr-1">📊</i> Exportar Excel
+                        </button> -->
+                      </div>
+                    </div>
+                </div>                
+            </div>
+            <!-- CUENTA SELECCIONADA -->
+            <div class="card" style="background-color: #f0f8ff; border-left: 4px solid #007bff" id="cuentaSeleccionada" style="display: none">
+                <div class="card-body p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-12">
+                            <div class="d-flex align-items-center">
+                                    <div
+                                    style="
+                                        width: 48px,
+                                        height: 48px,
+                                        border-radius: 50%,
+                                        background-color: #ffc107,
+                                        display: flex,
+                                        align-items: center,
+                                        justify-content: center,
+                                        color: white,
+                                        font-weight: bold,
+                                        font-size: 18px,
+                                    "
+                                    >
+                                    </div>
+                                    <div class="ml-3">
+                                    <h7 class="mb-0">CUENTA(s):</h7>
+                                    <h8 class="mb-0" style="color: #007bff; font-weight: bold;" id="cuentas" name="cuentas">
+                                        
+                                    </h8>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
-</section>
+<div class="modal fade show" id="modalListaCuentas" style="backgroundColor: rgba(0,0,0,0.4)" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="max-width: 700px">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary">
+                <h7 class="modal-title text-white">
+                    <i class="mr-2">🔍</i>
+                    BÚSQUEDA DE CUENTAS CONTABLES
+                </h7>
+                <button type="button" class="close text-white" data-dismiss="modal" >
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="formListaCuentas" name="formListaCuentas">
+              <div class="modal-body">
+                  <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="tbl_CuentasContables" style="width: 100%;">
+                      <thead class="bg-dark">
+                        <tr>
+                          <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th>
+                          <!-- <th style="color: white; text-align: center;">SELECCIONAR</th> -->
+                          <!-- <th style="color: white; text-align: center;">OPCIONES</th> -->
+                          <th style="color: white;">CÓDIGO</th>
+                          <th style="color: white;">DESCRIPCIÓN</th>
+                          <th style="color: white;">NIVEL</th>
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+              </div>
+            </form>
+        </div>
+    </div>
 </div>
+<script type="text/javascript">
+    $(document).ready(function(){
+      var enlace  = "<?php echo base_url();?>";    
+      baseurl(enlace);
+      cargarCombos();
+      cargarCuentasLista();
+    //   cargarTablaComprobantesEntidades();
+    });
+</script>  

@@ -29,7 +29,7 @@ class SumasSaldos_model extends CI_Model
                                              AND e.id = ".$id_entidad."
                                              AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
                                         GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre
-                                        ORDER BY pc.id ASC;
+                                        ORDER BY pc.codigo ,pc.nivel ASC;
 		    							   " 
 										  );
 		return $query->result();

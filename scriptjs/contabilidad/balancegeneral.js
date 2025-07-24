@@ -22,8 +22,7 @@ $(function (){
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
                 $('#id_entidad').val(id_entidad);
-                // cargarCuentasEntidad();
-                // valoresIniciales();
+                $('#cardEntidad').find('[data-card-widget="collapse"]').click();
             });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
         alert('El modal se ha cerrado');
@@ -137,7 +136,7 @@ function cargarCuentas(marcar){
     });
 }
 function cargarDatosBalanceGeneral(){
-    alert("STEPH");
+    // alert("STEPH");
     var id_entidad = $('#id_entidad').val();
     var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
     var fecha_desde = $('#fechaDesde').val();
@@ -164,6 +163,9 @@ function ReporteBalanceGeneralPDF()
 {
     var id_entidad   = $('#id_entidad').val();
     var cuentas      = $('#id_cuenta_seleccionadas').val();
+    if (cuentas == null || cuentas.length === 0) {
+		cuentas = '0'; // o algún valor por defecto
+	} 
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
     alert(id_entidad);

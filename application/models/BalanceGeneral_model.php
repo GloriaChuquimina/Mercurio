@@ -9,7 +9,7 @@ class BalanceGeneral_model extends CI_Model
 		$this->db_mercurio = $this->load->database('db_mercurio', TRUE);		
 	}
     // function getGeneralBalanceGeneral($id_entidad,$cuentas,$fecha_inicio,$fecha_fin)
-    function getGeneralBalanceGeneral()
+    function getGeneralBalanceGeneral($id_entidad,$fecha_inicio,$fecha_fin)
 	{
         $query = $this->db_mercurio->query("
                                            SELECT 
@@ -45,8 +45,8 @@ class BalanceGeneral_model extends CI_Model
                                                         WHERE pc.estado IN ('ACT')
                                                         AND c.estado IN ('ACT')
                                                         AND dc.estado IN ('ACT')
-                                                        AND e.id = 3
-                                                        AND c.fecha_comprobante between '2023-01-01' AND '2025-07-09'
+                                                        AND e.id = ".$id_entidad."
+                                                        AND c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                                                                     GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre,e.id
                                                                                         ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                     
