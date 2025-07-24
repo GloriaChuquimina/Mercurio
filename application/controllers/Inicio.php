@@ -30,7 +30,7 @@ class Inicio extends CI_Controller {
 		$dato['roles']  = $this->session->userdata('roles');
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
 
-		$titulo = "PÁGINA DE INICIO";		
+		$titulo = "Dashboard Contable Mercurio";		
 		$dato['titulo'] = $titulo;
 
 		$this->load->view('inicio/cabecera',$dato);

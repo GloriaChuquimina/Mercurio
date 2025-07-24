@@ -1,5 +1,6 @@
   <!-- Main Sidebar Container -->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <!-- <aside class="main-sidebar sidebar-dark-primary elevation-4"> -->
+  <aside class="main-sidebar elevation-4 sidebar-dark-indigo">
     <!-- Brand Logo -->
     <a href="<?= base_url()?>Inicio" class="brand-link d-flex align-items-center">
       <i class="fas fa-layer-group fa-2x mr-2" style="color: #ffffff;"></i>
@@ -21,7 +22,7 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
 				<div class="image">
-        	<img src="<?php echo base_url();?>resources/dist/img/user1-128x128.jpg" class="img-circle elevation-2" alt="User Image">
+        	<img src="<?php echo base_url();?>resources/dist/img/escanear-usuario.png" class="img-circle elevation-2" alt="User Image">
 				</div>
         <div class="info">
           <a href="<?php echo site_url("Usuarios/Datos");?>" class="d-block"><?= $nombre_usuario?></a>
@@ -32,17 +33,25 @@
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-          
-          
-       
+               with font-awesome or any other icon font library -->        
           <li class="nav-header">MENÚ DE OPCIONES</li>                  
 
            <?php foreach($rolescero as $rol):?>              
               <li class="nav-item">
-              <a href="<?php echo site_url($rol->link);?>" class="nav-link"><i class="<?php echo $rol->icono; ?>"></i><p><?=$rol->opcion?></p></a>
+              <a href="<?php echo site_url($rol->link);?>" class="nav-link">
+                   <i class="<?php echo $rol->icono; ?>"></i><p><?=$rol->opcion?></p>
+              </a>
             </li>
           <?php endforeach?>
+
+          <!-- /*estilos */ -->
+            <!-- <?php $activo = ($uri_actual == $rol->link);
+                    $estilo_activo = $activo ? 'background-color:#6610f2;color:#fff;font-weight:bold;' : '';
+              ?>
+
+              <a href="<?php echo site_url($rol->link);?>" class="nav-link <?= $estilo_activo?>">
+                   <i class="<?php echo $rol->icono; ?>"></i><p><?=$rol->opcion?></p>
+              </a> -->
 
           <?php $nivelanterior = 0; $con = 0;?>
           <?php foreach($roles as $rol): ?>
