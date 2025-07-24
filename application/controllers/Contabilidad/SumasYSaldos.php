@@ -52,15 +52,25 @@ class SumasYSaldos extends CI_Controller {
 		$data    = array();
 		$num     = 1;
 
-		$id_entidad            = $this->input->post('id_entidad');
-		$cuentasSeleccionadas  = $this->input->post('cuentasSeleccionadas');
-		$fecha_desde  		   = $this->input->post('fecha_desde');
-		$fecha_hasta           = $this->input->post('fecha_hasta');
+		$id_entidad             = $this->input->post('id_entidad');
+		$cuentasSeleccionadas   = $this->input->post('cuentasSeleccionadas');
+		$fecha_desde  		    = $this->input->post('fecha_desde');
+		$fecha_hasta            = $this->input->post('fecha_hasta');
+		$cuentas_con_movimiento = $this->input->post('cuentas_con_movimiento');
 
 		$cadena = str_replace('-', ',', $cuentasSeleccionadas);
 		$cadena = rtrim($cadena, ',');
 
-		$filas  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_desde,$fecha_hasta);
+		if($cuentas_con_movimiento)
+		{
+			// echo("Cuentas con movimiento");
+			$filas  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_desde,$fecha_hasta);
+		}
+		else
+		{
+			$filas  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_desde,$fecha_hasta);
+		}
+
 		$totalDebe =0;
 		$totalHaber =0;
 		$totalDeudor=0;
@@ -117,7 +127,7 @@ class SumasYSaldos extends CI_Controller {
 		echo json_encode($output);
 		exit();
 	}
-	function ReporteSumasySaldosPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin)
+	function ReporteSumasySaldosPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin,$cuentas_con_movimiento)
 	{			
 		// $id_entidad      = $this->input->post('id_entidad');		
 		/****************************/
@@ -154,12 +164,18 @@ class SumasYSaldos extends CI_Controller {
         $num = 0;
         $total=0;
 
-		// 1. Reemplazar guiones por comas
-		$cadena = str_replace('-', ',', $cuentas);
-		// 2. Eliminar la última coma si existe
-		$cadena = rtrim($cadena, ',');
 
-		$sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
+		if($cuentas_con_movimiento)
+		{
+			// echo("Cuentas con movimiento");
+			$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_inicio,$fecha_fin);
+		}
+		else
+		{
+			$sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
+		}
+
+		// $sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
 
 		$totalDebe =0;
 		$totalHaber =0;

@@ -61,6 +61,7 @@ $(function (){
                 $('#id_entidad').val(id_entidad);
                 cargarCuentasEntidad();
                 valoresIniciales();
+				$('#cardEntidad').find('[data-card-widget="collapse"]').click();
             });
     $('#cuentaContable').change(function(){
                 id_cuenta = $(this).val();
@@ -80,7 +81,7 @@ $(function (){
                 // valoresIniciales();
             });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
-        alert('El modal se ha cerrado');
+        // alert('El modal se ha cerrado');
         $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
         // Aquí puedes ejecutar cualquier función adicional
@@ -98,6 +99,26 @@ $(function (){
         }
         // var id_entidad = $('#cbEntidades').val();
         cargarCuentas(marcar);
+    });
+	$('#soloConMovimientos').click (function ()
+    {
+        if( $('#soloConMovimientos').prop('checked') ) 
+        {
+            marcar = 1;
+			$('#txtCuenta').prop('readonly', true);
+			$('#btnAddCuenta').prop('disabled', true);
+			$('#btnlistaCuentasBusqueda').prop('disabled', true);
+        }
+        else
+        {
+			$("#cantidadSolicitudes").html('0');
+           marcar = 0;
+		   $('#txtCuenta').prop('readonly', false);
+		   $('#btnAddCuenta').prop('disabled', false);
+		   $('#btnlistaCuentasBusqueda').prop('disabled', false);
+        }
+
+		
     });
 
 });
@@ -196,22 +217,35 @@ function seleccionDeCuentas()
             // var result = JSON.parse(data);
             if(data.totalCuentas > 1)
             {
-                swal({title: "ALERTA",text: data.mensaje ,icon: "warning",button: "OK",dangerMode:true,});
-                $('#id_cuenta_seleccionadas').val(data.cuentas);
+                // swal({title: "ALERTA",text: data.mensaje ,icon: "warning",button: "OK",dangerMode:true,});
+                // $('#id_cuenta_seleccionadas').val(data.cuentas);
+                // $('#cuentas').text(data.cuentasLiteral);
+				$('#id_cuenta_seleccionadas').val(data.cuentas);
                 $('#cuentas').text(data.cuentasLiteral);
+                $('#txtCuenta').val("");
+                $('#txtCuenta').prop('readonly', true);
             }
             else
             {
                 if(data.totalCuentas == 1)
                 {
-                    swal({title: "EXITO",text: data.mensaje ,icon: "success",button: "OK",dangerMode:true,});
-                    $('#id_cuenta').val(data.id_cuenta);
+                    // swal({title: "EXITO",text: data.mensaje ,icon: "success",button: "OK",dangerMode:true,});
+                    // $('#id_cuenta').val(data.id_cuenta);
+					$('#id_cuenta').val(data.cuentas);
+                    $('#txtCuenta').val(data.cuentasLiteral);
+                    $('#id_cuenta_seleccionadas').val(data.cuentas);
+                    $('#cuentas').text(data.cuentasLiteral);
+                    $('#txtCuenta').prop('readonly', false);
                 }
                 else
                 {
-                    swal({title: "ERROR",text: "No se encontraron cuentas seleccionadas",icon: "error",button: "OK",dangerMode:true,});
+                    // swal({title: "ERROR",text: "No se encontraron cuentas seleccionadas",icon: "error",button: "OK",dangerMode:true,});
+                    // $('#id_cuenta_seleccionadas').val("");
+                    // $('#cuentas').text("");
+					swal({title: "ERROR",text: "No se encontraron cuentas seleccionadas",icon: "error",button: "OK",dangerMode:true,});
                     $('#id_cuenta_seleccionadas').val("");
                     $('#cuentas').text("");
+                    $('#txtCuenta').prop('readonly', false);
                 }
             }
         }
@@ -222,6 +256,7 @@ function cargarDatosSumasySaldos(){
     var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
     var fecha_desde = $('#fechaDesde').val();
     var fecha_hasta = $('#fechaHasta').val();
+	var cuentas_con_movimiento = $('#soloConMovimientos').prop('checked');
     var enlace = base_url + "Contabilidad/SumasYSaldos/cargarDatosSumasySaldos";
     $('#tablaSumasySaldos').DataTable({
         destroy: true,
@@ -235,7 +270,8 @@ function cargarDatosSumasySaldos(){
                 id_entidad:id_entidad,
                 cuentasSeleccionadas:cuentasSeleccionadas,
                 fecha_desde:fecha_desde,
-                fecha_hasta:fecha_hasta
+                fecha_hasta:fecha_hasta,
+				cuentas_con_movimiento
             }
         },
     });
@@ -244,16 +280,22 @@ function ReporteSumasySaldosPDF()
 {
     var id_entidad   = $('#id_entidad').val();
     var cuentas      = $('#id_cuenta_seleccionadas').val();
+	if (cuentas == null || cuentas.length === 0) {
+		cuentas = '0'; // o algún valor por defecto
+	} else if (Array.isArray(cuentas)) {
+		cuentas = cuentas.join('-'); // convierte a cadena separada por guiones u otro separador
+	}
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
-    alert(id_entidad);
+	var cuentas_con_movimiento = $('#soloConMovimientos').prop('checked');
+    // alert(id_entidad);
     if(fecha_inicio!='' && fecha_fin !='')
     {
         $('#divPDF').html('');
         var iframe = document.createElement("iframe");
             iframe.width = '100%';
             iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/SumasYSaldos/ReporteSumasySaldosPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin; 
+            iframe.src = base_url+'Contabilidad/SumasYSaldos/ReporteSumasySaldosPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+cuentas_con_movimiento; 
             $('#divPDF').append(iframe);
         $('#divCapa').addClass('overlay');    
         $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);

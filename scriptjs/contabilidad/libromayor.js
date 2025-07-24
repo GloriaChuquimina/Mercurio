@@ -131,6 +131,7 @@ $(function (){
         // var id_entidad = $('#cbEntidades').val();
         cargarCuentas(marcar);
     });
+     
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
         // alert('El modal se ha cerrado');
         $('#cuentaSeleccionada').show();

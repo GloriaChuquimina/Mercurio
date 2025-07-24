@@ -4,7 +4,7 @@
     <section class="content">
         <div class="container-fluid">
              <!-- SECCION ENTIDAD -->
-            <div class="card card-warning card-outline">
+            <div class="card card-warning card-outline" id="cardEntidad">
                 <div class="card-header">
                     <h3 class="card-title">
                     <i class="mr-2">🏢</i>
@@ -348,6 +348,7 @@
                                   type="button"
                                   class="btn btn-success"
                                   onclick="añadirCuenta();"
+																	id="btnAddCuenta"
                                   >
                                   <i>➕</i>
                                   </button>
@@ -355,6 +356,7 @@
                                   type="button"
                                   class="btn btn-warning"
                                   onclick="listaCuentasBusqueda();"
+																	id="btnlistaCuentasBusqueda"
                                   >
                                   <i>🔍</i>
                                   </button>
@@ -383,19 +385,19 @@
                     <div class="row">
                       <div class="col-md-12 text-right">
                         <button class="btn btn-primary mr-2"
-                             onClick = "cargarDatosSumasySaldos()">
+                             onClick = "cargarDatosSumasySaldos()" >
                           <i class="mr-1">🔍</i> Generar Balance
                         </button>
                         <button class="btn btn-success mr-2"
-                              onClick="ReporteSumasySaldosPDF()">
+                              onClick="ReporteSumasySaldosPDF()" >
                           <i class="mr-1">📄</i> Exportar PDF
                         </button>
-                        <button class="btn btn-info mr-2">
+                        <!-- <button class="btn btn-info mr-2">
                           <i class="mr-1">📊</i> Exportar Excel
                         </button>
                         <button class="btn btn-warning">
                           <i class="mr-1">🖨️</i> Imprimir
-                        </button>
+                        </button> -->
                       </div>
                     </div>
                   </div>
@@ -548,7 +550,7 @@
                         <tr>
                           <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th>
                           <!-- <th style="color: white; text-align: center;">SELECCIONAR</th> -->
-                          <th style="color: white; text-align: center;">OPCIONES</th>
+                          <!-- <th style="color: white; text-align: center;">OPCIONES</th> -->
                           <th style="color: white;">CÓDIGO</th>
                           <th style="color: white;">DESCRIPCIÓN</th>
                           <th style="color: white;">NIVEL</th>

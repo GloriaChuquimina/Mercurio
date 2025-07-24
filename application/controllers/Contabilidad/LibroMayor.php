@@ -124,7 +124,7 @@ class LibroMayor extends CI_Controller {
 				}
 			}			
 			$tr.="<tr>
-					<td style='min-width:300px; max-width:600px; word-wrap:break-word;'>
+					<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
 					".$cabercera1_cuenta."
 					</td>
 					<td>
@@ -143,7 +143,7 @@ class LibroMayor extends CI_Controller {
 					</td>
 					</tr>";
 			$tr.="<tr>
-					<td style='min-width:500px; max-width:1900px; word-wrap:break-word;'>
+					<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
 					".$cabercera2_cuenta."
 					</td>
 					<td>
@@ -170,7 +170,7 @@ class LibroMayor extends CI_Controller {
 			{
 				$detalle_movimiento ="SIN MOVIMIENTO";
 				$tr.="<tr>
-						<td style='min-width:300px; max-width:600px; word-wrap:break-word;'>
+						<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
 						".$detalle_movimiento."
 						</td>
 						<td>
