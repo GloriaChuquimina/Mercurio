@@ -1,12 +1,24 @@
   <!-- Main Sidebar Container -->
   <!-- <aside class="main-sidebar sidebar-dark-primary elevation-4"> -->
   <aside class="main-sidebar elevation-4 sidebar-dark-indigo">
+    
     <!-- Brand Logo -->
-    <a href="<?= base_url()?>Inicio" class="brand-link d-flex align-items-center">
+    <!-- <a href="<?= base_url()?>Inicio" class="brand-link d-flex align-items-center">
       <i class="fas fa-layer-group fa-2x mr-2" style="color: #ffffff;"></i>
       <div class="info">
         <div style="font-size: 18px; font-weight: bold; line-height: 1; padding-left: 20px;"> <?= $nombre_sistema ?> </div>
         <div style="font-size: 12px; color: #d1d1d1; padding-left: 20px;"> <?= $tipo_sistema ?> </div>
+      </div>
+    </a> -->
+    <a href="<?= base_url()?>Inicio" class="brand-link d-flex align-items-center px-3 py-2">
+      <i class="fas fa-layer-group fa-2x text-white mr-2"></i>
+      <div class="info">
+        <div style="font-size: 16px; font-weight: bold; line-height: 1.2; color: white;">
+          <?= $nombre_sistema ?>
+        </div>
+        <div style="font-size: 12px; color: #d1d1d1;">
+          <?= $tipo_sistema ?>
+        </div>
       </div>
     </a>
 
@@ -17,6 +29,32 @@
         word-wrap: break-word; /* fuerza quiebres en palabras largas */
         overflow-wrap: break-word; /* soporte moderno para quiebre */
       }
+      .sidebar .user-panel .info {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+      }
+
+      .sidebar-collapsed .user-panel .info {
+        display: none; /* Oculta el nombre cuando está colapsado */
+      }
+      .sidebar .user-panel .info a {
+        display: block;
+        white-space: normal; /* Permite saltos de línea */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        font-size: 14px;
+        color: white;
+      }
+      body.sidebar-collapse .main-sidebar .user-panel .info {
+        display: none !important;
+      }
+      .nav-link.active {
+        background-color: #6610f2 !important; /* Indigo */
+        color: white !important; /* texto blanco para contraste */
+        font-weight: bold;
+      }
     </style>
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
@@ -24,8 +62,13 @@
 				<div class="image">
         	<img src="<?php echo base_url();?>resources/dist/img/escanear-usuario.png" class="img-circle elevation-2" alt="User Image">
 				</div>
-        <div class="info">
+        <!-- <div class="info">
           <a href="<?php echo site_url("Usuarios/Datos");?>" class="d-block"><?= $nombre_usuario?></a>
+        </div> -->
+        <div class="info" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          <a href="<?php echo site_url("Usuarios/Datos");?>" class="d-block" title="<?= $nombre_usuario ?>">
+            <?= $nombre_usuario ?>
+          </a>
         </div>
       </div>
 
@@ -98,11 +141,12 @@
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"> <a class="dropdown-item" href="<?php echo base_url()?>Login/salir">
-                                <i class="mdi mdi-close text-danger"></i>
-                                <span class="notification-text">Cerrar Sesión</span>
-                            </a></li>
-              
+              <li class="breadcrumb-item"> 
+                <!-- <a class="dropdown-item" href="<?php echo base_url()?>Login/salir">
+                  <i class="mdi mdi-close text-danger"></i>
+                  <span class="notification-text">Cerrar Sesión</span>
+                </a> -->
+              </li>              
             </ol>
           </div>
         </div>

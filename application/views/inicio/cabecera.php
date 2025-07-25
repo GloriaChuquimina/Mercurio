@@ -41,6 +41,23 @@
                             </a>
       </li>      
     </ul>
+    <ul class="navbar-nav ml-auto"> <!-- ml-auto empuja al extremo derecho -->
+        <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#" role="button">
+            <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+            <a href="<?php echo site_url("Usuarios/Datos"); ?>" class="dropdown-item">
+                <i class="fas fa-user mr-2 text-primary"></i> Mi cuenta
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="<?php echo base_url()?>Login/salir" class="dropdown-item">
+                <i class="fas fa-sign-out-alt mr-2 text-danger"></i> Cerrar sesión
+            </a>
+            </div>
+        </li>
+    </ul>
+
     
   </nav>
 
