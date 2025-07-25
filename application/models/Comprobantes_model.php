@@ -14,9 +14,9 @@ class Comprobantes_model extends CI_Model
 	function getComprobanteAll()
 	{
 		$query = $this->db_mercurio->query("select *
-											 from contabilidad.comprobante
-											where estado='AC'
-										 order by nivel ASC,
+											  from contabilidad.comprobante
+											 where estado='AC'
+										  order by nivel ASC,
   												  codigo ASC;
 											" 
 										  );
@@ -25,10 +25,10 @@ class Comprobantes_model extends CI_Model
 	function getComprobanteByIdEntidad($id_entidad)
 	{
 		$query = $this->db_mercurio->query("select *
-											 from contabilidad.comprobante
-											where id_entidad = ".$id_entidad."
-											 -- and estado='ACT'
-										 order by correlativo desc
+											  from contabilidad.comprobante
+											 where id_entidad = ".$id_entidad."
+											-- and estado='ACT'
+										  order by tipo_comprobante,correlativo desc
 											  ;
 											"
 										  );

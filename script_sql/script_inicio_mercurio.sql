@@ -79,6 +79,7 @@ CREATE TABLE configuraciones.gestion (
 create table contabilidad.plancuentas(
 	id serial4 NOT null,
 	codigo varchar(10),
+	sigla varchar(5) NULL,	
 	descripcion varchar(300),
 	nivel int4 NULL,
 	orden int4 null,
@@ -90,8 +91,19 @@ create table contabilidad.plancuentas(
 	fecha_modificacion timestamp NULL,
 	id_funcionario_update int4 null,
 	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
-	sigla varchar(5) NULL,	
 	CONSTRAINT plancuentas_pkey PRIMARY KEY (id)
+);
+create table contabilidad.plancuentas_auxiliares(
+	id serial4 NOT null,
+	id_plancuenta int4 NULL
+	codigo varchar(50),
+	descripcion varchar(300),
+	fecha_registro timestamp DEFAULT now() NULL,
+	id_funcionario_registro int4 null,
+	fecha_modificacion timestamp NULL,
+	id_funcionario_update int4 null,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	CONSTRAINT plancuentas_auxiliares_pkey PRIMARY KEY (id)
 );
 CREATE TABLE contabilidad.plancuenta_dependencia (
 	id serial4 NOT NULL,

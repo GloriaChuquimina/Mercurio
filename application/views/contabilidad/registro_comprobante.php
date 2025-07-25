@@ -245,11 +245,12 @@
                 <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
                 <input type="hidden" class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
                 <input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
-                <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                <input  class="form-control" id="id_cuenta" name="id_cuenta">
                 <input type="hidden" class="form-control" id="registroCuentaT" name="registroCuentaT">
                 <input type="hidden" class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
                 <input type="hidden" class="form-control" id="id_registroCuentaComprobante" name="id_registroCuentaComprobante">
                 <input type="hidden" class="form-control" id="mensaje" name="mensaje">
+                <input class="form-control" id="id_cuenta_auxiliar" name="id_cuenta_auxiliar">
                 <div class="card card-outline card-info">
                     <div class="card-header">
                     <h7 class="card-title">
@@ -301,34 +302,65 @@
                         </div>
 
                         <div class="col-md-2">
-                        <div class="form-group">
-                            <label>
-                            <i class="text-danger">*</i>
-                            <strong> IMPORTE:</strong>
-                            </label>
-                            <input type="text" id="txtImporte" name="txtImporte" class="form-control text-right" placeholder="0.00" />
-                        </div>
+                            <div class="form-group">
+                                <label>
+                                <i class="text-danger">*</i>
+                                <strong> IMPORTE:</strong>
+                                </label>
+                                <input type="text" id="txtImporte" name="txtImporte" class="form-control text-right" placeholder="0.00" />
+                            </div>
                         </div>
                     </div>
 
+                    <div class="row" id="auxiliares_cuenta" style="display:none;">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>
+                                <i class="text-danger">*</i>
+                                <strong> AUXILIARES DE LA CUENTA:</strong>
+                                </label>
+                                <div class="input-group">
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Buscar auxiliar de la cuenta..."
+                                        list="listaAuxiliaresDeCuenta"
+                                        id="txtAuxiliarCuenta" 
+                                        name="txtAuxiliarCuenta"
+                                    />
+                                    <datalist id='listaAuxiliaresDeCuenta'></datalist>
+                                    <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
+                                    <div class="input-group-append">
+                                        <button
+                                        type="button"
+                                        class="btn btn-info"
+                                        onclick="listaCuentasAuxiliaresBusqueda();"
+                                        >
+                                        <i>🕵️</i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-12">
-                        <div class="form-group">
-                            <label>
-                            <i class="text-danger">*</i>
-                            <strong> GLOSA:</strong>
-                            </label>
-                            <textarea 
-                            id="txtGlosaCuenta" 
-                            name="txtGlosaCuenta"
-                            class="form-control"
-                            rows="3"
-                            placeholder="Descripción del movimiento..."
-                            ></textarea>
-                        </div>
+                            <div class="form-group">
+                                <label>
+                                <i class="text-danger">*</i>
+                                <strong> GLOSA:</strong>
+                                </label>
+                                <textarea 
+                                id="txtGlosaCuenta" 
+                                name="txtGlosaCuenta"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Descripción del movimiento..."
+                                ></textarea>
+                            </div>
                         </div>
                     </div>
-                    </div>
+                    
                 </div>
                 </form>
             </div>
@@ -371,6 +403,50 @@
                   </table>
                 </div>
               </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" >
+                    <i class="mr-1">❌</i>
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade show" id="modalListaCuentasAuxiliares" style="backgroundColor: rgba(0,0,0,0.4)" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="max-width: 700px">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary">
+                <h7 class="modal-title text-white">
+                    <i class="mr-2">🔍</i>
+                    BÚSQUEDA AUXILIARES DE LA CUENTA:
+                </h7>
+                <button type="button" class="close text-white" data-dismiss="modal" >
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="tbl_CuentasAuxiliares" style="width: 100%;">
+                        <thead class="bg-dark">
+                        <tr>
+                            <th style="color: white; text-align: center;">OPCIONES</th>
+                            <th style="color: white;">CÓDIGO</th>
+                            <th style="color: white;">DESCRIPCIÓN</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal" >
+                      <i class="mr-1">❌</i>
+                      Cerrar
+                  </button>
+              </div>
+
+            </div>
         </div>
     </div>
 </div>

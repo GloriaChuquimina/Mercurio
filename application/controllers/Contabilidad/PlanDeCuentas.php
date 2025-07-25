@@ -102,8 +102,9 @@ class PlanDeCuentas extends CI_Controller {
 
 		foreach ($ordenadas as $fila)
 		{   
-
-			$boton   = "
+			if($fila['estado']==='ACT')
+			{
+				$boton   = "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
                             <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-edit'></i></button>     
                         </span>	
@@ -113,7 +114,16 @@ class PlanDeCuentas extends CI_Controller {
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
                             <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."')\"><i class='fas fa-plus-circle'></i></button>     
                         </span>				
-                        ";		
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='AGREGAR CUENTAS AUXILIARES'>
+                            <button type='button' class='btn btn-block btn-success btn-sm' onclick=\"agregarCuentasAuxiliares(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-list-alt'></i></button>     
+                        </span>				
+                        ";	
+			}
+			else
+			{
+				$boton = "";
+			}
+				
 
 			$indentacion = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
 			$descripcion = $fila['descripcion'];
@@ -151,6 +161,7 @@ class PlanDeCuentas extends CI_Controller {
 				break;
 			case "ANU":
 				$estado="<span class='badge badge-danger'>".$estado."</span>";
+				// $boton="";
 				break;
 			default:
 				$estado="<span class='badge badge-secondary'>".$estado."</span>";
@@ -162,7 +173,7 @@ class PlanDeCuentas extends CI_Controller {
 				$num++,
 				// $indentacion."<span class='badge badge-secondary'>".$codigo."</span>",
 				"<span class='badge badge-secondary'>".$codigo."</span>",
-				$descripcion,	
+				$indentacion.$descripcion,	
 				$tipo,
                 $fila['nivel'],
                 $fila['sigla'],
@@ -540,5 +551,158 @@ class PlanDeCuentas extends CI_Controller {
 		echo json_encode($output);
 		exit();
     }
+	/*GUARDAR CUENTAS AUXILIARES */
+	public function guardarAuxiliarPlanCuentas()
+	{
+		$id_usuario       = $this->session->userdata('id_usuario');
+		$id_funcionario   = $this->session->userdata('id_funcionario');
+		$id_dependencia   = $this->session->userdata('id_dependencia_principal');
+		$data 			  = $this->input->post();
+
+		// $resultado   = json_decode($this->validarDatos($data));		
+		// $resul       = $resultado[0]->resultado;
+		// $mensaje     = $resultado[0]->mensaje;
+        $resul=1;
+        $mensaje = "OK";
+        $opcionPadre="";
+		$nivel_subcuenta=0;
+        if($resul == 1)
+		{
+            $accion      = $data['txtAccionSubCuenta'];
+			/*DATOS CUENTA PRINCIPAL SELECCIONADA*/
+			$id_cuenta   	   = $data['id_cuenta'];		
+			
+			/*DATOS A REGISTRAR DEL AUXILIAR DE LA CUENTA*/
+			$codigo      		= $data['txtCodigoAux'];
+			$descripcion 		= $data['txtDescripcionAux'];
+			
+			if($accion === 'nuevo')
+			{
+				$datosAuxiliarPlanCuentas = array(
+					'id_plancuenta'           => $id_cuenta,
+					'codigo'	              => $codigo,
+					'descripcion'             => $descripcion,
+                    'id_funcionario_registro' => $id_funcionario
+				);
+				$auxiliarplancuentas = $this->PlanDeCuentas_model->guardarAuxiliaresPlanDeCuentas($datosAuxiliarPlanCuentas);
+				if($auxiliarplancuentas)
+				{
+					$resul = 1;
+					$mensaje = "SE REGISTRO CORRECTAMENTE";
+				}
+				else
+				{
+					$resul = 0;
+					$mensaje = "ERROR EN EL REGISTRO!!!";
+				}
+			}
+			else
+			{
+					///PROCESO
+			}
+
+			
+		}
+
+		$resultado ='[{
+						"resultado":"'.$resul.'",
+						"mensaje":"'.$mensaje.'"
+					 }]';
+
+		echo $resultado;
+	}
+	public function listarAuxiliaresPlanDeCuentas()
+    {
+		$id_cuenta = $this->input->post('id_cuenta');
+		$filas   = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($id_cuenta);
+		
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		foreach ($filas as $fila)
+		{   
+
+			$boton   = "
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
+                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick='eliminarAuxiliarCuenta(".$fila->id. ",".$fila->id_plancuenta.")'><i class='fas fa-trash-alt'></i></button>     
+                        </span>				
+                        ";		
+
+			$estado =getValor2Configuraciones("ESTADO REGISTRO", $fila->estado);
+			switch ($fila->estado) {
+			case "ACT":
+				$estado="<span class='badge badge-success'>".$estado."</span>";
+				break;
+			case "ANU":
+				$estado="<span class='badge badge-danger'>".$estado."</span>";
+				break;
+			default:
+				$estado="<span class='badge badge-secondary'>".$estado."</span>";
+				break;
+			}
+
+			$data[] = array(
+				$num++,
+				$fila->codigo,
+				$fila->descripcion,			
+				$estado,
+				$boton
+
+			);
+		}
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($filas),
+			"recordsFiltered" => count($filas),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
+    }
+	public function eliminarAuxiliarCuenta()
+	{
+		$id_usuario       = $this->session->userdata('id_usuario');
+		$id_funcionario   = $this->session->userdata('id_funcionario');
+
+		$id_auxiliar_cuenta = $this->input->post('id_auxiliar_cuenta');
+		$fecha_actual	    = getFechaHoraActual();
+		$estado  		    = 'ANU';
+		$dataAuxiliarCuenta     = array(
+									'fecha_modificacion'    => $fecha_actual,
+									'id_funcionario_update' => $id_funcionario,
+									'estado'       		    => $estado
+								 );
+		
+		$updateAuxiliarCuenta = $this->PlanDeCuentas_model->updateAuxiliarCuenta($id_auxiliar_cuenta,$dataAuxiliarCuenta);
+		if($updateAuxiliarCuenta)
+		{
+			$resul = 1;
+			$mensaje = "SE ELIMINO EL AUXILIAR DE LA CUENTA CORRECTAMENTE.";
+		}
+		else
+		{
+			$resul = 0;
+			$mensaje = "ERROR EN LA ELIMINACIÓN!!!";
+		}
+		
+
+		$resultado ='[{
+						"resultado":"'.$resul.'",
+						"mensaje":"'.$mensaje.'"
+					 }]';
+
+		echo $resultado;
+
+
+		$resultado ='[{
+						"resultado":"'.$resul.'",
+						"mensaje":"'.$mensaje.'"
+					 }]';
+
+		echo $resultado;
+	}
 
 }

@@ -82,7 +82,7 @@ $(function (){
                     {                 
                         if (datalist[i].value === target) {
                             $('#id_cuenta').val( datalist[i].dataset.value) ;
-
+                            cargarCuentasAuxiliaresLista(datalist[i].dataset.value);
                             break;
                         }
                     }
@@ -96,6 +96,7 @@ $(function (){
                         if (datalist[i].value  == target) {
                             $('#id_cuenta').val( datalist[i].dataset.value) ;
                             // $('#txtCodigo').val( datalist[i].dataset.value) ;
+                            cargarCuentasAuxiliaresLista(datalist[i].dataset.value);
                             break;
                         }
                     }
@@ -162,6 +163,8 @@ $(function (){
 
 });
 
+
+
 function busquedaIDCuenta(id_cuenta,cuenta)
 {
 
@@ -183,8 +186,20 @@ function cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante)
             url: enlace,
             data: { id_entidad: id_entidad ,
                     id_tipo_comprobante:id_tipo_comprobante
-            }
+            },
+            
+        
         },
+        "columnDefs": [
+        {
+            targets: 0, 
+            orderable: false, // <-- DESACTIVA ordenamiento
+            width: "180px", 
+            className: "text-center" 
+        }],
+        
+        "order": [] // <-- Desactiva orden inicial automática
+   
     });
 }
 function cargarTablaComprobantes()
@@ -1124,4 +1139,64 @@ function eliminarComprobante(id_comprobante,tipo_comprobante,correlativo,entidad
             });
         }
     });
+}
+/*CUENTAS AUXILIARES */
+function cargarCuentasAuxiliaresLista(id_cuenta)
+{
+    var enlace = base_url + "Contabilidad/Comprobante/buscaCuentasAuxiliares";
+    $.ajax({
+        type: "POST",
+        url: enlace,
+        data: { id_cuenta: id_cuenta
+        },
+        // dataType: 'JSON',
+        success: function(data) {
+                    var result = JSON.parse(data);
+                    $.each(result, function(i, datos)
+                    {
+                        if(datos.resultado == 1)
+                        {
+                            swal({title: "OK",text: datos.mensaje,icon: "info",button: "OK",});
+                            $("#auxiliares_cuenta").show();
+                            $("#listaAuxiliaresDeCuenta").load(base_url +  "Contabilidad/Comprobante/listCuentasAuxiliares/"+id_cuenta );
+                        }
+                        else
+                        {
+                            $("#auxiliares_cuenta").hide();
+                        }
+                        
+                    });                            
+        }
+    });
+}
+function cargarCuentasAuxiliares(){
+
+    var idCuenta =$('#id_cuenta').val();
+    alert("idCuenta===>"+idCuenta);
+    var enlace = base_url + "Contabilidad/Comprobante/listarTablaCuentasAuxiliares";
+    $('#tbl_CuentasAuxiliares').DataTable({
+        destroy: true,
+        "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
+        "iDisplayLength": 10,
+        "font-size":5,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            data:{id_cuenta:idCuenta}
+        },
+    });
+}
+function listaCuentasAuxiliaresBusqueda()
+{
+
+    cargarCuentasAuxiliares();
+    $('#modalListaCuentasAuxiliares').modal({backdrop: 'static', keyboard: false})
+    $('#modalListaCuentasAuxiliares').modal('show');  
+}
+function busquedaIDCuentaAuxliar(id_cuenta_auxiliar,cuenta_auxiliar)
+{
+
+     $('#id_cuenta_auxiliar').val( id_cuenta_auxiliar) ;
+     $('#txtAuxiliarCuenta').val( cuenta_auxiliar) ;
+     $('#modalListaCuentasAuxiliares').modal('hide');  
 }

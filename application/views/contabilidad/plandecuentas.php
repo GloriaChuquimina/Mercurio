@@ -286,79 +286,104 @@
     </div>
 </div>
 
-
-<!-- <div class="modal fade show" id="modalPlanDeSubCuentas" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
-    <div class="modal-dialog modal-lg" style="max-width: 1200px;" role="document">
-        <div class="modal-content" style="border-radius: 10px;" >
-            <div class="modal-header">
-                <h4 class="modal-title" id="exampleModalLabel" style="color: black !important;">REGISTRO DE PLAN DE CUENTAS:<span style="color:black;"><label id="nombreCuenta">...</label></span></h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
+<!-- MODAL REGISTRO DE CUENTAS AUXILIARES -->
+ <div class="modal fade show" id="modalPlanCuentasAuxiliares"  style="display: backgroundColor: rgba(0,0,0,0.4)">
+    <div class="modal-dialog modal-xl" style="max-width: 1200px;">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h7 class="modal-title text-white">
+                  <i class="mr-2">📋</i>
+                  REGISTRO DE AXULIARES DE CUENTA:
+                  <span class="ml-2 font-weight-bold"><label id="nombreCuentaAux">...</label></span>
+                </h7>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                  <span>&times;</span>
                 </button>
             </div>
-            <div class="modal-body">              
-                <form id="formularioPlanDeSubCuentas">
+            <div class="modal-body">
+                <form id="formularioPlanCuentasAuxiliar">
+                  <input type="hidden" class="form-control" id="txtAccionAux" name="txtAccionSubCuenta" />
+                  <input type="hidden" class="form-control" id="id_cuentaAux" name="id_cuenta" />
 
-                    <input type="hidden" class="form-control" id="txtAccionSubCuenta" name="txtAccionSubCuenta">
-                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input type="hidden" class="form-control" id="nivel_padre" name="nivel_padre">
-                    <input type="hidden" class="form-control" id="id_padre" name="id_padre">
-                    <input type="hidden" class="form-control" id="ruta" name="ruta">
-                    <fieldset style="margin-left: 5px;">
-
-                        <div class="form-group row mb-3">
-                            <div class="col-sm-1">
-                                <label class="form-label small"><b><i class="mdi mdi-asterisk"></i> CÓDIGO:</b></label>
-                            </div>
-                            <div class="col-sm-2">
-                                <input class="form-control" type="text" id="txtCodigo" name="txtCodigo">
-                            </div>
-                            <div class="col-sm-1">
-                                <label class="form-label small"><b><i class="mdi mdi-asterisk"></i> SIGLA:</b></label>
-                            </div>
-                            <div class="col-sm-2">
-                                <input class="form-control" type="text" id="txtSigla" name="txtSigla">
-                            </div>
-                            <div class="col-sm-1">
-                                <label class="form-label small"><b><i class="mdi mdi-asterisk"></i> DESCRIPCIÓN:</b></label>
-                            </div>
-                            <div class="col-sm-5">
-                                <input class="form-control" type="text" id="txtDescripcion" name="txtDescripcion">
-                            </div>
+                  <div class="card card-outline card-success mb-4">
+                    <div class="card-header">
+                      <h3 class="card-title">
+                        <i class="mr-2">📝</i>
+                        Agregar Cuenta Auxiliar
+                      </h3>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label>
+                              <i class="text-danger">*</i>
+                              <strong> CÓDIGO:</strong>
+                            </label>
+                            <input
+                              class="form-control"
+                              type="text"
+                              id="txtCodigoAux"
+                              name="txtCodigoAux"
+                              placeholder="Ej: 1100"
+                            />
+                          </div>
                         </div>
-                        <div class="row">
-                            <div class="col-10"></div>
-                            <div class="col-2 d-flex justify-content-end">                
-                                <button type="button" name="btnAdiconarSubcuenta" class="btn btn-block btn-info btn-sm" onclick="guardarPlanDeSubCuentas()">+Agregar Cuenta</button>            
+                        <div class="col-md-9">
+                          <div class="form-group">
+                            <label>
+                              <i class="text-danger">*</i>
+                              <strong> DESCRIPCIÓN:</strong>
+                            </label>
+                            <div class="input-group">
+                              <input
+                                class="form-control"
+                                type="text"
+                                id="txtDescripcionAux"
+                                name="txtDescripcionAux"
+                                placeholder="Nombre de la cuenta auxiliar"
+                              />
+                              <div class="input-group-append">
+                                <button type="button" class="btn btn-success" onclick="guardarAuxiliarPlanDeCuentas()">
+                                  <i class='fas fa-plus-circle'></i>Agregar Auxiliar de Cuenta
+                                </button>
+                              </div>
                             </div>
+                          </div>
                         </div>
-                        <hr>
+                      </div>
+                    </div>
+                  </div>
 
-                        <div class="row">
-                            <div class="col-12">
-                                <table id="tablaPlanDeSubCuentas" class="table" cellspacing="0" width="100%">
-                                    <thead class="table-light">
-
-                                        <tr>
-                                            <th>Nro</th>
-                                            <th>Código</th>
-                                            <th>Descripción</th>
-                                            <th>Nivel</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
-                        </div>
-
-                    </fieldset>
+                  <div class="card card-outline card-secondary">
+                    <div class="card-header">
+                        <i class="mr-2">📋 Auxiliares:</i>
+                        <h7 class="card-title0 ml-2 font-weight-bold" id="tituloAuxiliares">
+                            Auxiliares de...
+                        </h7>
+                    </div>
+                    <div class="card-body p-1">
+                      <div class="table-responsive">
+                        <table id="tablaAuxiliaresPlanDeCuentas"  class="table table-striped table-hover" Width="100%">
+                          <thead class="bg-light">
+                            <tr>
+                              <th>NRO</th>
+                              <th>CÓDIGO</th>
+                              <th>DESCRIPCIÓN</th>
+                              <th>ESTADO</th>
+                              <th>OPCIONES</th>
+                            </tr>
+                          </thead>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
                 </form>
-
-            </div>
-
+              </div>
         </div>
     </div>
-</div> -->
+</div>
+
 
 <script type="text/javascript">
     $(document).ready(function(){

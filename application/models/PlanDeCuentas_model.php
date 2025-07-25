@@ -92,5 +92,29 @@ class PlanDeCuentas_model extends CI_Model
 		return $query->result();
 	}
 
+	function getAuxiliaresPlanDeCuentasById($id_cuenta)
+	{
+		$query = $this->db_mercurio->query("select *
+											 from contabilidad.plancuentas_auxiliares
+										    where estado='ACT'
+											  and id_plancuenta=".$id_cuenta."
+										 order by codigo ASC;
+											" 
+										  );
+		return $query->result();
+	}
+	function guardarAuxiliaresPlanDeCuentas($data)
+    {
+
+        $this->db_mercurio->insert('contabilidad.plancuentas_auxiliares',$data);
+        return $this->db_mercurio->insert_id();
+    }
+	function updateAuxiliarCuenta($id_auxCuenta,$data)
+	{
+		$this->db_mercurio->where('id',$id_auxCuenta);
+		return $this->db_mercurio->update('contabilidad.plancuentas_auxiliares',$data);
+	}
+
+
 }
 ?>

@@ -1726,5 +1726,82 @@ class Comprobante extends CI_Controller {
 
 		echo $resultado;
 	}
+	function listCuentasAuxiliares($id_cuenta)
+	{
+		$cuentas   = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($id_cuenta);
+		// $cuentas = json_decode(json_encode($cuentas), true);
+		// $ordenadas = $this->ordenarJerarquicamente($cuentas);
+		$option= "";
+		foreach($cuentas as $fila)
+		{
+			$option .="<option data-value='".$fila->id."'><b>".$fila->codigo."</b>-". $fila->descripcion."</option>";
+		}
+		echo $option;
+	}
+	function buscaCuentasAuxiliares()
+	{
+		$id_cuenta=$this->input->post('id_cuenta');
+		$cuentas   = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($id_cuenta);
+		$resul=0;
+		$mensaje ="";
+		$cantAuxCuentas=0;
+
+		if($cuentas)
+		{
+			$resul=1;
+			$cantAuxCuentas=count($cuentas);
+			$mensaje="La cuenta seleccionada tiene registrada cuentas auxiliares.";
+		}
+		$resultado ='[{
+						"resultado":"'.$resul.'",
+						"mensaje":"'.$mensaje.'",
+						"cant_cuentas":"'.$cantAuxCuentas.'"
+					 }]';
+
+		echo $resultado;
+	}
+	public function listarTablaCuentasAuxiliares()
+    {
+		$id_cuenta=$this->input->post('id_cuenta');
+		$cuentasAuxiliares   = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($id_cuenta);
+		// echo("<pre>");
+		// print_r($cuentasAuxiliares);
+		// echo("</pre>");
+		// die();
+		
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		foreach ($cuentasAuxiliares as $fila)
+		{   
+			$cuenta= $fila->codigo."-". $fila->descripcion;
+			$boton   = "
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Seleccionar'>
+                            <button type='button' class='btn btn-success btn-sm' onclick=\"busquedaIDCuentaAuxliar(".$fila->id.",'".$cuenta."')\"><i>✓</i></button>     
+                        </span>				
+                        ";	
+			$descripcion = $fila->descripcion;
+			$codigo      = $fila->codigo;
+
+			$data[] = array(
+				"<div style='text-align: center;'>$boton</div>",
+				"<span class='badge badge-secondary'>".$codigo."</span>",
+				$descripcion
+			);
+		}
+
+		// die();
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($cuentasAuxiliares),
+			"recordsFiltered" => count($cuentasAuxiliares),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
+    }
 	
 }
