@@ -10,13 +10,24 @@
         <div style="font-size: 12px; color: #d1d1d1; padding-left: 20px;"> <?= $tipo_sistema ?> </div>
       </div>
     </a> -->
-    <a href="<?= base_url()?>Inicio" class="brand-link d-flex align-items-center px-3 py-2">
+    <!-- <a href="<?= base_url()?>Inicio" class="brand-link d-flex align-items-center px-3 py-2">
       <i class="fas fa-layer-group fa-2x text-white mr-2"></i>
       <div class="info">
         <div style="font-size: 16px; font-weight: bold; line-height: 1.2; color: white;">
           <?= $nombre_sistema ?>
         </div>
         <div style="font-size: 12px; color: #d1d1d1;">
+          <?= $tipo_sistema ?>
+        </div>
+      </div>
+    </a> -->
+    <a href="<?= base_url()?>Inicio" class="brand-link d-flex align-items-center px-3">
+      <i class="fas fa-layer-group fa-2x text-white mr-2"></i>
+      <div class="info d-none d-sm-inline-block transition" style="overflow: hidden;">
+        <div class="nombre-sistema" style="font-size: 16px; font-weight: bold; line-height: 1.2; color: white;">
+          <?= $nombre_sistema ?>
+        </div>
+        <div class="tipo-sistema" style="font-size: 12px; color: #d1d1d1;">
           <?= $tipo_sistema ?>
         </div>
       </div>
