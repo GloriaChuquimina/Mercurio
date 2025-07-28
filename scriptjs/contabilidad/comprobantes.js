@@ -306,8 +306,9 @@ function guardarRegistroCuenta()
     var importeFormato            = importe.split(",").join("");
     var tipo_cambio               = $('#txtTipoCambio').val();
     var glosa_cuenta              = $('#txtGlosaCuenta').val();
-
-    var cadRegistroCuenta         =  $('#registroCuentaT').val();
+	var id_cuenta_auxiliar		  = $('#id_cuenta_auxiliar').val();
+	var cuenta_auxiliar		      = $('#txtAuxiliarCuenta').val();
+    var cadRegistroCuenta         = $('#registroCuentaT').val();
 
 
     var enlace = base_url + "Contabilidad/Comprobante/validarDatosRegistroCuenta";
@@ -336,7 +337,7 @@ function guardarRegistroCuenta()
 
                             // if(accion_comprobante == 'nuevo' && accion_cuenta == 'nuevo')
                             // {
-                                var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
+                                var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"|";
                                 $('#registroCuentaT').val(cadRegistroCuentaT);
                                 var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
                                 // var datos_cuenta = $('#formularioRegistroCuenta').serialize();

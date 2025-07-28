@@ -295,3 +295,7 @@ COMMENT ON COLUMN contabilidad.tipo_cambio.fecha_registro IS 'Fecha y hora en qu
 COMMENT ON COLUMN contabilidad.tipo_cambio.fecha_modificacion IS 'Fecha de la última modificación (si la hubo). Puede ser NULL si no se modificó.';
 COMMENT ON COLUMN contabilidad.tipo_cambio.estado IS 'Define el estado del registro(AC = Activo, AN = Anulado, etc.).';
 COMMENT ON COLUMN contabilidad.tipo_cambio.sec_log IS 'Campo para fines de auditoría o bitácora';
+
+
+
+alter table contabilidad.detalle_comprobante add column id_cuenta_auxiliar int4 null;

@@ -209,6 +209,8 @@ class Comprobante extends CI_Controller {
 		$tipo_movimiento   		   		= $datos_registro_cuenta['txtTipoMovimiento'];
 		$importe   		           		= $datos_registro_cuenta['txtImporte'];
 		$glosa_cuenta   		   		= $datos_registro_cuenta['txtGlosaCuenta'];
+		$id_cuenta_auxiliar 		   	= $datos_registro_cuenta['id_cuenta_auxiliar'];
+		$txtAuxiliarCuenta  		   	= $datos_registro_cuenta['txtAuxiliarCuenta'];
 		// $cadRegistroCuenta				   = $datos_registro_cuenta['registroCuentaT'];
 		$cadRegistroCuenta		   		= $cuentas;
 		$fechaActual          			= getFechaHoraActual();
@@ -246,7 +248,7 @@ class Comprobante extends CI_Controller {
 						if( $fila)
 						{
 							$row = explode("*", $fila); 
-							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta) = $row;
+							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$txtAuxiliarCuenta) = $row;
 
 							$codigoCuenta = explode("-",$cuenta);
 							list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
@@ -272,7 +274,7 @@ class Comprobante extends CI_Controller {
 											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$cadRegistroCuenta."')\"><i>🗑️</i></button>
 										</span>										
 									</div>";
-							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
+							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta."<br><br>".$txtAuxiliarCuenta;
 							$data[] = array(
 								"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
 								$cuenta_registro,
@@ -314,6 +316,8 @@ class Comprobante extends CI_Controller {
 						'importe_moneda_nacional'   => $importe_sin_comas,
 						'importe_moneda_extranjera' => $importeUs,
 						'glosa_cuenta'              => $glosa_cuenta,
+						'id_usuario_registro'       => $id_usuario,					
+						'id_usuario_registro'       => $id_cuenta_auxiliar,					
 						'id_usuario_registro'       => $id_usuario					
 					);
 						$save_count_record = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
@@ -332,7 +336,7 @@ class Comprobante extends CI_Controller {
 						'glosa_cuenta'              => $glosa_cuenta,
 						'fecha_modificacion'        => $fechaActual,					
 						'id_funcionario_update'     => $id_funcionario					
-					);
+						);
 						$update_count_record = $this->Comprobantes_model->updateDetalleComprobante($id_registroCuentaComprobante,$datosComprobanteDetalle);
 						if($update_count_record){
 							$verificacion_registro =1;
@@ -507,6 +511,8 @@ class Comprobante extends CI_Controller {
 			$tipo_cambio	      = $data['txtTipoCambio'];
 			$referencia_general   = $data['txtReferencia'];
 			$glosa_general	      = $data['txtGlosaGeneral'];
+			$glosa_general	      = $data['txtGlosaGeneral'];
+			$glosa_general	      = $data['txtGlosaGeneral'];
 			$correlativo		  = 0;
 			// $periodo        	  = date("m", strtotime($fecha_comprobante));
 			$periodo        	  = (int)date('m', strtotime($fecha_comprobante));
@@ -550,7 +556,7 @@ class Comprobante extends CI_Controller {
 								$row = explode("*", $fila);
 								if(!isset($row[0]) || empty($row[0]))
 								{
-									list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta) = $row;
+									list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
 									$importe   = number_format($importe,2,'.',',');
 									$importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
 									$datosComprobanteDetalle = array(
@@ -562,7 +568,8 @@ class Comprobante extends CI_Controller {
 										'importe_moneda_nacional'   => $importe,
 										'importe_moneda_extranjera' => $importeUs,
 										'glosa_cuenta'              => $glosa_cuenta,
-										'id_usuario_registro'       => $id_usuario					
+										'id_usuario_registro'       => $id_usuario,					
+										'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
 									);
 									$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
 									if($detalle_comprobante)

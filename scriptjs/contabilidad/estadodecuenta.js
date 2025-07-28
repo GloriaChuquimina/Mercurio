@@ -230,3 +230,35 @@ function seleccionDeCuentas()
         }
     });
 }
+function cargarEstadoDeCuenta()
+{
+	var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
+        $('#tablaRegistroCuenta').DataTable({
+            destroy: true,
+            searching: true,
+            fixedHeader: true,
+            scrollY: '300px',   // Altura del contenedor visible
+            scrollCollapse: true,
+            paging: false,
+            "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+            "iDisplayLength": 5,
+            "ajax": {
+                type: "POST",
+                url: enlace,
+                data: { accion: accion, 
+                        cuenta: cadRegistroCuentaT, 
+                        id_entidad: id_entidad
+                    },
+
+                dataSrc: function(json) {listaCuentas
+                        $('.txtTotalImporteDebe').text(json.totalimporteDebe);
+                        $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+                        $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
+                        $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+                        $('#cant_cuentas').val(json.nro_registros);
+                        return json.data;
+                    }
+            }
+            
+        });
+}
