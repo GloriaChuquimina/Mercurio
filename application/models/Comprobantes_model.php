@@ -59,9 +59,12 @@ class Comprobantes_model extends CI_Model
 	function getDetalleComprobanteById($id_comprobante)
 	{
 		$query = $this->db_mercurio->query("
-										  select dc.*
+										  select  dc.*
+										         ,p.codigo as codigo_auxiliar
+          		 								 ,p.descripcion as descripcion_auxiliar
 											from contabilidad.comprobante c 
 								 left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante 
+								 left outer join contabilidad.plancuentas_auxiliares p on dc.id_cuenta_auxiliar =p.id and p.estado ='ACT'
 										   where c.id=".$id_comprobante."
 										     and dc.estado ='ACT'   
 										   ;

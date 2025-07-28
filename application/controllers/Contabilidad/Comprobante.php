@@ -195,10 +195,10 @@ class Comprobante extends CI_Controller {
         $length = intval($this->input->get("length"));
 
 		// $datos_registro_cuenta	   = $this->input->post('datos_cuenta');
-		$datos    	        = $this->input->post('datos_cuenta');
+		$datos    	        			= $this->input->post('datos_cuenta');
+		$cuentas    	    			= $this->input->post('cuentas');
 		// $data 			= $this->input->post(); 
 		parse_str($datos, $datos_registro_cuenta);
-		$cuentas    	    = $this->input->post('cuentas');
 		$accion_comprobante		        = $datos_registro_cuenta['txtAccionComprobanteCuenta'];
 		$accion_cuenta   		        = $datos_registro_cuenta['txtAccionMovimiento'];
 		$id_registroCuentaComprobante   = $datos_registro_cuenta['id_registroCuentaComprobante'];
@@ -210,7 +210,7 @@ class Comprobante extends CI_Controller {
 		$importe   		           		= $datos_registro_cuenta['txtImporte'];
 		$glosa_cuenta   		   		= $datos_registro_cuenta['txtGlosaCuenta'];
 		$id_cuenta_auxiliar 		   	= $datos_registro_cuenta['id_cuenta_auxiliar'];
-		$txtAuxiliarCuenta  		   	= $datos_registro_cuenta['txtAuxiliarCuenta'];
+		$cuenta_auxiliar  		   	    = $datos_registro_cuenta['txtAuxiliarCuenta'];
 		// $cadRegistroCuenta				   = $datos_registro_cuenta['registroCuentaT'];
 		$cadRegistroCuenta		   		= $cuentas;
 		$fechaActual          			= getFechaHoraActual();
@@ -248,7 +248,7 @@ class Comprobante extends CI_Controller {
 						if( $fila)
 						{
 							$row = explode("*", $fila); 
-							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$txtAuxiliarCuenta) = $row;
+							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
 
 							$codigoCuenta = explode("-",$cuenta);
 							list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
@@ -271,10 +271,20 @@ class Comprobante extends CI_Controller {
 									</div>";
 							$botonEliminar = "<div style='text-align: center;'>
 										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro'>
-											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$cadRegistroCuenta."')\"><i>🗑️</i></button>
+											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$id_cuenta_auxiliar."','".$cuenta_auxiliar."','".$cadRegistroCuenta."')\"><i>🗑️</i></button>
 										</span>										
 									</div>";
-							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta."<br><br>".$txtAuxiliarCuenta;
+									
+							if($cuenta_auxiliar === '-')
+							{
+								$cuenta_auxiliar=''; 
+							}
+							else
+							{
+								$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$cuenta_auxiliar."</b></span>";			
+							}
+				
+							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta."<br><br>".$cuenta_auxiliar;
 							$data[] = array(
 								"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
 								$cuenta_registro,
@@ -317,8 +327,7 @@ class Comprobante extends CI_Controller {
 						'importe_moneda_extranjera' => $importeUs,
 						'glosa_cuenta'              => $glosa_cuenta,
 						'id_usuario_registro'       => $id_usuario,					
-						'id_usuario_registro'       => $id_cuenta_auxiliar,					
-						'id_usuario_registro'       => $id_usuario					
+						'id_cuenta_auxiliar'        => $id_cuenta_auxiliar				
 					);
 						$save_count_record = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
 						if($save_count_record){
@@ -392,8 +401,10 @@ class Comprobante extends CI_Controller {
 											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaComprobante(".$id_registro.")\"><i>🗑️</i></button>
 										</span>										
 									</div>";
-
-							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
+							
+							$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$cuenta_auxiliar."</b></span>";						
+							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta."<br><br>".$cuenta_auxiliar;
+							// $cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
 							$data[] = array(
 								"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
 								$cuenta_registro,
@@ -559,7 +570,23 @@ class Comprobante extends CI_Controller {
 									list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
 									$importe   = number_format($importe,2,'.',',');
 									$importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
-									$datosComprobanteDetalle = array(
+									if($id_cuenta_auxiliar === '-')
+									{
+										$datosComprobanteDetalle = array(
+										'id_entidad'	            => $id_entidad,
+										'id_comprobante'            => $saveComprobante,
+										'id_cuenta'                 => $id_cuenta,
+										'tipo_movimiento'           => $tipo_movimiento,
+										'tipo_cambio'               => $tipo_cambio,
+										'importe_moneda_nacional'   => $importe,
+										'importe_moneda_extranjera' => $importeUs,
+										'glosa_cuenta'              => $glosa_cuenta,
+										'id_usuario_registro'       => $id_usuario									
+										);
+									}
+									else
+									{
+										$datosComprobanteDetalle = array(
 										'id_entidad'	            => $id_entidad,
 										'id_comprobante'            => $saveComprobante,
 										'id_cuenta'                 => $id_cuenta,
@@ -570,7 +597,21 @@ class Comprobante extends CI_Controller {
 										'glosa_cuenta'              => $glosa_cuenta,
 										'id_usuario_registro'       => $id_usuario,					
 										'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
-									);
+										);
+									}
+									
+									// $datosComprobanteDetalle = array(
+									// 	'id_entidad'	            => $id_entidad,
+									// 	'id_comprobante'            => $saveComprobante,
+									// 	'id_cuenta'                 => $id_cuenta,
+									// 	'tipo_movimiento'           => $tipo_movimiento,
+									// 	'tipo_cambio'               => $tipo_cambio,
+									// 	'importe_moneda_nacional'   => $importe,
+									// 	'importe_moneda_extranjera' => $importeUs,
+									// 	'glosa_cuenta'              => $glosa_cuenta,
+									// 	'id_usuario_registro'       => $id_usuario,					
+									// 	'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
+									// );
 									$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
 									if($detalle_comprobante)
 									{
@@ -723,6 +764,8 @@ class Comprobante extends CI_Controller {
 		$importe   				  = $this->input->post('importe');
 		$tipo_cambio   			  = $this->input->post('tipo_cambio');
 		$glosa_cuenta   		  = $this->input->post('glosa_cuenta');
+		$id_cuenta_auxiliar   	  = $this->input->post('id_cuenta_auxiliar');
+		$cuenta_auxiliar   		  = $this->input->post('cuenta_auxiliar');
 		$cadRegistroCuenta		  = $this->input->post('cadRegistroCuenta');
 
 		$doc  			= $this->input->post('doc');
@@ -731,17 +774,19 @@ class Comprobante extends CI_Controller {
 		$cadDocumentos 	=$this->input->post('documentos');
 		if(trim($accion) == 'nuevo')
 		{
-			$cadCuentas = str_replace('*'.$id_cuenta.'*'.$codigoCuenta.'*'.$tipo_movimiento.'*'.$tipo_movimiento_literal.'*'.$importe.'*'.$tipo_cambio.'*'.$glosa_cuenta."|","",$cadRegistroCuenta);
-			$mensaje = array("resultado" => 1 , "mensaje"=>"Se ha eliminado el registro", "cuentas"=> $cadCuentas);
+			$cadCuentas = str_replace('*'.$id_cuenta.'*'.$codigoCuenta.'*'.$tipo_movimiento.'*'.$tipo_movimiento_literal.'*'.$importe.'*'.$tipo_cambio.'*'.$glosa_cuenta.'*'.$id_cuenta_auxiliar.'*'.$cuenta_auxiliar."|","",$cadRegistroCuenta);
+			$mensaje = array("resultado" => 1 , 
+			                    "mensaje"=>"Se ha eliminado el registro", 
+								"cuentas"=> $cadCuentas);
 		}
-		else{
-			$data = array (
-			'estado' => 'AN',
-			'fecha' => date('Y-m-d H:i:s')
-			);
-			$filas = $this->entidaddocumento_model->updateEntidadDocumento($id,$data);
-			$mensaje = array("resultado" => 1 , "mensaje"=>"Se ha eliminado el registro", "cuentas"=>"");
-		}	
+		// else{
+		// 	$data = array (
+		// 	'estado' => 'AN',
+		// 	'fecha' => date('Y-m-d H:i:s')
+		// 	);
+		// 	$filas = $this->entidaddocumento_model->updateEntidadDocumento($id,$data);
+		// 	$mensaje = array("resultado" => 1 , "mensaje"=>"Se ha eliminado el registro", "cuentas"=>"");
+		// }	
 		echo json_encode($mensaje);
 	}	
 	private function ordenarJerarquicamente($cuentas, $padreId = 0, $indentacion = 0)
@@ -1425,6 +1470,7 @@ class Comprobante extends CI_Controller {
 		$totalimporteDebeUs=0;
 		$totalimporteHaberUs=0;
 		$nro_registros=count($detalleComprobante);	
+		$cuenta_auxiliar="";
 		// echo($nro_registros);
 		// $data[] = array();
 		if($nro_registros>0)
@@ -1453,6 +1499,9 @@ class Comprobante extends CI_Controller {
 				$importe_moneda_extranjera = $fila->importe_moneda_extranjera;
 				$tipo_cambio			   = $fila->tipo_cambio;
 				$glosa_cuenta			   = $fila->glosa_cuenta;
+				$id_cuenta_auxiliar 	   = $fila->id_cuenta_auxiliar;
+				$codigo_auxiliar		   = $fila->codigo_auxiliar;
+				$descripcion_auxiliar	   = $fila->descripcion_auxiliar;
 				$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
 				
 				if($tipo_movimiento == "DB")
@@ -1467,7 +1516,14 @@ class Comprobante extends CI_Controller {
 					// $importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
 				}
 
-				$cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta;			
+				// if(!empty($id_cuenta_auxiliar))
+				// {
+				// 	$cuenta_auxiliar = "<b>".$codigo_auxiliar."</b>" .$descripcion_auxiliar;			
+				// }
+				$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$codigo_auxiliar."</b></span> - " .$descripcion_auxiliar;			
+				
+
+				// $cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta." \n".$cuenta_auxiliar;			
 
 				$botonEditar = "<div style='text-align: center;'>
 									<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar Registro Cuenta'>
@@ -1479,7 +1535,7 @@ class Comprobante extends CI_Controller {
 										<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaComprobante(".$id_registro.")\"><i>🗑️</i></button>
 									</span>										
 								</div>";
-				$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
+				$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta."<br>".$cuenta_auxiliar;
 				$data[] = array(
 					"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
 					$cuenta_registro,

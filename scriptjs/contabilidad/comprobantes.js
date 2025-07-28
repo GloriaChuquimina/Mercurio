@@ -82,6 +82,10 @@ $(function (){
                     {                 
                         if (datalist[i].value === target) {
                             $('#id_cuenta').val( datalist[i].dataset.value) ;
+                            $('#id_cuenta_auxiliar').val('-');
+                            $('#txtAuxiliarCuenta').val('-');
+                            $('#id_cuenta_auxiliar').text('-');
+                            $('#txtAuxiliarCuenta').text('-');
                             cargarCuentasAuxiliaresLista(datalist[i].dataset.value);
                             break;
                         }
@@ -96,6 +100,10 @@ $(function (){
                         if (datalist[i].value  == target) {
                             $('#id_cuenta').val( datalist[i].dataset.value) ;
                             // $('#txtCodigo').val( datalist[i].dataset.value) ;
+                            $('#id_cuenta_auxiliar').val('-');
+                            $('#txtAuxiliarCuenta').val('-');
+                            $('#id_cuenta_auxiliar').text('-');
+                            $('#txtAuxiliarCuenta').text('-');
                             cargarCuentasAuxiliaresLista(datalist[i].dataset.value);
                             break;
                         }
@@ -168,9 +176,14 @@ $(function (){
 function busquedaIDCuenta(id_cuenta,cuenta)
 {
 
-     $('#id_cuenta').val( id_cuenta) ;
-     $('#txtCuenta').val( cuenta) ;
-     $('#modalListaCuentas').modal('hide');  
+    $('#id_cuenta').val( id_cuenta) ;
+    $('#txtCuenta').val( cuenta) ;
+    $('#modalListaCuentas').modal('hide'); 
+    $('#id_cuenta_auxiliar').val('-');
+    $('#txtAuxiliarCuenta').val('-');
+    $('#id_cuenta_auxiliar').text('-');
+    $('#txtAuxiliarCuenta').text('-');
+     cargarCuentasAuxiliaresLista(id_cuenta); 
 }
 
 function cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante)
@@ -445,54 +458,49 @@ function limpiarModalRegistro()
     $('#txtGlosaCuenta').val('');
     $('#id_cuenta').val('');
 }
-function  guardarRegistroCuentaTemporal()
-{
+// function  guardarRegistroCuentaTemporal()
+// {
+//     if(accion == 'nuevo')
+//     {
+//         var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
+//         $('#registroCuentaT').val(cadRegistroCuentaT);
+//         var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
+//         $('#tablaRegistroCuenta').DataTable({
+//             destroy: true,
+//             searching: true,
+//             fixedHeader: true,
+//             scrollY: '300px',   // Altura del contenedor visible
+//             scrollCollapse: true,
+//             paging: false,
+//             "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+//             "iDisplayLength": 5,
+//             "ajax": {
+//                 type: "POST",
+//                 url: enlace,
+//                 data: { accion: accion, 
+//                         cuenta: cadRegistroCuentaT, 
+//                         id_entidad: id_entidad
+//                     },
 
-    /****************************************************** */
-    // quitarComaNumeroDecimal1();
-    if(accion == 'nuevo')
-    {
-        var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"*"+glosa_cuenta+"|";
-        $('#registroCuentaT').val(cadRegistroCuentaT);
-        var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
-        $('#tablaRegistroCuenta').DataTable({
-            destroy: true,
-            searching: true,
-            fixedHeader: true,
-            scrollY: '300px',   // Altura del contenedor visible
-            scrollCollapse: true,
-            paging: false,
-            "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
-            "iDisplayLength": 5,
-            "ajax": {
-                type: "POST",
-                url: enlace,
-                data: { accion: accion, 
-                        cuenta: cadRegistroCuentaT, 
-                        id_entidad: id_entidad
-                    },
-
-                dataSrc: function(json) {listaCuentas
-                        $('.txtTotalImporteDebe').text(json.totalimporteDebe);
-                        $('.txtTotalImporteHaber').text(json.totalimporteHaber);
-                        $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
-                        $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
-                        $('#cant_cuentas').val(json.nro_registros);
-                        return json.data;
-                    }
-            }
+//                 dataSrc: function(json) {listaCuentas
+//                         $('.txtTotalImporteDebe').text(json.totalimporteDebe);
+//                         $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+//                         $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
+//                         $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+//                         $('#cant_cuentas').val(json.nro_registros);
+//                         return json.data;
+//                     }
+//             }
             
-        });
-    }
-    /****************************************************** */
-
-}
+//         });
+//     }
+// }
 function cargarCuentasComprobanteT()
 {
     var accion                   = $('#txtAccionMovimiento').val();
     var id_entidad               = $('#id_entidad_registro').val();
     var cadRegistroCuenta        = $('#registroCuentaT').val();
-
+    var datos_cuenta             = $('#formularioRegistroCuenta').serialize();
     var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
     $('#tablaRegistroCuenta').DataTable({
         destroy: true,
@@ -503,10 +511,14 @@ function cargarCuentasComprobanteT()
          "ajax": {
             type: "POST",
             url: enlace,
-            data: { accion: accion, 
-                    cuenta: cadRegistroCuenta, 
-                id_entidad: id_entidad
+            // data: { accion: accion, 
+            //         cuenta: cadRegistroCuenta, 
+            //     id_entidad: id_entidad
+            //     },
+            data: { datos_cuenta:datos_cuenta,
+                         cuentas:cadRegistroCuenta
                 },
+            
 
             dataSrc: function(json) {
                     $('.txtTotalImporteDebe').text(json.totalimporteDebe);
@@ -799,7 +811,7 @@ function eliminarRegistroCuentaComprobante(id_registro_CuentaComprobante)
         }
     });
 }
-function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,tipo_movimiento_literal,importe,tipo_cambio,glosa_cuenta,cadRegistroCuenta)
+function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,tipo_movimiento_literal,importe,tipo_cambio,glosa_cuenta,id_cuenta_auxiliar,cuenta_auxiliar,cadRegistroCuenta)
 {
     swal({
         title: 'ATENCIÓN',
@@ -830,6 +842,8 @@ function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,t
                        importe: importe,
                    tipo_cambio: tipo_cambio,
                   glosa_cuenta: glosa_cuenta,
+            id_cuenta_auxiliar: id_cuenta_auxiliar,
+               cuenta_auxiliar: cuenta_auxiliar,
              cadRegistroCuenta: cadRegistroCuenta
                       },
                 dataType: 'JSON',
