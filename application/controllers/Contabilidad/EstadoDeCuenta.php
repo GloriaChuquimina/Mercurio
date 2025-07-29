@@ -57,7 +57,7 @@ class EstadoDeCuenta extends CI_Controller {
 		$fecha_hasta           = $this->input->post('fecha_fin');
 		$id_cuenta             = $this->input->post('id_cuenta');
 
-		$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRango($id_entidad,$fecha_desde,$fecha_hasta);
+		$estadoCuenta = $this->EstadoDeCuenta_model->getEstadoDeCuenta($id_entidad,$fecha_desde,$fecha_hasta);
 		$totalDebe =0;
 		$totalHaber =0;
 		$importeDebe=0;
@@ -68,14 +68,19 @@ class EstadoDeCuenta extends CI_Controller {
 		 $tr = "";
 		$totalGeneralImporteDebe  = 0;
 		$totalGeneralImporteHaber = 0;
-		foreach ($libroDiarioComprobante as $comprobante)
+		foreach ($estadoCuenta as $fila)
 		{   
+			$codigo_aux 		 = $fila->codigo_aux;
+			$descripcion_aux	 = $fila->descripcion_aux;
 
-			$id_comprobante 	 = $comprobante->id_comprobante;
-			$fecha_comprobante   = formato_fecha_slash($comprobante->fecha_comprobante);
-			// $tipo_comprobante    = $comprobante->tipo_comprobante;
-			$tipo_comprobante    = "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE",  $comprobante->tipo_comprobante);
-			$glosa_comprobante   = $comprobante->glosa_comprobante;
+			$data[] = array(
+				"<span class='badge badge-secondary'>".$codigo_aux."</span>",
+				$descripcion_aux,	
+				$tipo,
+                $fila['nivel'],
+                $fila['sigla'],
+				$estado
+			);
 
 			$tr.="<tr style='background-color:rgb(209, 226, 239); font-weight: bold;'>
 					<td>

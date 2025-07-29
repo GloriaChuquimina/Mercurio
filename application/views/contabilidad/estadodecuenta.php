@@ -208,6 +208,63 @@
                     </div>
                 </div>
             </div>
+						 <!-- TABLA ESTADO DE CUENTA-->
+						<div class="card" id="tablaEstadoDeCuenta" style="display: none">
+                <div class="card-header bg-gradient-secondary">
+                  <h3 class="card-title text-white">
+                    <i class="mr-2">📖</i>
+                    ESTADO DE CUENTA 
+                  </h3>
+                  <div class="card-tools">
+                    <!-- <span class="badge badge-light">
+                      NROMOVIMIENTOS
+                    </span> -->
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive" style="overflow-x:auto;">
+                    <table id="tablaDatosEstadoDeCuenta" class="table table-striped table-hover " style="width: 100%;">
+                      <thead class="bg-dark text-white">
+                          <tr>
+                            <th rowspan="2" style="width: 150px;">CÓDIGO</th>
+                            <th rowspan="2" style="width: 350px;">CUENTA</th>
+                            <th colspan="4" style="text-align: center;">BOLIVIANOS</th>
+                          </tr>
+                          <tr>
+                            <th style="width: 120px; text-align: center;">DEBE</th>
+                            <th style="width: 120px; text-align: center;">HABER</th>
+                            <th style="width: 120px; text-align: center;">DEUDOR</th>
+                            <th style="width: 120px; text-align: center;">ACREEDOR</th>
+                          </tr>
+                      </thead>
+                      <tbody id="tbodyEstadoCuenta">
+                      </tbody>
+                      <!-- <tfoot>
+                          <tr class="bg-primary">
+                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              TOTALES LIBRO DIARIO:
+                              </td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber">0.00</td>
+                              </td>
+                          </tr>
+                      </tfoot> -->
+                    </table>
+                  </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                        <p class="text-muted">
+                            <!-- Empresa: • Período:• Movimientos: -->
+                        </p>
+                        </div>
+                        <div class="col-md-6 text-right">
+                        <small class="text-muted">Última actualización:</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </div>
