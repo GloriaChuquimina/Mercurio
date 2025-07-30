@@ -9,31 +9,42 @@ class EstadoDeCuenta_model extends CI_Model
 		parent::__construct();	
 		$this->db_mercurio = $this->load->database('db_mercurio', TRUE);		
 	}
-    function getEstadoDeCuenta($id_entidad,$id_cuenta,$fecha_inicio,$fecha_fin)
+    function getEstadoDeCuenta($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta)
 	{
 		$query = $this->db_mercurio->query("
-                                         		 select  c.id as id_comprobante
-																										,c.fecha_comprobante 
-																										,c.tipo_comprobante
-																										,c.glosa_comprobante
-																										,dc.id_cuenta
-																										,dc.tipo_movimiento
-																										,pc.codigo
-																										,pc.descripcion
-																										,dc.importe_moneda_nacional
-																										,pa.codigo as codigo_aux
-																										,pa.descripcion as descripcion_aux
-																										from contabilidad.comprobante c 
-																				left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante
-																				left outer join administracion.entidad e on c.id_entidad =e.id
-																				left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
-																				left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
-																									where e.id=1
-																										and c.estado in ('ACT')
-																										and dc.estado in('ACT')
-																										and pc.id =19
-																										and c.fecha_comprobante between '01-01-2023' and '18-07-2025'
-		    							   								");
+                                          select  			
+												 pa.codigo as codigo_aux
+												,pa.descripcion as descripcion_aux
+												,SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) AS debe
+												,SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) AS haber 
+												,CASE 
+													WHEN SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) > 
+														SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)
+													THEN 
+														SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+														SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)
+													ELSE 0 
+												END AS saldo_deudor			
+												,CASE 
+													WHEN SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) > 
+														SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END)
+													THEN 
+														SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+														SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END)
+													ELSE 0 
+												END AS saldo_acreedor
+										   from contabilidad.comprobante c 
+								left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante
+								left outer join administracion.entidad e on c.id_entidad =e.id
+								left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
+								left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
+										where e.id=1
+											and c.estado in ('ACT')
+											and dc.estado in('ACT')
+											and pc.id =19
+											and c.fecha_comprobante between '01-01-2023' and '29-07-2025'
+									group by pa.codigo,pa.descripcion	
+		    							");
 		return $query->result();
 	}
 }

@@ -275,7 +275,7 @@ class SumasYSaldos extends CI_Controller {
 		$y=$pdf->GetY();
 		$pdf->SetXY(12,$y);
 		$pdf->setX(12);     
-		$pdf->Cell(125,8,utf8_decode($TOTALES),0,0,'R',1);
+		$pdf->Cell(125,8,utf8_decode($TOTALES),0,0,'C',1);
 		$pdf->Cell(18,8,utf8_decode(number_format($totalDebe,2,'.',',')),0,0,'R',1);
 		$pdf->Cell(18,8,utf8_decode(number_format($totalHaber,2,'.',',')),0,0,'R',1);
 		$pdf->Cell(18,8,utf8_decode(number_format($totalDeudor,2,'.',',')),0,0,'R',1);

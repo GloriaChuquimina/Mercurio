@@ -85,9 +85,9 @@
                 </div>
 
                   <div class="card-body">
-                    <input type ="hidden" class="form-control" id="id_entidad" name="id_entidad">
-                    <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input type ="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <input class="form-control" id="id_entidad" name="id_entidad">
+                    <input class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
                       <div class="col-md-3">
                         <div class="form-group">
@@ -177,11 +177,11 @@
                     <div class="row">
                       <div class="col-md-12 text-right">
                         <button class="btn btn-primary mr-2"
-                             onClick = "cargarDatosSumasySaldos()">
-                          <i class="mr-1">🔍</i> Generar Balance
+                             onClick = "consultar()">
+                          <i class="mr-1">🔍</i> Consultar 
                         </button>
                         <button class="btn btn-success mr-2"
-                              onClick="ReporteSumasySaldosPDF()">
+                              onClick="generarReporteEstadoDeResultados()">
                           <i class="mr-1">📄</i> Exportar PDF
                         </button>
                         <!-- <button class="btn btn-info mr-2">
@@ -222,6 +222,102 @@
                                     </h8>
                                     </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <!-- TABLA ESTADO DE CUENTA-->
+						<div class="card" id="tablaEstadoDeResultados" style="display: none">
+                <div class="card-header bg-gradient-secondary">
+                  <h3 class="card-title text-white">
+                    <i class="mr-2">📖</i>
+                    ESTADO DE RESULTADOS
+                  </h3>
+                  <div class="card-tools">
+                    <!-- <span class="badge badge-light">
+                      NROMOVIMIENTOS
+                    </span> -->
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <!-- tabla cuentas de ingreso  -->
+                  <div class="table-responsive" style="overflow-x:auto;">
+                    <table id="tablaDatosCuentasIngreso" class="table table-striped table-hover " style="width: 100%;">
+                      <thead class="bg-dark text-white">
+                          <tr>
+                            <th colspan ="3" style="text-align: center;">CUENTAS DE INGRESO</th>
+                          </tr>
+                          <tr>
+                            <th style="text-align: center;">CÓDIGO</th>
+                            <th style="text-align: center;">NOMBRE</th>
+                            <th style="text-align: center;">BOLIVIANOS</th>
+                          </tr>
+                          
+                      </thead>
+                      <!-- <tbody id="tbodyEstadoCuenta">
+                      </tbody> -->
+                      <tfoot>
+                          <tr class="bg-primary">
+                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              TOTAL CUENTAS DE INGRESO:
+                              </td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteIngreso">0.00</td>
+                              </td>
+                          </tr>
+                          <tr class="bg-secondary">
+                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              RESULTADO DEL EJERCICIO:
+                              </td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteResultado1">0.00</td>
+                              </td>
+                          </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  <!-- tabla cuentas de egreso -->
+                  <div class="table-responsive" style="overflow-x:auto;">
+                    <table id="tablaDatosCuentasEgreso" class="table table-striped table-hover " style="width: 100%;">
+                      <thead class="bg-dark text-white">
+                          <tr>
+                            <th colspan ="3" style="text-align: center;">CUENTAS DE EGRESO</th>
+                          </tr>
+                          <tr>
+                            <th style="text-align: center;">CÓDIGO</th>
+                            <th style="text-align: center;">NOMBRE</th>
+                            <th style="text-align: center;">BOLIVIANOS</th>
+                          </tr>
+                          
+                      </thead>
+                      <!-- <tbody id="tbodyEstadoCuenta">
+                      </tbody> -->
+                      <tfoot>
+                          <tr class="bg-primary">
+                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              TOTAL CUENTAS DE EGRESO:
+                              </td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteEgreso">0.00</td>
+                              </td>
+                          </tr>
+                          <tr class="bg-secondary">
+                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              RESULTADO DEL EJERCICIO:
+                              </td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteResultado2">0.00</td>
+                              </td>
+                          </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                        <p class="text-muted">
+                            <!-- Empresa: • Período:• Movimientos: -->
+                        </p>
+                        </div>
+                        <div class="col-md-6 text-right">
+                        <small class="text-muted">Última actualización:</small>
                         </div>
                     </div>
                 </div>

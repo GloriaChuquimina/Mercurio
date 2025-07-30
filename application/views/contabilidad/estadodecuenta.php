@@ -84,9 +84,9 @@
                   </div>
                 </div>
                 <div class="card-body">
-                    <input type ="hidden" class="form-control" id="id_entidad" name="id_entidad">
-                    <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input type ="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <input class="form-control" id="id_entidad" name="id_entidad">
+                    <input class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
                       <div class="col-md-6">
                         <div class="form-group">
@@ -166,7 +166,7 @@
                           <i class="mr-1">🔍</i> Consultar
                         </button>
                         <button class="btn btn-success mr-2"
-                                onClick="generarReporteLibroMayor()">
+                                onClick="generarReporteEstadoCuenta()">
                           <i class="mr-1">📄</i> Exportar PDF
                         </button>
                         <!-- <button class="btn btn-info">
@@ -237,18 +237,20 @@
                             <th style="width: 120px; text-align: center;">ACREEDOR</th>
                           </tr>
                       </thead>
-                      <tbody id="tbodyEstadoCuenta">
-                      </tbody>
-                      <!-- <tfoot>
+                      <!-- <tbody id="tbodyEstadoCuenta">
+                      </tbody> -->
+                      <tfoot>
                           <tr class="bg-primary">
                               <td colSpan="2" style="color: white; font-weight: bold;">
-                              TOTALES LIBRO DIARIO:
+                              TOTALES:
                               </td>
                                   <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe">0.00</td>
                                   <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDeudor">0.00</td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteAcreedor">0.00</td>
                               </td>
                           </tr>
-                      </tfoot> -->
+                      </tfoot>
                     </table>
                   </div>
                 </div>

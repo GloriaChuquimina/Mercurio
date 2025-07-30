@@ -262,3 +262,65 @@ function cargarEstadoDeCuenta()
             
         });
 }
+function consultar() {
+  $('#tablaEstadoDeCuenta').show();
+  $("#mensajeSeleccion").hide();
+
+  var id_entidad   = $('#id_entidad').val();
+  var fecha_inicio = $('#fechaDesde').val();
+  var fecha_fin    = $('#fechaHasta').val();
+  var id_cuenta    = $('#id_cuenta').val();
+  var enlace = base_url + "Contabilidad/EstadoDeCuenta/cargarDatosEstadoDeCuenta";
+  $('#tablaDatosEstadoDeCuenta').DataTable({
+        destroy: true,
+        searching: false,
+        paging: false,
+        "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+        "iDisplayLength": 5,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            data: { id_entidad: id_entidad,
+                  fecha_inicio: fecha_inicio,
+                     fecha_fin: fecha_fin,
+                     id_cuenta: id_cuenta
+                  },
+
+            dataSrc: function(json) {
+
+                    
+                        $('.txtTotalImporteDebe').text(json.totalDebe);
+                        $('.txtTotalImporteHaber').text(json.totalHaber);
+                        $('.txtTotalImporteDeudor').text(json.totalDeudor);
+                        $('.txtTotalImporteAcreedor').text(json.totalAcreedor);
+                        $('#cant_cuentas').val(json.nro_registros);
+                        return json.data;
+                    
+                }
+        },
+    });
+}
+function generarReporteEstadoCuenta()
+{
+    var id_entidad   = $('#id_entidad').val();
+    var fecha_inicio = $('#fechaDesde').val();
+    var fecha_fin    = $('#fechaHasta').val();
+    var id_cuenta    = $('#id_cuenta').val();
+    if(fecha_inicio!='' && fecha_fin !='')
+    {
+        $('#divPDF').html('');
+        var iframe = document.createElement("iframe");
+            iframe.width = '100%';
+            iframe.height = '700px';
+            iframe.src = base_url+'Contabilidad/EstadoDeCuenta/ReporteEstadoDeCuentaPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin+"/"+id_cuenta; 
+            $('#divPDF').append(iframe);
+        $('#divCapa').addClass('overlay');    
+        $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+        $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
+        $('#pdfModal').show();           
+    }
+    else
+    {
+        alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
+    }
+}

@@ -230,3 +230,92 @@ function seleccionDeCuentas()
         }
     });
 }
+
+function consultar() {
+    alert("steph");
+  $('#tablaEstadoDeResultados').show();
+  $("#mensajeSeleccion").hide();
+
+  var id_entidad   = $('#id_entidad').val();
+  var fecha_inicio = $('#fechaDesde').val();
+  var fecha_fin    = $('#fechaHasta').val();
+  var id_cuenta    = $('#id_cuenta').val();
+  var enlace = base_url + "Contabilidad/EstadoDeResultados/cargarDatosEstadoDeResultadosIngreso";
+  $('#tablaDatosCuentasIngreso').DataTable({
+        destroy: true,
+        searching: false,
+        paging: false,
+        "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+        "iDisplayLength": 5,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            data: { id_entidad: id_entidad,
+                  fecha_inicio: fecha_inicio,
+                     fecha_fin: fecha_fin,
+                     id_cuenta: id_cuenta
+                  },
+
+            dataSrc: function(json) {
+
+                    
+                        $('.txtTotalImporteIngreso').text(json.totalSaldoAcreedor);
+                        $('.txtTotalImporteResultado1').text(json.totalResultado);
+                        $('#cant_cuentas').val(json.nro_registros);
+                        return json.data;
+                    
+                }
+        },
+    });
+    var enlace = base_url + "Contabilidad/EstadoDeResultados/cargarDatosEstadoDeResultadosEgreso";
+    $('#tablaDatosCuentasEgreso').DataTable({
+            destroy: true,
+            searching: false,
+            paging: false,
+            "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+            "iDisplayLength": 5,
+            "ajax": {
+                type: "POST",
+                url: enlace,
+                data: { id_entidad: id_entidad,
+                    fecha_inicio: fecha_inicio,
+                        fecha_fin: fecha_fin,
+                        id_cuenta: id_cuenta
+                    },
+
+                dataSrc: function(json) {
+
+                        
+                            $('.txtTotalImporteEgreso').text(json.totalSaldoDeudor);
+                            $('.txtTotalImporteResultado2').text(json.totalResultado);
+                            $('#cant_cuentas').val(json.nro_registros);
+                            return json.data;
+                        
+                    }
+            },
+        });
+}
+function generarReporteEstadoDeResultados()
+{
+    var id_entidad   = $('#id_entidad').val();
+    var fecha_inicio = $('#fechaDesde').val();
+    var fecha_fin    = $('#fechaHasta').val();
+    var id_cuenta    = $('#id_cuenta').val();
+    if(fecha_inicio!='' && fecha_fin !='')
+    {
+        $('#divPDF').html('');
+        var iframe = document.createElement("iframe");
+            iframe.width = '100%';
+            iframe.height = '700px';
+            iframe.src = base_url+'Contabilidad/EstadoDeResultados/ReporteEstadoDeResultadosPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin+"/"+id_cuenta; 
+            $('#divPDF').append(iframe);
+        $('#divCapa').addClass('overlay');    
+        $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+        $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
+        $('#pdfModal').show();           
+    }
+    else
+    {
+        alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
+    }
+}

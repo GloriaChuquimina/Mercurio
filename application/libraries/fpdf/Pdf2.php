@@ -15,6 +15,7 @@ class Pdf2 extends FPDF {
     public $tituloCabecera;
     public $subtituloCabecera1;
     public $subtituloCabecera2;
+    public $subtituloCabecera3;
     public $gestion;
     public $opcion_cabecera;
     public $opcion_pie;
@@ -206,15 +207,12 @@ class Pdf2 extends FPDF {
             $this->SetX(10);
             $this->MultiCell(30,3,utf8_decode('SENAPE'),0,'C',0);
             $this->Ln(3);
-
             $this->SetXY(200, $y); 
             $this->Cell(10, 5, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
             $this->SetXY(190,$y+3);            
             $fecha_hoy = $this->fechaformato();
             $this->Cell(10, 5,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
-            $this->Ln(3);
-
-           
+            $this->Ln(3);           
             $this->SetXY(0,30);
             $this->SetFont('Arial', 'BU', 12);
             $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
@@ -227,28 +225,6 @@ class Pdf2 extends FPDF {
             $this->Cell(0,0,utf8_decode($this->subtituloCabecera2),0,1,'C',0);
             $this->Ln(3);
             
-            //Cabecera
-            // Cabecera superior agrupada
-            // $this->SetXY(5, 40); // Coordenada superior izquierda
-            // $this->SetFillColor(230, 230, 225);
-            // $this->SetTextColor(0);
-            // $this->SetFont('Arial','B',7);
-            // $this->SetX(5);
-            // $this->Cell(25,13,utf8_decode('CÓDIGO'), 1, 0, 'C', 1);
-            // $this->Cell(120,13,utf8_decode('DESCRIPCIÓN'), 1, 0, 'C', 1);
-            // $this->SetXY(150,40);
-            // $this->Cell(30,5,utf8_decode('SUMAS'),1,0,'C',1);
-            // $this->SetXY(150,45);
-            // $this->Cell(15,8,utf8_decode('DEBE'),1, 0, 'C', 1);
-            // $this->SetXY(165,45);
-            // $this->Cell(15,8,utf8_decode('HABER'),1, 0, 'C', 1);
-            // $this->SetXY(180,40);
-            // $this->Cell(30,5,utf8_decode('SALDOS'),1,1,'C',1);
-            // $this->SetXY(180,45);
-            // $this->Cell(15,8,utf8_decode('DEUDOR'),1, 0, 'C', 1);
-            // $this->SetXY(195,45);
-            // $this->Cell(15,8,utf8_decode('ACREEDOR'),1, 1, 'C', 1);
-
         }
 		if($this->opcion_cabecera==6)
         {
@@ -301,6 +277,63 @@ class Pdf2 extends FPDF {
             $this->SetXY(190,45);
             $this->Cell(20,8,utf8_decode('HABER'),1, 0, 'C', 1);
 			$this->Ln();
+        }
+        if($this->opcion_cabecera==7)
+        {
+            $this->Ln();
+            $this->SetTextColor(0);
+            $this->SetFont('Times','B',6);
+            $y = $this->GetY();
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode($this->entidad),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode($this->sigla),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode('SENAPE'),0,'C',0);
+            $this->Ln(3);
+            $this->SetXY(200, $y); 
+            $this->Cell(10, 5, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
+            $this->SetXY(190,$y+3);            
+            $fecha_hoy = $this->fechaformato();
+            $this->Cell(10, 5,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
+            $this->Ln(3);
+
+           
+            $this->SetXY(0,30);
+            $this->SetFont('Arial', 'BU', 12);
+            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
+            $this->Ln(4);
+            $this->SetFont('Times','B',7);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera1),0,1,'C',0);
+            $this->Ln(3);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera2),0,1,'C',0);
+            $this->Ln(3);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera3),0,1,'C',0);
+            $this->Ln(3);
+            
+            //Cabecera
+            // Cabecera superior agrupada
+            $this->SetXY(15, 45); // Coordenada superior izquierda
+            $this->SetFillColor(230, 230, 225);
+            $this->SetTextColor(0);
+            $this->SetFont('Arial','B',7);
+            // $this->SetX(20);
+            $this->Cell(30,13,utf8_decode('CÓDIGO'), 1, 0, 'C', 1);
+            $this->Cell(115,13,utf8_decode('CUENTA'), 1, 0, 'C', 1);
+            $this->SetXY(150,45);
+            $this->Cell(60,5,utf8_decode('BOLIVIANOS'),1,0,'C',1);
+            $this->SetXY(150,50);
+            $this->Cell(15,8,utf8_decode('DEBE'),1, 0, 'C', 1);
+            $this->SetXY(165,50);
+            $this->Cell(15,8,utf8_decode('HABER'),1, 0, 'C', 1);
+            $this->SetXY(180,50);
+            $this->Cell(15,8,utf8_decode('DEUDOR'),1, 0, 'C', 1);
+            $this->SetXY(195,50);
+            $this->Cell(15,8,utf8_decode('ACREEDOR'),1, 1, 'C', 1);
+
         }
     }
 
@@ -700,16 +733,16 @@ class Pdf2 extends FPDF {
             $h=4*$nb;
             if ($h < $fh)
                 $h = $fh;
-        }
-         
+        }         
         //Issue a page break first if needed
         $this->CheckPageBreak_LM($h);
         // Forzar margen izquierdo deseado tras salto
-        $this->SetX(12);
+        $this->SetX(15);
         //Draw the cells of the row
         for($i=0;$i<count($data);$i++)
         {
             $w=$this->widths[$i];
+            
             $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
             //Save the current position
             $x=$this->GetX();
@@ -762,6 +795,7 @@ class Pdf2 extends FPDF {
         //Go to the next line
         $this->Ln($h);
     }
+    
 
     function Row_Reportes_BG($data,$code=false,$fills='',$fh='',$indentacion_invertida2=0,$nivel=0)
     {
@@ -877,7 +911,6 @@ class Pdf2 extends FPDF {
         //Go to the next line
         $this->Ln($h);
     }
-
     function RowHeader($data,$code=false,$fills='',$fh='')
     {
         //Calculate the height of the row
