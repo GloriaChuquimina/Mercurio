@@ -57,8 +57,27 @@ class LibroDiario extends CI_Controller {
 		$id_entidad            = $this->input->post('id_entidad');
 		$fecha_desde  		   = $this->input->post('fecha_inicio');
 		$fecha_hasta           = $this->input->post('fecha_fin');
+		$tipo_comprobante      = $this->input->post('tipo_comprobante');
+		$numero_inicio         = $this->input->post('numero_inicio');
+		$numero_fin            = $this->input->post('numero_fin');
 
-		$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRango($id_entidad,$fecha_desde,$fecha_hasta);
+		
+		// $libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRango($id_entidad,$fecha_desde,$fecha_hasta);
+		if($tipo_comprobante == -1)
+		{
+			$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRango($id_entidad,$fecha_desde,$fecha_hasta);
+		}
+		else
+		{
+			if(!empty($numero_inicio) && !empty($numero_fin))
+			{
+				$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRangoByTipoNumero($id_entidad,$fecha_desde,$fecha_hasta,$tipo_comprobante,$numero_inicio,$numero_fin);
+			}
+			else
+			{
+				$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRangoByTipo($id_entidad,$fecha_desde,$fecha_hasta,$tipo_comprobante);
+			}
+		}
 		$totalDebe =0;
 		$totalHaber =0;
 		$importeDebe=0;
@@ -77,13 +96,16 @@ class LibroDiario extends CI_Controller {
 			// $tipo_comprobante    = $comprobante->tipo_comprobante;
 			$tipo_comprobante    = "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE",  $comprobante->tipo_comprobante);
 			$glosa_comprobante   = $comprobante->glosa_comprobante;
+			$numero_correlativo  = " Nro.:".$comprobante->correlativo;
+			$detalle_comprobante = $tipo_comprobante." ".$numero_correlativo ;
+
 
 			$tr.="<tr style='background-color:rgb(209, 226, 239); font-weight: bold;'>
 					<td>
 						".$fecha_comprobante."
 					</td>
 					<td>
-						".$tipo_comprobante."
+						".$detalle_comprobante."
 					</td>
 					<td style='text-align: right;'>
 						---
@@ -309,7 +331,7 @@ class LibroDiario extends CI_Controller {
 		echo json_encode($output);
 		exit();
     }
-	function ReporteLibroDiarioPDF($id_entidad,$fecha_desde,$fecha_hasta)
+	function ReporteLibroDiarioPDF($id_entidad,$fecha_desde,$fecha_hasta,$tipo_comprobante,$numero_inicio,$numero_fin)
 	{			
 			
 		$this->load->library('fpdf/pdf2');
@@ -329,6 +351,8 @@ class LibroDiario extends CI_Controller {
 		$pdf->AddPage('P','Letter');
 		$pdf->opcion_cabecera=6;
 		$pdf->Header();
+		$pdf->opcion_pie	= 'FOOTER_LIBRODIARIO';
+		// $pdf->opcion_pie='FOOTER_VACIO';
 		$pdf->SetFillColor(255,255,255);
         $pdf->SetTextColor(0);
         // $pdf->SetFont('Arial','',6);
@@ -340,7 +364,22 @@ class LibroDiario extends CI_Controller {
         $num = 0;
         $total=0;
 
-		$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRango($id_entidad,$fecha_desde,$fecha_hasta);
+		if($tipo_comprobante == -1)
+		{
+			$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRango($id_entidad,$fecha_desde,$fecha_hasta);
+		}
+		else
+		{
+			if(!empty($numero_inicio) && !empty($numero_fin))
+			{
+				$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRangoByTipoNumero($id_entidad,$fecha_desde,$fecha_hasta,$tipo_comprobante,$numero_inicio,$numero_fin);
+			}
+			else
+			{
+				$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRangoByTipo($id_entidad,$fecha_desde,$fecha_hasta,$tipo_comprobante);
+			}
+		}
+
 		$contador_registros = count($libroDiarioComprobante);
 		if($contador_registros > 0)
 		{
@@ -352,6 +391,7 @@ class LibroDiario extends CI_Controller {
 			$totalGeneralImporteDebe  = 0;
 			$totalGeneralImporteHaber = 0;
 			$pdf->setY(55); 
+			$y_ini = $pdf->getY();
 			foreach ($libroDiarioComprobante as $comprobante)
 			{   
 
@@ -362,6 +402,7 @@ class LibroDiario extends CI_Controller {
 				$tipo_comprobante    = "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE",  $comprobante->tipo_comprobante);
 				$numero_correlativo  = " Nro.:".$comprobante->correlativo;
 				$glosa_comprobante   = $comprobante->glosa_comprobante;
+				// echo($glosa_comprobante);
 
 				$detalle_comprobante = $tipo_comprobante." ".$numero_correlativo ;	
 				$fila = array(
@@ -370,25 +411,26 @@ class LibroDiario extends CI_Controller {
 					'---',
 					'---'
 				);	
-				$y_ini=53;
+				$y_i = $pdf->GetY();
 				$pdf->SetFont('Arial', 'B', 7);
-				$pdf->setX(10); 
-				$pdf->Cell(30,8,utf8_decode($fecha_comprobante),0,0,'C',1);
-				$pdf->Cell(140,8,"-----".utf8_decode($detalle_comprobante)."-----",0,0,'C',1);
-				$pdf->Cell(15,8,utf8_decode(" "),0,0,'C',1);
-				$pdf->Cell(15,8,utf8_decode(" "),0,0,'C',1);
-				$pdf->Ln();
+				$pdf->SetXY(10, $y_i);
+				$pdf->Cell(30, 8, utf8_decode($fecha_comprobante), 0, 0, 'C', 1);
+				$pdf->Cell(130, 8, "-----" . utf8_decode($detalle_comprobante) . "-----", 0, 0, 'C', 1);
+				$pdf->Cell(20, 8, utf8_decode(""), 0, 0, 'R', 1);
+				$pdf->Cell(20, 8, utf8_decode(""), 0, 1, 'R', 1);
+				// $pdf->Ln();
 				$datosComprobante    = $this->Comprobantes_model->getDetalleComprobanteByIdComprobante($id_comprobante);
 				if($datosComprobante)	
 				{
 					$pdf->SetFillColor(255,255,255);
-					$pdf->SetFont('Arial', '', 8);
+					$pdf->SetFont('Arial', '', 7);
 					$y=$pdf->GetY();
 					$pdf->SetXY(10,$y);
-					$pdf->SetWidths([30, 140, 20, 20]);
+					$pdf->SetWidths([30, 130, 20, 20]);
 					$pdf->SetAligns(['L','L','R','R']);
 					foreach ($datosComprobante as $detalle_comprobante) 
-					{			
+					{		
+							$pdf->setX(10); 	
 							$importeDebe = 0;
 							$importeHaber= 0;
 							$id_entidad      		   = $detalle_comprobante->id_entidad;
@@ -405,27 +447,20 @@ class LibroDiario extends CI_Controller {
 							$codigo_descripcion		   = $codigo_cuenta."-".$descripcion_cuenta;
 							$resul 				       = 1;
 							$mensaje				   = "OK";	
-							if($tipo_movimiento == "DB"){
-								$importeDebe=$importe_moneda_nacional; 
-							}
-							elseif ($tipo_movimiento == "HB") {
-								$importeHaber=$importe_moneda_nacional; 
-							}
+							$importeDebe = $detalle_comprobante->tipo_movimiento == "DB" ? $detalle_comprobante->importe_moneda_nacional : 0;
+						    $importeHaber = $detalle_comprobante->tipo_movimiento == "HB" ? $detalle_comprobante->importe_moneda_nacional : 0;
 							$fila = array(
 								$codigo_cuenta,
 								$descripcion_cuenta,
 								$importeDebe ,
 								$importeHaber 
 							);	
-							// $pdf->setX(5); 
-							$pdf->SetFont('Arial', '', 7);
-							$y=$pdf->GetY();
-							$pdf->SetXY(10,$y);
-							$pdf->Cell(30,5,utf8_decode($codigo_cuenta),0,0,'L',1);
-							$pdf->Cell(130,5,utf8_decode($descripcion_cuenta),0,0,'L',1);
-							$pdf->Cell(20,5,number_format($importeDebe,2,',','.'),0,0,'R',1);
-							$pdf->Cell(20,5,number_format($importeHaber,2,',','.'),0,0,'R',1);						
-							$pdf->Ln();
+							// $pdf->Cell(30,5,utf8_decode($codigo_cuenta),0,0,'L',1);
+							// $pdf->Cell(130,5,utf8_decode($descripcion_cuenta),0,0,'L',1);
+							// $pdf->Cell(20,5,number_format($importeDebe,2,'.',','),0,0,'R',1);
+							// $pdf->Cell(20,5,number_format($importeHaber,2,'.',','),0,0,'R',1);						
+							// $pdf->Ln();
+							$pdf->Row_SinLinea($fila,true, '', 4);
 							$totalDebe     = $totalDebe+$importeDebe;
 							$totalHaber    = $totalHaber+$importeHaber;					
 					}
@@ -438,7 +473,9 @@ class LibroDiario extends CI_Controller {
 				$pdf->SetXY($x + 30, $y); // Mover a la derecha
 				$pdf->MultiCell(130, 8, utf8_decode($glosa_comprobante), 0, 'L', 1);
 				$pdf->SetXY($x + 160, $y); // 30 + 130
-				$pdf->MultiCell(20, 8, utf8_decode(number_format($totalDebe,2,',','.')), 0, 'R', 1);
+				$pdf->MultiCell(20, 8, utf8_decode(number_format($totalDebe,2,'.',',')), 0, 'R', 1);
+				
+
 				// Coordenadas finales
 				$x_line=175;
 				$finalY = $y + 8; // altura de la celda
@@ -447,7 +484,10 @@ class LibroDiario extends CI_Controller {
 				$pdf->Line($x_line, $finalY - 1.5, $x_line + 14, $finalY - 1.5); 
 				$pdf->Line($x_line, $finalY - 0.8, $x_line + 14, $finalY - 0.8); 
 				$pdf->SetXY($x + 180, $y); 
-				$pdf->MultiCell(20, 8, utf8_decode(number_format($totalHaber,2,',','.')), 0, 'R', 1);
+				$pdf->MultiCell(20, 8, utf8_decode(number_format($totalHaber,2,'.',',')), 0, 'R', 1);
+				
+				
+				
 				// Coordenadas finales
 				$x_line=195;
 				$finalY = $y + 8; // altura de la celda
@@ -468,10 +508,10 @@ class LibroDiario extends CI_Controller {
 			$pdf->Line($x+160, $y_ini, $x+160, $y_fin);	
 			$pdf->Line($x+180, $y_ini, $x+180, $y_fin);	
 			$pdf->Line($x+200, $y_ini, $x+200, $y_fin);	
-			$pdf->opcion_pie	= 'FOOTER_LIBRODIARIO';
+			
 			$pdf->totalLD_Debe  = $totalGeneralImporteDebe;
 			$pdf->totalLD_Haber = $totalGeneralImporteHaber;
-			$pdf->Footer();
+			// $pdf->Footer();
 			/**********************/
 		}
 		else{

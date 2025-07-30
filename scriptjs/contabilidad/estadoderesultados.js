@@ -232,14 +232,13 @@ function seleccionDeCuentas()
 }
 
 function consultar() {
-    alert("steph");
+//   alert("steph");
   $('#tablaEstadoDeResultados').show();
   $("#mensajeSeleccion").hide();
-
   var id_entidad   = $('#id_entidad').val();
   var fecha_inicio = $('#fechaDesde').val();
   var fecha_fin    = $('#fechaHasta').val();
-  var id_cuenta    = $('#id_cuenta').val();
+//   var id_cuenta    = $('#id_cuenta').val();
   var enlace = base_url + "Contabilidad/EstadoDeResultados/cargarDatosEstadoDeResultadosIngreso";
   $('#tablaDatosCuentasIngreso').DataTable({
         destroy: true,
@@ -252,8 +251,7 @@ function consultar() {
             url: enlace,
             data: { id_entidad: id_entidad,
                   fecha_inicio: fecha_inicio,
-                     fecha_fin: fecha_fin,
-                     id_cuenta: id_cuenta
+                     fecha_fin: fecha_fin
                   },
 
             dataSrc: function(json) {
@@ -279,8 +277,7 @@ function consultar() {
                 url: enlace,
                 data: { id_entidad: id_entidad,
                     fecha_inicio: fecha_inicio,
-                        fecha_fin: fecha_fin,
-                        id_cuenta: id_cuenta
+                        fecha_fin: fecha_fin
                     },
 
                 dataSrc: function(json) {
@@ -300,14 +297,14 @@ function generarReporteEstadoDeResultados()
     var id_entidad   = $('#id_entidad').val();
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
-    var id_cuenta    = $('#id_cuenta').val();
+    // var id_cuenta    = $('#id_cuenta').val();
     if(fecha_inicio!='' && fecha_fin !='')
     {
         $('#divPDF').html('');
         var iframe = document.createElement("iframe");
             iframe.width = '100%';
             iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/EstadoDeResultados/ReporteEstadoDeResultadosPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin+"/"+id_cuenta; 
+            iframe.src = base_url+'Contabilidad/EstadoDeResultados/ReporteEstadoDeResultadosPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin; 
             $('#divPDF').append(iframe);
         $('#divCapa').addClass('overlay');    
         $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);

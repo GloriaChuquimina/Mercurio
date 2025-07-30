@@ -28,10 +28,10 @@ class EstadoDeResultado_model extends CI_Model
                                                             left outer join administracion.entidad e on c.id_entidad =e.id
                                                             left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
                                                             left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
-                                                                    where e.id=1
+                                                                    where e.id=".$id_entidad."
                                                                         and c.estado in ('ACT')
                                                                         and dc.estado in('ACT')
-                                                                        and c.fecha_comprobante between '01-01-2023' and '29-07-2025'
+                                                                        and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                                                 group by pc.codigo,pc.descripcion
                                                             ) z_q WHERE saldo_acreedor <> 0
 		    							");
@@ -56,10 +56,10 @@ class EstadoDeResultado_model extends CI_Model
                                                         left outer join administracion.entidad e on c.id_entidad =e.id
                                                         left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
                                                         left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
-                                                                where e.id=1
+                                                                where e.id=".$id_entidad."
                                                                     and c.estado in ('ACT')
                                                                     and dc.estado in('ACT')
-                                                                    and c.fecha_comprobante between '01-01-2023' and '29-07-2025'
+                                                                    and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                                             group by pc.codigo,pc.descripcion
                                                                 ) z_q WHERE saldo_deudor <> 0
 		    							");
@@ -93,10 +93,10 @@ class EstadoDeResultado_model extends CI_Model
                                                         left outer join administracion.entidad e on c.id_entidad =e.id
                                                         left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
                                                         left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
-                                                                  where e.id=1
+                                                                  where e.id=".$id_entidad."
                                                                     and c.estado in ('ACT')
                                                                     and dc.estado in('ACT')
-                                                                    and c.fecha_comprobante between '01-01-2023' and '29-07-2025'
+                                                                    and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                                                group by pc.codigo,pc.descripcion
                                                         ) as resultado
 		    							");

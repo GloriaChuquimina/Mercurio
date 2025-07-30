@@ -179,35 +179,30 @@ class EstadoDeCuenta extends CI_Controller {
 			$totalAcreedor+=$importeAcreedor;
 			$pdf->Row_Reportes_SS($row,true, '', 6);	
 		} 
-
-
-		// $totalDebe=777;
-		// $totalHaber=777;
-		// $totalDeudor=777;
-		// $totalAcreedor=777;
-
+		$pdf->SetFont('Arial', 'B', 6);
+		$pdf->SetFillColor(230, 230, 225);
 		$x=15;
 		$y=$pdf->GetY();
 		$pdf->Line($x, $y, $x + 195, $y);
-		$pdf->Line($x, $y+8, $x + 195, $y+8);
+		$pdf->Line($x, $y+5, $x + 195, $y+5);
 		$TOTALES="TOTAL";
 		$y=$pdf->GetY();
 		$pdf->SetXY(15,$y);    
-		$pdf->Cell(135,8,utf8_decode($TOTALES),0,0,'C',1);
-		$pdf->Cell(15,8,utf8_decode(number_format($totalDebe,2,'.',',')),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode(number_format($totalHaber,2,'.',',')),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode(number_format($totalDeudor,2,'.',',')),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode(number_format($totalAcreedor,2,'.',',')),0,0,'R',1); 
+		$pdf->Cell(135,5,utf8_decode($TOTALES),0,0,'C',1);
+		$pdf->Cell(15,5,utf8_decode(number_format($totalDebe,2,'.',',')),0,0,'R',1);
+		$pdf->Cell(15,5,utf8_decode(number_format($totalHaber,2,'.',',')),0,0,'R',1);
+		$pdf->Cell(15,5,utf8_decode(number_format($totalDeudor,2,'.',',')),0,0,'R',1);
+		$pdf->Cell(15,5,utf8_decode(number_format($totalAcreedor,2,'.',',')),0,0,'R',1); 
 
 		$ini_y=58;
 		$y_fin=$pdf->GetY();
-		$pdf->Line(15, $ini_y, 15, $y_fin+8);
+		$pdf->Line(15, $ini_y, 15, $y_fin+5);
 		$pdf->Line(45, $ini_y, 45, $y_fin);
-		$pdf->Line(150, $ini_y, 150, $y_fin+8);
-		$pdf->Line(165, $ini_y, 165, $y_fin+8);
-		$pdf->Line(180, $ini_y, 180, $y_fin+8);
-		$pdf->Line(195, $ini_y, 195, $y_fin+8);
-		$pdf->Line(210, $ini_y, 210, $y_fin+8);
+		$pdf->Line(150, $ini_y, 150, $y_fin+5);
+		$pdf->Line(165, $ini_y, 165, $y_fin+5);
+		$pdf->Line(180, $ini_y, 180, $y_fin+5);
+		$pdf->Line(195, $ini_y, 195, $y_fin+5);
+		$pdf->Line(210, $ini_y, 210, $y_fin+5);
 
 
 		$pdf->Footer();

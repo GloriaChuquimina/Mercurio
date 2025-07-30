@@ -85,9 +85,9 @@
                 </div>
 
                   <div class="card-body">
-                    <input class="form-control" id="id_entidad" name="id_entidad">
-                    <input class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
+                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
                       <div class="col-md-3">
                         <div class="form-group">
@@ -117,15 +117,24 @@
                           />
                         </div>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-6">
+                        <br>
+                         <div class="col-md-12 text-right">
+                          <button class="btn btn-primary mr-2"
+                              onClick = "consultar()">
+                            <i class="mr-1">🔍</i> Consultar 
+                          </button>
+                          <button class="btn btn-success mr-2"
+                                onClick="generarReporteEstadoDeResultados()">
+                            <i class="mr-1">📄</i> Exportar PDF
+                          </button>
+                        </div>
+                      </div>
+                      <!-- <div class="col-md-3">
                         <div class="form-group">
                           <label>
                             <strong>CUENTAS:</strong>
                           </label>
-                          <!-- <select
-                            class="form-control"
-                          >
-                          </select> -->
                           <div class="input-group">
                               <input
                                   type="text"
@@ -136,7 +145,6 @@
                                   name="txtCuenta"
                               />
                               <datalist id='listaCuentas'></datalist>
-                              <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
                               <div class="input-group-append">
                                   <button
                                   type="button"
@@ -155,8 +163,8 @@
                               </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="col-md-3">
+                      </div> -->
+                      <!-- <div class="col-md-3">
                         <div class="form-group">
                           <label>
                             <strong>OPCIONES:</strong>
@@ -172,9 +180,9 @@
                             </label>
                           </div>
                         </div>
-                      </div>
+                      </div> -->
                     </div>
-                    <div class="row">
+                    <!-- <div class="row">
                       <div class="col-md-12 text-right">
                         <button class="btn btn-primary mr-2"
                              onClick = "consultar()">
@@ -184,14 +192,8 @@
                               onClick="generarReporteEstadoDeResultados()">
                           <i class="mr-1">📄</i> Exportar PDF
                         </button>
-                        <!-- <button class="btn btn-info mr-2">
-                          <i class="mr-1">📊</i> Exportar Excel
-                        </button>
-                        <button class="btn btn-warning">
-                          <i class="mr-1">🖨️</i> Imprimir
-                        </button> -->
                       </div>
-                    </div>
+                    </div> -->
                   </div>              
             </div>
             <!-- CUENTA SELECCIONADA -->

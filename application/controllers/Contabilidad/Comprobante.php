@@ -360,7 +360,8 @@ class Comprobante extends CI_Controller {
 						$nro_registros = count($filas);
 						foreach($filas as $fila )
 						{
-
+							 
+							$cuenta_auxiliar="";
 							$importeDebe=0;
 							$importeHaber=0;
 							$importeDebeUs=0;
@@ -379,6 +380,9 @@ class Comprobante extends CI_Controller {
 							$glosa_cuenta			   = $fila->glosa_cuenta;
 							$fecha_registro			   = $fila->fecha_registro;
 							$codigo_cuenta			   = getCodigoCuenta($fila->id_cuenta);
+							$id_cuenta_auxiliar		   = $fila->id_cuenta_auxiliar;
+							$codigo_auxiliar		   = $fila->codigo_auxiliar;
+							$descripcion_auxiliar	   = $fila->descripcion_auxiliar;
 							if($tipo_movimiento == "DB")
 							{
 								$importeDebe=$importe_moneda_nacional;
@@ -401,8 +405,20 @@ class Comprobante extends CI_Controller {
 											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaComprobante(".$id_registro.")\"><i>🗑️</i></button>
 										</span>										
 									</div>";
+
+							if(!empty($id_cuenta_auxiliar))
+							{
+								$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$codigo_auxiliar." - " .$descripcion_auxiliar."</b></span>";					
+							}
+							else
+							{
+								$cuenta_auxiliar=''; 
+								// $cuenta_auxiliar = "<span class='badge badge-warning'><b>".$cuenta_auxiliar."</b></span>";	
+							}
 							
-							$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$cuenta_auxiliar."</b></span>";						
+							// $cuenta_auxiliar = "<span class='badge badge-warning'><b>".$cuenta_auxiliar."</b></span>";		
+							
+							
 							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta."<br><br>".$cuenta_auxiliar;
 							// $cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
 							$data[] = array(
@@ -522,158 +538,177 @@ class Comprobante extends CI_Controller {
 			$tipo_cambio	      = $data['txtTipoCambio'];
 			$referencia_general   = $data['txtReferencia'];
 			$glosa_general	      = $data['txtGlosaGeneral'];
-			$glosa_general	      = $data['txtGlosaGeneral'];
-			$glosa_general	      = $data['txtGlosaGeneral'];
 			$correlativo		  = 0;
 			// $periodo        	  = date("m", strtotime($fecha_comprobante));
 			$periodo        	  = (int)date('m', strtotime($fecha_comprobante));
 			$gestion        	  = date("Y", strtotime($fecha_comprobante));
-			
-			if($accion === 'nuevo')
+
+
+
+			$totalImporteDebe	  = $data['total_debe'];
+			$totalImporteHaber    = $data['total_haber'];
+			$totalImporteDebeUs	  = $data['total_debe_us'];
+			$totalImporteHaberUs  = $data['total_haber_us'];
+
+			if(($totalImporteDebe === $totalImporteHaber) && ($totalImporteDebeUs === $totalImporteHaberUs))
 			{
-				// $idComprobante   	  = $data['id_comprobante'];
-				$tipo_comprobante     = $data['txtTipo'];
-
-				$tipoCorrelativo  = $tipo_comprobante ;
-				$datosCorrelativo = json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
-				$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
-				$correlativo      		        = $datosCorrelativo[0]->correlativo;
-
-				
-				$datosComprobante = array(
-					'id_entidad'              => $id_entidad,
-					'tipo_comprobante'        => $tipo_comprobante,
-                    'correlativo'             => $correlativo,
-                    'periodo'                 => $periodo,
-                    'gestion'                 => $gestion,
-                    'referencia_comprobante'  => $referencia_general,
-                    'glosa_comprobante' 	  => $glosa_general,
-					'fecha_comprobante'       => $fecha_comprobante,
-					'tipo_cambio'             => $tipo_cambio,
-					'id_usuario_registro'     => $id_usuario
-				);
-
-				$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
-				if($saveComprobante)
+				if($accion === 'nuevo')
 				{
-					/*REGISTRO DE CUENTAS DEL COMPROBANTE*/
-					$filas = explode("|", $detalleComprobante);
-					if(!empty($filas))
+				// $idComprobante   	  = $data['id_comprobante'];
+					$tipo_comprobante     = $data['txtTipo'];
+
+					$tipoCorrelativo  = $tipo_comprobante ;
+					$datosCorrelativo = json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
+					$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
+					$correlativo      		        = $datosCorrelativo[0]->correlativo;
+
+					
+					$datosComprobante = array(
+						'id_entidad'              => $id_entidad,
+						'tipo_comprobante'        => $tipo_comprobante,
+						'correlativo'             => $correlativo,
+						'periodo'                 => $periodo,
+						'gestion'                 => $gestion,
+						'referencia_comprobante'  => $referencia_general,
+						'glosa_comprobante' 	  => $glosa_general,
+						'fecha_comprobante'       => $fecha_comprobante,
+						'tipo_cambio'             => $tipo_cambio,
+						'id_usuario_registro'     => $id_usuario
+					);
+
+					$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
+					if($saveComprobante)
 					{
-						foreach($filas as $fila)
+						/*REGISTRO DE CUENTAS DEL COMPROBANTE*/
+						$idComprobante = $saveComprobante;
+						$filas = explode("|", $detalleComprobante);
+						if(!empty($filas))
 						{
-							if(!empty($fila) && $fila != "undefined" && $fila != "null")
+							foreach($filas as $fila)
 							{
-								$row = explode("*", $fila);
-								if(!isset($row[0]) || empty($row[0]))
+								if(!empty($fila) && $fila != "undefined" && $fila != "null")
 								{
-									list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
-									$importe   = number_format($importe,2,'.',',');
-									$importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
-									if($id_cuenta_auxiliar === '-')
+									$row = explode("*", $fila);
+									if(!isset($row[0]) || empty($row[0]))
 									{
-										$datosComprobanteDetalle = array(
-										'id_entidad'	            => $id_entidad,
-										'id_comprobante'            => $saveComprobante,
-										'id_cuenta'                 => $id_cuenta,
-										'tipo_movimiento'           => $tipo_movimiento,
-										'tipo_cambio'               => $tipo_cambio,
-										'importe_moneda_nacional'   => $importe,
-										'importe_moneda_extranjera' => $importeUs,
-										'glosa_cuenta'              => $glosa_cuenta,
-										'id_usuario_registro'       => $id_usuario									
-										);
+										list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
+										// $importe   = number_format($importe,2,'.',',');
+										// $importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
+										$importeUsBase = round($importe/$tipo_cambio,2);
+										$importeBase = floatval(str_replace(',', '', $importe));
+										//$importeUsBase = floatval(str_replace(',', '', $importeOriginal));
+										if($id_cuenta_auxiliar === '-')
+										{
+											$datosComprobanteDetalle = array(
+											'id_entidad'	            => $id_entidad,
+											'id_comprobante'            => $saveComprobante,
+											'id_cuenta'                 => $id_cuenta,
+											'tipo_movimiento'           => $tipo_movimiento,
+											'tipo_cambio'               => $tipo_cambio,
+											'importe_moneda_nacional'   => $importeBase,
+											'importe_moneda_extranjera' => $importeUsBase,
+											'glosa_cuenta'              => $glosa_cuenta,
+											'id_usuario_registro'       => $id_usuario									
+											);
+										}
+										else
+										{
+											$datosComprobanteDetalle = array(
+											'id_entidad'	            => $id_entidad,
+											'id_comprobante'            => $saveComprobante,
+											'id_cuenta'                 => $id_cuenta,
+											'tipo_movimiento'           => $tipo_movimiento,
+											'tipo_cambio'               => $tipo_cambio,
+											'importe_moneda_nacional'   => $importe,
+											'importe_moneda_extranjera' => $importeUs,
+											'glosa_cuenta'              => $glosa_cuenta,
+											'id_usuario_registro'       => $id_usuario,					
+											'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
+											);
+										}
+										
+										// $datosComprobanteDetalle = array(
+										// 	'id_entidad'	            => $id_entidad,
+										// 	'id_comprobante'            => $saveComprobante,
+										// 	'id_cuenta'                 => $id_cuenta,
+										// 	'tipo_movimiento'           => $tipo_movimiento,
+										// 	'tipo_cambio'               => $tipo_cambio,
+										// 	'importe_moneda_nacional'   => $importe,
+										// 	'importe_moneda_extranjera' => $importeUs,
+										// 	'glosa_cuenta'              => $glosa_cuenta,
+										// 	'id_usuario_registro'       => $id_usuario,					
+										// 	'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
+										// );
+										$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
+										if($detalle_comprobante)
+										{
+											$updateCorrelativoEntidadGestion = array(
+												'correlativo' => $correlativo,
+												'fecha_modificacion' => $fechaActual
+											);	
+
+											$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
+
+											$resul = 1;
+											$mensaje = "SE REGISTRO CORRECTAMENTE";
+										}
+										else
+										{
+											$resul = 0;
+											$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE!!!";
+										}
 									}
 									else
 									{
-										$datosComprobanteDetalle = array(
-										'id_entidad'	            => $id_entidad,
-										'id_comprobante'            => $saveComprobante,
-										'id_cuenta'                 => $id_cuenta,
-										'tipo_movimiento'           => $tipo_movimiento,
-										'tipo_cambio'               => $tipo_cambio,
-										'importe_moneda_nacional'   => $importe,
-										'importe_moneda_extranjera' => $importeUs,
-										'glosa_cuenta'              => $glosa_cuenta,
-										'id_usuario_registro'       => $id_usuario,					
-										'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
-										);
-									}
-									
-									// $datosComprobanteDetalle = array(
-									// 	'id_entidad'	            => $id_entidad,
-									// 	'id_comprobante'            => $saveComprobante,
-									// 	'id_cuenta'                 => $id_cuenta,
-									// 	'tipo_movimiento'           => $tipo_movimiento,
-									// 	'tipo_cambio'               => $tipo_cambio,
-									// 	'importe_moneda_nacional'   => $importe,
-									// 	'importe_moneda_extranjera' => $importeUs,
-									// 	'glosa_cuenta'              => $glosa_cuenta,
-									// 	'id_usuario_registro'       => $id_usuario,					
-									// 	'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
-									// );
-									$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
-									if($detalle_comprobante)
-									{
-										$updateCorrelativoEntidadGestion = array(
-											'correlativo' => $correlativo,
-											'fecha_modificacion' => $fechaActual
-										);	
-
-										$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
-
-										$resul = 1;
-										$mensaje = "SE REGISTRO CORRECTAMENTE";
-									}
-									else
-									{
+										// echo("FALSOOOOO");
 										$resul = 0;
-										$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE!!!";
+										$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE....!!!";
 									}
-								}
-								else
-								{
-									// echo("FALSOOOOO");
-									$resul = 0;
-									$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE....!!!";
-								}
 
+								}
+															
 							}
-														
 						}
+					}
+					else
+					{
+						$resul = 0;
+						$mensaje = "ERROR EN EL REGISTRO!!!";
 					}
 				}
 				else
 				{
-					$resul = 0;
-					$mensaje = "ERROR EN EL REGISTRO!!!";
+					$idComprobante   	  = $data['id_comprobanteP'];
+					$updateComprobante = array(
+						'periodo'                 => $periodo,
+						'gestion'                 => $gestion,
+						'glosa_comprobante' 	  => $glosa_general,
+						'referencia_comprobante'  => $referencia_general,
+						'fecha_comprobante'       => $fecha_comprobante,
+						'tipo_cambio'             => $tipo_cambio,
+						'fecha_modificacion'      => $fechaActual,
+						'id_funcionario_update'   => $id_funcionario
+					);
+					$saveComprobante = $this->Comprobantes_model->updateComprobante($idComprobante,$updateComprobante);
+					if($saveComprobante)
+					{
+						$resul = 1;
+						$mensaje = "SE ACTUALIZÓ CORRECTAMENTE EL COMPROBANTE";
+					}
+					else
+					{
+						$resul = 0;
+						$mensaje = "ERROR EN EL REGISTRO!!!";
+					}
 				}
 			}
 			else
 			{
-				$idComprobante   	  = $data['id_comprobanteP'];
-				$updateComprobante = array(
-                    'periodo'                 => $periodo,
-                    'gestion'                 => $gestion,
-                    'glosa_comprobante' 	  => $glosa_general,
-					'referencia_comprobante'  => $referencia_general,
-					'fecha_comprobante'       => $fecha_comprobante,
-					'tipo_cambio'             => $tipo_cambio,
-					'fecha_modificacion'      => $fechaActual,
-					'id_funcionario_update'   => $id_funcionario
-				);
-				$saveComprobante = $this->Comprobantes_model->updateComprobante($idComprobante,$updateComprobante);
-				if($saveComprobante)
-				{
-					$resul = 1;
-					$mensaje = "SE ACTUALIZÓ CORRECTAMENTE EL COMPROBANTE";
-				}
-				else
-				{
-					$resul = 0;
-					$mensaje = "ERROR EN EL REGISTRO!!!";
-				}
-			}			
+				$resultado = 2;
+				$mensaje = "Comprobante Contable Descuadrado:El comprobante presenta una diferencia contable.Verifique que el total del debe y del haber sean iguales para cumplir con la partida doble.";
+
+			}		
+						
 		}
 		/******TRANSACT*****/
 		if ($this->db->trans_status() === FALSE && $resul == 1) { 
@@ -683,8 +718,9 @@ class Comprobante extends CI_Controller {
 			$this->db->trans_commit(); // Confirmar los cambios si todo está bien
 			// $resultado = 1;
 		}
-		echo '[{"resultado":"'.$resultado.'",
-		          "mensaje":"'.$mensaje.'"}]';
+		echo '[{"idComprobante":"'.$idComprobante.'",
+				    "resultado":"'.$resultado.'",
+		              "mensaje":"'.$mensaje.'"}]';
 
 	}
 	public function cargarComprobantesByEntidad()
@@ -1516,11 +1552,15 @@ class Comprobante extends CI_Controller {
 					// $importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
 				}
 
-				// if(!empty($id_cuenta_auxiliar))
-				// {
-				// 	$cuenta_auxiliar = "<b>".$codigo_auxiliar."</b>" .$descripcion_auxiliar;			
-				// }
-				$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$codigo_auxiliar."</b></span> - " .$descripcion_auxiliar;			
+				if(!empty($id_cuenta_auxiliar))
+				{
+					// $cuenta_auxiliar = "<b>".$codigo_auxiliar."</b>" .$descripcion_auxiliar;			
+					$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$codigo_auxiliar." - " .$descripcion_auxiliar."</b></span>";			
+				}
+				else
+				{
+					$cuenta_auxiliar ="";
+				}
 				
 
 				// $cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta." \n".$cuenta_auxiliar;			

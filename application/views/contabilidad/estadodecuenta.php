@@ -84,9 +84,9 @@
                   </div>
                 </div>
                 <div class="card-body">
-                    <input class="form-control" id="id_entidad" name="id_entidad">
-                    <input class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
+                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
                       <div class="col-md-6">
                         <div class="form-group">
@@ -288,9 +288,9 @@
                     <table class="table table-striped table-hover" id="tbl_CuentasContables" style="width: 100%;">
                       <thead class="bg-dark">
                         <tr>
-                          <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th>
+                          <!-- <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th> -->
                           <!-- <th style="color: white; text-align: center;">SELECCIONAR</th> -->
-                          <!-- <th style="color: white; text-align: center;">OPCIONES</th> -->
+                          <th style="color: white; text-align: center;">OPCIONES</th> 
                           <th style="color: white;">CÓDIGO</th>
                           <th style="color: white;">DESCRIPCIÓN</th>
                           <th style="color: white;">NIVEL</th>

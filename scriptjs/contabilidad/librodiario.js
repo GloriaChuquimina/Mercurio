@@ -16,6 +16,15 @@ function cargarCombos()
             valoresIniciales();
         }
     }); 
+    var enlace = base_url + "Comunes/Comunes/cargarTipoComprobanteBusqueda";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#tipo_comprobante').html(data);
+            $('#tipo_comprobante option[value="'+tipo_comprobante+'"]').prop('selected','selected');
+        }
+    });
     cargarCuentasLista();
 }
 function cargarCuentasLista()
@@ -87,10 +96,23 @@ $(function (){
                     $('#tablaLibroMayor').show();
                     $("#mensajeSeleccion").hide();
                 }
-                // nombre_entidad = $('#entidades option:selected').text();
-                // $('#nombre_entidad').text(nombre_entidad);
-                // cargarCuentasEntidad();
-                // valoresIniciales();
+
+            });
+    $('#tipo_comprobante').change(function(){
+                tipo_cuenta = $(this).val();
+                if(tipo_cuenta == -1){
+                    $("#numero_inicio").prop("disabled", true);
+                    $("#numero_fin").prop("disabled", true);
+                    $("#numero_inicio").val('');
+                    $("#numero_fin").val('');
+                }
+                else{
+                    $("#numero_inicio").prop("disabled", false);
+                    $("#numero_fin").prop("disabled", false);
+                    $("#numero_inicio").val('');
+                    $("#numero_fin").val('');
+                }
+
             });
 
 });
@@ -176,9 +198,12 @@ function consultar() {
   $('#tablaLibroDiario').show();
   $("#mensajeSeleccion").hide();
 
-  var id_entidad = $('#id_entidad').val();
-  var fecha_inicio = $('#fechaDesde').val();
-  var fecha_fin = $('#fechaHasta').val();
+  var id_entidad          = $('#id_entidad').val();
+  var fecha_inicio        = $('#fechaDesde').val();
+  var fecha_fin           = $('#fechaHasta').val();
+  var tipo_comprobante    = $('#tipo_comprobante').val();
+  var numero_inicio       = $('#numero_inicio').val();
+  var numero_fin          = $('#numero_fin').val();
   var enlace = base_url + "Contabilidad/LibroDiario/cargarDatosLibroDiario";
 
   $.ajax({
@@ -187,7 +212,10 @@ function consultar() {
     data: {
       id_entidad: id_entidad,
       fecha_inicio: fecha_inicio,
-      fecha_fin: fecha_fin
+      fecha_fin: fecha_fin,
+      tipo_comprobante:tipo_comprobante,
+      numero_inicio:numero_inicio,
+      numero_fin:numero_fin
     },
     dataType: 'JSON',
     success: function (data) {
@@ -243,16 +271,29 @@ function consultar() {
 
 function generarReporteLibroDiario()
 {
-    var id_entidad   = $('#id_entidad').val();
-    var fecha_inicio = $('#fechaDesde').val();
-    var fecha_fin    = $('#fechaHasta').val();
+    consultar();
+    var id_entidad          = $('#id_entidad').val();
+    var fecha_inicio        = $('#fechaDesde').val();
+    var fecha_fin           = $('#fechaHasta').val();
+    var tipo_comprobante    = $('#tipo_comprobante').val();
+    var numero_inicio       = $('#numero_inicio').val();
+    var numero_fin          = $('#numero_fin').val();
+
+    if(numero_inicio == '')
+    {
+        numero_inicio  = 0;
+    }
+    if(numero_fin == '')
+    {
+        var numero_fin = 0;
+    }
     if(fecha_inicio!='' && fecha_fin !='')
     {
         $('#divPDF').html('');
         var iframe = document.createElement("iframe");
             iframe.width = '100%';
             iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/LibroDiario/ReporteLibroDiarioPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin; 
+            iframe.src = base_url+'Contabilidad/LibroDiario/ReporteLibroDiarioPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin+"/"+tipo_comprobante+"/"+numero_inicio+"/"+numero_fin; 
             $('#divPDF').append(iframe);
         $('#divCapa').addClass('overlay');    
         $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);

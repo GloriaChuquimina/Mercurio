@@ -53,6 +53,10 @@
                                         <input  type="hidden" id="id_entidad" name="id_entidad" />
                                         <input  type="hidden" id="cant_cuentas" name="cant_cuentas" />
                                         <input  type="hidden" id="tipo_cambio_comprobante" name="tipo_cambio_comprobante" />
+                                        <input  type="hidden" id="total_debe" name="total_debe" />
+                                        <input  type="hidden" id="total_haber" name="total_haber" />
+                                        <input  type="hidden" id="total_debe_us" name="total_debe_us" />
+                                        <input  type="hidden" id="total_haber_us" name="total_haber_us" />
                                         <div class="row">
                                             <div class="col-md-2">
                                                 <div class="form-group">
@@ -198,10 +202,10 @@
                                                 TOTALES
                                                 </td>
                                                     <!-- <td style="text-align: right; color: white; font-weight: bold;" id="txtTotalImporteDebe">0.00</td> -->
-                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe">0.00</td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber">0.00</td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebeUs">0.00</td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaberUs">0.00</td>
+                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe" >0.00</td>
+                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber" >0.00</td>
+                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebeUs" >0.00</td>
+                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaberUs" >0.00</td>
                                                     <td></td>
                                                 </td>
                                             </tr>

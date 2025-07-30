@@ -132,8 +132,36 @@
                         </div>
                       </div>
                       <div class="col-md-3">
+                        <div class="form-group">
+                            <div class="d-flex align-items-end">
+                                <div style="flex-grow: 1; margin-right: 10px;">
+                                    <label for="tipo_comprobante">
+                                        <strong>TIPO COMPROBANTE:</strong>
+                                    </label>
+                                    <select
+                                        class="form-control"
+                                        id="tipo_comprobante"
+                                        name="tipo_comprobante"
+                                        value="selectedEntity"
+                                    >
+                                    </select>
+                                </div>
+                            </div>
+                        </div>                        
                       </div>
-                      <div class="col-md-5">
+                      <div class="col-md-1">
+                          <div class="form-group">
+                              <label>Inicio:</label>
+                              <input type="number"  class="form-control is-warning" name="numero_inicio" id="numero_inicio" class="form-control" placeholder="Ej: 1">
+                          </div>
+                      </div>
+                      <div class="col-md-1">
+                          <div class="form-group">
+                              <label>Fin:</label>
+                              <input type="number"  class="form-control is-warning" name="numero_fin" id="numero_fin" class="form-control" placeholder="Ej: 1">
+                          </div>
+                      </div>
+                      <div class="col-md-3">
                         <div class="form-group">
                             <br>
                             <div class="col-md-12 text-right">

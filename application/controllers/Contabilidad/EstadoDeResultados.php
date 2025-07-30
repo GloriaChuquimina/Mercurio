@@ -56,14 +56,14 @@ class EstadoDeResultados extends CI_Controller {
 		$id_entidad            = $this->input->post('id_entidad');
 		$fecha_desde  		   = $this->input->post('fecha_inicio');
 		$fecha_hasta           = $this->input->post('fecha_fin');
-		$id_cuenta             = $this->input->post('id_cuenta');
+		// $id_cuenta             = $this->input->post('id_cuenta');
 
 		$estadoResultadoAcreedor = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_desde,$fecha_hasta);
 		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_desde,$fecha_hasta);
 		if (!empty($resultado) && isset($resultado[0]->total_estado_resultado)) {
 			$total_resultado = $resultado[0]->total_estado_resultado;
 		} else {
-			$total_resultado = 0; // o null, según lo que necesites
+			$total_resultado = 0; 
 		}
 		$totalSaldoAcreedor =0;
 
@@ -107,16 +107,15 @@ class EstadoDeResultados extends CI_Controller {
 		$id_entidad            = $this->input->post('id_entidad');
 		$fecha_desde  		   = $this->input->post('fecha_inicio');
 		$fecha_hasta           = $this->input->post('fecha_fin');
-		$id_cuenta             = $this->input->post('id_cuenta');
+		// $id_cuenta             = $this->input->post('id_cuenta');
 
 		$estadoResultadoDeudor = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_desde,$fecha_hasta);
 		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_desde,$fecha_hasta);
-		// $total_resultado = json_encode($resultado[0]->resultado);
 
 		if (!empty($resultado) && isset($resultado[0]->total_estado_resultado)) {
 			$total_resultado = $resultado[0]->total_estado_resultado;
 		} else {
-			$total_resultado = 0; // o null, según lo que necesites
+			$total_resultado = 0; 
 		}
 		$totalSaldoDeudor =0;
 
@@ -147,12 +146,11 @@ class EstadoDeResultados extends CI_Controller {
 		exit();
 
 	}
-	function ReporteEstadoDeResultadosPDF($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta)
+	function ReporteEstadoDeResultadosPDF($id_entidad,$fecha_inicio,$fecha_fin)
 	{			
 		/****************************/
 		/*INICIO DEL REPORTE*/
 		/****************************/		
-		$cuenta = getCodigoCuenta($id_cuenta)."-".getCuenta($id_cuenta);
 		$this->load->library('fpdf/pdf2');
         $pdf = new Pdf2();
         $pdf->AliasNbPages();
@@ -180,22 +178,19 @@ class EstadoDeResultados extends CI_Controller {
 		$pdf->SetAligns(['L','L','R']);
         $num = 0;
         $total=0;
-		$estadoResultadoDeudor = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin);
+		$estadoResultadoAcreedor = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin);
 		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin);
-		// $total_resultado = json_encode($resultado[0]->resultado);
-
 		if (!empty($resultado) && isset($resultado[0]->total_estado_resultado)) {
 			$total_resultado = $resultado[0]->total_estado_resultado;
 		} else {
-			$total_resultado = 0; // o null, según lo que necesites
+			$total_resultado = 0; 
 		}
-		$totalSaldoDeudor =0;
+		$totalSaldoAcreedor =0;
 		$pdf->SetXY(15,40);
 		$pdf->SetFillColor(230, 230, 225);
 		$pdf->SetTextColor(0);
         $pdf->SetFont('Arial','B',7);
 		$pdf->Cell(195,5,utf8_decode('CUENTAS DE INGRESO'), 1, 0, 'C', 1);
-		// $pdf->SetXY(15, 50); // Coordenada superior izquierda
 		$pdf->SetXY(15,45);
 		$pdf->SetFillColor(230, 230, 225);
 		$pdf->SetTextColor(0);
@@ -205,29 +200,23 @@ class EstadoDeResultados extends CI_Controller {
 		$pdf->Cell(30,5,utf8_decode('BOLIVIANOS'),1,0,'C',1);
 
 		$pdf->SetY(50);
-		foreach ($estadoResultadoDeudor as $fila)
+		foreach ($estadoResultadoAcreedor as $fila)
 		{   
 			$codigo 		 = $fila->codigo;
 			$descripcion     = $fila->descripcion;
-			$totalDeudor	 = $fila->saldo_deudor;
+			$saldo_acreedor	 = $fila->saldo_acreedor;
 
 
 			$row = array(
 				$codigo,
 				$descripcion,
-				number_format($totalDeudor,2,'.',',')
+				number_format($saldo_acreedor,2,'.',',')
 			    );
-			$totalSaldoDeudor+=$totalDeudor;
-
+			$totalSaldoAcreedor+=$saldo_acreedor;
+			$pdf->SetFont('Arial','',7);
 			$pdf->Row_Reportes_SS($row,true, '', 6);	
 		} 
-
-
-		// $totalDebe=777;
-		// $totalHaber=777;
-		// $totalDeudor=777;
-		// $totalAcreedor=777;
-
+		$pdf->SetFont('Arial','B',7);
 		$x=15;
 		$y=$pdf->GetY();
 		$pdf->Line($x, $y, $x + 195, $y);
@@ -236,12 +225,8 @@ class EstadoDeResultados extends CI_Controller {
 		$y=$pdf->GetY();
 		$pdf->SetXY(15,$y);    
 		$pdf->Cell(165,5,utf8_decode($TOTALES),0,0,'C',1);
-		$pdf->Cell(30,5,utf8_decode(number_format($totalSaldoDeudor,2,'.',',')),0,0,'R',1);		$ini_y=50;
+		$pdf->Cell(30,5,utf8_decode(number_format($totalSaldoAcreedor,2,'.',',')),0,0,'R',1);		
 		$y_fin=$pdf->GetY();
-		// $pdf->Line(15, $ini_y, 15, $y_fin+8);
-		// $pdf->Line(45, $ini_y, 45, $y_fin-15 );
-		// $pdf->Line(180, $ini_y, 180, $y_fin+5);
-		// $pdf->Line(210, $ini_y, 210, $y_fin+5);
 		$pdf->ln(5);
 		$x=15;
 		$y=$pdf->GetY();
@@ -251,13 +236,17 @@ class EstadoDeResultados extends CI_Controller {
 		$y=$pdf->GetY();
 		$pdf->SetXY(15,$y);    
 		$pdf->Cell(165,5,utf8_decode($TOTALES),0,0,'C',1);
-		$pdf->Cell(30,5,utf8_decode(number_format($totalSaldoDeudor,2,'.',',')),0,0,'R',1);		$ini_y=50;
+		$pdf->Cell(30,5,utf8_decode(number_format($total_resultado,2,'.',',')),0,0,'R',1);	
+		$ini_y=50;	
 		$y_fin=$pdf->GetY();
-		// $pdf->Line(15, $ini_y, 15, $y_fin);
+		$pdf->Line(15, $ini_y, 15, $y_fin+5);
 		$pdf->Line(45, $ini_y, 45, $y_fin-5);
 		$pdf->Line(180, $ini_y, 180, $y_fin+5);
 		$pdf->Line(210, $ini_y, 210, $y_fin+5);
 		$pdf->ln(10);
+
+
+		// TABLA CUENTAS DE EGRESO 
 
 		$y_ini=$pdf->GetY();
 		$pdf->SetXY(15,$y_ini);
@@ -265,9 +254,6 @@ class EstadoDeResultados extends CI_Controller {
 		$pdf->SetTextColor(0);
         $pdf->SetFont('Arial','B',7);
 		$pdf->Cell(195,5,utf8_decode('CUENTAS DE EGRESO'), 1, 0, 'C', 1);
-		// $pdf->SetXY(15, 50); // Coordenada superior izquierda
-		// $y_ini2=$pdf->GetY();
-		// $pdf->SetXY(15,$y_ini2);
 		$pdf->ln(5);
 		$pdf->SetX(15);
 		$pdf->SetFillColor(230, 230, 225);
@@ -276,8 +262,8 @@ class EstadoDeResultados extends CI_Controller {
 		$pdf->Cell(30,5,utf8_decode('CÓDIGO'), 1, 0, 'C', 1);
 		$pdf->Cell(135,5,utf8_decode('CUENTA'), 1, 0, 'C', 1);
 		$pdf->Cell(30,5,utf8_decode('BOLIVIANOS'),1,0,'C',1);
-
 		$pdf->ln(5);
+		$totalSaldoDeudor=0;
 		$estadoResultadoDeudor = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin);
 		foreach ($estadoResultadoDeudor as $fila)
 		{   
@@ -292,41 +278,34 @@ class EstadoDeResultados extends CI_Controller {
 				number_format($totalDeudor,2,'.',',')
 			    );
 			$totalSaldoDeudor+=$totalDeudor;
-
+			$pdf->SetFont('Arial','',7);	
 			$pdf->Row_Reportes_SS($row,true, '', 6);	
 		} 
-
-
+		$pdf->SetFont('Arial','B',7);
 		$x=15;
 		$y=$pdf->GetY();
 		$pdf->Line($x, $y, $x + 195, $y);
-		$pdf->Line($x, $y+8, $x + 195, $y+8);
+		$pdf->Line($x, $y+5, $x + 195, $y+5);
 		$TOTALES="TOTAL CUENTAS DE EGRESO";
 		$y=$pdf->GetY();
 		$pdf->SetXY(15,$y);    
-		$pdf->Cell(165,8,utf8_decode($TOTALES),0,0,'C',1);
-		$pdf->Cell(30,8,utf8_decode(number_format($totalSaldoDeudor,2,'.',',')),0,0,'R',1);		$ini_y=50;
-		$y_fin=$pdf->GetY();
-		$pdf->Line(15, $ini_y, 15, $y_fin+8);
-		// $pdf->Line(45, $ini_y, 45, $y_fin-15 );
-		$pdf->Line(180, $ini_y, 180, $y_fin+8);
-		$pdf->Line(210, $ini_y, 210, $y_fin+8);
-		$pdf->ln(8);
-		$x=15;
+		$pdf->Cell(165,5,utf8_decode($TOTALES),0,0,'C',1);
+		$pdf->Cell(30,5,utf8_decode(number_format($totalSaldoDeudor,2,'.',',')),0,0,'R',1);		
+		$pdf->ln(5);
 		$y=$pdf->GetY();
 		$pdf->Line($x, $y, $x + 195, $y);
-		$pdf->Line($x, $y+8, $x + 195, $y+8);
+		$pdf->Line($x, $y+5, $x + 195, $y+5);
 		$TOTALES="RESULTADO DEL EJERCICIO";
 		$y=$pdf->GetY();
 		$pdf->SetXY(15,$y);    
-		$pdf->Cell(165,8,utf8_decode($TOTALES),0,0,'C',1);
-		$pdf->Cell(30,8,utf8_decode(number_format($totalSaldoDeudor,2,'.',',')),0,0,'R',1);		$ini_y=50;
+		$pdf->Cell(165,5,utf8_decode($TOTALES),0,0,'C',1);
+		$pdf->Cell(30,5,utf8_decode(number_format($total_resultado,2,'.',',')),0,0,'R',1);		
 		$y_fin=$pdf->GetY();
-		// $pdf->Line(15, $ini_y, 15, $y_fin+8);
-		$pdf->Line(45, $ini_y, 45, $y_fin-8);
-		$pdf->Line(180, $ini_y, 180, $y_fin+8);
-		$pdf->Line(210, $ini_y, 210, $y_fin+8);
-		$pdf->ln(10);
+		$pdf->Line(15, $y_ini+10, 15, $y_fin+5);
+		$pdf->Line(45, $y_ini+10, 45, $y_fin-5 );
+		$pdf->Line(180, $y_ini+10, 180, $y_fin+5);
+		$pdf->Line(210, $y_ini+10, 210, $y_fin+5);
+		$pdf->ln(5);
 
 		$pdf->Footer();
 		$pdf->Output('I',utf8_decode('ReporteEstadoDeCuenta.pdf')); 

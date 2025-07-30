@@ -164,9 +164,24 @@ $(function (){
                         }
                     }
                 });
-
-
-
+        });
+        /**CIERRA EL MODAL */
+        $('#pdfModal').on('hidden.bs.modal', function (e) {
+            alert("MOLDAL PDF STEPH");
+            swal({
+            title: "¿Deseas volver a la pantalla principal?",
+            text: "El comprobante ya fue generado.",
+            icon: "warning",
+            buttons: {
+                cancel: "Cancelar",
+                confirm: "Sí, volver"
+            },
+            dangerMode: true,
+            }).then(respuesta => {
+                if (respuesta) {
+                    cargarComprobantesPrincipal();
+                }
+            });
         });
 
 });
@@ -322,8 +337,6 @@ function guardarRegistroCuenta()
 	var id_cuenta_auxiliar		  = $('#id_cuenta_auxiliar').val();
 	var cuenta_auxiliar		      = $('#txtAuxiliarCuenta').val();
     var cadRegistroCuenta         = $('#registroCuentaT').val();
-
-
     var enlace = base_url + "Contabilidad/Comprobante/validarDatosRegistroCuenta";
     var datos = $('#formularioRegistroCuenta').serialize();
     var datos_cuenta = $('#formularioRegistroCuenta').serialize();
@@ -385,6 +398,12 @@ function guardarRegistroCuenta()
                                                 $('.txtTotalImporteHaber').text(json.totalimporteHaber);
                                                 $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
                                                 $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+
+                                                $('#total_debe').val(json.totalimporteDebe);
+                                                $('#total_haber').val(json.totalimporteHaber);
+                                                $('#total_debe_us').val(json.totalimporteDebeUs);
+                                                $('#total_haber_us').val(json.totalimporteHaberUs);
+
                                                 $('#cant_cuentas').val(json.nro_registros);
                                                 $('#mensaje').val(json.mensaje);
                                                 return json.data; // Data para el cuerpo de la tabla
@@ -658,18 +677,44 @@ function guardarDatosComprobanteMasDetalle()
                             // cargarComprobantesPrincipal();
                             accion='editar';
                             $('#txtAccionComprobante').val(accion);
+                            $('#id_comprobanteP').val(datos.idComprobante);
                             $('#estado_comprobante')
                             .removeClass('badge-warning') // Quita cualquier clase previa
                             .addClass('badge-success') // Agrega la nueva
-                            .text('Registrado');                             
-                            generarPDFComprobante().then(() => {
-                                cargarComprobantesPrincipal();
-                            });
+                            .text('Registrado');  
+                            generarPDFComprobante();
+                            // generarPDFComprobante().then(() => {
+                                  
+                            // });
+                            // generarPDFComprobante();
+                            // $('#pdfModal').on('hidden.bs.modal', function () {
+                            //     swal({
+                            //     title: "¿Deseas volver a la pantalla principal?",
+                            //     text: "El comprobante ya fue generado.",
+                            //     icon: "warning",
+                            //     buttons: {
+                            //         cancel: "Cancelar",
+                            //         confirm: "Sí, volver"
+                            //     },
+                            //     dangerMode: true,
+                            //     }).then(respuesta => {
+                            //         if (respuesta) {
+                            //             cargarComprobantesPrincipal();
+                            //         }
+                            //     });
+                            // });
                         }
                         else
                         {
-                            visualizarValidaciones(datos.mensaje);
-                            swal({title:"ALERTA",text:"Existen Observaciones.",icon:"warning",button:"OK",dangerMode:true});
+                            if(datos.resultado == 2)
+                            {
+                                swal({title:"ALERTA",text:datos.mensaje,icon:"warning",button:"OK",dangerMode:true});
+                            }
+                            else
+                            {
+                                visualizarValidaciones(datos.mensaje);
+                                swal({title:"ALERTA",text:"Existen Observaciones.",icon:"warning",button:"OK",dangerMode:true});
+                            }
                             
                         }
                     });
@@ -874,9 +919,9 @@ function generarReporteComprobanteRegistrado(id_comprobante)
 }
 function generarPDFComprobante()
 {
-
+     var accion_comprobante = $('#txtAccionComprobante').val();
      return new Promise((resolve) => {
-         if(accion=='editar')
+         if(accion_comprobante=='editar')
         {
             var id_comprobante = $('#id_comprobanteP').val();
             generarReporteComprobanteRegistrado(id_comprobante);
@@ -945,7 +990,7 @@ function generarPDFComprobante()
         // setTimeout(() => {
         //     console.log("PDF listo");
         //     resolve();
-        // }, 5000); // Simula proceso
+        // }, 1500); // Simula proceso
         
     });
 }
