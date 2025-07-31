@@ -43,15 +43,15 @@ class BalanceGeneral_model extends CI_Model
                                                     LEFT JOIN contabilidad.comprobante c ON dc.id_comprobante = c.id
                                                     LEFT JOIN administracion.entidad e ON c.id_entidad = e.id 
                                                         WHERE pc.estado IN ('ACT')
-                                                        AND c.estado IN ('ACT')
-                                                        AND dc.estado IN ('ACT')
-                                                        AND e.id = ".$id_entidad."
-                                                        AND c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
-                                                                                    GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre,e.id
-                                                                                        ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
-                                    
-                                                                                order by nivel ASC,
-                                                                                codigo ASC;
+                                                          AND c.estado IN ('ACT')
+                                                          AND dc.estado IN ('ACT')
+                                                          AND e.id = ".$id_entidad."
+                                                          AND c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
+                                                     GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre,e.id
+                                                    ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
+
+                                            order by nivel ASC,
+                                            codigo ASC;
 		    							   " 
 										  );
 		return $query->result();

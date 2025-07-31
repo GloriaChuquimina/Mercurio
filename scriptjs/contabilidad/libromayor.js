@@ -269,10 +269,10 @@ function consultar()
                 $("#tbodyLibroMayor").html(data.tabla);
 
                 // Actualizar totales
-                // $('.txtTotalImporteDebe').text(data.totalimporteDebe ?? '0.00');
-                // $('.txtTotalImporteHaber').text(data.totalimporteHaber ?? '0.00');
-                // $('.txtTotalImporteDeudor').text(data.totalimporteDeudor ?? '0.00');
-                // $('.txtTotalImporteAcreedor').text(data.totalimporteAcreedor ?? '0.00');
+                $('.txtTotalImporteDebe').text(data.totalimporteDebe ?? '0.00');
+                $('.txtTotalImporteHaber').text(data.totalimporteHaber ?? '0.00');
+                $('.txtTotalImporteDeudor').text(data.totalimporteDeudor ?? '0.00');
+                $('.txtTotalImporteAcreedor').text(data.totalimporteAcreedor ?? '0.00');
 
                 $('#tablaDatosLibroMayor').DataTable({
                     //   scrollY: true,

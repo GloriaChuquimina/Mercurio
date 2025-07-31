@@ -85,11 +85,11 @@
                 </div>
 
                   <div class="card-body">
-                    <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
-                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <input class="form-control" id="id_entidad" name="id_entidad">
+                    <input class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
-                      <div class="col-md-3">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>FECHA DESDE:</strong>
@@ -103,7 +103,7 @@
                           />
                         </div>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>FECHA HASTA:</strong>
@@ -117,20 +117,32 @@
                           />
                         </div>
                       </div>
-                      <div class="col-md-6">
-                        <br>
-                         <div class="col-md-12 text-right">
-                          <button class="btn btn-primary mr-2"
-                              onClick = "consultar()">
-                            <i class="mr-1">🔍</i> Consultar 
-                          </button>
-                          <button class="btn btn-success mr-2"
-                                onClick="generarReporteEstadoDeResultados()">
-                            <i class="mr-1">📄</i> Exportar PDF
-                          </button>
-                        </div>
+                      <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="d-flex align-items-end">
+                                <div style="flex-grow: 1; margin-right: 10px;">
+                                    <label for="tipo_comprobante">
+                                        <strong>MONEDA:</strong>
+                                    </label>
+                                    <select
+                                        class="form-control"
+                                        id="tipo_comprobante"
+                                        name="tipo_comprobante"
+                                        value="selectedEntity"
+                                    >
+                                    </select>
+                                </div>
+                            </div>
+                        </div>                        
                       </div>
-                      <!-- <div class="col-md-3">
+                      <div class="col-md-1">
+                          <div class="form-group">
+                              <label>Nivel:</label>
+                              <input type="number"  class="form-control is-warning" name="numero_inicio" id="numero_inicio" class="form-control" placeholder="Ej: 1">
+                          </div>
+                      </div>
+
+                      <div class="col-md-3">
                         <div class="form-group">
                           <label>
                             <strong>CUENTAS:</strong>
@@ -163,12 +175,13 @@
                               </div>
                           </div>
                         </div>
-                      </div> -->
-                      <!-- <div class="col-md-3">
+                      </div> 
+                      <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>OPCIONES:</strong>
                           </label>
+                          <br>
                           <div class="form-check">
                             <input
                               class="form-check-input"
@@ -176,11 +189,25 @@
                               id="soloConMovimientos"                              
                             />
                             <label class="form-check-label" htmlFor="soloConMovimientos">
-                              Solo cuentas con movimientos
+                              Incluir cuentas con saldo cero
                             </label>
                           </div>
                         </div>
-                      </div> -->
+                      </div> 
+                      
+                      <div class="col-md-12">
+                        <br>
+                         <div class="col-md-12 text-right">
+                          <button class="btn btn-primary mr-2"
+                              onClick = "consultar()">
+                            <i class="mr-1">🔍</i> Consultar 
+                          </button>
+                          <button class="btn btn-success mr-2"
+                                onClick="generarReporteEstadoDeResultados()">
+                            <i class="mr-1">📄</i> Exportar PDF
+                          </button>
+                        </div>
+                      </div>
                     </div>
                     <!-- <div class="row">
                       <div class="col-md-12 text-right">

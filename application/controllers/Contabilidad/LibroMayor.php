@@ -191,28 +191,51 @@ class LibroMayor extends CI_Controller {
 			}
 			else
 			{
+				$importeDeudor   = 0;
+				$importeAcreedor = 0;				
+				$saldoAcumulado  = 0;
 				foreach($cuentasLibroMayor as $registro)
 				{
 					$fecha_comprobante  = formato_fecha($registro->fecha_comprobante);
 					$tipo_comprobante   = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $registro->tipo_comprobante);
 					$numero_correlativo = $registro->correlativo;
 					$glosa_cuenta       = $registro->glosa_cuenta;
-					$importeDebe =0;
-					$importeHaber =0;
+					$importeDebe   = 0;
+					$importeHaber  = 0;
+					
 					if($registro->tipo_movimiento == "DB")
 					{
-						$importeDebe   = $registro->importe_moneda_nacional;
+						$importeDebe      = $registro->importe_moneda_nacional;
+						$saldoAcumulado   = $importeDebe + $saldoAcumulado;
+						if($saldoAcumulado >0)
+						{
+							$importeDeudor    = $saldoAcumulado;
+							$importeAcreedor  = 0;
+
+						}
+						else
+						{
+							$importeAcreedor  = $saldoAcumulado * -1;
+							$importeDeudor	  = 0;
+						}
+
 					}
 					else
 					{
-						$importeHaber = $registro->importe_moneda_nacional;
+						$importeHaber     = $registro->importe_moneda_nacional;
+						$saldoAcumulado   = $saldoAcumulado-$importeHaber; 
+
+						if($saldoAcumulado>0)
+						{
+							$importeDeudor = $saldoAcumulado;
+							$importeAcreedor = 0;
+						}
+						else
+						{
+							$importeAcreedor = $saldoAcumulado * -1;
+							$importeDeudor	 = 0;
+						}
 					}
-					$importeDeudor=0;
-					$importeAcreedor=0;
-					$saldoCuenta=0;
-					
-					$importeDeudor   = $importeDeudor + $importeDebe;
-					$importeAcreedor = $saldoCuenta-$importeHaber; 
 										
 					$tr.="<tr>
 							<td>
@@ -262,16 +285,16 @@ class LibroMayor extends CI_Controller {
 						TOTALES:
 						</td>
 						<td style='text-align: right'>
-						".$totalImporteDebe."
+						".number_format($totalImporteDebe,2,'.',',')."
 						</td>
 						<td style='text-align: right'>
-						".$totalImporteHaber."
+						".number_format($totalImporteHaber,2,'.',',')."
 						</td>
 						<td style='text-align: right'>
-						".$totalImporteDeudor."
+						".number_format($totalImporteDeudor,2,'.',',')."
 						</td>
 						<td style='text-align: right'>
-						".$totalImporteAcreedor."
+						".number_format($totalImporteAcreedor,2,'.',',')."
 						</td>
 					  </tr>";
 			}
@@ -310,7 +333,7 @@ class LibroMayor extends CI_Controller {
 		$this->load->library('fpdf/pdf2');
         $pdf = new Pdf2();
         $pdf->AliasNbPages();
-        $pdf->SetAutoPageBreak(true, 30);
+        $pdf->SetAutoPageBreak(true, 20);
         $pdf->SetMargins(20,15,10);		
 		$pdf->SetTitle(utf8_decode("Reporte Libro Mayor"));
 		$pdf->entidad=descripcion_nombre_entidad($id_entidad);
@@ -318,9 +341,9 @@ class LibroMayor extends CI_Controller {
 		$pdf->tituloCabecera = 'LIBRO MAYOR';
 		$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
 		$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
-        $w = array(15,115,40,50);
-        $pdf->setWidthsG($w);
-        $pdf->SetAligns(array('C','L','C','C'));
+        // $w = array(15,115,40,50);
+        // $pdf->setWidthsG($w);
+        // $pdf->SetAligns(array('C','L','C','C'));
 		$pdf->AddPage('P','Letter');
 		$pdf->opcion_cabecera=3;
 		$pdf->Header();
@@ -329,9 +352,9 @@ class LibroMayor extends CI_Controller {
         $pdf->SetFont('Arial','',6);
 		$pdf->Ln(1);
 		/*CUERPO DEL REPORTE*/
-		$pdf->SetFillColor(255,255,255);
-        $pdf->SetTextColor(0);
-        $pdf->SetFont('Arial','',6);
+		// $pdf->SetFillColor(255,255,255);
+        // $pdf->SetTextColor(0);
+        // $pdf->SetFont('Arial','',6);
         $num = 0;
         $total=0;
 
@@ -341,6 +364,7 @@ class LibroMayor extends CI_Controller {
 		$cadena = rtrim($cadena, ',');
 		$plandecuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusquedaIds($cadena);
 
+		$x=10; //Valor margen izquierdo inicial
 		$totalGeneralImporteDebe =0;
 		$totalGeneralImporteHaber =0;
 		$totalGeneralImporteDeudor=0;
@@ -377,16 +401,13 @@ class LibroMayor extends CI_Controller {
 				}
 			}	
 			$pdf->SetFillColor(245, 245, 240);
-			$pdf->SetFont('Arial', 'B', 8);
-			$pdf->setX(5);     
-	        $pdf->Cell(205,6,utf8_decode($cabercera1_cuenta),0,0,'L',1);
-			
+			$pdf->SetFont('Arial', 'B', 7);
+			$pdf->setX($x);     
+	        $pdf->Cell(200,6,utf8_decode($cabercera1_cuenta),0,0,'L',1);			
 			$pdf->Ln();
 			$y=$pdf->GetY();
-            $pdf->SetXY(5,$y);
-			// $pdf->setX(5);     
-	        $pdf->Cell(205,6,utf8_decode($cabercera2_cuenta),0,0,'L',1);
-
+            $pdf->SetXY($x,$y);
+	        $pdf->Cell(200,6,utf8_decode($cabercera2_cuenta),0,0,'L',1);
 			$pdf->Ln();
 
 			// $cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda1($id_entidad,$cuenta->id);
@@ -402,26 +423,26 @@ class LibroMayor extends CI_Controller {
 				$detalle="SIN MOVIMIENTO";
 				$pdf->SetFillColor(255,255,255);
 				$y=$pdf->GetY();
-				$pdf->SetXY(5,$y);
-				$pdf->setX(5);     
+				$pdf->SetXY($x,$y);
+				// $pdf->setX(10);     
 				$pdf->Cell(205,6,utf8_decode($detalle),0,0,'L',1);
 				$pdf->Ln();
 
 				$y=$pdf->GetY();
-				$pdf->SetXY(5,$y);
-				$pdf->setX(5);     
+				$pdf->SetXY($x,$y);
+				// $pdf->setX(5);     
 				// $pdf->SetAligns(['R','R','R','C','C']);
 				$pdf->Cell(145,2,"",0,0,'R',1);
-				$x=$pdf->GetX();
-				$y=$pdf->GetY();
-				$pdf->Line($x, $y, $x + 60, $y);
+				$x_line=$pdf->GetX();
+				$y_line=$pdf->GetY();
+				$pdf->Line($x_line, $y_line, $x_line + 60, $y_line);
 				$pdf->Cell(60,2,"",0,0,'R',1);
 				$pdf->Ln();
 
 				$TOTALES="SUBTOTALES";
 				$pdf->SetFillColor(255,255,255);
 				$y=$pdf->GetY();
-				$pdf->SetXY(5,$y);
+				$pdf->SetXY($x,$y);
 				// $pdf->setX(5);     
 				$pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
 				$pdf->Cell(15,8,utf8_decode($totalImporteDebe),0,0,'R',1);
@@ -434,11 +455,13 @@ class LibroMayor extends CI_Controller {
 			{
 				$pdf->SetFillColor(255,255,255);
 				$pdf->SetFont('Arial', '', 8);
-				$pdf->setX(5); 
-				$pdf->SetWidths([20, 15, 20, 90, 15, 15, 15, 15]);
+				$pdf->setX($x); 
+				$pdf->SetWidths([20, 15, 20, 85, 15, 15, 15, 15]);
 				$pdf->SetAligns(['C','C','C','L','R','R','R','R']);
-				$importeDeudor=0;
-				$importeAcreedor=0;
+				$importeDeudor   = 0;
+				$importeAcreedor = 0;				
+				$saldoAcumulado  = 0;
+
 				foreach($cuentasLibroMayor as $registro)
 				{
 					
@@ -447,34 +470,54 @@ class LibroMayor extends CI_Controller {
 					$tipo_comprobante   = $registro->tipo_comprobante;
 					$numero_correlativo = $registro->correlativo;
 					$glosa_cuenta       = $registro->glosa_cuenta;
-					$importeDebe =0;
-					$importeHaber =0;
+					$importeDebe   = 0;
+					$importeHaber  = 0;
+					
 					if($registro->tipo_movimiento == "DB")
 					{
-						$importeDebe   = $registro->importe_moneda_nacional;
-						$importeDeudor   = $importeDeudor + $importeDebe;
+						$importeDebe      = $registro->importe_moneda_nacional;
+						$saldoAcumulado   = $importeDebe + $saldoAcumulado;
+						if($saldoAcumulado >0)
+						{
+							$importeDeudor    = $saldoAcumulado;
+							$importeAcreedor  = 0;
+
+						}
+						else
+						{
+							$importeAcreedor  = $saldoAcumulado * -1;
+							$importeDeudor	  = 0;
+						}
+
 					}
 					else
 					{
-						$importeHaber = $registro->importe_moneda_nacional;
-						$importeAcreedor = $importeAcreedor-$importeHaber; 
+						$importeHaber     = $registro->importe_moneda_nacional;
+						$saldoAcumulado   = $saldoAcumulado-$importeHaber; 
+
+						if($saldoAcumulado>0)
+						{
+							$importeDeudor = $saldoAcumulado;
+							$importeAcreedor = 0;
+						}
+						else
+						{
+							$importeAcreedor = $saldoAcumulado * -1;
+							$importeDeudor	 = 0;
+						}
 					}
-					// $importeDeudor=0;
-					// $importeAcreedor=0;
-					$saldoCuenta=0;
-					
 										
 					$fila = array(
 							$fecha_comprobante,
 							$tipo_comprobante,
 							$numero_correlativo,
 							$glosa_cuenta,
-							number_format($importeDebe,2,',','.') ,
-							number_format($importeHaber,2,',','.') ,
-							number_format($importeDeudor,2,',','.') ,
-							number_format($importeAcreedor,2,',','.') 
+							number_format($importeDebe,2,'.',',') ,
+							number_format($importeHaber,2,'.',',') ,
+							number_format($importeDeudor,2,'.',',') ,
+							number_format($importeAcreedor,2,'.',',') 
 						);	
-					$pdf->setX(5); 
+					// $pdf->setX($x); 
 					$pdf->Row_Reportes_LM($fila,true, '', 4);	
 					
 						  
@@ -487,26 +530,37 @@ class LibroMayor extends CI_Controller {
 				$pdf->Ln();
 				$pdf->SetFillColor(255,255,255);
 				$y=$pdf->GetY();
-				$pdf->SetXY(5,$y);
-				$pdf->setX(5);     
+				$pdf->SetXY($x,$y);
+				$pdf->setX($x);     
 				// $pdf->SetAligns(['R','R','R','C','C']);
-				$pdf->Cell(145,2,"",0,0,'R',1);
+				$pdf->Cell(140,2,"",0,0,'R',1);
 				// $pdf->SetXY();
-				$x=$pdf->GetX();
-				$y=$pdf->GetY();
-				$pdf->Line($x, $y, $x + 60, $y);
+				$x_line2=$pdf->GetX();
+				$y_line2=$pdf->GetY();
+				$pdf->Line($x_line2, $y_line2, $x_line2 + 60, $y_line2);
 				$pdf->Cell(60,2,"",0,0,'R',1);
 				$pdf->Ln();
 
+				
 				$TOTALES="SUBTOTALES";
-				$y=$pdf->GetY();
-				$pdf->SetXY(5,$y);
-				$pdf->setX(5);     
-				$pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
-				$pdf->Cell(15,8,utf8_decode($totalImporteDebe),0,0,'R',1);
-				$pdf->Cell(15,8,utf8_decode($totalImporteHaber),0,0,'R',1);
-				$pdf->Cell(15,8,utf8_decode($totalImporteDeudor),0,0,'R',1);
-				$pdf->Cell(15,8,utf8_decode($totalImporteAcreedor),0,0,'R',1);
+				// $y=$pdf->GetY();
+				// $pdf->SetXY($x,$y);    
+				// $pdf->Cell(140,8,utf8_decode($TOTALES),0,0,'R',1);
+				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteDebe,2,'.',',')),0,0,'R',1);
+				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteHaber,2,'.',',')),0,0,'R',1);
+				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteDeudor,2,'.',',')),0,0,'R',1);
+				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteAcreedor,2,'.',',')),0,0,'R',1);
+				$pdf->SetWidths([140, 15, 15, 15, 15]);
+				$pdf->SetAligns(['R','R','R','R','R']);
+				$fila_subtotales = array(
+									$TOTALES,
+									number_format($totalImporteDebe,2,'.',',') ,
+									number_format($totalImporteHaber,2,'.',',') ,
+									number_format($totalImporteDeudor,2,'.',',') ,
+									number_format($totalImporteAcreedor,2,'.',',') 
+								);	
+							// $pdf->setX($x); 
+				$pdf->Row_Reportes_LM($fila_subtotales,true, '', 4);
 
 			}
 			
@@ -517,30 +571,42 @@ class LibroMayor extends CI_Controller {
 			$pdf->opcion_pie='FOOTER_VACIO';
 			$pdf->Ln();
 	    }      
-		// $pdf->Ln();
+
 		$pdf->SetFillColor(255,255,255);
 		$y=$pdf->GetY();
-		$pdf->SetXY(5,$y);
-		// $pdf->setX(5);     
-		// $pdf->SetAligns(['R','R','R','C','C']);
-		$pdf->Cell(145,2,"",0,0,'R',1);
-		$x=$pdf->GetX();
-		$y=$pdf->GetY();
-		$pdf->Line($x, $y, $x + 60, $y);
+		$pdf->SetXY($x,$y);
+		$pdf->Cell(140,2,"",0,0,'R',1);
+		$x_line3=$pdf->GetX();
+		$y_line3=$pdf->GetY();
+		$pdf->Line($x_line3, $y_line3, $x_line3+ 60, $y_line3);
 		$pdf->Cell(60,2,"",0,0,'R',1);
 		$pdf->Ln();
 		$TOTALES="TOTALES";
 		$y=$pdf->GetY();
-		$pdf->SetXY(5,$y);
-		$pdf->setX(5);     
-		$pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteDebe),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteHaber),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteDeudor),0,0,'R',1);
-		$pdf->Cell(15,8,utf8_decode($totalGeneralImporteAcreedor),0,0,'R',1);  
-		// $pdf->AddPage('P', 'Letter'); 
-		// $pdf->setX(5); 
-		// $pdf->opcion_pie='FOOTER_VACIO';
+		$pdf->SetXY($x,$y);
+  
+		// $pdf->Cell(140,8,utf8_decode($TOTALES),0,0,'R',1);
+		// $pdf->Cell(15,8,utf8_decode(number_format($totalGeneralImporteDebe,2,'.',',')),0,0,'R',1);
+		// $pdf->Cell(15,8,utf8_decode(number_format($totalGeneralImporteHaber,2,'.',',')),0,0,'R',1);
+		// $pdf->Cell(15,8,utf8_decode(number_format($totalGeneralImporteDeudor,2,'.',',')),0,0,'R',1);
+		// $pdf->Cell(15,8,utf8_decode(number_format($totalGeneralImporteAcreedor,2,'.',',')),0,0,'R',1);  
+
+		$pdf->SetWidths([140, 15, 15, 15, 15]);
+		$pdf->SetAligns(['R','R','R','R','R']);
+		$fila_totales = array(
+							$TOTALES,
+							number_format($totalGeneralImporteDebe,2,'.',',') ,
+							number_format($totalGeneralImporteHaber,2,'.',',') ,
+							number_format($totalGeneralImporteDeudor,2,'.',',') ,
+							number_format($totalGeneralImporteAcreedor,2,'.',',') 
+						);	
+					// $pdf->setX($x); 
+		$pdf->Row_Reportes_LM($fila_totales,true, '', 4);
+
+
+
+
+    
 		$pdf->Footer();
 		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
 	}

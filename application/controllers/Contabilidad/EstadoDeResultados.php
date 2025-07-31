@@ -214,7 +214,8 @@ class EstadoDeResultados extends CI_Controller {
 			    );
 			$totalSaldoAcreedor+=$saldo_acreedor;
 			$pdf->SetFont('Arial','',7);
-			$pdf->Row_Reportes_SS($row,true, '', 6);	
+			// $pdf -> SetX(15);
+			$pdf->Row_Reportes_ER($row,true, '', 3);	
 		} 
 		$pdf->SetFont('Arial','B',7);
 		$x=15;
@@ -279,7 +280,7 @@ class EstadoDeResultados extends CI_Controller {
 			    );
 			$totalSaldoDeudor+=$totalDeudor;
 			$pdf->SetFont('Arial','',7);	
-			$pdf->Row_Reportes_SS($row,true, '', 6);	
+			$pdf->Row_Reportes_ER($row,true, '', 3);	
 		} 
 		$pdf->SetFont('Arial','B',7);
 		$x=15;

@@ -198,63 +198,40 @@ class SumasYSaldos extends CI_Controller {
 		// $pdf->setX(12); 
 		$pdf->SetWidths([25, 100, 18, 18, 18, 18]);
 		$pdf->SetAligns(['L','L','R','R','R','R']);
+		$saldo=0;
         foreach ($sumasysaldos as $fila)
 		{   		
 				
-			$deudor =0;
-			$acreedor =0;
-			$codigo= $fila->codigo;
+			$deudor      = 0;
+			$acreedor    = 0;
+			$codigo      = $fila->codigo;
 			$descripcion = $fila->descripcion;	
-			$debe = $fila->debe;
-			$haber = $fila->haber;
-			if($haber == 0)
+			$debe        = $fila->debe;
+			$haber       = $fila->haber;
+
+			$saldo = $debe - $haber;
+			
+			if($saldo>0)
 			{
-				$deudor = $debe;
+				$deudor = $saldo;
 				$acreedor = 0;
-			}
-			else{
-				if($debe == 0)
-				{
-					$acreedor = $haber;
-					$deudor = 0;
-				}
-				else
-				{
-					if($debe <> 0 && $haber <> 0)
-					{
-						$deudor = $debe-$haber;
-						$acreedor = 0;
-					}
-				
-				}
-			}
-			if($deudor==0 )
-			{
-				$deudor_dato='';
-				$acreedor_dato = number_format($acreedor,2,'.',',');
 			}
 			else
 			{
-				if($acreedor ==0)
+				if($saldo < 0)
 				{
-					$acreedor_dato = '';
-					$deudor_dato   = number_format($deudor,2,'.',',');
-				}
-				else
-				{
-					$deudor_dato='';
-					$acreedor_dato='';
+					$deudor = 0;
+					$acreedor = $saldo * -1 ;
 				}
 			}
+
 			$fila = array(
 				$codigo,
 				$descripcion,
 				number_format($debe,2,'.',','),
 				number_format($haber,2,'.',','),
-				// number_format($deudor,2,'.',','),
-				// number_format($acreedor,2,'.',',')
-				$deudor_dato,
-				$acreedor_dato
+				number_format($deudor,2,'.',','),
+				number_format($acreedor,2,'.',',')
 			    );
 			$totalDebe += $debe;
 			$totalHaber += $haber;		

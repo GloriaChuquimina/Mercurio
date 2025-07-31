@@ -89,7 +89,7 @@
                     <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
                     <input type ="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
-                      <div class="col-md-3">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>FECHA DESDE:</strong>
@@ -103,7 +103,7 @@
                           />
                         </div>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>FECHA HASTA:</strong>
@@ -117,7 +117,84 @@
                           />
                         </div>
                       </div>
-                       <div class="col-md-6 text-right">
+                      <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="d-flex align-items-end">
+                                <div style="flex-grow: 1; margin-right: 10px;">
+                                    <label for="tipo_comprobante">
+                                        <strong>MONEDA:</strong>
+                                    </label>
+                                    <select
+                                        class="form-control"
+                                        id="tipo_comprobante"
+                                        name="tipo_comprobante"
+                                        value="selectedEntity"
+                                    >
+                                    </select>
+                                </div>
+                            </div>
+                        </div>                        
+                      </div>
+                      <div class="col-md-1">
+                          <div class="form-group">
+                              <label>Nivel:</label>
+                              <input type="number"  class="form-control is-warning" name="numero_inicio" id="numero_inicio" class="form-control" placeholder="Ej: 1">
+                          </div>
+                      </div>
+
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>
+                            <strong>CUENTAS:</strong>
+                          </label>
+                          <div class="input-group">
+                              <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Buscar cuenta..."
+                                  list="listaCuentas"
+                                  id="txtCuenta" 
+                                  name="txtCuenta"
+                              />
+                              <datalist id='listaCuentas'></datalist>
+                              <div class="input-group-append">
+                                  <button
+                                  type="button"
+                                  class="btn btn-success"
+                                  onclick="añadirCuenta();"
+                                  >
+                                  <i>➕</i>
+                                  </button>
+                                  <button
+                                  type="button"
+                                  class="btn btn-warning"
+                                  onclick="listaCuentasBusqueda();"
+                                  >
+                                  <i>🔍</i>
+                                  </button>
+                              </div>
+                          </div>
+                        </div>
+                      </div> 
+                      <div class="col-md-2">
+                        <div class="form-group">
+                          <label>
+                            <strong>OPCIONES:</strong>
+                          </label>
+                          <br>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="soloConMovimientos"                              
+                            />
+                            <label class="form-check-label" htmlFor="soloConMovimientos">
+                              Incluir cuentas con saldo cero
+                            </label>
+                          </div>
+                        </div>
+                      </div> 
+                      <div class="col-md-12 text-right">
                         <br>
                         <button class="btn btn-primary mr-2"
                              onClick = "cargarDatosBalanceGeneral()">
@@ -178,8 +255,8 @@
                             </label>
                           </div>
                         </div>
-                      </div> -->
-                    </div>
+                      </div> 
+                    </div>-->
                     <!-- <div class="row">
                       <div class="col-md-12 text-right">
                         <button class="btn btn-primary mr-2"

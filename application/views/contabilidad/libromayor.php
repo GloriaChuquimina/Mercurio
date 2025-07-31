@@ -237,19 +237,152 @@
                     <input type ="hidden" class="form-control" id="id_entidad" name="id_entidad">
                     <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
                     <input type ="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <div class="row">                      
+                      <div class="col-md-2">
+                        <div class="form-group">
+                          <label>
+                            <strong>FECHA DESDE:</strong>
+                          </label>
+                          <input
+                            id="fechaDesde"
+                            name="fechaDesde"
+                            placeHolder="Fecha Desde"
+                            type="date"
+                            class="form-control"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-2">
+                        <div class="form-group">
+                          <label>
+                            <strong>FECHA HASTA:</strong>
+                          </label>
+                          <input
+                            id="fechaHasta"
+                            name="fechaHasta"
+                            placeHolder="Fecha Hasta"
+                            type="date"
+                            class="form-control"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="d-flex align-items-end">
+                                <div style="flex-grow: 1; margin-right: 10px;">
+                                    <label for="tipo_comprobante">
+                                        <strong>MONEDA:</strong>
+                                    </label>
+                                    <select
+                                        class="form-control"
+                                        id="tipo_comprobante"
+                                        name="tipo_comprobante"
+                                        value="selectedEntity"
+                                    >
+                                    </select>
+                                </div>
+                            </div>
+                        </div>                        
+                      </div>
+                      <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="d-flex align-items-end">
+                                <div style="flex-grow: 1; margin-right: 10px;">
+                                    <label for="tipo_comprobante">
+                                        <strong>MODO DE IMPRESIÓN:</strong>
+                                    </label>
+                                    <select
+                                        class="form-control"
+                                        id="tipo_comprobante"
+                                        name="tipo_comprobante"
+                                        value="selectedEntity"
+                                    >
+                                    </select>
+                                </div>
+                            </div>
+                        </div>                        
+                      </div>
+                      <div class="col-md-2">
+                      </div>
+                      <div class="col-md-2">
+                      </div>
+                      <!-- <div class="col-md-1">
+                        <div class="form-group">
+                          <label>
+                            <strong>OPCIONES:</strong>
+                          </label>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="soloConMovimientos"                              
+                            />
+                            <label class="form-check-label" htmlFor="soloConMovimientos">
+                              Solo cuentas con movimientos
+                            </label>
+                          </div>
+                        </div>
+                      </div>  -->
+                      <!-- <div class="col-md-5">
+                        <div class="form-group">
+                          <label>
+                            <i class="text-danger">*</i>
+                            <strong> CUENTA CONTABLE:</strong>
+                          </label>
+                          <div class="input-group">
+                              <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder="Buscar cuenta..."
+                                  list="listaCuentas"
+                                  id="txtCuenta" 
+                                  name="txtCuenta"
+                              />
+                              <datalist id='listaCuentas'></datalist>
+                              <div class="input-group-append">
+                                  <button
+                                  type="button"
+                                  class="btn btn-success"
+                                  onclick="añadirCuenta();"
+                                  >
+                                  <i>➕</i>
+                                  </button>
+                                  <button
+                                  type="button"
+                                  class="btn btn-warning"
+                                  onclick="listaCuentasBusqueda();"
+                                  >
+                                  <i>🔍</i>
+                                  </button>
+                              </div>
+                          </div>
+                        </div>
+                      </div> -->
+                    </div>
                     <div class="row">
+                       <div class="col-md-2">
+                        <div class="form-group">
+                          <label>
+                            <strong>OPCIONES:</strong>
+                          </label>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="soloConMovimientos"                              
+                            />
+                            <label class="form-check-label" htmlFor="soloConMovimientos">
+                              Solo cuentas con movimientos
+                            </label>
+                          </div>
+                        </div>
+                      </div> 
                       <div class="col-md-6">
                         <div class="form-group">
                           <label>
                             <i class="text-danger">*</i>
                             <strong> CUENTA CONTABLE:</strong>
                           </label>
-                          <!-- <select
-                            id="cuentaContable"
-                            name="cuentaContable"
-                            class="form-control"
-                          >
-                          </select> -->
                           <div class="input-group">
                               <input
                                   type="text"
@@ -279,38 +412,9 @@
                               </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="col-md-3">
-                        <div class="form-group">
-                          <label>
-                            <strong>FECHA DESDE:</strong>
-                          </label>
-                          <input
-                            id="fechaDesde"
-                            name="fechaDesde"
-                            placeHolder="Fecha Desde"
-                            type="date"
-                            class="form-control"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-md-3">
-                        <div class="form-group">
-                          <label>
-                            <strong>FECHA HASTA:</strong>
-                          </label>
-                          <input
-                            id="fechaHasta"
-                            name="fechaHasta"
-                            placeHolder="Fecha Hasta"
-                            type="date"
-                            class="form-control"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12 text-right">
+                      </div>                    
+                      <div class="col-md-4 text-right">
+                        <br>
                         <button class = "btn btn-primary mr-2"
                               onClick = "consultar()">
                           <i class="mr-1">🔍</i> Consultar
@@ -319,10 +423,7 @@
                                 onClick="generarReporteLibroMayor()">
                           <i class="mr-1">📄</i> Exportar PDF
                         </button>
-                        <!-- <button class="btn btn-info">
-                          <i class="mr-1">📊</i> Exportar Excel
-                        </button> -->
-                      </div>
+                      </div>                      
                     </div>
                 </div>                
             </div>

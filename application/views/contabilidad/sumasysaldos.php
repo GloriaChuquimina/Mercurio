@@ -295,7 +295,7 @@
                     <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
                     <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
-                      <div class="col-md-3">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>FECHA DESDE:</strong>
@@ -309,7 +309,7 @@
                           />
                         </div>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>FECHA HASTA:</strong>
@@ -322,6 +322,30 @@
                             class="form-control"
                           />
                         </div>
+                      </div>
+                      <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="d-flex align-items-end">
+                                <div style="flex-grow: 1; margin-right: 10px;">
+                                    <label for="tipo_comprobante">
+                                        <strong>MONEDA:</strong>
+                                    </label>
+                                    <select
+                                        class="form-control"
+                                        id="tipo_comprobante"
+                                        name="tipo_comprobante"
+                                        value="selectedEntity"
+                                    >
+                                    </select>
+                                </div>
+                            </div>
+                        </div>                        
+                      </div>
+                      <div class="col-md-1">
+                          <div class="form-group">
+                              <label>Nivel:</label>
+                              <input type="number"  class="form-control is-warning" name="numero_inicio" id="numero_inicio" class="form-control" placeholder="Ej: 1">
+                          </div>
                       </div>
                       <div class="col-md-3">
                         <div class="form-group">
@@ -364,7 +388,7 @@
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>OPCIONES:</strong>

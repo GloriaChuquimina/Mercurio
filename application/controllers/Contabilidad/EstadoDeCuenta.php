@@ -177,7 +177,7 @@ class EstadoDeCuenta extends CI_Controller {
 			$totalHaber+=$importeHaber;
 			$totalDeudor+=$importeDeudor;
 			$totalAcreedor+=$importeAcreedor;
-			$pdf->Row_Reportes_SS($row,true, '', 6);	
+			$pdf->Row_Reportes_EC($row,true, '', 6);	
 		} 
 		$pdf->SetFont('Arial', 'B', 6);
 		$pdf->SetFillColor(230, 230, 225);
@@ -194,7 +194,7 @@ class EstadoDeCuenta extends CI_Controller {
 		$pdf->Cell(15,5,utf8_decode(number_format($totalDeudor,2,'.',',')),0,0,'R',1);
 		$pdf->Cell(15,5,utf8_decode(number_format($totalAcreedor,2,'.',',')),0,0,'R',1); 
 
-		$ini_y=58;
+		$ini_y=55;
 		$y_fin=$pdf->GetY();
 		$pdf->Line(15, $ini_y, 15, $y_fin+5);
 		$pdf->Line(45, $ini_y, 45, $y_fin);
