@@ -338,6 +338,7 @@ class LibroDiario extends CI_Controller {
         $pdf = new Pdf2();
         $pdf->AliasNbPages();
         $pdf->SetAutoPageBreak(true, 10);
+		// $pdf->bMargin = 10;
         $pdf->SetMargins(20,15,10);		
 		$pdf->SetTitle(utf8_decode("Reporte Libro Diario"));
 		$pdf->entidad=descripcion_nombre_entidad($id_entidad);
@@ -390,10 +391,30 @@ class LibroDiario extends CI_Controller {
 			$importeHaber= 0;
 			$totalGeneralImporteDebe  = 0;
 			$totalGeneralImporteHaber = 0;
+			$pag_debe=0;
+			$pag_haber=0;
 			$pdf->setY(55); 
-			$y_ini = $pdf->getY();
+			$y_ini_1 =55;
+
+			$x=10;
+			$pagina_actual = $pdf->PageNo();
+			// if ($pdf->PageNo() !== $pagina_actual) {
+			// 	// Detectar nueva página
+			// 	$pagina_actual = $pdf->PageNo();
+			// 	$y_ini = $pdf->GetY();					
+			// }
+
+
 			foreach ($libroDiarioComprobante as $comprobante)
 			{   
+
+				if ($pdf->PageNo() !== $pagina_actual) {
+					// Detectar nueva página
+					$pagina_actual = $pdf->PageNo();
+					$y_ini = $pdf->GetY();					
+				}
+
+
 
 				$totalDebe   = 0;
 				$totalHaber  = 0;
@@ -413,6 +434,7 @@ class LibroDiario extends CI_Controller {
 				);	
 				$y_i = $pdf->GetY();
 				$pdf->SetFont('Arial', 'B', 7);
+				$pdf->SetFillColor(230, 230, 225);
 				$pdf->SetXY(10, $y_i);
 				$pdf->Cell(30, 8, utf8_decode($fecha_comprobante), 0, 0, 'C', 1);
 				$pdf->Cell(130, 8, "-----" . utf8_decode($detalle_comprobante) . "-----", 0, 0, 'C', 1);
@@ -455,62 +477,68 @@ class LibroDiario extends CI_Controller {
 								$importeDebe ,
 								$importeHaber 
 							);	
-							// $pdf->Cell(30,5,utf8_decode($codigo_cuenta),0,0,'L',1);
-							// $pdf->Cell(130,5,utf8_decode($descripcion_cuenta),0,0,'L',1);
-							// $pdf->Cell(20,5,number_format($importeDebe,2,'.',','),0,0,'R',1);
-							// $pdf->Cell(20,5,number_format($importeHaber,2,'.',','),0,0,'R',1);						
-							// $pdf->Ln();
 							$pdf->Row_SinLinea($fila,true, '', 4);
 							$totalDebe     = $totalDebe+$importeDebe;
 							$totalHaber    = $totalHaber+$importeHaber;					
 					}
 				}	
+				
+				$pdf->SetX(10);
+				$pdf->SetWidths([30, 130, 20, 20]);
+				$pdf->SetAligns(['L','L','R','R']);
+				$pdf->SetFillColor(230, 230, 225);
 				$pdf->SetFont('Arial', 'B', 7);
-				$y=$pdf->GetY();
-				$x=10;
-				$pdf->SetXY(10,$y);   
-				$pdf->MultiCell(30, 8, utf8_decode(" "), 0, 'C', 1);
-				$pdf->SetXY($x + 30, $y); // Mover a la derecha
-				$pdf->MultiCell(130, 8, utf8_decode($glosa_comprobante), 0, 'L', 1);
-				$pdf->SetXY($x + 160, $y); // 30 + 130
-				$pdf->MultiCell(20, 8, utf8_decode(number_format($totalDebe,2,'.',',')), 0, 'R', 1);
-				
+				$fila_pie_comprobante=array (
+												"----",
+												$glosa_comprobante,
+												$totalDebe,
+												$totalHaber
+											);
 
-				// Coordenadas finales
-				$x_line=175;
-				$finalY = $y + 8; // altura de la celda
-				$pdf->SetDrawColor(0, 0, 0); 
-				$pdf->SetLineWidth(0.2); 
-				$pdf->Line($x_line, $finalY - 1.5, $x_line + 14, $finalY - 1.5); 
-				$pdf->Line($x_line, $finalY - 0.8, $x_line + 14, $finalY - 0.8); 
-				$pdf->SetXY($x + 180, $y); 
-				$pdf->MultiCell(20, 8, utf8_decode(number_format($totalHaber,2,'.',',')), 0, 'R', 1);
-				
-				
-				
-				// Coordenadas finales
-				$x_line=195;
-				$finalY = $y + 8; // altura de la celda
-				$pdf->SetDrawColor(0, 0, 0); 
-				$pdf->SetLineWidth(0.2); 
-				$pdf->Line($x_line, $finalY - 1.5, $x_line + 14, $finalY - 1.5); 
-				$pdf->Line($x_line, $finalY - 0.8, $x_line + 14, $finalY - 0.8); 
-				$pdf->SetXY($x + 180, $y); 
-				$pdf->Ln();
+				$pdf->Row_SinLinea($fila_pie_comprobante,true, '', 4);
+				$pdf->paginaDebe += $totalDebe;
+				$pdf->paginaHaber += $totalHaber;
 				$totalGeneralImporteDebe  = $totalGeneralImporteDebe+$totalDebe;
 				$totalGeneralImporteHaber = $totalGeneralImporteHaber+$totalHaber;
+
+				if ($pdf->PageNo() == $pagina_actual) {
+					// La página cambió: dibuja líneas para la página anterior
+					$y_fin_2 = $pdf->GetY();
+				
+					$pdf->Line($x,      $y_ini_1-2, $x,      $y_fin_2);
+					$pdf->Line($x+30,   $y_ini_1-2, $x+30,   $y_fin_2);
+					$pdf->Line($x+160,  $y_ini_1-2, $x+160,  $y_fin_2);
+					$pdf->Line($x+180,  $y_ini_1-2, $x+180,  $y_fin_2);
+					$pdf->Line($x+200,  $y_ini_1-2, $x+200,  $y_fin_2);
+				
+					// Guardar nueva página y nueva posición inicial
+					$pagina_actual = $pdf->PageNo();
+					$y_ini_1 = $pdf->GetY();
+				}
+				else
+				{
+					// $y_ini_1=$pdf->GetY();
+					$y_ini_1=55;
+				}
+
 			} 	
-			$x=10;
-			$y=$pdf->GetY();
-			$y_fin=$pdf->GetY();
-			$pdf->Line($x, $y_ini, $x, $y_fin);	
-			$pdf->Line($x+30,  $y_ini, $x+30, $y_fin);	
-			$pdf->Line($x+160, $y_ini, $x+160, $y_fin);	
-			$pdf->Line($x+180, $y_ini, $x+180, $y_fin);	
-			$pdf->Line($x+200, $y_ini, $x+200, $y_fin);	
+
 			
+			
+			// $x=10;
+			// $y=$pdf->GetY();
+			// $y_fin=$pdf->GetY();
+			// $pdf->Line($x, $y_ini, $x, $y_fin);	
+			// $pdf->Line($x+30,  $y_ini, $x+30, $y_fin);	
+			// $pdf->Line($x+160, $y_ini, $x+160, $y_fin);	
+			// $pdf->Line($x+180, $y_ini, $x+180, $y_fin);	
+			// $pdf->Line($x+200, $y_ini, $x+200, $y_fin);	
+
+
+			$pdf->mostrar_total_general = true;
 			$pdf->totalLD_Debe  = $totalGeneralImporteDebe;
 			$pdf->totalLD_Haber = $totalGeneralImporteHaber;
+			// $y_fin_2 = $pdf->GetY();
 			// $pdf->Footer();
 			/**********************/
 		}

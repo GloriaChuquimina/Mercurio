@@ -32,8 +32,11 @@ class Pdf2 extends FPDF {
     private $cds220;
     private $rubro;
 
+	public $mostrar_total_general = false;
     public $totalLD_Debe=0;
     public $totalLD_Haber=0;
+    public $paginaDebe =0;
+    public $paginaHaber=0;
 
     public $marcaDeAguaDeclaracion;
 
@@ -51,6 +54,9 @@ class Pdf2 extends FPDF {
 
     public function Header() {
         $this->SetFont('Arial', 'B', 8);
+
+		$this->paginaDebe = 0;
+		$this->paginaHaber = 0;
 
         //***** Cabecera Vacía *****//
         if($this->opcion_cabecera==1)
@@ -382,6 +388,9 @@ class Pdf2 extends FPDF {
 
         }
     }
+	public function getBottomMargin() {
+		return $this->bMargin;
+	}
 
     public function Footer() {
         switch ($this->opcion_pie) {
@@ -393,9 +402,24 @@ class Pdf2 extends FPDF {
                 $this->setXY(10,$y);
                 $this->setXY(10,$y);
                 $TOTALES="TOTALES";		    
+                // $this->Cell(160,5,utf8_decode($TOTALES),1,0,'R',1);
+                // $this->Cell(20,5,utf8_decode(number_format($this->totalLD_Debe,2,',','.')),1,0,'R',1);
+                // $this->Cell(20,5,utf8_decode(number_format($this->totalLD_Haber,2,',','.')),1,0,'R',1);
                 $this->Cell(160,5,utf8_decode($TOTALES),1,0,'R',1);
-                $this->Cell(20,5,utf8_decode(number_format($this->totalLD_Debe,2,',','.')),1,0,'R',1);
-                $this->Cell(20,5,utf8_decode(number_format($this->totalLD_Haber,2,',','.')),1,0,'R',1);
+                $this->Cell(20,5,utf8_decode($this->paginaDebe),1,0,'R',1);
+                $this->Cell(20,5,utf8_decode($this->paginaHaber),1,0,'R',1);
+				// Mostrar solo en la última página
+				$y2=$this->GetY();
+				if ($this->mostrar_total_general && $this->PageNo() == $this->page) {
+					$this->SetY($y2+5); // un poco más arriba que el pie normal
+					$this->SetFont('Arial', 'B', 7);
+					$this->SetFillColor(200, 200, 200);
+					$this->SetX(10);
+					$this->Cell(160, 5, utf8_decode("TOTAL GENERAL"), 1, 0, 'R', true);
+					$this->Cell(20, 5, utf8_decode(number_format($this->totalLD_Debe, 2, ',', '.')), 1, 0, 'R', true);
+					$this->Cell(20, 5, utf8_decode(number_format($this->totalLD_Haber, 2, ',', '.')), 1, 0, 'R', true);
+				}
+
                 break;
             case 'FOOTER_SIN_MOVIMIENTO_LD':
                 $y=$this->GetY();
