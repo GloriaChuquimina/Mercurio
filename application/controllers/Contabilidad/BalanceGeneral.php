@@ -105,8 +105,8 @@ class BalanceGeneral extends CI_Controller {
 					$this->ordenarJerarquicamente($cuentas, $cuenta['id'], $indentacion + 1);
 
 				// --- Sumar importe propio + importe hijos -------------------------
-				$importePropio              = isset($cuenta['importe_moneda_nacional'])
-												? (float) $cuenta['importe_moneda_nacional']
+				$importePropio              = isset($cuenta['saldo_cuenta'])
+												? (float) $cuenta['saldo_cuenta']
 												: 0;
 				$cuenta['importe_total']    = $importePropio + $sumaHijos;
 
@@ -157,10 +157,10 @@ class BalanceGeneral extends CI_Controller {
 		$sumaTotalGlobal  = $ordenadas[1];
 
 		
-		// echo("<pre>");
-		// print_r ($cuentasOrdenadas);
-		// echo("</pre>");
-		// die();
+		echo("<pre>");
+		print_r ($cuentasOrdenadas);
+		echo("</pre>");
+		die();
 		
 		$draw    = intval($this->input->get("draw"));
 		$start   = intval($this->input->get("start"));
@@ -175,7 +175,7 @@ class BalanceGeneral extends CI_Controller {
 			$indentacion_invertida 	= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion_invertida']);
 			$descripcion 			= $fila['descripcion'];
 			$codigo      			= $fila['codigo'];
-			$importe_total      	= $fila['importe_total'] ? number_format($fila['importe_total'], 2, '.', ',') : '0.00';
+			$importe_total      	= $fila['saldo_cuenta'] ? number_format($fila['saldo_cuenta'], 2, '.', ',') : '0.00';
 
 			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
 				$descripcion   = "<strong><u>{$descripcion}</u></strong>";
@@ -299,15 +299,102 @@ class BalanceGeneral extends CI_Controller {
 	// 	$pdf->Footer();
 	// 	$pdf->Output('I',utf8_decode('ReporteBalanceGeneral.pdf')); 
 	// }
+	// function ReporteBalanceGeneralPDF($id_entidad,$cuentasBuscadas,$fecha_inicio,$fecha_fin)
+	// {			
+	// 	// $id_entidad      = $this->input->post('id_entidad');		
+	// 	/****************************/
+	// 	/*INICIO DEL REPORTE*/
+	// 	/****************************/
+	// 	// echo ($id_entidad);
+	// 	// die();
+		
+	// 	$this->load->library('fpdf/pdf2');
+    //     $pdf = new Pdf2();
+    //     $pdf->AliasNbPages();
+    //     $pdf->SetAutoPageBreak(true, 30);
+    //     $pdf->SetMargins(20,15,10);		
+	// 	$pdf->SetTitle(utf8_decode("BALANCE GENERAL"));
+	// 	$pdf->entidad=descripcion_nombre_entidad($id_entidad);
+	// 	$pdf->sigla="xxx";
+	// 	$pdf->tituloCabecera = 'BALANCE GENERAL';
+	// 	$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
+	// 	$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
+    //     $w = array(15,115,40,50);
+    //     $pdf->setWidthsG($w);
+    //     $pdf->SetAligns(array('C','L','C','C'));
+	// 	$pdf->AddPage('P','Letter');
+	// 	$pdf->opcion_cabecera=5;
+	// 	$pdf->Header();
+	// 	$pdf->SetFillColor(255,255,255);
+    //     $pdf->SetTextColor(0);
+    //     $pdf->SetFont('Arial','',6);
+	// 	$pdf->Ln(1);
+	// 	/*CUERPO DEL REPORTE*/
+	// 	$pdf->SetFillColor(255,255,255);
+    //     $pdf->SetTextColor(0);
+    //     $pdf->SetFont('Arial','',6);
+    //     $num = 0;
+    //     $total=0;
+
+	// 	// 1. Reemplazar guiones por comas
+	// 	$cadena = str_replace('-', ',', $cuentasBuscadas);
+	// 	// 2. Eliminar la última coma si existe
+	// 	$cadena = rtrim($cadena, ',');
+
+	// 	$cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral($id_entidad,$fecha_inicio,$fecha_fin);
+	// 	$cuentas = json_decode(json_encode($cuentas), true);
+	// 	$ordenadas = $this->ordenarJerarquicamente($cuentas);
+	// 	$cuentasOrdenadas = $ordenadas[0];
+	// 	$sumaTotalGlobal  = $ordenadas[1];
+
+	// 	// echo("<pre>");
+	// 	// print_r ($cuentasOrdenadas);
+	// 	// echo("</pre>");
+	// 	// die();
+
+	// 	$pdf->SetFillColor(255,255,255);
+	// 	$pdf->SetFont('Arial', '', 8);
+	// 	$ini_x=$pdf->GetX();
+	// 	// $ini_y=$pdf->GetY();
+		
+	// 	$pdf->setX(12); 
+	// 	$pdf->SetWidths([110, 15]);
+	// 	$pdf->SetAligns(['L','R']);
+
+
+	// 	foreach ($cuentasOrdenadas as $fila)
+	// 	{  
+	// 		$indentacion 			= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
+	// 		$indentacion_invertida 	= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion_invertida']);
+	// 		$nivel 					= $fila['nivel'];
+	// 		$indentacion_invertida2 = $fila['indentacion_invertida'];
+	// 		$descripcion 			= $fila['descripcion'];
+	// 		$codigo      			= $fila['codigo'];
+	// 		$importe_total      	= $fila['saldo_cuenta'] ? number_format($fila['saldo_cuenta'], 2, '.', ',') : '0.00';
+			
+	// 		$fila = array(
+
+	// 			// $codigo,
+	// 			$descripcion,
+	// 			$importe_total
+	// 		);
+
+	// 		// $pdf->setX(5); 
+	// 		$pdf->Row_Reportes_BG($fila,true, '', 4,$indentacion_invertida2,$nivel);								
+	// 		$pdf->opcion_pie='FOOTER_VACIO';
+	// 	}
+
+	// 	$pdf->Ln();
+
+	// 	$pdf->Footer();
+	// 	$pdf->Output('I',utf8_decode('ReporteBalanceGeneral.pdf')); 
+	// }
 	function ReporteBalanceGeneralPDF($id_entidad,$cuentasBuscadas,$fecha_inicio,$fecha_fin)
 	{			
 		// $id_entidad      = $this->input->post('id_entidad');		
 		/****************************/
 		/*INICIO DEL REPORTE*/
-		/****************************/
-		// echo ($id_entidad);
-		// die();
-		
+		/****************************/		
 		$this->load->library('fpdf/pdf2');
         $pdf = new Pdf2();
         $pdf->AliasNbPages();
@@ -315,14 +402,14 @@ class BalanceGeneral extends CI_Controller {
         $pdf->SetMargins(20,15,10);		
 		$pdf->SetTitle(utf8_decode("BALANCE GENERAL"));
 		$pdf->entidad=descripcion_nombre_entidad($id_entidad);
-		$pdf->sigla="xxx";
+		$pdf->sigla=sigla_entidad($id_entidad);
 		$pdf->tituloCabecera = 'BALANCE GENERAL';
 		$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
 		$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
         $w = array(15,115,40,50);
         $pdf->setWidthsG($w);
         $pdf->SetAligns(array('C','L','C','C'));
-		$pdf->AddPage('P','Letter');
+		$pdf->AddPage('L','Letter');
 		$pdf->opcion_cabecera=5;
 		$pdf->Header();
 		$pdf->SetFillColor(255,255,255);
@@ -347,10 +434,10 @@ class BalanceGeneral extends CI_Controller {
 		$cuentasOrdenadas = $ordenadas[0];
 		$sumaTotalGlobal  = $ordenadas[1];
 
-		// echo("<pre>");
-		// print_r ($cuentasOrdenadas);
-		// echo("</pre>");
-		// die();
+		echo("<pre>");
+		print_r ($cuentasOrdenadas);
+		echo("</pre>");
+		die();
 
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetFont('Arial', '', 8);
@@ -358,29 +445,55 @@ class BalanceGeneral extends CI_Controller {
 		// $ini_y=$pdf->GetY();
 		
 		$pdf->setX(12); 
-		$pdf->SetWidths([110, 15]);
-		$pdf->SetAligns(['L','R']);
+		$pdf->SetWidths([105, 105]);
+		$pdf->SetAligns(['L','L']);
+		$cabecera1="1 ACTIVO";
+		$cabecera2="2 PASIVO";
+		$fila= array(
+						$cabecera1,
+						$cabecera2		
+					);
+
+		// $pdf->Row_Reportes_BG($fila,true, '', 3,$indentacion_invertida2,$nivel);								
+		$pdf->Row_Reportes_BG($fila,true, '', 3,0,1);								
+		$pdf->opcion_pie='FOOTER_VACIO';
 
 
 		foreach ($cuentasOrdenadas as $fila)
 		{  
-			$indentacion 			= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
-			$indentacion_invertida 	= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion_invertida']);
+			// $indentacion 			= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
+			// $indentacion_invertida 	= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion_invertida']);
+			
+			$pdf->SetWidths([15,60,10,10,10]);
+			$pdf->SetAligns(['L','L','R','R','R']);
+			$nivel1=0;
+			$nivel2=0;
+			$nivel3=0;
 			$nivel 					= $fila['nivel'];
 			$indentacion_invertida2 = $fila['indentacion_invertida'];
 			$descripcion 			= $fila['descripcion'];
 			$codigo      			= $fila['codigo'];
-			$importe_total      	= $fila['importe_total'] ? number_format($fila['importe_total'], 2, '.', ',') : '0.00';
+			$importe_total      	= $fila['saldo_cuenta'] ? number_format($fila['saldo_cuenta'], 2, '.', ',') : '0.00';
 			
+			if($nivel == 1)
+			{
+
+			}
+
 			$fila = array(
 
-				// $codigo,
+				$codigo,
 				$descripcion,
-				$importe_total
+				$nivel1,
+				$nivel2,
+				$nivel3
+
 			);
 
 			// $pdf->setX(5); 
-			$pdf->Row_Reportes_BG($fila,true, '', 4,$indentacion_invertida2,$nivel);								
+			$pdf->Row_SinLinea($fila,true,'',5);
+
+			// $pdf->Row_Reportes_BG($fila,true, '', 3,$indentacion_invertida2,$nivel);								
 			$pdf->opcion_pie='FOOTER_VACIO';
 		}
 
