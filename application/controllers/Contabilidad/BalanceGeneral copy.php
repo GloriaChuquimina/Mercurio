@@ -570,112 +570,262 @@ class BalanceGeneral extends CI_Controller {
 			if (isset($cuentasOrdenadasActivo[$i])) {
 
 				$cuenta					= $cuentasOrdenadasActivo[$i];
-				$nivel_activo 					= $cuenta['nivel'];
+
+				// print_r($cuentasOrdenadasActivo[$i]);
+				// echo("\n");
+				// echo("<br>");
+				// die();
+				// print_r ("=====>".$cuenta['nivel']);
+
+				$nivel 					= $cuenta['nivel'];
+
+				// echo($nivel);
+				// die();
 				$indentacion_invertida_activo   = $cuenta['indentacion_invertida'];
 				$codigo_activo      			= $cuenta['codigo'];
 				$descripcion_activo 			= $cuenta['descripcion'];
 				$saldo_cuenta_activo      	    = $cuenta['saldo_cuenta'] ? number_format($cuenta['saldo_cuenta'], 2, '.', ',') : '0.00';
 				$total_cuenta_activo     	    = $cuenta['importe_total'] ? number_format($cuenta['importe_total'], 2, '.', ',') : '0.00';
+				// $pdf->Cell(15, 6, $nivel, 1, 0, 'R');
+				// $pdf->Cell(15, 6, $saldo_cuenta, 1, 0, 'R');
+
+				if($nivel==1)
+				{
+					$pdf->SetFont('Arial', 'BU', 7);
+					// $fila=array(
+					// 			$codigo,	
+					// 			$descripcion,
+					// 			$valor_cero,
+					// 			$saldo_cuenta,
+					// 			$total_cuenta
+					// 			);
+
+					$pdf->setX(12);				
+					// $pdf->Row_SinLinea($fila,true, '', 5);
+
+
+
+
+					// $pdf->Cell(25, 6, utf8_decode($codigo), 1, 0);
+					// $pdf->Cell(60, 6, utf8_decode($descripcion), 1, 0);
+					// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+					// $pdf->Cell(15, 6, $saldo_cuenta, 1, 0, 'R');
+					// $pdf->Cell(15, 6, $total_cuenta, 1, 0, 'R');
+
+
+					// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+					// $pdf->ln();
+					
+				}
+				else
+				{
+					if($nivel==2)
+					{
+
+						$fila=array(
+								$codigo,	
+								$descripcion,
+								$valor_cero,
+								$total_cuenta,
+								$valor_cero
+								);
+
+						$pdf->SetFont('Arial', 'BU', 7);
+						$pdf->setX(12);				
+					    // $pdf->Row_SinLinea($fila,true, '', 5);			
+						
+						
+						// $pdf->Cell(25, 6, utf8_decode($codigo), 1, 0);
+						// $pdf->Cell(60, 6, utf8_decode($descripcion), 1, 0);
+						// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+						// $pdf->Cell(15, 6, $total_cuenta, 1, 0, 'R');
+						// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+					
+					}
+					else
+					{
+
+						$fila=array(
+								$codigo,	
+								$descripcion,
+								$saldo_cuenta,
+								$valor_cero,
+								$valor_cero
+								);
+
+						$pdf->SetFont('Arial', '', 7);
+						$pdf->setX(12);				
+					    // $pdf->Row_SinLinea($fila,true, '', 5);	
+
+						// $pdf->Cell(25, 6, utf8_decode($codigo), 1, 0);
+						// $pdf->Cell(60, 6, utf8_decode($descripcion), 1, 0);
+						// $pdf->Cell(15, 6, $saldo_cuenta, 1, 0, 'R');
+						// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+						// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+
+					}
+					$pdf->SetFont('Arial', '', 7);
+				}
+				// $nivel 					= $fila['nivel'];
+				// $descripcion 			= $fila['descripcion'];
+				// $codigo      			= $fila['codigo'];
+				// $importe_total      	= $fila['saldo_cuenta'] ? number_format($fila['saldo_cuenta'], 2, '.', ',') : '0.00';
+			
+
+				// [$codA, $nomA, $saldoA] = $datosActivo[$i];
+				// $pdf->Cell(30, 6, $codA, 1, 0);
+				// $pdf->Cell(70, 6, utf8_decode($nomA), 1, 0);
+				// $pdf->Cell(30, 6, number_format($saldoA, 2, ',', '.'), 1, 0, 'R');
+				// $totalActivo += $saldoA;
 			} else {
-				$indentacion_invertida_activo   = '';
-				$codigo_activo      			= '';
-				$descripcion_activo 			= '';
-				$saldo_cuenta_activo      	    = '';
-				$total_cuenta_activo     	    = '';
-				$valor_cero						= '';
+				$pdf->Cell(15, 6, '', 1, 0);
+				$pdf->Cell(60, 6, '', 1, 0);
+				$pdf->Cell(15, 6, '', 1, 0);
+				$pdf->Cell(15, 6, '', 1, 0);
+				$pdf->Cell(15, 6, '', 1, 0);
 	
 			}
 			// PASIVO
 			if (isset($cuentasOrdenadasPasivo[$i])) {
 
 				$cuenta					= $cuentasOrdenadasPasivo[$i];
-				$nivel_pasivo 					= $cuenta['nivel'];
+
+				$nivel 					= $cuenta['nivel'];
+
+				// echo($nivel);
+				// die();
 				$indentacion_invertida  = $cuenta['indentacion_invertida'];
 				$codigo     			= $cuenta['codigo'];
 				$descripcion 			= $cuenta['descripcion'];
 				$saldo_cuenta     	    = $cuenta['saldo_cuenta'] ? number_format($cuenta['saldo_cuenta'], 2, '.', ',') : '0.00';
 				$total_cuenta    	    = $cuenta['importe_total'] ? number_format($cuenta['importe_total'], 2, '.', ',') : '0.00';
-			} else {
-	
-				$indentacion_invertida   = '';
-				$codigo     			 = '';
-				$descripcion 			 = '';
-				$saldo_cuenta      	     = '';
-				$total_cuenta     	     = '';
-				$valor_cero				 = '';
-	
-			}
+				// $pdf->Cell(15, 6, $nivel, 1, 0, 'R');
+				// $pdf->Cell(15, 6, $saldo_cuenta, 1, 0, 'R');
 
-			if($nivel_activo==1 || $nivel_pasivo==1)
-			{
-				$pdf->SetFont('Arial', 'BU', 7);
-
-				$fila=array(
-							$codigo_activo,	
-							$descripcion_activo,
-							$valor_cero,
-							$saldo_cuenta_activo,
-							$total_cuenta_activo,								
-							$codigo,	
-							$descripcion,
-							$valor_cero,
-							$saldo_cuenta,
-							$total_cuenta
-							);
-
-				// $pdf->setX(143);				
-				$pdf->setX(12);		
-				$pdf->SetWidths([15,60,15,15,15,25,60,15,15,15]);
-				$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R']);		
-				$pdf->Row_SinLinea($fila,true, '', 10);
-
-			}
-			else
-			{
-				if($nivel==2)
+				if($nivel==1)
 				{
-					
+					$pdf->SetFont('Arial', 'BU', 7);
+
 					$fila=array(
-							$codigo_activo,	
-							$descripcion_activo,
-							$valor_cero,
-							$total_cuenta_activo,
-							$valor_cero,
-							$codigo,	
-							$descripcion,
-							$valor_cero,
-							$total_cuenta,
-							$valor_cero
-							);		
-					
+						        $codigo_activo,	
+								$descripcion_activo,
+								$valor_cero,
+								$saldo_cuenta_activo,
+								$total_cuenta_activo,								
+								$codigo,	
+								$descripcion,
+								$valor_cero,
+								$saldo_cuenta,
+								$total_cuenta
+								);
+
+					// $pdf->setX(143);				
 					$pdf->setX(12);		
 					$pdf->SetWidths([15,60,15,15,15,25,60,15,15,15]);
-					$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R']);		
+		            $pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R']);		
 					$pdf->Row_SinLinea($fila,true, '', 10);
 
+
+					// $pdf->Cell(15, 6, utf8_decode($codigo), 1, 0);
+					// $pdf->Cell(60, 6, utf8_decode($descripcion), 1, 0);
+					// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+					// $pdf->Cell(15, 6, $saldo_cuenta, 1, 0, 'R');
+					// $pdf->Cell(15, 6, $total_cuenta, 1, 0, 'R');
+
+
+					// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+					$pdf->ln();
+					
 				}
 				else
 				{
-					$fila=array(
-							$codigo_activo,	
-							$descripcion_activo,
-							$saldo_cuenta_activo,
-							$valor_cero,
-							$valor_cero,
-							$codigo,	
-							$descripcion,
-							$saldo_cuenta,
-							$valor_cero,
-							$valor_cero
-							);		
-					
-					$pdf->setX(12);		
-					$pdf->SetWidths([15,60,15,15,15,25,60,15,15,15]);
-					$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R']);		
-					$pdf->Row_SinLinea($fila,true, '', 10);
+					if($nivel==2)
+					{
 
+						// $fila=array(
+						// 		$codigo,	
+						// 		$descripcion,
+						// 		$valor_cero,
+						// 		$total_cuenta,
+						// 		$valor_cero
+						// 		);
+						
+						$fila=array(
+						        $codigo_activo,	
+								$descripcion_activo,
+								$valor_cero,
+								$saldo_cuenta_activo,
+								$total_cuenta_activo,								
+								$codigo,	
+								$descripcion,
+								$valor_cero,
+								$saldo_cuenta,
+								$total_cuenta
+								);		
+						
+						$pdf->setX(12);		
+						$pdf->SetWidths([15,60,15,15,15,25,60,15,15,15]);
+						$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R']);		
+						$pdf->Row_SinLinea($fila,true, '', 10);
+
+						$pdf->SetFont('Arial', 'BU', 7);
+						$pdf->setX(110);				
+					    // $pdf->Row_SinLinea($fila,true, '', 5);			
+						
+						
+						// $pdf->Cell(25, 6, utf8_decode($codigo), 1, 0);
+						// $pdf->Cell(60, 6, utf8_decode($descripcion), 1, 0);
+						// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+						// $pdf->Cell(15, 6, $total_cuenta, 1, 0, 'R');
+						// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+					
+					}
+					else
+					{
+
+						$fila=array(
+								$codigo,	
+								$descripcion,
+								$saldo_cuenta,
+								$valor_cero,
+								$valor_cero
+								);
+
+						$pdf->SetFont('Arial', '', 7);
+						$pdf->setX(110);				
+					    // $pdf->Row_SinLinea($fila,true, '', 5);	
+
+						// $pdf->Cell(25, 6, utf8_decode($codigo), 1, 0);
+						// $pdf->Cell(60, 6, utf8_decode($descripcion), 1, 0);
+						// $pdf->Cell(15, 6, $saldo_cuenta, 1, 0, 'R');
+						// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+						// $pdf->Cell(15, 6, number_format($valor_cero, 2, ',', '.'), 1, 0, 'R');
+
+					}
+					$pdf->SetFont('Arial', '', 7);
 				}
-				$pdf->SetFont('Arial', '', 7);
+				// $nivel 					= $fila['nivel'];
+				// $descripcion 			= $fila['descripcion'];
+				// $codigo      			= $fila['codigo'];
+				// $importe_total      	= $fila['saldo_cuenta'] ? number_format($fila['saldo_cuenta'], 2, '.', ',') : '0.00';
+			
+
+				// [$codA, $nomA, $saldoA] = $datosActivo[$i];
+				// $pdf->Cell(30, 6, $codA, 1, 0);
+				// $pdf->Cell(70, 6, utf8_decode($nomA), 1, 0);
+				// $pdf->Cell(30, 6, number_format($saldoA, 2, ',', '.'), 1, 0, 'R');
+				// $totalActivo += $saldoA;
+			} else {
+				$pdf->setX(110);
+				$fila=array(
+								"",	
+								"",	
+								"",	
+								"",	
+								""
+								);
+				$pdf->Row_SinLinea($fila,true, '', 5);	
+	
 			}
 
 
