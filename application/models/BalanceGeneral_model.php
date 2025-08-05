@@ -114,7 +114,7 @@ class BalanceGeneral_model extends CI_Model
 										  );
 		      return $query->result();
     }
-    function getGeneralBalanceGeneralPorMayor($id_entidad,$fecha_inicio,$fecha_fin,$cuenta_mayor)
+    function getGeneralBalanceGeneralPorMayor($id_entidad,$fecha_inicio,$fecha_fin,$cuenta_mayor,$id_cuenta_mayor)
 	{
         $query = $this->db_mercurio->query("
                                   SELECT 
@@ -163,14 +163,14 @@ class BalanceGeneral_model extends CI_Model
                                                  AND c.estado = 'ACT'
                                                  AND dc.estado = 'ACT'
                                                  AND e.id = ".$id_entidad."
-                                                 AND ('".$cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
+                                                 AND ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
                                                  AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
                                             GROUP BY 
                                                      pc.id, pc.codigo, pc.descripcion, pc.nivel, pc.padre, pc.ruta, e.nombre, e.id
                                             ORDER BY nivel ASC,
                                                      codigo ASC
                                           ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
-                                   WHERE ('".$cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
+                                   WHERE ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
                                 ORDER BY nivel ASC,codigo ASC;
 		    							                    ");
 		    return $query->result();

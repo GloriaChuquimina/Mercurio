@@ -1055,6 +1055,89 @@ class Pdf2 extends FPDF {
         //Go to the next line
         $this->Ln($h);
     }
+     function Row_SinLinea_BG($data,$code=false,$fills='',$fh='')
+    {
+        //Calculate the height of the row
+        $nb=0;
+        for($i=0;$i<count($data);$i++)
+            $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
+        if ($fh==""){
+            $h=4*$nb;
+        }else{
+            $h=4*$nb;
+            if ($h < $fh)
+                $h = $fh;
+        }
+        //Issue a page break first if needed
+        $this->CheckPageBreak($h);
+        //Draw the cells of the row
+        for($i=0;$i<count($data);$i++)
+        {
+            $w=$this->widths[$i];
+            $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
+            //Save the current position
+            $x=$this->GetX();
+            $y=$this->GetY();
+            //Draw the border
+            //$ax=$x; $ay=$y; $aw=$w; $ah=$h;
+            //$this->Rect($x,$y,$w,$h,$fills);
+            //Print the text
+            $this->MultiCell($w,4,$data[$i],0,$a);
+            //Put the position to the right of the cell
+            $this->SetXY($x+$w,$y);
+        }
+        //Go to the next line
+        $this->Ln($h-4);
+        // $this->Ln();
+    }
+     function Row_SinLinea_BG_TOTALES($data,$code=false,$fills='',$fh='')
+    {
+        //Calculate the height of the row
+        $nb=0;
+        for($i=0;$i<count($data);$i++)
+            $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
+        if ($fh==""){
+            $h=4*$nb;
+        }else{
+            $h=4*$nb;
+            if ($h < $fh)
+                $h = $fh;
+        }
+        //Issue a page break first if needed
+        $this->CheckPageBreak($h);
+        //Draw the cells of the row
+        for($i=0;$i<count($data);$i++)
+        {
+            $w=$this->widths[$i];
+            $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
+            //Save the current position
+            $x=$this->GetX();
+            $y=$this->GetY();
+            //Draw the border
+            //$ax=$x; $ay=$y; $aw=$w; $ah=$h;
+            //$this->Rect($x,$y,$w,$h,$fills);
+            //Print the text
+            $this->MultiCell($w,4,$data[$i],0,$a);
+
+             // Doble línea arriba y abajo solo en la última columna
+            if ($i == count($data) - 1 || $i == 1 ) {
+                // Línea superior doble (una encima de otra)
+                $this->SetLineWidth(0.3); // más gruesa
+                $this->Line($x, $y, $x + $w, $y);
+                // $this->Line($x, $y + 0.8, $x + $w, $y + 0.8);
+
+                // Línea inferior doble
+                $this->Line($x, $y + $h - 0.8, $x + $w, $y + $h - 0.8);
+                $this->Line($x, $y + $h, $x + $w, $y + $h);
+            }
+
+            //Put the position to the right of the cell
+            $this->SetXY($x+$w,$y);
+        }
+        //Go to the next line
+        // $this->Ln($h-3);
+        $this->Ln();
+    }
     function RowHeader($data,$code=false,$fills='',$fh='')
     {
         //Calculate the height of the row
