@@ -204,30 +204,31 @@ class Pdf2 extends FPDF {
 
             $this->Ln();
             $this->SetTextColor(0);
-            $this->SetFont('Times','B',6);
+            $this->SetFont('Arial','B',6);
             $y = $this->GetY();
             $this->SetX(10);
-            $this->MultiCell(30,3,utf8_decode($this->entidad),0,'C',0);
+            $this->MultiCell(40,3,utf8_decode($this->entidad),0,'C',0);
             $this->SetX(10);
-            $this->MultiCell(30,3,utf8_decode($this->sigla),0,'C',0);
+            $this->MultiCell(40,3,utf8_decode($this->sigla),0,'C',0);
             $this->SetX(10);
-            $this->MultiCell(30,3,utf8_decode('SENAPE'),0,'C',0);
+            $this->MultiCell(40,3,utf8_decode('SENAPE'),0,'C',0);
             $this->Ln(3);
-            $this->SetXY(200, $y); 
-            $this->Cell(10, 5, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
-            $this->SetXY(190,$y+3);            
+            $this->SetXY(250, $y); 
+            $this->Cell(10, 5, utf8_decode('Página: ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
+            $this->SetXY(233,$y+3);            
             $fecha_hoy = $this->fechaformato();
-            $this->Cell(10, 5,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
+            $this->Cell(10, 5,utf8_decode('Fecha de impresión: ').$fecha_hoy, 0, 0, 'L');
             $this->Ln(3);           
             $this->SetXY(0,30);
             $this->SetFont('Arial', 'BU', 12);
             $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
             $this->Ln(4);
-            $this->SetFont('Times','B',7);
+            $this->SetFont('Arial','B',7);
             $this->SetX(0);
             $this->Cell(0,0,utf8_decode($this->subtituloCabecera1),0,1,'C',0);
             $this->Ln(3);
             $this->SetX(0);
+            $this->SetFont('Arial', 'BU', 7);
             $this->Cell(0,0,utf8_decode($this->subtituloCabecera2),0,1,'C',0);
             $this->Ln(3);
             
@@ -1055,40 +1056,74 @@ class Pdf2 extends FPDF {
         //Go to the next line
         $this->Ln($h);
     }
-     function Row_SinLinea_BG($data,$code=false,$fills='',$fh='')
+     function Row_SinLinea_BG($data,$code=false,$fills='',$fh='',$formato=0)
     {
         //Calculate the height of the row
+        $lineHeight = 3.5;
         $nb=0;
         for($i=0;$i<count($data);$i++)
             $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
-        if ($fh==""){
-            $h=4*$nb;
-        }else{
-            $h=4*$nb;
-            if ($h < $fh)
-                $h = $fh;
-        }
-        //Issue a page break first if needed
+        /*CALCULO DE LA ALTURA REAL DE LA FILA*/
+        $h= $lineHeight * $nb; // Altura de la fila sin considerar el valor de $fh
         $this->CheckPageBreak($h);
-        //Draw the cells of the row
+
+        $formato_celdas = array_pop($data);
         for($i=0;$i<count($data);$i++)
         {
             $w=$this->widths[$i];
             $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
-            //Save the current position
             $x=$this->GetX();
             $y=$this->GetY();
-            //Draw the border
-            //$ax=$x; $ay=$y; $aw=$w; $ah=$h;
-            //$this->Rect($x,$y,$w,$h,$fills);
-            //Print the text
-            $this->MultiCell($w,4,$data[$i],0,$a);
-            //Put the position to the right of the cell
+
+             // Verifica si es texto plano o con estilo
+            // $formato_celdas = end($data);
+            if ($formato_celdas == 2) {
+
+                $estilos = [
+                                5 => 'BU', // columna 7 en negrita
+                                6 => 'BU', // columna 7 en negrita
+                                7 => 'BU', // columna 8 en negrita
+                                8 => 'BU', // columna 9 en negrita
+                                9 => 'BU', // columna 9 en negrita
+                            ];
+
+                // Estilo de fuente por columna (si está definido)
+                $estiloFuente = isset($estilos[$i]) ? $estilos[$i] : '';
+                $this->SetFont('', $estiloFuente);
+            
+                // $text = $data[$i];
+                // $style = isset($data[$i]['style']) ? $data[$i]['style'] : '';
+                // $this->SetFont('', $style);
+            } else {
+                if($formato_celdas == 1)
+                {
+                    $estilos = [
+                                0 => 'BU', // columna 7 en negrita
+                                1 => 'BU', // columna 7 en negrita
+                                2 => 'BU', // columna 8 en negrita
+                                3 => 'BU', // columna 9 en negrita
+                                4 => 'BU', // columna 9 en negrita
+                            ];
+
+                    // Estilo de fuente por columna (si está definido)
+                    $estiloFuente = isset($estilos[$i]) ? $estilos[$i] : '';
+                    $this->SetFont('', $estiloFuente);
+                }
+                // else
+                // {
+                //     $this->SetFont('', '');
+                // }
+                // $text = $data[$i];
+                // $this->SetFont('', '');
+            }
+
+            // APLICAR UTF-8 DECODING AQUÍ
+            $text = utf8_decode($data[$i]);            
+            // $this->MultiCell($w,$lineHeight,$data[$i],0,$a);
+            $this->MultiCell($w,$lineHeight,$text,0,$a);
             $this->SetXY($x+$w,$y);
         }
-        //Go to the next line
-        $this->Ln($h-4);
-        // $this->Ln();
+        $this->Ln($h);
     }
      function Row_SinLinea_BG_TOTALES($data,$code=false,$fills='',$fh='')
     {
@@ -1128,6 +1163,54 @@ class Pdf2 extends FPDF {
 
                 // Línea inferior doble
                 $this->Line($x, $y + $h - 0.8, $x + $w, $y + $h - 0.8);
+                $this->Line($x, $y + $h, $x + $w, $y + $h);
+            }
+
+            //Put the position to the right of the cell
+            $this->SetXY($x+$w,$y);
+        }
+        //Go to the next line
+        // $this->Ln($h-3);
+        $this->Ln();
+    }
+    function Row_SinLinea_BG_SUBTOTALES($data,$code=false,$fills='',$fh='')
+    {
+        //Calculate the height of the row
+        $nb=0;
+        for($i=0;$i<count($data);$i++)
+            $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
+        if ($fh==""){
+            $h=4*$nb;
+        }else{
+            $h=4*$nb;
+            if ($h < $fh)
+                $h = $fh;
+        }
+        //Issue a page break first if needed
+        $this->CheckPageBreak($h);
+        //Draw the cells of the row
+        for($i=0;$i<count($data);$i++)
+        {
+            $w=$this->widths[$i];
+            $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
+            //Save the current position
+            $x=$this->GetX();
+            $y=$this->GetY();
+            //Draw the border
+            //$ax=$x; $ay=$y; $aw=$w; $ah=$h;
+            //$this->Rect($x,$y,$w,$h,$fills);
+            //Print the text
+            $this->MultiCell($w,4,$data[$i],0,$a);
+
+             // Doble línea arriba y abajo solo en la última columna
+            if ($i == count($data) - 1 || $i == 1 ) {
+                // Línea superior doble (una encima de otra)
+                $this->SetLineWidth(0.3); // más gruesa
+                $this->Line($x, $y, $x + $w, $y);
+                // $this->Line($x, $y + 0.8, $x + $w, $y + 0.8);
+
+                // Línea inferior doble
+                // $this->Line($x, $y + $h - 0.8, $x + $w, $y + $h - 0.8);
                 $this->Line($x, $y + $h, $x + $w, $y + $h);
             }
 
