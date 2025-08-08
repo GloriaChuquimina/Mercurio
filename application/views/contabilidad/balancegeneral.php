@@ -89,7 +89,20 @@
                     <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
                     <input type ="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
-                      <div class="col-md-2">
+                      <div class="custom-control custom-radio d-flex align-items-center">
+                        <input class="custom-control-input custom-control-input-danger" type="radio" id="customRadio4" name="customRadio2" checked>
+                        <label for="customRadio4" class="custom-control-label mr-2">Al</label>
+
+                        <input
+                          id="fechaDesde"
+                          name="fechaDesde"
+                          placeholder="Fecha Desde"
+                          type="date"
+                          class="form-control"
+                          style="max-width: 200px;"
+                        />
+                      </div>
+                      <div class="col-md-2">                        
                         <div class="form-group">
                           <label>
                             <strong>FECHA DESDE:</strong>
@@ -117,6 +130,8 @@
                           />
                         </div>
                       </div>
+                    </div>
+                    <div class="row">
                       <div class="col-md-2">
                         <div class="form-group">
                             <div class="d-flex align-items-end">
@@ -142,7 +157,7 @@
                           </div>
                       </div>
 
-                      <div class="col-md-3">
+                      <!-- <div class="col-md-3">
                         <div class="form-group">
                           <label>
                             <strong>CUENTAS:</strong>
@@ -175,7 +190,8 @@
                               </div>
                           </div>
                         </div>
-                      </div> 
+                      </div>  -->
+
                       <div class="col-md-2">
                         <div class="form-group">
                           <label>
@@ -194,7 +210,10 @@
                           </div>
                         </div>
                       </div> 
-                      <div class="col-md-12 text-right">
+
+                      <div class="col-md-1 text-right">
+                      </div>
+                      <div class="col-md-6 text-right">
                         <br>
                         <button class="btn btn-primary mr-2"
                              onClick = "cargarDatosBalanceGeneral()">
@@ -202,7 +221,11 @@
                         </button>
                         <button class="btn btn-success mr-2"
                               onClick="ReporteBalanceGeneralPDF()">
-                          <i class="mr-1">📄</i> Exportar PDF
+                          <i class="mr-1">📄</i> Exportar PDF Reporte 1
+                        </button>
+                        <button class="btn btn-warning mr-2"
+                              onClick="ReporteBalanceGeneralPDF()">
+                          <i class="mr-1">📄</i> Exportar PDF Reporte 2
                         </button>
                       </div>
                       <!-- <div class="col-md-3">
@@ -256,19 +279,20 @@
                           </div>
                         </div>
                       </div> 
-                    </div>-->
-                    <!-- <div class="row">
-                      <div class="col-md-12 text-right">
-                        <button class="btn btn-primary mr-2"
-                             onClick = "cargarDatosBalanceGeneral()">
-                          <i class="mr-1">🔍</i> Generar Balance
-                        </button>
-                        <button class="btn btn-success mr-2"
-                              onClick="ReporteBalanceGeneralPDF()">
-                          <i class="mr-1">📄</i> Exportar PDF
-                        </button>
-                      </div>
-                    </div> -->
+                      </div>-->
+                      <!-- <div class="row">
+                        <div class="col-md-12 text-right">
+                          <button class="btn btn-primary mr-2"
+                              onClick = "cargarDatosBalanceGeneral()">
+                            <i class="mr-1">🔍</i> Generar Balance
+                          </button>
+                          <button class="btn btn-success mr-2"
+                                onClick="ReporteBalanceGeneralPDF()">
+                            <i class="mr-1">📄</i> Exportar PDF
+                          </button>
+                        </div>
+                      </div> -->
+                    </div>
                   </div>             
             </div>
             <div class="card">

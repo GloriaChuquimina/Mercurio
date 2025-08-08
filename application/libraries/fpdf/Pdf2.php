@@ -1067,7 +1067,9 @@ class Pdf2 extends FPDF {
         $h= $lineHeight * $nb; // Altura de la fila sin considerar el valor de $fh
         $this->CheckPageBreak($h);
 
-        $formato_celdas = array_pop($data);
+        // $formato_celdas = array_pop($data);
+        $formato_celdas = end($data);
+
         for($i=0;$i<count($data);$i++)
         {
             $w=$this->widths[$i];
@@ -1080,11 +1082,11 @@ class Pdf2 extends FPDF {
             if ($formato_celdas == 2) {
 
                 $estilos = [
-                                5 => 'BU', // columna 7 en negrita
-                                6 => 'BU', // columna 7 en negrita
-                                7 => 'BU', // columna 8 en negrita
-                                8 => 'BU', // columna 9 en negrita
-                                9 => 'BU', // columna 9 en negrita
+                                5 => 'BU', 
+                                6 => 'BU', 
+                                7 => 'BU', 
+                                8 => 'BU', 
+                                9 => 'BU', 
                             ];
 
                 // Estilo de fuente por columna (si está definido)
@@ -1098,16 +1100,38 @@ class Pdf2 extends FPDF {
                 if($formato_celdas == 1)
                 {
                     $estilos = [
-                                0 => 'BU', // columna 7 en negrita
-                                1 => 'BU', // columna 7 en negrita
-                                2 => 'BU', // columna 8 en negrita
-                                3 => 'BU', // columna 9 en negrita
-                                4 => 'BU', // columna 9 en negrita
+                                0 => 'BU', 
+                                1 => 'BU', 
+                                2 => 'BU', 
+                                3 => 'BU', 
+                                4 => 'BU', 
                             ];
 
                     // Estilo de fuente por columna (si está definido)
                     $estiloFuente = isset($estilos[$i]) ? $estilos[$i] : '';
                     $this->SetFont('', $estiloFuente);
+                }
+                else
+                {
+                    if($formato_celdas == 3)
+                    {
+                        $estilos = [
+                                0 => 'BU', 
+                                1 => 'BU', 
+                                2 => 'BU', 
+                                3 => 'BU', 
+                                4 => 'BU', 
+                                5 => 'BU', 
+                                6 => 'BU', 
+                                7 => 'BU', 
+                                8 => 'BU', 
+                                9 => 'BU', 
+                            ];
+
+                        // Estilo de fuente por columna (si está definido)
+                        $estiloFuente = isset($estilos[$i]) ? $estilos[$i] : '';
+                        $this->SetFont('', $estiloFuente);
+                    }
                 }
                 // else
                 // {

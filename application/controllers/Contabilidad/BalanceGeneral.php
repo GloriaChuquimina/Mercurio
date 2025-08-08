@@ -612,32 +612,36 @@ class BalanceGeneral extends CI_Controller {
 		$id_patrimonio=3;
 
 		$excluirCuentasEnCero= true;
+		// $excluirCuentasEnCero= false;
 
 		/*CUENTAS ACTIVOS*/
 		$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayor($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo);
 		// echo("**************cuentas_ordenadas*********");
-		$total_activo			= count($cuentas_activo);
+		// $total_activo			= count($cuentas_activo);
 		$cuentas_activo1 		= json_decode(json_encode($cuentas_activo), true);
 		
 		$ordenadas_activo 		= $this->ordenarJerarquicamente($cuentas_activo1,0,0,$excluirCuentasEnCero);
 		$cuentasOrdenadasActivo = $ordenadas_activo[0];
 		$sumaTotalGlobalActivo  = $ordenadas_activo[1];
+		$total_activo			= count($cuentasOrdenadasActivo);
 
 		/*CUENTAS PASIVO*/
 		$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayor($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo);
-		$total_pasivo  		    = count($cuentas_pasivo);
+		// $total_pasivo  		    = count($cuentas_pasivo);
 		$cuentas_pasivo 		= json_decode(json_encode($cuentas_pasivo), true);
 		$ordenadas_pasivo 		= $this->ordenarJerarquicamente($cuentas_pasivo,0,0,$excluirCuentasEnCero);
 		$cuentasOrdenadasPasivo = $ordenadas_pasivo[0];
 		$sumaTotalGlobalPasivo  = $ordenadas_pasivo[1];
+		$total_pasivo  		    = count($cuentasOrdenadasPasivo);
 
 		/*CUENTAS PATRIMONIO*/
 		$cuentas_patrimonio   		   = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayor($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio);
-		$total_patrimonio			   = count($cuentas_patrimonio);
+		// $total_patrimonio			   = count($cuentas_patrimonio);
 		$cuentas_patrimonio 		   = json_decode(json_encode($cuentas_patrimonio), true);
 		$ordenadas_patrimonio 		   = $this->ordenarJerarquicamente($cuentas_patrimonio,0,0,$excluirCuentasEnCero);
 		$cuentasOrdenadasPatrimonio    = $ordenadas_patrimonio[0];
 		$sumaTotalGlobalPatrimonio     = $ordenadas_patrimonio[1];
+		$total_patrimonio			   = count($cuentasOrdenadasPatrimonio);
 		
 		$sumaTotalGlobalPasivo 		   = $sumaTotalGlobalPasivo + $sumaTotalGlobalPatrimonio;
 		$cuentasUnidasPasivoPatrimonio = array_merge($cuentasOrdenadasPasivo, $cuentasOrdenadasPatrimonio);
@@ -778,7 +782,7 @@ class BalanceGeneral extends CI_Controller {
 					$valor4=0;
 					$valor5=0;
 					$valor6=0;
-					if(($nivel_activo ==1 || $nivel_activo ==2) && ($nivel_pasivo !=1 || $nivel_pasivo !=2))
+					if(($nivel_activo ==1 || $nivel_activo ==2) && ($nivel_pasivo !=1 && $nivel_pasivo !=2))
 					{
 						if($nivel_activo ==1)
 						{
@@ -798,8 +802,9 @@ class BalanceGeneral extends CI_Controller {
 						$formato=1;
 					}else
 					{
-						if(($nivel_activo !=1 || $nivel_activo !=2) && ($nivel_pasivo ==1 || $nivel_pasivo ==2))
+						if(($nivel_activo !=1 && $nivel_activo !=2) && ($nivel_pasivo ==1 || $nivel_pasivo ==2))
 						{
+							// var_dump($nivel_activo, $nivel_pasivo);
 							if($nivel_pasivo ==1)
 							{
 								$valor4=$valor_cero;
@@ -819,12 +824,48 @@ class BalanceGeneral extends CI_Controller {
 						}
 						else
 						{
-							$valor1=$saldo_cuenta_activo;
-							$valor2="";
-							$valor3="";
-							$valor4=$saldo_cuenta;
-							$valor5="";
-							$valor6="";
+
+							if(($nivel_activo ==1 || $nivel_activo ==2) && ($nivel_pasivo ==1 || $nivel_pasivo ==2))
+							{
+
+								// var_dump($nivel_activo, $nivel_pasivo);
+								if($nivel_activo ==1)
+								{
+									$valor1=$valor_cero;
+									$valor2=$saldo_cuenta_activo;
+									$valor3=$total_cuenta_activo;
+								}
+								elseif($nivel_activo ==2 )
+								{
+									$valor1=$valor_cero;
+									$valor2=$total_cuenta_activo;
+									$valor3=$valor_cero;
+								}
+								if($nivel_pasivo ==1)
+								{
+									$valor4=$valor_cero;
+									$valor5=$saldo_cuenta;
+									$valor6=$total_cuenta;
+								}
+								elseif($nivel_pasivo ==2 )
+								{
+									$valor4=$valor_cero;
+									$valor5=$total_cuenta;
+									$valor6=$valor_cero;
+								}
+								$formato=3;
+
+							}
+							else{
+								// var_dump($nivel_activo, $nivel_pasivo);
+								$valor1=$saldo_cuenta_activo;
+								$valor2="";
+								$valor3="";
+								$valor4=$saldo_cuenta;
+								$valor5="";
+								$valor6="";	
+								$formato=0;
+							}
 						}
 					}			
 			 			$fila=array(
@@ -854,7 +895,7 @@ class BalanceGeneral extends CI_Controller {
 
 
 		}
-		// $pdf->ln();
+		$pdf->ln(5);
 
 		$fila=array(
 					"TOTAL ACTIVO",
@@ -880,30 +921,23 @@ class BalanceGeneral extends CI_Controller {
 		
 		/*CUENTAS DE ORDEN DEUDORAS*/
 		$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayor($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras);
-
-		
-
-		$total_deudoras			= count($cuentas_deudoras);
+		// $total_deudoras			= count($cuentas_deudoras);
 		$cuentas_deudoras 		= json_decode(json_encode($cuentas_deudoras), true);
 		
 		$ordenadas_cuentas_deudoras  = $this->ordenarJerarquicamenteCuentasOrden($cuentas_deudoras ,0,0,$excluirCuentasEnCero);
 		$cuentasOrdenadasDeudoras    = $ordenadas_cuentas_deudoras[0];
 		$sumaTotalGlobalDeudoras     = $ordenadas_cuentas_deudoras[1];
-		// echo("**************cuentas_deudoras*********");
-		// echo("<pre>");
-		// print_r($ordenadas_cuentas_deudoras);
-		// echo("</pre>");
-		// die();
+		$total_deudoras			     = count($cuentasOrdenadasDeudoras);
 
 
 		/*CUENTAS DE ORDEN ACREEDORAS*/
 		$cuentas_acreedoras           = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayor($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras);
-		$total_acreedoras             = count($cuentas_acreedoras);
+		// $total_acreedoras             = count($cuentas_acreedoras);
 		$cuentas_acreedoras 		  = json_decode(json_encode($cuentas_acreedoras), true);
 		$ordenadas_cuentas_acreedoras = $this->ordenarJerarquicamenteCuentasOrden($cuentas_acreedoras ,0,0,$excluirCuentasEnCero);
 		$cuentasOrdenadasAcreedoras   = $ordenadas_cuentas_acreedoras[0];
 		$sumaTotalGlobalAcreedoras    = $ordenadas_cuentas_acreedoras[1];
-
+		$total_acreedoras             = count($ordenadas_cuentas_acreedoras);
 	
 		$max_filas_cuentas_orden      = max($total_deudoras, $total_acreedoras); 
 
@@ -1085,7 +1119,7 @@ class BalanceGeneral extends CI_Controller {
 				
 			}
 		}
-		$pdf->ln();
+		$pdf->ln(5);
 
 		$fila=array(
 					"TOTAL CUENTAS DE ORDEN DEUDOR",
@@ -1113,7 +1147,7 @@ class BalanceGeneral extends CI_Controller {
 					$pdf->SetAligns(['C','R','C','R']);	
 					$pdf->SetFont('Arial', 'B', 7);	
 					$pdf->Row_SinLinea_BG_TOTALES($fila,true, '', 4);
-		 $pdf->ln(2);
+		//  $pdf->ln(2);
 		// $pdf->Footer();
 		$pdf->Output('I',utf8_decode('ReporteBalanceGeneral.pdf')); 
 	}
