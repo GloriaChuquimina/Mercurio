@@ -84,216 +84,79 @@
                   </div>
                 </div>
 
-                  <div class="card-body">
-                    <input type ="hidden" class="form-control" id="id_entidad" name="id_entidad">
-                    <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input type ="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
-                    <div class="row">
+                <div class="card-body">
+                  <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
+                  <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                  <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+
+                  <div class="row align-items-center">
+                    <!-- Radio "Al" -->
+                    <div class="col-sm-6 col-md-auto">
                       <div class="custom-control custom-radio d-flex align-items-center">
-                        <input class="custom-control-input custom-control-input-danger" type="radio" id="customRadio4" name="customRadio2" checked>
-                        <label for="customRadio4" class="custom-control-label mr-2">Al</label>
-
-                        <input
-                          id="fechaDesde"
-                          name="fechaDesde"
-                          placeholder="Fecha Desde"
-                          type="date"
-                          class="form-control"
-                          style="max-width: 200px;"
-                        />
-                      </div>
-                      <div class="col-md-2">                        
-                        <div class="form-group">
-                          <label>
-                            <strong>FECHA DESDE:</strong>
-                          </label>
-                          <input
-                            id="fechaDesde"
-                            name="fechaDesde"
-                            placeHolder="Fecha Desde"
-                            type="date"
-                            class="form-control"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-md-2">
-                        <div class="form-group">
-                          <label>
-                            <strong>FECHA HASTA:</strong>
-                          </label>
-                          <input
-                            id="fechaHasta"
-                            name="fechaHasta"
-                            placeHolder="Fecha Hasta"
-                            type="date"
-                            class="form-control"
-                          />
-                        </div>
+                        <input class="custom-control-input custom-control-input-danger" 
+                              type="radio" id="radioAl" name="customRadio2" checked>
+                        <label for="radioAl" class="custom-control-label mb-0 mr-1">Al</label>
+                        <input id="fechaAl" name="fechaAl" type="date" 
+                              class="form-control" style="max-width: 140px;">
                       </div>
                     </div>
-                    <div class="row">
-                      <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="d-flex align-items-end">
-                                <div style="flex-grow: 1; margin-right: 10px;">
-                                    <label for="tipo_comprobante">
-                                        <strong>MONEDA:</strong>
-                                    </label>
-                                    <select
-                                        class="form-control"
-                                        id="tipo_comprobante"
-                                        name="tipo_comprobante"
-                                        value="selectedEntity"
-                                    >
-                                    </select>
-                                </div>
-                            </div>
-                        </div>                        
-                      </div>
-                      <div class="col-md-1">
-                          <div class="form-group">
-                              <label>Nivel:</label>
-                              <input type="number"  class="form-control is-warning" name="numero_inicio" id="numero_inicio" class="form-control" placeholder="Ej: 1">
-                          </div>
-                      </div>
 
-                      <!-- <div class="col-md-3">
-                        <div class="form-group">
-                          <label>
-                            <strong>CUENTAS:</strong>
-                          </label>
-                          <div class="input-group">
-                              <input
-                                  type="text"
-                                  class="form-control"
-                                  placeholder="Buscar cuenta..."
-                                  list="listaCuentas"
-                                  id="txtCuenta" 
-                                  name="txtCuenta"
-                              />
-                              <datalist id='listaCuentas'></datalist>
-                              <div class="input-group-append">
-                                  <button
-                                  type="button"
-                                  class="btn btn-success"
-                                  onclick="añadirCuenta();"
-                                  >
-                                  <i>➕</i>
-                                  </button>
-                                  <button
-                                  type="button"
-                                  class="btn btn-warning"
-                                  onclick="listaCuentasBusqueda();"
-                                  >
-                                  <i>🔍</i>
-                                  </button>
-                              </div>
-                          </div>
-                        </div>
-                      </div>  -->
-
-                      <div class="col-md-2">
-                        <div class="form-group">
-                          <label>
-                            <strong>OPCIONES:</strong>
-                          </label>
-                          <br>
-                          <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="soloConMovimientos"                              
-                            />
-                            <label class="form-check-label" htmlFor="soloConMovimientos">
-                              Incluir cuentas con saldo cero
-                            </label>
-                          </div>
-                        </div>
-                      </div> 
-
-                      <div class="col-md-1 text-right">
+                    <!-- Radio "Entre el" -->
+                    <div class="col-sm-6 col-md-auto">
+                      <div class="custom-control custom-radio d-flex align-items-center">
+                        <input class="custom-control-input custom-control-input-danger" 
+                              type="radio" id="radioEntre" name="customRadio2">
+                        <label for="radioEntre" class="custom-control-label mb-0 mr-1">Entre el:</label>
+                        <input id="fechaDesde" name="fechaDesde" type="date" 
+                              class="form-control mr-1" style="max-width: 140px;">
+                        <input id="fechaHasta" name="fechaHasta" type="date" 
+                              class="form-control" style="max-width: 140px;">
                       </div>
-                      <div class="col-md-6 text-right">
-                        <br>
-                        <button class="btn btn-primary mr-2"
-                             onClick = "cargarDatosBalanceGeneral()">
-                          <i class="mr-1">🔍</i> Generar Balance
-                        </button>
-                        <button class="btn btn-success mr-2"
-                              onClick="ReporteBalanceGeneralPDF()">
-                          <i class="mr-1">📄</i> Exportar PDF Reporte 1
-                        </button>
-                        <button class="btn btn-warning mr-2"
-                              onClick="ReporteBalanceGeneralPDF()">
-                          <i class="mr-1">📄</i> Exportar PDF Reporte 2
-                        </button>
-                      </div>
-                      <!-- <div class="col-md-3">
-                        <div class="form-group">
-                          <label>
-                            <strong>CUENTAS:</strong>
-                          </label>
-                          <div class="input-group">
-                              <input
-                                  type="text"
-                                  class="form-control"
-                                  placeholder="Buscar cuenta..."
-                                  list="listaCuentas"
-                                  id="txtCuenta" 
-                                  name="txtCuenta"
-                              />
-                              <datalist id='listaCuentas'></datalist>
-                              <div class="input-group-append">
-                                  <button
-                                  type="button"
-                                  class="btn btn-success"
-                                  onclick="añadirCuenta();"
-                                  >
-                                  <i>➕</i>
-                                  </button>
-                                  <button
-                                  type="button"
-                                  class="btn btn-warning"
-                                  onclick="listaCuentasBusqueda();"
-                                  >
-                                  <i>🔍</i>
-                                  </button>
-                              </div>
-                          </div>
-                        </div>
-                      </div> -->
-                      <!-- <div class="col-md-3">
-                        <div class="form-group">
-                          <label>
-                            <strong>OPCIONES:</strong>
-                          </label>
-                          <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="soloConMovimientos"                              
-                            />
-                            <label class="form-check-label" htmlFor="soloConMovimientos">
-                              Solo cuentas con movimientos
-                            </label>
-                          </div>
-                        </div>
-                      </div> 
-                      </div>-->
-                      <!-- <div class="row">
-                        <div class="col-md-12 text-right">
-                          <button class="btn btn-primary mr-2"
-                              onClick = "cargarDatosBalanceGeneral()">
-                            <i class="mr-1">🔍</i> Generar Balance
-                          </button>
-                          <button class="btn btn-success mr-2"
-                                onClick="ReporteBalanceGeneralPDF()">
-                            <i class="mr-1">📄</i> Exportar PDF
-                          </button>
-                        </div>
-                      </div> -->
                     </div>
-                  </div>             
+
+                    <!-- Moneda -->
+                    <div class="col-sm-6 col-md-auto">
+                      <div class="d-flex align-items-center">
+                        <label for="tipo_moneda" class="mr-1"><strong>Moneda:</strong></label>
+                        <select class="form-control" id="tipo_moneda" name="tipo_moneda" style="max-width: 100px;"></select>    
+                      </div>                                            
+                    </div>
+
+                    <!-- Nivel -->
+                    <div class="col-sm-6 col-md-auto">
+                      <div class="d-flex align-items-center">
+                        <label for="nivel" class="mr-1">Nivel:</label>
+                        <input type="number" class="form-control is-warning" name="nivel" id="nivel" 
+                              placeholder="Ej: 1" style="max-width: 80px;">
+                      </div>
+                    </div>
+
+                    <!-- Opción -->
+                    <div class="col-sm-12 col-md-auto">
+                      <div class="form-check m-0">
+                        <input class="form-check-input" type="checkbox" id="saldoCero">
+                        <label class="form-check-label" for="saldoCero">
+                          Incluir cuentas con saldo cero
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Botones -->
+                  <div class="row mt-2">
+                    <div class="col-12 text-center text-md-right">
+                      <button class="btn btn-primary btn-sm mr-1" onClick="cargarDatosBalanceGeneral()">
+                        🔍 Generar Balance
+                      </button>
+                      <button class="btn btn-success btn-sm mr-1" onClick="ReporteBalanceGeneralPDF1()">
+                        📄 Reporte 1
+                      </button>
+                      <button class="btn btn-warning btn-sm" onClick="ReporteBalanceGeneralPDF2()">
+                        📄 Reporte 2
+                      </button>
+                    </div>
+                  </div>
+                </div>                
             </div>
             <div class="card">
                 <div class="card-header bg-gradient-secondary">
@@ -314,7 +177,9 @@
                         <tr>
                             <th style="color: white;">CÓDIGO</th>
                             <th style="color: white;">DESCRIPCIÓN</th>
-                            <th style="color: white;">IMPORTE</th>
+                            <th style="color: white; text-align: right;">-</th>
+                            <th style="color: white; text-align: right;">-</th>
+                            <th style="color: white; text-align: right;">IMPORTE</th>
                         </tr>
                         </thead>
                     </table>

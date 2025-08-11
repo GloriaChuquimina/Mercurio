@@ -139,6 +139,18 @@ class Comunes extends CI_Controller
 	    }
    		 echo $option;
 	}
+	function cargarTipoMoneda()
+	{
+	    $concepto = "MONEDA";
+		$estado = "ACT";
+	    $filas = $this->Comunes_model->getCatalogoDominio($concepto,$estado);
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->valor1."'>".$fila->valor2."</option>";
+	    }
+   		 echo $option;
+	}
 	
 }
 

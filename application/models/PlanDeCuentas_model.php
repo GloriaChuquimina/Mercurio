@@ -51,6 +51,14 @@ class PlanDeCuentas_model extends CI_Model
                                          );
         return $query->result();
     }
+	function getPlanDeCuentasByNivelMaximo()
+    {
+        $query = $this->db_mercurio->query("select max(nivel) as nivel
+                                              from contabilidad.plancuentas
+                                             where estado='ACT'" 
+                                         );
+        return $query->result();
+    }
 	function getPlanDeCuentasByPadre($padre)
     {
         $query = $this->db_mercurio->query("select *

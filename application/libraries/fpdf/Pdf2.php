@@ -1067,8 +1067,8 @@ class Pdf2 extends FPDF {
         $h= $lineHeight * $nb; // Altura de la fila sin considerar el valor de $fh
         $this->CheckPageBreak($h);
 
-        // $formato_celdas = array_pop($data);
-        $formato_celdas = end($data);
+        $formato_celdas = array_pop($data);//sin la ultima columna
+        // $formato_celdas = end($data);//con la ultima columna
 
         for($i=0;$i<count($data);$i++)
         {

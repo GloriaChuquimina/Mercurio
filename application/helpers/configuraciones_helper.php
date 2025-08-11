@@ -1018,6 +1018,21 @@ function getTipoCambio($fecha)
     return $valor;
   }
 }
+function getNivelMaximo()
+{
+  $fila =& get_instance();
+  $fila->load->model('PlanDeCuentas_model');
+  $datos = $fila->PlanDeCuentas_model->getPlanDeCuentasByNivelMaximo();
+  $valor=0.00;
+  if($datos)
+  {
+    return $datos[0]->nivel;
+  }
+  else
+  {
+    return $valor;
+  }
+}
 
 
 ?>

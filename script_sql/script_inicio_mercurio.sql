@@ -62,6 +62,9 @@ INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orde
 INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '11', 'NOVIEMBRE', 11, 'ACT');
 INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '12', 'DICIEMBRE', 12, 'ACT');
 
+/*MONEDA*/
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MONEDA', 'TIPO MONEDA DE CAMBIO', '1', 'BOLIVIANO', 1, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MONEDA', 'TIPO MONEDA DE CAMBIO', '2', 'DOLAR', 2, 'ACT');
 
 
 /*========================CONFIGURACIONES=============================*/
