@@ -68,8 +68,7 @@ class LibroMayor extends CI_Controller {
 		$num     = 1;
 
 
-		$tr="";
-
+		$tr=""; 
 		// $tr= "<table class='table table-striped table-hover' id='tbl_libroMayor' name ='tbl_libroMayor'>
 		//       <thead class='bg-dark'>
 		// 			<tr>
@@ -321,15 +320,12 @@ class LibroMayor extends CI_Controller {
 		echo json_encode($output, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 		exit();
     }
-	function ReporteLibroMayorPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin)
+	function ReporteLibroMayorPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin,$valorCheckConMovimiento,$moneda )
 	{			
 		// $id_entidad      = $this->input->post('id_entidad');		
 		/****************************/
 		/*INICIO DEL REPORTE*/
 		/****************************/
-		// echo ($id_entidad);
-		// die();
-		
 		$this->load->library('fpdf/pdf2');
         $pdf = new Pdf2();
         $pdf->AliasNbPages();
@@ -340,21 +336,21 @@ class LibroMayor extends CI_Controller {
 		$pdf->sigla=sigla_entidad($id_entidad);
 		$pdf->tituloCabecera = 'LIBRO MAYOR';
 		$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
-		$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
-        // $w = array(15,115,40,50);
-        // $pdf->setWidthsG($w);
-        // $pdf->SetAligns(array('C','L','C','C'));
+		if($moneda === 'BOB'){
+			$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
+		}
+		elseif ($moneda === 'USD') {
+			$pdf->subtituloCabecera2 = "Expresado en Dólares Americanos";  
+		}
 		$pdf->AddPage('P','Letter');
 		$pdf->opcion_cabecera=3;
 		$pdf->Header();
 		$pdf->SetFillColor(255,255,255);
         $pdf->SetTextColor(0);
         $pdf->SetFont('Arial','',6);
-		$pdf->Ln(1);
+		$pdf->opcion_pie='FOOTER_VACIO';
+		// $pdf->Ln(1);
 		/*CUERPO DEL REPORTE*/
-		// $pdf->SetFillColor(255,255,255);
-        // $pdf->SetTextColor(0);
-        // $pdf->SetFont('Arial','',6);
         $num = 0;
         $total=0;
 
@@ -369,49 +365,13 @@ class LibroMayor extends CI_Controller {
 		$totalGeneralImporteHaber =0;
 		$totalGeneralImporteDeudor=0;
 		$totalGeneralImporteAcreedor =0;
+		$pdf->setY(54);  
         foreach ($plandecuentas as $cuenta)
 		{   
-			$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;			   
-			$cabercera2_cuenta="";
 			
-			if($cuenta->ruta == 0)
-			{
-				$cabercera2_cuenta=$cuenta->descripcion;
-			}
-			else
-			{
-				$cuentas_ruta      = explode("-", $cuenta->ruta);
-				$nro_ruta =1;
-				foreach($cuentas_ruta as $ruta)
-				{
-					if(count($cuentas_ruta) === $nro_ruta)
-					{
-						$cabercera2_cuenta .=getCuenta($ruta)." --> ".$cuenta->descripcion;
-						
-					}
-					else
-					{
-						if($ruta != 0)
-						{
-							$cabercera2_cuenta .=getCuenta($ruta)." --> " ;
-						}
-					}					
-					$nro_ruta++;
-					
-				}
-			}	
-			$pdf->SetFillColor(245, 245, 240);
-			$pdf->SetFont('Arial', 'B', 7);
-			$pdf->setX($x);     
-	        $pdf->Cell(200,6,utf8_decode($cabercera1_cuenta),0,0,'L',1);			
-			$pdf->Ln();
-			$y=$pdf->GetY();
-            $pdf->SetXY($x,$y);
-	        $pdf->Cell(200,6,utf8_decode($cabercera2_cuenta),0,0,'L',1);
-			$pdf->Ln();
-
 			// $cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda1($id_entidad,$cuenta->id);
 			$cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda2($id_entidad,$cuenta->id,$fecha_inicio,$fecha_fin);
+
 			$totalImporteDebe =0;
 			$totalImporteHaber =0;
 			$totalImporteDeudor=0;
@@ -419,44 +379,144 @@ class LibroMayor extends CI_Controller {
 			
 			if(count($cuentasLibroMayor)==0)
 			{
-				$pdf->SetFont('Arial', '', 8);
-				$detalle="SIN MOVIMIENTO";
-				$pdf->SetFillColor(255,255,255);
-				$y=$pdf->GetY();
-				$pdf->SetXY($x,$y);
-				// $pdf->setX(10);     
-				$pdf->Cell(205,6,utf8_decode($detalle),0,0,'L',1);
-				$pdf->Ln();
+				// echo("Valor check con movimiento==>".$valorCheckConMovimiento);
+				// die();
+				if($valorCheckConMovimiento === 'false'){
 
-				$y=$pdf->GetY();
-				$pdf->SetXY($x,$y);
-				// $pdf->setX(5);     
-				// $pdf->SetAligns(['R','R','R','C','C']);
-				$pdf->Cell(145,2,"",0,0,'R',1);
-				$x_line=$pdf->GetX();
-				$y_line=$pdf->GetY();
-				$pdf->Line($x_line, $y_line, $x_line + 60, $y_line);
-				$pdf->Cell(60,2,"",0,0,'R',1);
-				$pdf->Ln();
+					// echo("INGRESA=>".$valorCheckConMovimiento);
+					// $excluirCuentasEnCero= true;
 
-				$TOTALES="SUBTOTALES";
-				$pdf->SetFillColor(255,255,255);
-				$y=$pdf->GetY();
-				$pdf->SetXY($x,$y);
-				// $pdf->setX(5);     
-				$pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
-				$pdf->Cell(15,8,utf8_decode($totalImporteDebe),0,0,'R',1);
-				$pdf->Cell(15,8,utf8_decode($totalImporteHaber),0,0,'R',1);
-				$pdf->Cell(15,8,utf8_decode("-"),0,0,'C',1);
-				$pdf->Cell(15,8,utf8_decode("-"),0,0,'C',1);
+					/*CABECERA DE LA CUENTA */
+					$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;			   
+					$cabercera2_cuenta="";
+					
+					if($cuenta->ruta == 0)
+					{
+						$cabercera2_cuenta=$cuenta->descripcion;
+					}
+					else
+					{
+						$cuentas_ruta      = explode("-", $cuenta->ruta);
+						$nro_ruta =1;
+						foreach($cuentas_ruta as $ruta)
+						{
+							if(count($cuentas_ruta) === $nro_ruta)
+							{
+								$cabercera2_cuenta .=getCuenta($ruta)." --> ".$cuenta->descripcion;
+								
+							}
+							else
+							{
+								if($ruta != 0)
+								{
+									$cabercera2_cuenta .=getCuenta($ruta)." --> " ;
+								}
+							}					
+							$nro_ruta++;
+							
+						}
+					}	
+					$pdf->SetFillColor(245, 245, 240);
+					$pdf->SetFont('Arial', 'B', 7);
+					$pdf->setX($x);     
+					$pdf->Cell(200,6,utf8_decode($cabercera1_cuenta),0,0,'L',1);			
+					// $pdf->Ln();
+					$y=$pdf->GetY();
+					$pdf->SetXY($x,$y);
+					$pdf->Cell(200,6,utf8_decode($cabercera2_cuenta),0,0,'L',1);
+					$pdf->Ln();
+					
+					
+					
+					/*CABECERA DE LA CUENTA */
+
+					$pdf->SetFont('Arial', '', 8);
+					$detalle="SIN MOVIMIENTO";
+					$pdf->SetFillColor(255,255,255);
+					$y=$pdf->GetY();
+					$pdf->SetXY($x,$y);
+					// $pdf->setX(10);     
+					$pdf->Cell(205,6,utf8_decode($detalle),0,0,'L',1);
+					$pdf->Ln();
+					$y=$pdf->GetY();
+					$pdf->SetXY($x,$y);
+					// $pdf->setX(5);     
+					// $pdf->SetAligns(['R','R','R','C','C']);
+					$pdf->Cell(140,2,"",0,0,'R',1);
+					$x_line=$pdf->GetX();
+					$y_line=$pdf->GetY();
+					$pdf->Line($x_line, $y_line, $x_line + 60, $y_line);
+					$pdf->Cell(60,2,"",0,0,'R',1);
+					$pdf->Ln();
+					$TOTALES="SUBTOTALES";
+					$pdf->SetFillColor(255,255,255);
+					$y=$pdf->GetY();
+					$pdf->SetXY($x,$y);
+					// $pdf->setX(5);     
+					$pdf->SetFont('Arial', 'B', 7);
+					$pdf->Cell(145,8,utf8_decode($TOTALES),0,0,'R',1);
+					$pdf->Cell(15,8,utf8_decode($totalImporteDebe),0,0,'R',1);
+					$pdf->Cell(15,8,utf8_decode($totalImporteHaber),0,0,'R',1);
+					$pdf->Cell(15,8,utf8_decode("-"),0,0,'C',1);
+					$pdf->Cell(15,8,utf8_decode("-"),0,0,'C',1);
+					$pdf->Ln();
+				}
+				else {
+					// echo("no ingresa");
+				}
+				
 				// $pdf->Ln();
 			}
 			else
 			{
+				/*CABECERA DE LA CUENTA */
+				$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;			   
+				$cabercera2_cuenta="";
+				
+				if($cuenta->ruta == 0)
+				{
+					$cabercera2_cuenta=$cuenta->descripcion;
+				}
+				else
+				{
+					$cuentas_ruta      = explode("-", $cuenta->ruta);
+					$nro_ruta =1;
+					foreach($cuentas_ruta as $ruta)
+					{
+						if(count($cuentas_ruta) === $nro_ruta)
+						{
+							$cabercera2_cuenta .=getCuenta($ruta)." --> ".$cuenta->descripcion;
+							
+						}
+						else
+						{
+							if($ruta != 0)
+							{
+								$cabercera2_cuenta .=getCuenta($ruta)." --> " ;
+							}
+						}					
+						$nro_ruta++;
+						
+					}
+				}	
+				// $pdf->Ln();
+				$pdf->SetFillColor(245, 245, 240);
+				$pdf->SetFont('Arial', 'B', 7);
+				$pdf->setX($x);     
+				$pdf->Cell(200,6,utf8_decode($cabercera1_cuenta),0,0,'L',1);			
+				$y=$pdf->GetY();
+				$pdf->SetXY($x,$y);
+				$pdf->Cell(200,6,utf8_decode($cabercera2_cuenta),0,0,'L',1);
+				$pdf->Ln();
+				
+				
+				
+				/*CABECERA DE LA CUENTA */
 				$pdf->SetFillColor(255,255,255);
 				$pdf->SetFont('Arial', '', 8);
 				$pdf->setX($x); 
-				$pdf->SetWidths([20, 15, 20, 85, 15, 15, 15, 15]);
+				// $pdf->SetWidths([20, 15, 20, 85, 15, 15, 15, 15]);
+				$pdf->SetWidths([20, 10, 10, 80, 20, 20, 20, 20]);
 				$pdf->SetAligns(['C','C','C','L','R','R','R','R']);
 				$importeDeudor   = 0;
 				$importeAcreedor = 0;				
@@ -472,10 +532,20 @@ class LibroMayor extends CI_Controller {
 					$glosa_cuenta       = $registro->glosa_cuenta;
 					$importeDebe   = 0;
 					$importeHaber  = 0;
+
+					
 					
 					if($registro->tipo_movimiento == "DB")
 					{
-						$importeDebe      = $registro->importe_moneda_nacional;
+
+
+						if($moneda === 'BOB'){
+							$importeDebe      = $registro->importe_moneda_nacional;
+						}elseif ($moneda === 'USD') {
+							$importeDebe      = $registro->importe_moneda_extranjera;
+						}
+
+						// $importeDebe      = $registro->importe_moneda_nacional;
 						$saldoAcumulado   = $importeDebe + $saldoAcumulado;
 						if($saldoAcumulado >0)
 						{
@@ -492,7 +562,13 @@ class LibroMayor extends CI_Controller {
 					}
 					else
 					{
-						$importeHaber     = $registro->importe_moneda_nacional;
+
+						if($moneda === 'BOB'){
+							$importeHaber     = $registro->importe_moneda_nacional;
+						}elseif ($moneda === 'USD') {
+							$importeHaber     = $registro->importe_moneda_extranjera;
+						}
+						// $importeHaber     = $registro->importe_moneda_nacional;
 						$saldoAcumulado   = $saldoAcumulado-$importeHaber; 
 
 						if($saldoAcumulado>0)
@@ -518,6 +594,7 @@ class LibroMayor extends CI_Controller {
 							number_format($importeAcreedor,2,'.',',') 
 						);	
 					// $pdf->setX($x); 
+					$pdf->SetFont('Arial', '', 7);
 					$pdf->Row_Reportes_LM($fila,true, '', 4);	
 					
 						  
@@ -550,7 +627,7 @@ class LibroMayor extends CI_Controller {
 				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteHaber,2,'.',',')),0,0,'R',1);
 				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteDeudor,2,'.',',')),0,0,'R',1);
 				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteAcreedor,2,'.',',')),0,0,'R',1);
-				$pdf->SetWidths([140, 15, 15, 15, 15]);
+				$pdf->SetWidths([120, 20, 20, 20, 20]);
 				$pdf->SetAligns(['R','R','R','R','R']);
 				$fila_subtotales = array(
 									$TOTALES,
@@ -560,6 +637,7 @@ class LibroMayor extends CI_Controller {
 									number_format($totalImporteAcreedor,2,'.',',') 
 								);	
 							// $pdf->setX($x); 
+				$pdf->SetFont('Arial', 'B', 7);
 				$pdf->Row_Reportes_LM($fila_subtotales,true, '', 4);
 
 			}
@@ -568,8 +646,8 @@ class LibroMayor extends CI_Controller {
 			$totalGeneralImporteHaber =$totalGeneralImporteHaber+$totalImporteHaber;
 			$totalGeneralImporteDeudor=$totalGeneralImporteDeudor+$totalImporteDeudor;
 			$totalGeneralImporteAcreedor =$totalGeneralImporteAcreedor+$totalImporteAcreedor;		
-			$pdf->opcion_pie='FOOTER_VACIO';
-			$pdf->Ln();
+		
+			// $pdf->Ln();
 	    }      
 
 		$pdf->SetFillColor(255,255,255);
@@ -591,7 +669,7 @@ class LibroMayor extends CI_Controller {
 		// $pdf->Cell(15,8,utf8_decode(number_format($totalGeneralImporteDeudor,2,'.',',')),0,0,'R',1);
 		// $pdf->Cell(15,8,utf8_decode(number_format($totalGeneralImporteAcreedor,2,'.',',')),0,0,'R',1);  
 
-		$pdf->SetWidths([140, 15, 15, 15, 15]);
+		$pdf->SetWidths([120, 20, 20, 20, 20]);
 		$pdf->SetAligns(['R','R','R','R','R']);
 		$fila_totales = array(
 							$TOTALES,
@@ -601,12 +679,8 @@ class LibroMayor extends CI_Controller {
 							number_format($totalGeneralImporteAcreedor,2,'.',',') 
 						);	
 					// $pdf->setX($x); 
-		$pdf->Row_Reportes_LM($fila_totales,true, '', 4);
-
-
-
-
-    
+		$pdf->SetFont('Arial', 'B', 7);
+		$pdf->Row_Reportes_LM($fila_totales,true, '', 4);    
 		$pdf->Footer();
 		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
 	}

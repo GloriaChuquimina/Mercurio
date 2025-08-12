@@ -70,212 +70,6 @@
                     </div>
                 </div>
             </div>
-            <!-- SECCION DE TOTALES -->
-             <!-- <div class="row" id="totales" style="display: none"> -->
-             <!-- <div class="row" id="totales" >
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff,
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-                                border-radius: 0.25rem;
-                            "
-                            >
-                            <span class="info-box-icon bg-success">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style="padding: 15px;">
-                                <span class="info-box-text">Total Debe</span>
-                                <span
-                                class="info-box-number"
-                                style="font-size: 24px; font-weight: bold; color: #28a745;"
-                                >
-                                </span>
-                            </div>
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #28a745,
-                                display: flex,
-                                align-items: center,
-                                justify-content: center,
-                                color: white,
-                                font-size: 24px;
-                                "
-                            >
-                                  📥
-                            </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff,
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                                border-radius: 0.25rem;"
-                            >
-                            <span class="info-box-icon bg-danger">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style=" padding:15px">
-                                <span class="info-box-text">Total Haber</span>
-                                <span
-                                class="info-box-number"
-                                style="font-size: 24px; font-weight: bold; color: #dc3545;" 
-                                >
-                                </span>
-                            </div>
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #dc3545,
-                                display: flex,
-                                align-items: center,
-                                justify-content: center,
-                                color: white,
-                                font-size: 24px;"
-                            >
-                                📤
-                            </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff;
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-                                border-radius: 0.25rem;
-                            "
-                            >
-                            <span class="info-box-icon bg-info">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style="padding: 15px;">
-                                <span class="info-box-text">Saldo Deudor</span>
-                                <span class="info-box-number" style="font-size: 24px; font-weight: bold;">
-                                </span>
-                            </div>
-
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #17a2b8,
-                                display: flex,
-                                alignItems: center,
-                                justify-content: center,
-                                color: white,
-                                font-size: 24px;
-                                "
-                            >
-                                 ⬆️
-                            </div>
-                            </div>
-                        </div>                        
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff,
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                                border-radius: 0.25rem;
-                            "
-                            >
-                            <span class="info-box-icon bg-warning">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style=" padding:15px;">
-                                <span class="info-box-text">Saldo Acreedor</span>
-                                <span
-                                class="info-box-number"
-                                style="font-size:24px; font-weight: bold; color: #ffc107;" 
-                                >   
-                                </span>
-                            </div>
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #ffc107,
-                                display: flex,
-                                align-items: center,
-                                justify-content: center,
-                                color: white,
-                                fontSize: 24px:"
-                            >
-                                ⬇️
-                            </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff,
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                                border-radius: 0.25rem;"
-                            >
-                            <span class="info-box-icon bg-danger">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style=" padding:15px">
-                                <span class="info-box-text">Diferencia</span>
-                                <span
-                                class="info-box-number"
-                                style="font-size: 24px; font-weight: bold; color: #dc3545;" 
-                                >
-                                </span>
-                            </div>
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #dc3545,
-                                display: flex,
-                                align-items: center,
-                                justify-content: center,
-                                color: white,
-                                font-size: 24px;"
-                            >
-                                ✅: ⚠️
-                            </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff,
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                                border-radius: 0.25rem;"
-                            >
-                            <span class="info-box-icon bg-danger">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style=" padding:15px">
-                                <span class="info-box-text">Estado:Balanceado-Desbalanceado</span>
-                                <span
-                                class="info-box-number"
-                                style="font-size: 24px; font-weight: bold; color: #dc3545;" 
-                                >
-                                </span>
-                            </div>
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #dc3545,
-                                display: flex,
-                                align-items: center,
-                                justify-content: center,
-                                color: white,
-                                font-size: 24px;"
-                            >
-                                ⚖️
-                            </div>
-                            </div>
-                        </div>
-                        
-            </div> -->
             <!-- FILTROS Y OPCIONES -->
             <div class="card card-primary card-outline">
                 <div class="card-header">
@@ -295,7 +89,7 @@
                     <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
                     <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
-                      <div class="col-md-2">
+                      <!-- <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>FECHA DESDE:</strong>
@@ -308,8 +102,30 @@
                             class="form-control"
                           />
                         </div>
+                      </div> -->
+                      <!-- Radio "Al" -->
+                    <div class="col-sm-12 col-md-auto">
+                      <div class="custom-control custom-radio d-flex align-items-center">
+                        <input class="custom-control-input custom-control-input-danger" 
+                              type="radio" id="radioAl" name="customRadio2" checked>
+                        <label for="radioAl" class="custom-control-label mb-0 mr-1">Al</label>
+                        <input id="fechaAl" name="fechaAl" type="date" 
+                              class="form-control" style="max-width: 140px;">
                       </div>
-                      <div class="col-md-2">
+                    </div>
+                      <!-- Radio "Entre el" -->
+                      <div class="col-sm-12 col-md-auto">
+                        <div class="custom-control custom-radio d-flex align-items-center">
+                          <input class="custom-control-input custom-control-input-danger" 
+                                type="radio" id="radioEntre" name="customRadio2">
+                          <label for="radioEntre" class="custom-control-label mb-0 mr-1">Entre el:</label>
+                          <input id="fechaDesde" name="fechaDesde" type="date" 
+                                class="form-control mr-1" style="max-width: 140px;">
+                          <input id="fechaHasta" name="fechaHasta" type="date" 
+                                class="form-control" style="max-width: 140px;">
+                        </div>
+                      </div>
+                      <!-- <div class="col-md-2">
                         <div class="form-group">
                           <label>
                             <strong>FECHA HASTA:</strong>
@@ -322,32 +138,33 @@
                             class="form-control"
                           />
                         </div>
+                      </div> -->
+                      <div class="col-sm-12 col-md-auto">
+                        <div class="d-flex align-items-center">
+                          <label for="tipo_moneda" class="mr-1"><strong>Moneda:</strong></label>
+                          <select class="form-control" id="tipo_moneda" name="tipo_moneda" style="max-width: 100px;"></select>    
+                        </div>                                            
                       </div>
-                      <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="d-flex align-items-end">
-                                <div style="flex-grow: 1; margin-right: 10px;">
-                                    <label for="tipo_comprobante">
-                                        <strong>MONEDA:</strong>
-                                    </label>
-                                    <select
-                                        class="form-control"
-                                        id="tipo_comprobante"
-                                        name="tipo_comprobante"
-                                        value="selectedEntity"
-                                    >
-                                    </select>
-                                </div>
-                            </div>
-                        </div>                        
-                      </div>
-                      <div class="col-md-1">
+
+
+                      <!-- <div class="col-md-1">
                           <div class="form-group">
                               <label>Nivel:</label>
                               <input type="number"  class="form-control is-warning" name="numero_inicio" id="numero_inicio" class="form-control" placeholder="Ej: 1">
                           </div>
-                      </div>
-                      <div class="col-md-3">
+                      </div> -->
+                      <!-- Nivel -->
+                      <div class="col-sm-12 col-md-auto">
+                        <div class="d-flex align-items-center">
+                          <label for="nivel" class="mr-1">Nivel:</label>
+                          <input type="number" class="form-control is-warning" name="nivel" id="nivel" 
+                                placeholder="Ej: 1" style="max-width: 80px;">
+                        </div>
+                      </div>                     
+                    </div>
+                    <br>
+                    <div class="row">
+                       <div class="col-md-4">
                         <div class="form-group">
                           <label>
                             <strong>CUENTAS:</strong>
@@ -388,7 +205,7 @@
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-2">
+                      <div class="col-md-4">
                         <div class="form-group">
                           <label>
                             <strong>OPCIONES:</strong>
@@ -405,9 +222,8 @@
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12 text-right">
+                      <div class="col-md-4 text-right">
+                        <br>
                         <button class="btn btn-primary mr-2"
                              onClick = "cargarDatosSumasySaldos()" >
                           <i class="mr-1">🔍</i> Generar Balance

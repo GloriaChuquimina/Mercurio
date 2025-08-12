@@ -16,6 +16,14 @@ function cargarCombos()
             valoresIniciales();
         }
     }); 
+    var enlace = base_url + "Comunes/Comunes/cargarTipoMoneda";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#tipo_moneda').html(data);
+        }
+    });
 }
 function valoresIniciales(){
     var entidad = $('#entidades').val();    
@@ -108,6 +116,7 @@ $(function (){
 			$('#txtCuenta').prop('readonly', true);
 			$('#btnAddCuenta').prop('disabled', true);
 			$('#btnlistaCuentasBusqueda').prop('disabled', true);
+            // $('#cuentaSeleccionada').hide();
         }
         else
         {
@@ -119,6 +128,29 @@ $(function (){
         }
 
 		
+    });
+     $('#nivel').on('input', function () {
+        if (this.value < 0) {
+            this.value = 0; // Si es menor que 0, lo ajusta a 0
+        }
+    });
+
+     // Al seleccionar "Al"
+    $('#fechaAl').prop('disabled', false);
+    $('#fechaDesde, #fechaHasta').prop('disabled', true);
+    $('#radioAl').on('change', function () {
+        if ($(this).is(':checked')) {
+            $('#fechaAl').prop('disabled', false);
+            $('#fechaDesde, #fechaHasta').prop('disabled', true);
+        }
+    });
+
+    // Al seleccionar "Entre el"
+    $('#radioEntre').on('change', function () {
+        if ($(this).is(':checked')) {
+            $('#fechaAl').prop('disabled', true);
+            $('#fechaDesde, #fechaHasta').prop('disabled', false);
+        }
     });
 
 });
@@ -257,6 +289,12 @@ function cargarDatosSumasySaldos(){
     var fecha_desde = $('#fechaDesde').val();
     var fecha_hasta = $('#fechaHasta').val();
 	var cuentas_con_movimiento = $('#soloConMovimientos').prop('checked');
+
+    var fecha_al       = $('#fechaAl').val();  
+    var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
+    var moneda         = $('#tipo_moneda').val();
+    var nivel          = $('#nivel').val();
+
     var enlace = base_url + "Contabilidad/SumasYSaldos/cargarDatosSumasySaldos";
     $('#tablaSumasySaldos').DataTable({
         destroy: true,
@@ -271,7 +309,11 @@ function cargarDatosSumasySaldos(){
                 cuentasSeleccionadas:cuentasSeleccionadas,
                 fecha_desde:fecha_desde,
                 fecha_hasta:fecha_hasta,
-				cuentas_con_movimiento:cuentas_con_movimiento
+				cuentas_con_movimiento:cuentas_con_movimiento,
+                fecha_al:fecha_al,
+                idSeleccionado:idSeleccionado,
+                moneda:moneda,
+                nivel:nivel
             },
             dataSrc: function(json) {listaCuentas
                     $('.txtTotalImporteDebe').text(json.totalimporteDebe);
@@ -298,22 +340,74 @@ function ReporteSumasySaldosPDF()
     var fecha_fin    = $('#fechaHasta').val();
 	var cuentas_con_movimiento = $('#soloConMovimientos').prop('checked');
     // alert(id_entidad);
-    if(fecha_inicio!='' && fecha_fin !='')
+
+    var fecha_al     = $('#fechaAl').val();  
+    var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
+    var moneda         = $('#tipo_moneda').val();
+    var nivel          = $('#nivel').val();
+
+    if(nivel == null || nivel.length === 0 || nivel <= 0)
     {
-        $('#divPDF').html('');
-        var iframe = document.createElement("iframe");
-            iframe.width = '100%';
-            iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/SumasYSaldos/ReporteSumasySaldosPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+cuentas_con_movimiento; 
-            $('#divPDF').append(iframe);
-        $('#divCapa').addClass('overlay');    
-        $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
-        $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
-        $('#pdfModal').show();   
+        nivel= 0;
+    }
+    var sw=0;
+    if(id_entidad == null || id_entidad.length === 0){
+        // alert("SELECCIONE UNA ENTIDAD POR FAVOR");
+        var mensaje ="SELECCIONE UNA ENTIDAD POR FAVOR";
+        swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
+        return;
+    }
+    else{
+
+         sw=0;
+        if(idSeleccionado == 'radioAl')
+        {
+            if(fecha_al == null || fecha_al.length === 0){
+               fecha_inicio='01/01/1900';
+                fecha_fin='01/01/1900';
+                mensaje = "SELECCIONE UNA FECHA VÁLIDA POR FAVOR";
+                sw=1;
+            }
+            else
+            {
+                fecha_inicio=fecha_al;
+                fecha_fin=fecha_al;
+            }
+        }
+        else if(idSeleccionado == 'radioEntre')
+        {
+            if((fecha_inicio=='' && fecha_fin =='')|| (fecha_inicio.length === 0 && fecha_fin.length === 0)){
+                
+                mensaje = "SELECCIONE UN RANGO DE FECHA VÁLIDO POR FAVOR";
+                sw=1;
+            }
+            else
+            {
+                fecha_al=fecha_inicio;
+            }
+        }
+        if(sw==0)
+        {
         
+            $('#divPDF').html('');
+            var iframe = document.createElement("iframe");
+                iframe.width = '100%';
+                iframe.height = '700px';
+                iframe.src = base_url+'Contabilidad/SumasYSaldos/ReporteSumasySaldosPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+cuentas_con_movimiento+"/"+idSeleccionado+"/"+fecha_al+"/"+nivel+"/"+moneda; 
+                $('#divPDF').append(iframe);
+            $('#divCapa').addClass('overlay');    
+            $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+            $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
+            $('#pdfModal').show();   
+        }
+        else
+        {
+            // alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
+            // var mensaje ="SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR";
+            swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
+            return;
+        }
+
     }
-    else
-    {
-        alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
-    }
+
 }

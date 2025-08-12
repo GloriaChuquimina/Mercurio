@@ -33,6 +33,9 @@ function agregarCuentas()
 {
     // eliminaMensajeError();
     // eliminaMensajeErrorCombos();
+    $('#txtCodigoCuenta').val('');
+    $('#txtSiglaCuenta').val('');
+    $('#txtDescripcionCuenta').val('');
     $('#txtAccion').val('nuevo');
     $('#nivel').val(1);
     $('#modalPlanDeCuentas').modal({backdrop: 'static', keyboard: false})
@@ -101,6 +104,8 @@ function agregarSubCuentas(id_cuenta,codigo,nombreCuenta,nivel,padre,ruta)
 {
     // eliminaMensajeError();
     // eliminaMensajeErrorCombos();
+    $('#txtSigla').val('');
+    $('#txtDescripcion').val('');
     $('#txtAccionSubCuenta').val('nuevo');
     var Cuenta=" "+codigo+"   "+nombreCuenta
     $('#nombreCuenta').text(Cuenta);
@@ -109,9 +114,15 @@ function agregarSubCuentas(id_cuenta,codigo,nombreCuenta,nivel,padre,ruta)
     $('#id_padre').val(padre);
     $('#ruta').val(ruta);
     $('#tituloSubcuentas').text(Cuenta);
+    $('#codigo_cuenta_padre').val(codigo+".");
     $('#modalPlanDeSubCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanDeSubCuentas').modal('show');  
-    cargarTablaPlanDeSubCuentas(id_cuenta)
+    cargarTablaPlanDeSubCuentas(id_cuenta);
+    // Espera a que se muestre el input antes de asignar prefijo
+    var aux="";
+    setTimeout(() => {
+        cargarPrefijo(codigo+".",aux);
+    }, 300); // ajusta si tu modal tarda más en mostrarse
 }
 
 function guardarPlanDeSubCuentas()
@@ -150,6 +161,10 @@ function guardarPlanDeSubCuentas()
                         }else{
                             swal({title:"!Excelente¡",text:datos.mensaje,icon:"success",button:"OK"});
                             // swal("!Excelente!","SE REGISTRO CORRECTAMENTE,"success");
+                            var codigo_cuenta = $('#codigo_cuenta_padre').val();
+                             $('#txtCodigo').val(codigo_cuenta);
+                             $('#txtSigla').val('');
+                             $('#txtDescripcion').val('');
                             cargarTablaPlanDeCuentas();
                             cargarTablaPlanDeSubCuentas(id_cuenta);
                             $("#modalPlanDeCuentas").modal('hide'); 
@@ -189,6 +204,8 @@ function editarCuentas(id_cuenta,codigo,sigla,descripcion)
     $('#txtDescripcionCuenta').val(descripcion);
     $('#modalPlanDeCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanDeCuentas').modal('show');  
+    
+
 }
 function eliminarCuenta(id_cuenta)
 {
@@ -233,20 +250,26 @@ function eliminarCuenta(id_cuenta)
 // cuentas auxiliares
 let prefijoActual = "";
 
-function cargarPrefijo(codigo) {
+function cargarPrefijo(codigo,aux) {
     prefijoActual = codigo;
 
-    const input = document.getElementById("txtCodigoAux");
-    //  const input = document.getElementById("txtCodigo");
+    // Detecta el input según aux o usa directamente el id
+    let idInput = aux === "aux" ? "txtCodigoAux" : "txtCodigo";
+    let input = document.getElementById(idInput);
 
     if (!input) {
-        console.warn("No se encontró el input txtCodigo");
+        console.warn(`No se encontró el input ${idInput}`);
         return;
     }
-    else
-    {
-        console.log("ENTRAAAA");
-    }
+
+    // if (!input) {
+    //     console.warn("No se encontró el input txtCodigo");
+    //     return;
+    // }
+    // else
+    // {
+    //     console.log("ENTRAAAA");
+    // }
 
     // Coloca el prefijo y pone el cursor al final
     input.value = codigo;
@@ -297,10 +320,10 @@ function agregarCuentasAuxiliares(id_cuenta,codigo,sigla,descripcion)
     $('#modalPlanCuentasAuxiliares').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanCuentasAuxiliares').modal('show');  
 
-
+    var aux="aux";
     // Espera a que se muestre el input antes de asignar prefijo
     setTimeout(() => {
-        cargarPrefijo(codigo+".");
+        cargarPrefijo(codigo+".",aux);
     }, 300); // ajusta si tu modal tarda más en mostrarse
 
 

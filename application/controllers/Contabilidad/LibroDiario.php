@@ -393,7 +393,7 @@ class LibroDiario extends CI_Controller {
 			$totalGeneralImporteHaber = 0;
 			$pag_debe=0;
 			$pag_haber=0;
-			$pdf->setY(55); 
+			$pdf->setY(53); 
 			$y_ini_1 =55;
 
 			$x=10;
@@ -426,20 +426,21 @@ class LibroDiario extends CI_Controller {
 				// echo($glosa_comprobante);
 
 				$detalle_comprobante = $tipo_comprobante." ".$numero_correlativo ;	
-				$fila = array(
-					$fecha_comprobante,
-					$detalle_comprobante,
-					'---',
-					'---'
-				);	
-				$y_i = $pdf->GetY();
+				// $fila = array(
+				// 	$fecha_comprobante,
+				// 	$detalle_comprobante,
+				// 	'---',
+				// 	'---'
+				// );	
+				// $y_i = $pdf->GetY();
 				$pdf->SetFont('Arial', 'B', 7);
 				$pdf->SetFillColor(230, 230, 225);
-				$pdf->SetXY(10, $y_i);
-				$pdf->Cell(30, 8, utf8_decode($fecha_comprobante), 0, 0, 'C', 1);
-				$pdf->Cell(130, 8, "-----" . utf8_decode($detalle_comprobante) . "-----", 0, 0, 'C', 1);
-				$pdf->Cell(20, 8, utf8_decode(""), 0, 0, 'R', 1);
-				$pdf->Cell(20, 8, utf8_decode(""), 0, 1, 'R', 1);
+				// $pdf->SetXY(10, $y_i);
+				$pdf->SetX(10);
+				$pdf->Cell(30, 5, utf8_decode($fecha_comprobante), 0, 0, 'C', 1);
+				$pdf->Cell(130, 5, "-----" . utf8_decode($detalle_comprobante) . "-----", 0, 0, 'C', 1);
+				$pdf->Cell(20, 5, utf8_decode(""), 0, 0, 'R', 1);
+				$pdf->Cell(20, 5, utf8_decode(""), 0, 1, 'R', 1);
 				// $pdf->Ln();
 				$datosComprobante    = $this->Comprobantes_model->getDetalleComprobanteByIdComprobante($id_comprobante);
 				if($datosComprobante)	
@@ -467,8 +468,6 @@ class LibroDiario extends CI_Controller {
 							$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
 							$descripcion_cuenta		   = getCuenta($id_cuenta);
 							$codigo_descripcion		   = $codigo_cuenta."-".$descripcion_cuenta;
-							$resul 				       = 1;
-							$mensaje				   = "OK";	
 							$importeDebe = $detalle_comprobante->tipo_movimiento == "DB" ? $detalle_comprobante->importe_moneda_nacional : 0;
 						    $importeHaber = $detalle_comprobante->tipo_movimiento == "HB" ? $detalle_comprobante->importe_moneda_nacional : 0;
 							$fila = array(

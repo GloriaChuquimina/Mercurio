@@ -264,6 +264,9 @@ class Comprobante extends CI_Controller {
 								$importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
 							}
 
+							// echo("Importe DOLARES:".$importeHaberUs);
+							// die();
+
 							$botonEditar = "<div style='text-align: center;'>
 										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
 											<button type='button' class='btn btn-block btn-success btn-sm' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."','". $glosa_cuenta."' )\"><i>✏️</i></button>

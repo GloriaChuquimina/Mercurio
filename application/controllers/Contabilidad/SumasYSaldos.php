@@ -54,35 +54,70 @@ class SumasYSaldos extends CI_Controller {
 
 		$id_entidad             = $this->input->post('id_entidad');
 		$cuentasSeleccionadas   = $this->input->post('cuentasSeleccionadas');
-		$fecha_desde  		    = $this->input->post('fecha_desde');
-		$fecha_hasta            = $this->input->post('fecha_hasta');
+		$fecha_inicio  		    = $this->input->post('fecha_desde');
+		$fecha_fin              = $this->input->post('fecha_hasta');
 		$cuentas_con_movimiento = $this->input->post('cuentas_con_movimiento');
+		$fecha_al				= $this->input->post('fecha_al');
+		$idSeleccionado         = $this->input->post('idSeleccionado');
+		$moneda				    = $this->input->post('moneda');
+		$nivel					= $this->input->post('nivel');
 
+		// 1. Reemplazar guiones por comas
 		$cadena = str_replace('-', ',', $cuentasSeleccionadas);
+		// 2. Eliminar la última coma si existe
 		$cadena = rtrim($cadena, ',');
+		// 3. Convertir en array usando coma como separador
+		$array_cuentas = explode(',', $cadena);
 
-		if($cuentas_con_movimiento)
+		// 4. Contar los elementos
+		$numero_cuentas = count($array_cuentas);
+
+		// echo("Numero de Cuentas".$numero_cuentas);
+		// die();
+
+		if($cuentas_con_movimiento === 'true' && $cuentasSeleccionadas == ""  )
 		{
-			// echo("Cuentas con movimiento");
-			$filas  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_desde,$fecha_hasta);
+
+			$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_inicio,$fecha_fin);
+
 		}
 		else
 		{
-			$filas  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_desde,$fecha_hasta);
+			if($cuentas_con_movimiento === 'true' && $numero_cuentas > 0 )
+			{
+				$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimientoByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
+			}
+			else
+			{
+				$sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
+			}
 		}
 
 		$totalDebe =0;
 		$totalHaber =0;
 		$totalDeudor=0;
 		$totalAcreedor=0;
-		foreach ($filas as $fila)
+		foreach ($sumasysaldos as $fila)
 		{   
 			$deudor =0;
 			$acreedor =0;
 			$codigo= $fila->codigo;
-			$descripcion = $fila->descripcion;	
-			$debe = $fila->debe;
-			$haber = $fila->haber;
+			$descripcion = $fila->descripcion;
+
+			if($moneda === 'BOB'){
+				$debe        = $fila->debe; 
+				$haber       = $fila->haber;
+			}
+			elseif ($moneda === 'USD') {
+				$debe        = $fila->debeusd; 
+				$haber       = $fila->haberusd;
+			} 
+			
+			
+			// $debe = $fila->debe;
+			// $haber = $fila->haber;
+
+
 			if($haber == 0)
 			{
 				$deudor = $debe;
@@ -120,8 +155,8 @@ class SumasYSaldos extends CI_Controller {
 		}
 		$output = array(
 			             "draw" => $draw,
-			    "recordsTotal"  => count($filas),
-			 "recordsFiltered"  => count($filas),
+			    "recordsTotal"  => count($sumasysaldos),
+			 "recordsFiltered"  => count($sumasysaldos),
 			"totalimporteDebe"  => number_format($totalDebe,2,'.',','),
 		   "totalimporteHaber"  => number_format($totalHaber,2,'.',','),
 		  "totalimporteDeudor"  => number_format($totalDeudor,2,'.',','),
@@ -131,7 +166,7 @@ class SumasYSaldos extends CI_Controller {
 		echo json_encode($output);
 		exit();
 	}
-	function ReporteSumasySaldosPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin,$cuentas_con_movimiento)
+	function ReporteSumasySaldosPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin,$cuentas_con_movimiento,$idSeleccionado,$fecha_al,$nivel,$moneda)
 	{			
 		// $id_entidad      = $this->input->post('id_entidad');		
 		/****************************/
@@ -150,7 +185,20 @@ class SumasYSaldos extends CI_Controller {
 		$pdf->sigla=sigla_entidad($id_entidad);
 		$pdf->tituloCabecera = 'BALANCE SUMAS Y SALDOS';
 		$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
-		$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
+		// $pdf->subtituloCabecera2 = "Expresado en Bolivianos"; 
+		if($idSeleccionado == 'radioAl'){
+			$pdf->subtituloCabecera1 = "AL ".formato_fecha_dia_2($fecha_al);  
+
+		}
+		elseif($idSeleccionado == 'radioEntre'){
+			$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y el ".formato_fecha_slash($fecha_fin);  
+		}
+		if($moneda === 'BOB'){
+			$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
+		}
+		elseif ($moneda === 'USD') {
+			$pdf->subtituloCabecera2 = "Expresado en Dólares Americanos";  
+		} 
         $w = array(15,115,40,50);
         $pdf->setWidthsG($w);
         $pdf->SetAligns(array('C','L','C','C'));
@@ -165,23 +213,43 @@ class SumasYSaldos extends CI_Controller {
 		$pdf->SetFillColor(255,255,255);
         $pdf->SetTextColor(0);
         $pdf->SetFont('Arial','',6);
+		$pdf->opcion_pie='FOOTER_VACIO';
         $num = 0;
         $total=0;
 
+		// 1. Reemplazar guiones por comas
+		$cadena = str_replace('-', ',', $cuentas);
+		// 2. Eliminar la última coma si existe
+		$cadena = rtrim($cadena, ',');
+		// 3. Convertir en array usando coma como separador
+		$array_cuentas = explode(',', $cadena);
 
-		if($cuentas_con_movimiento === 'true')
+		// 4. Contar los elementos
+		$numero_cuentas = count($array_cuentas);
+
+		// echo("Cuentas".$cuentas."<==>");
+		// echo("Numero de Cuentas".$numero_cuentas);
+		// die();
+
+		if($cuentas_con_movimiento === 'true' && $cuentas == 0 )
 		{
 			// echo("Cuentas con movimiento");
 			$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_inicio,$fecha_fin);
+			// echo("<pre>");
+			// print_r($sumasysaldos);
+			// echo("</pre>");
+			// die();
 		}
 		else
 		{
-			// echo("TODAS LAS CUENTAS");
-			// 1. Reemplazar guiones por comas
-			$cadena = str_replace('-', ',', $cuentas);
-			// 2. Eliminar la última coma si existe
-			$cadena = rtrim($cadena, ',');
-			$sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
+			if($cuentas_con_movimiento === 'true' && $numero_cuentas > 0 )
+			{
+				$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimientoByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
+			}
+			else
+			{
+				$sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
+			}
 		}
 
 		// $sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
@@ -206,8 +274,18 @@ class SumasYSaldos extends CI_Controller {
 			$acreedor    = 0;
 			$codigo      = $fila->codigo;
 			$descripcion = $fila->descripcion;	
-			$debe        = $fila->debe;
-			$haber       = $fila->haber;
+
+			if($moneda === 'BOB'){
+				$debe        = $fila->debe; 
+				$haber       = $fila->haber;
+			}
+			elseif ($moneda === 'USD') {
+				$debe       = $fila->debeusd; 
+				$haber       = $fila->haberusd;
+			} 
+
+			// $debe        = $fila->debe;
+			// $haber       = $fila->haber;
 
 			$saldo = $debe - $haber;
 			
@@ -227,7 +305,7 @@ class SumasYSaldos extends CI_Controller {
 
 			$fila = array(
 				$codigo,
-				$descripcion,
+				utf8_decode($descripcion), 
 				number_format($debe,2,'.',','),
 				number_format($haber,2,'.',','),
 				number_format($deudor,2,'.',','),
@@ -238,7 +316,7 @@ class SumasYSaldos extends CI_Controller {
 			$totalDeudor += $deudor;
 			$totalAcreedor += $acreedor;
 			$pdf->Row_Reportes_SS($fila,true, '', 4);								
-			$pdf->opcion_pie='FOOTER_VACIO';
+			
 	    }      
 		$pdf->SetFillColor(255,255,255);
 		/*LINEA HORIZONTAL*/

@@ -325,6 +325,11 @@ class BalanceGeneral extends CI_Controller {
 		$sumaTotalGlobalActivo  = $ordenadas_activo[1];
 		$total_activo			= count($cuentasOrdenadasActivo);
 
+		// echo("<pre>");
+		// print_r($cuentasOrdenadasActivo);
+		// echo("</pre>");
+		// die();
+
 		/*CUENTAS PASIVO*/
 		$cuentas_pasivo 		= json_decode(json_encode($cuentas_pasivo), true);
 		$ordenadas_pasivo 		= $this->ordenarJerarquicamente($cuentas_pasivo,0,0,$excluirCuentasEnCero,$nivel);
@@ -389,22 +394,22 @@ class BalanceGeneral extends CI_Controller {
 			if ($nivel== 1) {
 				$codigo 	   = "<span class='badge badge-primary'><strong><u>{$codigo}</u></strong></span>";
 				$descripcion   = "<strong><u>{$descripcion}</u></strong>";
-				$valor1    	   = "<strong style='color: black; text-align: right;'><u>{$valor_cero}</u></strong>";
-				$valor2        = "<strong style='color: black; text-align: right;'><u>{$saldo_cuenta}</u></strong>";
-				$valor3        = "<strong style='color: black; text-align: right;'><u>{$total_cuenta}</u></strong>";
+				$valor1    	   = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$valor_cero."</u></div>";
+				$valor2        = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$saldo_cuenta."</u></div>";
+				$valor3        = "<div style='text-align: right; color: #28a745; font-weight: bold;'><u>".$total_cuenta."</u></div>";
 			}
 			elseif ($nivel== 2) {
-				$codigo 	   =  "<span class='badge badge-info'><strong><u>{$codigo}</u></strong></span>";
+				$codigo 	   = "<span class='badge badge-info'><strong><u>{$codigo}</u></strong></span>";
 				$descripcion   = "<strong><u>{$descripcion}</u></strong>";
-				$valor1    	   = "<strong style='color: black; text-align: right;'><u>{$valor_cero}</u></strong>";
-				$valor2        = "<strong style='color: black; text-align: right;'><u>{$total_cuenta}</u></strong>";
-				$valor3        = "<strong style='color: black; text-align: right;'><u>{$valor_cero}</u></strong>";
-				
+				$valor1    	   = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$valor_cero."</u></div>";
+				$valor2        = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$total_cuenta."</u></div>";
+				$valor3        = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$valor_cero."</u></div>";
+
 			}else{
 				$codigo 	   =  "<span class='badge badge-secondary'><strong><u>{$codigo}</u></strong></span>";
-				$valor1    	   = "<span style='color: black; text-align: right;'>{$saldo_cuenta}</span>";
-				$valor2        = "<span style='color: black; text-align: right;'>{$valor_cero}</span>";
-				$valor3        = "<span style='color: black; text-align: right;'>{$valor_cero}</span>";
+				$valor1    	   = "<div style='text-align: right; color: black;'>".$saldo_cuenta."</div>";
+				$valor2        = "<div style='text-align: right; color: black;'>".$valor_cero."</div>";
+				$valor3        = "<div style='text-align: right; color: black;'>".$valor_cero."</div>";
 			}
 
 			$data[] = array(
@@ -418,35 +423,15 @@ class BalanceGeneral extends CI_Controller {
 			
 		}
 
-		// foreach ($cuentasOrdenadas as $fila)
-		// {  
-		// 	$indentacion 			= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
-		// 	$indentacion_invertida 	= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion_invertida']);
-		// 	$descripcion 			= $fila['descripcion'];
-		// 	$codigo      			= $fila['codigo'];
-		// 	$importe_total      	= $fila['saldo_cuenta'] ? number_format($fila['saldo_cuenta'], 2, '.', ',') : '0.00';
-
-		// 	if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
-		// 		$descripcion   = "<strong><u>{$descripcion}</u></strong>";
-		// 		$codigo 	   =  "<span class='badge badge-primary'><strong><u>{$codigo}</u></strong></span>";
-		// 		$importe_total = "<strong><u>{$importe_total}</u></strong>";
-		// 	}
-		// 	else
-		// 	{
-		// 		$codigo 	   =  "<span class='badge badge-secondary'><strong><u>{$codigo}</u></strong></span>";
-		// 	}				
-		// 	$data[] = array(
-		// 		$codigo,
-		// 		$indentacion.$descripcion,
-		// 		$indentacion_invertida.$importe_total
-		// 	);
-		// }
-
-		// die();
+		$sumaTotalGlobalPasivoPatrimonio = $sumaTotalGlobalPasivo + $sumaTotalGlobalPatrimonio;
 		$output = array(
 			"draw" => $draw,
 			"recordsTotal" => count($cuentasUnidas),
 			"recordsFiltered" => count($cuentasUnidas),
+			"totalimporteActivo" => number_format($sumaTotalGlobalActivo,2,'.',','),
+            "totalimportePasivoPatrimonio" => number_format($sumaTotalGlobalPasivoPatrimonio,2,'.',','),
+            "totalimporteCuentasOrdenDeudoras" => number_format($sumaTotalGlobalDeudoras,2,'.',','),
+            "totalimporteCuentasOrdenAcreedoras" => number_format($sumaTotalGlobalAcreedoras,2,'.',','),
 			"data" => $data
 		);
 		echo json_encode($output);
@@ -1126,14 +1111,12 @@ class BalanceGeneral extends CI_Controller {
 		
 		$pdf->Output('I',utf8_decode('ReporteBalanceGeneral.pdf')); 
 	}
-	function ReporteBalanceGeneralPDF_2($id_entidad,$cuentasBuscadas,$fecha_inicio,$fecha_fin)
+	function ReporteBalanceGeneralPDF_2($id_entidad,$cuentasBuscadas,$fecha_inicio,$fecha_fin,$valorCheckCero,$idSeleccionado,$fecha_al,$nivel,$moneda)
 	{			
-		// $id_entidad      = $this->input->post('id_entidad');		
+	
 		/****************************/
 		/*INICIO DEL REPORTE*/
 		/****************************/
-		// echo ($id_entidad);
-		// die();
 		
 		$this->load->library('fpdf/pdf2');
         $pdf = new Pdf2();
@@ -1142,15 +1125,28 @@ class BalanceGeneral extends CI_Controller {
         $pdf->SetMargins(20,15,10);		
 		$pdf->SetTitle(utf8_decode("BALANCE GENERAL"));
 		$pdf->entidad=descripcion_nombre_entidad($id_entidad);
-		$pdf->sigla="xxx";
+		$pdf->sigla=sigla_entidad($id_entidad);
 		$pdf->tituloCabecera = 'BALANCE GENERAL';
-		$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y ".formato_fecha_slash($fecha_fin);  
-		$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
+
+		if($idSeleccionado == 'radioAl'){
+			$pdf->subtituloCabecera1 = "AL ".formato_fecha_dia_2($fecha_al);  
+
+		}
+		elseif($idSeleccionado == 'radioEntre'){
+			$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y el ".formato_fecha_slash($fecha_fin);  
+		}
+		if($moneda === 'BOB'){
+			$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
+		}
+		elseif ($moneda === 'USD') {
+			$pdf->subtituloCabecera2 = "Expresado en Dólares Americanos";  
+		}
+
         $w = array(15,115,40,50);
         $pdf->setWidthsG($w);
         $pdf->SetAligns(array('C','L','C','C'));
 		$pdf->AddPage('P','Letter');
-		$pdf->opcion_cabecera=5;
+		$pdf->opcion_cabecera=9;
 		$pdf->Header();
 		$pdf->SetFillColor(255,255,255);
         $pdf->SetTextColor(0);
@@ -1163,56 +1159,439 @@ class BalanceGeneral extends CI_Controller {
         $num = 0;
         $total=0;
 
-		// 1. Reemplazar guiones por comas
-		$cadena = str_replace('-', ',', $cuentasBuscadas);
-		// 2. Eliminar la última coma si existe
-		$cadena = rtrim($cadena, ',');
+		/*CUENTAS DEL REPORTE */
 
-		$cuentas   = $this->BalanceGeneral_model->getGeneralBalanceGeneral();
-		$cuentas = json_decode(json_encode($cuentas), true);
-		$ordenadas = $this->ordenarJerarquicamente($cuentas);
-		$cuentasOrdenadas = $ordenadas[0];
-		$sumaTotalGlobal  = $ordenadas[1];
+		$codigo_activo=1;
+		$codigo_pasivo=2;
+		$codigo_patrimonio=3;
+		$id_activo=1;
+		$id_pasivo=2;
+		$id_patrimonio=3;
+
+		$codigo_cuentas_deudoras   = 6;
+		$codigo_cuentas_acreedoras = 7;
+		$id_cuentas_deudoras   	   = 28;
+		$id_cuentas_acreedoras 	   = 29;
+
+
+		if($valorCheckCero === true){
+			$excluirCuentasEnCero= false;
+		}
+		else{
+			$excluirCuentasEnCero= true;
+		}
+
+		if($nivel== 0)
+		{
+			$nivel=getNivelMaximo();
+		}
+
+		$whereFecha = "";
+		if($idSeleccionado == 'radioAl'){
+			$whereFecha = " AND fecha_comprobante <='$fecha_al' ";
+		}
+		elseif($idSeleccionado == 'radioEntre'){
+			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_inicio' AND '$fecha_fin' ";
+		}
+
+		if($moneda === 'BOB'){
+ 
+			// echo("Ingresar Steph BOB");
+			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha);
+			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha);
+			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha);
+			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha);
+			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha);
+		}
+		elseif ($moneda === 'USD') {
+
+			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha);
+			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha);
+			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha);
+			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha);
+			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha);
+		}
+		
+		/*ORDENANDO CUENTAS*/
+		$cuentas_activo1 		= json_decode(json_encode($cuentas_activo), true);		
+		$ordenadas_activo 		= $this->ordenarJerarquicamente($cuentas_activo1,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasActivo = $ordenadas_activo[0];
+		$sumaTotalGlobalActivo  = $ordenadas_activo[1];
+		$total_activo			= count($cuentasOrdenadasActivo);
 
 		// echo("<pre>");
-		// print_r ($cuentasOrdenadas);
+		// print_r($cuentasOrdenadasActivo);
 		// echo("</pre>");
 		// die();
 
+		/*CUENTAS PASIVO*/
+		$cuentas_pasivo 		= json_decode(json_encode($cuentas_pasivo), true);
+		$ordenadas_pasivo 		= $this->ordenarJerarquicamente($cuentas_pasivo,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasPasivo = $ordenadas_pasivo[0];
+		$sumaTotalGlobalPasivo  = $ordenadas_pasivo[1];
+		$total_pasivo  		    = count($cuentasOrdenadasPasivo);
+
+		/*CUENTAS PATRIMONIO*/
+		
+		$cuentas_patrimonio 		   = json_decode(json_encode($cuentas_patrimonio), true);
+		$ordenadas_patrimonio 		   = $this->ordenarJerarquicamente($cuentas_patrimonio,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasPatrimonio    = $ordenadas_patrimonio[0];
+		$sumaTotalGlobalPatrimonio     = $ordenadas_patrimonio[1];
+		$total_patrimonio			   = count($cuentasOrdenadasPatrimonio);
+		$sumaTotalGlobalPasivo 		   = $sumaTotalGlobalPasivo + $sumaTotalGlobalPatrimonio;
+
+		$total_pasivopatrimonio 	   = $total_pasivo+$total_patrimonio; 
+		
+
+		/*CUENTAS DE ORDEN DEUDORAS*/
+		$cuentas_deudoras 		= json_decode(json_encode($cuentas_deudoras), true);		
+		$ordenadas_cuentas_deudoras  = $this->ordenarJerarquicamenteCuentasOrden($cuentas_deudoras ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasDeudoras    = $ordenadas_cuentas_deudoras[0];
+		$sumaTotalGlobalDeudoras     = $ordenadas_cuentas_deudoras[1];
+		$total_deudoras			     = count($cuentasOrdenadasDeudoras);
+
+
+		/*CUENTAS DE ORDEN ACREEDORAS*/		
+		// $total_acreedoras             = count($cuentas_acreedoras);
+		$cuentas_acreedoras 		  = json_decode(json_encode($cuentas_acreedoras), true);
+		$ordenadas_cuentas_acreedoras = $this->ordenarJerarquicamenteCuentasOrden($cuentas_acreedoras ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasAcreedoras   = $ordenadas_cuentas_acreedoras[0];
+		$sumaTotalGlobalAcreedoras    = $ordenadas_cuentas_acreedoras[1];
+		$total_acreedoras             = count($ordenadas_cuentas_acreedoras);
+
+
+		$max_filas				       = $total_activo+$total_pasivopatrimonio+$total_deudoras+$total_acreedoras;
+
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		// $num     = 1;
+
+		$cuentasUnidas = array_merge($cuentasOrdenadasActivo,$cuentasOrdenadasPasivo, $cuentasOrdenadasPatrimonio,$cuentasOrdenadasDeudoras,$cuentasOrdenadasAcreedoras);
+
+
 		$pdf->SetFillColor(255,255,255);
-		$pdf->SetFont('Arial', '', 8);
+		$pdf->SetFont('Arial', '', 7);
 		$ini_x=$pdf->GetX();
 		// $ini_y=$pdf->GetY();
 		
 		$pdf->setX(12); 
-		$pdf->SetWidths([25, 120, 15, 15, 15, 15]);
-		$pdf->SetAligns(['L','L','R','R','R','R']);
+		$pdf->SetWidths([25, 120, 15, 15, 15]);
+		$pdf->SetAligns(['L','L','R','R','R']);
 
-
-		foreach ($cuentasOrdenadas as $fila)
+		// ACTIVO 
+		foreach ($cuentasOrdenadasActivo as $cuenta)
 		{  
-			$indentacion 			= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
-			$indentacion_invertida 	= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion_invertida']);
-			$nivel 					= $fila['nivel'];
-			$indentacion_invertida2 = $fila['indentacion_invertida'];
-			$descripcion 			= $fila['descripcion'];
-			$codigo      			= $fila['codigo'];
-			$importe_total      	= $fila['importe_total'] ? number_format($fila['importe_total'], 2, '.', ',') : '0.00';
-			
-			$fila = array(
 
-				$codigo,
-				$descripcion,
-				$importe_total
-			);
+			$nivel_activo 					= $cuenta['nivel'];
+			$indentacion_invertida_activo   = $cuenta['indentacion_invertida'];
+			$codigo_activo      			= $cuenta['codigo'];
+			$descripcion_activo 			= $cuenta['descripcion'];
+			$saldo_cuenta_activo      	    = $cuenta['saldo_cuenta'] ? number_format($cuenta['saldo_cuenta'], 2, '.', ',') : '';
+			$total_cuenta_activo     	    = $cuenta['importe_total'] ? number_format($cuenta['importe_total'], 2, '.', ',') : '0';
+
+			$valor_cero='';
+			$valor1=0;
+			$valor2=0;
+			$valor3=0;
+
+			if($nivel_activo==1)
+			{
+				$valor1=$valor_cero;
+				$valor2=$saldo_cuenta_activo;
+				$valor3=$total_cuenta_activo;
+			}elseif($nivel_activo==2)
+			{
+				$valor1=$valor_cero;
+				$valor2=$total_cuenta_activo;
+				$valor3=$valor_cero;
+			}else{
+				$valor1=$saldo_cuenta_activo;
+				$valor2="";
+				$valor3="";
+			}
+
+
+			$fila=array(
+						$codigo_activo,	
+						$descripcion_activo,
+						$valor1,
+						$valor2,
+						$valor3,
+						$nivel_activo
+						);
 
 			$pdf->setX(5); 
-			$pdf->Row_Reportes_BG($fila,true, '', 4,$indentacion_invertida2,$nivel);								
-			$pdf->opcion_pie='FOOTER_VACIO';
+			$pdf->SetWidths([25,100,20,20,20,5]);
+			$pdf->SetAligns(['R','L','R','R','R']);		
+			$pdf->Row_Reportes_BG($fila,true, '', 6);	
+						
 		}
+		$pdf->ln(5);
 
-		$pdf->Ln();
+		$fila=array(
+					"TOTAL ACTIVO",
+					number_format($sumaTotalGlobalActivo,2,'.',',' )
+					);		
+					
+		$pdf->setX(5);		
+		$pdf->SetWidths([170,20]);
+		$pdf->SetAligns(['C','R']);	
+		$pdf->SetFont('Arial', 'B', 7);	
+		$pdf->Row_SinLinea_BG_SUBTOTALES($fila,true, '', 2);
 
+		$pdf->ln(5);
+		// PASIVO
+		foreach ($cuentasOrdenadasPasivo as $cuenta)
+		{  
+
+			$nivel_pasivo 					= $cuenta['nivel'];
+			$indentacion_invertida_pasivo   = $cuenta['indentacion_invertida'];
+			$codigo_pasivo      			= $cuenta['codigo'];
+			$descripcion_pasivo 			= $cuenta['descripcion'];
+			$saldo_cuenta_pasivo      	    = $cuenta['saldo_cuenta'] ? number_format($cuenta['saldo_cuenta'], 2, '.', ',') : '';
+			$total_cuenta_pasivo     	    = $cuenta['importe_total'] ? number_format($cuenta['importe_total'], 2, '.', ',') : '0';
+
+			$valor_cero='';
+			$valor1=0;
+			$valor2=0;
+			$valor3=0;
+
+			if($nivel_pasivo==1)
+			{
+				$valor1=$valor_cero;
+				$valor2=$saldo_cuenta_pasivo;
+				$valor3=$total_cuenta_pasivo;
+			}elseif($nivel_pasivo==2)
+			{
+				$valor1=$valor_cero;
+				$valor2=$total_cuenta_pasivo;
+				$valor3=$valor_cero;
+			}else{
+				$valor1=$saldo_cuenta_pasivo;
+				$valor2="";
+				$valor3="";
+			}
+
+
+			$fila=array(
+						$codigo_pasivo,	
+						$descripcion_pasivo,
+						$valor1,
+						$valor2,
+						$valor3,
+						$nivel_pasivo
+						);
+
+			$pdf->setX(5); 
+			$pdf->SetWidths([25,100,20,20,20,5]);
+			$pdf->SetAligns(['R','L','R','R','R']);		
+			$pdf->Row_Reportes_BG($fila,true, '', 6);	
+						
+		}
+		$pdf->ln(3);
+		// PATRIMONIO
+		foreach ($cuentasOrdenadasPatrimonio as $cuenta)
+		{  
+
+			$nivel_patrimonio 					= $cuenta['nivel'];
+			$indentacion_invertida_patrimonio   = $cuenta['indentacion_invertida'];
+			$codigo_patrimonio      			= $cuenta['codigo'];
+			$descripcion_patrimonio 			= $cuenta['descripcion'];
+			$saldo_cuenta_patrimonio     	    = $cuenta['saldo_cuenta'] ? number_format($cuenta['saldo_cuenta'], 2, '.', ',') : '';
+			$total_cuenta_patrimonio     	    = $cuenta['importe_total'] ? number_format($cuenta['importe_total'], 2, '.', ',') : '0';
+
+			$valor_cero='';
+			$valor1=0;
+			$valor2=0;
+			$valor3=0;
+
+			if($nivel_patrimonio==1)
+			{
+				$valor1=$valor_cero;
+				$valor2=$saldo_cuenta_patrimonio;
+				$valor3=$total_cuenta_patrimonio;
+			}elseif($nivel_activo==2)
+			{
+				$valor1=$valor_cero;
+				$valor2=$total_cuenta_patrimonio;
+				$valor3=$valor_cero;
+			}else{
+				$valor1=$saldo_cuenta_patrimonio;
+				$valor2="";
+				$valor3="";
+			}
+
+
+			$fila=array(
+						$codigo_patrimonio,	
+						$descripcion_patrimonio,
+						$valor1,
+						$valor2,
+						$valor3,
+						$nivel_patrimonio
+						);
+
+			$pdf->setX(5); 
+			$pdf->SetWidths([25,100,20,20,20,5]);
+			$pdf->SetAligns(['R','L','R','R','R']);		
+			$pdf->Row_Reportes_BG($fila,true, '', 6);	
+						
+		}
+		$pdf->ln(5);
+
+		$fila=array(
+					"TOTAL PASIVO y PATRIMONIO",
+					number_format($sumaTotalGlobalPasivo,2,'.',',' )
+					);		
+					
+		$pdf->setX(5);		
+		$pdf->SetWidths([170,20]);
+		$pdf->SetAligns(['C','R']);	
+		$pdf->SetFont('Arial', 'B', 7);	
+		$pdf->Row_SinLinea_BG_SUBTOTALES($fila,true, '', 2);
+		$pdf->ln(5);		
+		// CUENTAS DE ORDEN DEUDORAS
+		$titulo="CUENTAS DE ORDEN";
+		$pdf->SetFont('Arial', 'B', 7);
+		$pdf->SetFillColor(230, 230, 225);
+		// $pdf->SetXY(10, $y_i);
+		$pdf->SetX(15);
+		$pdf->MultiCell(190, 5, "-----" . utf8_decode($titulo) . "-----", 0,'C', 1);
+		$pdf->ln(3);
+		// $y=$pdf->GetY();
+
+		// echo("<pre>");
+		// print_r($cuentasOrdenadasDeudoras);
+		// echo("</pre>");
+		// die();
+
+		foreach ($cuentasOrdenadasDeudoras as $cuenta)
+		{  
+
+			$nivel_cd 					= $cuenta['nivel'];
+			$indentacion_invertida_cd   = $cuenta['indentacion_invertida'];
+			$codigo_cd      			= $cuenta['codigo'];
+			$descripcion_cd 			= $cuenta['descripcion'];
+			$saldo_cuenta_cd      	    = $cuenta['saldo_cuenta'] ? number_format($cuenta['saldo_cuenta'], 2, '.', ',') : '';
+			$total_cuenta_cd     	    = $cuenta['importe_total'] ? number_format($cuenta['importe_total'], 2, '.', ',') : '0';
+
+			$valor_cero='';
+			$valor1=0;
+			$valor2=0;
+			$valor3=0;
+
+			if($nivel_cd==1)
+			{
+				$valor1=$valor_cero;
+				$valor2=$saldo_cuenta_cd;
+				$valor3=$total_cuenta_cd;
+			}elseif($nivel_cd==2)
+			{
+				$valor1=$valor_cero;
+				$valor2=$total_cuenta_cd;
+				$valor3=$valor_cero;
+			}else{
+				$valor1=$saldo_cuenta_cd;
+				$valor2="";
+				$valor3="";
+			}
+
+
+			$fila=array(
+						$codigo_cd,	
+						$descripcion_cd,
+						$valor1,
+						$valor2,
+						$valor3,
+						$nivel_cd
+						);
+
+			$pdf->setX(5); 
+			$pdf->SetWidths([25,100,20,20,20,5]);
+			$pdf->SetAligns(['R','L','R','R','R']);		
+			$pdf->Row_Reportes_BG_CUENTAS($fila,true, '', 6);	
+						
+		}
+		$pdf->ln(5);
+
+		$fila=array(
+					"TOTAL CUENTAS DE ORDEN DEUDORAS",
+					number_format($sumaTotalGlobalDeudoras,2,'.',',' )
+					);		
+					
+		$pdf->setX(5);		
+		$pdf->SetWidths([170,20]);
+		$pdf->SetAligns(['C','R']);	
+		$pdf->SetFont('Arial', 'B', 7);	
+		$pdf->Row_SinLinea_BG_SUBTOTALES($fila,true, '', 2);
+
+		$pdf->ln(5);
+		// CUENTAS DE ORDEN ACREEDORAS
+		foreach ($cuentasOrdenadasAcreedoras as $cuenta)
+		{  
+
+			$nivel_ca 					= $cuenta['nivel'];
+			$indentacion_invertida_ca   = $cuenta['indentacion_invertida'];
+			$codigo_ca      			= $cuenta['codigo'];
+			$descripcion_ca 			= $cuenta['descripcion'];
+			$saldo_cuenta_ca      	    = $cuenta['saldo_cuenta'] ? number_format($cuenta['saldo_cuenta'], 2, '.', ',') : '';
+			$total_cuenta_ca     	    = $cuenta['importe_total'] ? number_format($cuenta['importe_total'], 2, '.', ',') : '0';
+
+			$valor_cero='';
+			$valor1=0;
+			$valor2=0;
+			$valor3=0;
+
+			if($nivel_ca==1)
+			{
+				$valor1=$valor_cero;
+				$valor2=$saldo_cuenta_ca;
+				$valor3=$total_cuenta_ca;
+			}elseif($nivel_ca==2)
+			{
+				$valor1=$valor_cero;
+				$valor2=$total_cuenta_ca;
+				$valor3=$valor_cero;
+			}else{
+				$valor1=$saldo_cuenta_ca;
+				$valor2="";
+				$valor3="";
+			}
+
+
+			$fila=array(
+						$codigo_ca,	
+						$descripcion_ca,
+						$valor1,
+						$valor2,
+						$valor3,
+						$nivel_ca
+						);
+
+			$pdf->setX(5); 
+			$pdf->SetWidths([25,100,20,20,20,5]);
+			$pdf->SetAligns(['R','L','R','R','R']);		
+			$pdf->Row_Reportes_BG_CUENTAS($fila,true, '', 6);	
+						
+		}
+		$pdf->ln(5);
+
+		$fila=array(
+					"TOTAL CUENTAS DE ORDEN ACREEDORAS",
+					number_format($sumaTotalGlobalAcreedoras,2,'.',',' )
+					);		
+					
+		$pdf->setX(5);		
+		$pdf->SetWidths([170,20]);
+		$pdf->SetAligns(['C','R']);	
+		$pdf->SetFont('Arial', 'B', 7);	
+		$pdf->Row_SinLinea_BG_SUBTOTALES($fila,true, '', 2);
+
+
+		// $pdf->Ln();
+		$pdf->opcion_pie='FOOTER_VACIO';
 		$pdf->Footer();
 		$pdf->Output('I',utf8_decode('ReporteBalanceGeneral.pdf')); 
 	}

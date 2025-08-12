@@ -973,6 +973,19 @@ function getCodigoCuenta($id_cuenta)
     } 
     return $respuesta;
 }
+function getCodigoCuentaById($id_cuenta)
+{
+    $fila_m =& get_instance();
+    $fila_m->load->model('PlanDeCuentas_model');
+
+    $fila = $fila_m->PlanDeCuentas_model->getPlanDeCuentasById($id_cuenta);
+    $respuesta = "";
+    if($fila)
+    {
+       $respuesta = $fila[0]->codigo_cuenta;
+    } 
+    return $respuesta;
+}
 function descripcion_nombre_entidad($id_entidad)
 {
   $fila =& get_instance();

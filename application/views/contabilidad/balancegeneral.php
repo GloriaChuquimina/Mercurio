@@ -182,6 +182,36 @@
                             <th style="color: white; text-align: right;">IMPORTE</th>
                         </tr>
                         </thead>
+                        <tfoot>
+                              <tr class="bg-secondary">
+                                  <td colSpan="4" style="color: white; font-weight: bold;">
+                                  TOTAL ACTIVO :
+                                  </td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteActivo" >0.00</td>
+                                  </td>
+                              </tr>
+                              <tr class="bg-secondary">
+                                  <td colSpan="4" style="color: white; font-weight: bold;">
+                                  TOTAL PASIVO Y PATRIMONIO  :
+                                  </td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImportePasivoPatrimonio" >0.00</td>
+                                  </td>
+                              </tr>
+                              <tr class="bg-dark">
+                                  <td colSpan="4" style="color: white; font-weight: bold;">
+                                  TOTAL CUENTAS DE ORDEN DEUDORAS :
+                                  </td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteCuentasOrdenDeudoras" >0.00</td>
+                                  </td>
+                              </tr>
+                              <tr class="bg-dark">
+                                  <td colSpan="4" style="color: white; font-weight: bold;">
+                                  TOTAL CUENTAS DE ORDEN ACREEDORAS :
+                                  </td>
+                                  <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteCuentasOrdenAcreedoras" >0.00</td>
+                                  </td>
+                              </tr>
+                        </tfoot>
                     </table>
                   </div>
                 </div>

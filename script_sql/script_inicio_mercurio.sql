@@ -63,8 +63,35 @@ INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orde
 INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MESES', 'DESCRIPCION MESES', '12', 'DICIEMBRE', 12, 'ACT');
 
 /*MONEDA*/
-INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MONEDA', 'TIPO MONEDA DE CAMBIO', '1', 'BOLIVIANO', 1, 'ACT');
-INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden, estado) VALUES('MONEDA', 'TIPO MONEDA DE CAMBIO', '2', 'DOLAR', 2, 'ACT');
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden) VALUES('MONEDA', 'TIPO MONEDA DE CAMBIO', 'USD', 'DOLAR', 2);
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden) VALUES('MONEDA', 'TIPO MONEDA DE CAMBIO', 'BOB', 'BOLIVIANO', 1);
+
+
+
+/*ENTIDAD*/
+CREATE TABLE administracion.entidad (
+	id serial4 NOT NULL,
+	nombre varchar(100) NULL,
+	sigla varchar(100) NULL,
+	fecha_registro timestamp DEFAULT now() NULL,
+	fecha_modificacion timestamp NULL,
+	activo bool NULL,
+	id_usuario int4 NULL,
+	id_dependencia int4 NULL,
+	observaciones text NULL,
+	estado varchar(3) DEFAULT 'AC'::character varying NULL,
+	CONSTRAINT entidad_pkey PRIMARY KEY (id)
+);
+CREATE TABLE administracion.entidad_dependencia (
+	id serial4 NOT NULL,
+	id_entidad int4 NULL,
+	id_dependencia int4 NULL,
+	fecha_registro timestamp DEFAULT now() NULL,
+	id_usuario_registro int4 NULL,
+	fecha_modificacion timestamp NULL,
+	estado varchar(3) DEFAULT 'AC'::character varying NULL,
+	CONSTRAINT entidad_dependencia_pkey PRIMARY KEY (id)
+);
 
 
 /*========================CONFIGURACIONES=============================*/
@@ -81,7 +108,7 @@ CREATE TABLE configuraciones.gestion (
 /*CONTABILIDAD*/
 create table contabilidad.plancuentas(
 	id serial4 NOT null,
-	codigo varchar(10),
+	codigo varchar(50),
 	sigla varchar(5) NULL,	
 	descripcion varchar(300),
 	nivel int4 NULL,
@@ -93,12 +120,13 @@ create table contabilidad.plancuentas(
 	id_funcionario_registro int4 null,
 	fecha_modificacion timestamp NULL,
 	id_funcionario_update int4 null,
+	id_dependencia int4 NULL,
 	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
 	CONSTRAINT plancuentas_pkey PRIMARY KEY (id)
 );
 create table contabilidad.plancuentas_auxiliares(
 	id serial4 NOT null,
-	id_plancuenta int4 NULL
+	id_plancuenta int4 NULL,
 	codigo varchar(50),
 	descripcion varchar(300),
 	fecha_registro timestamp DEFAULT now() NULL,
@@ -111,43 +139,13 @@ create table contabilidad.plancuentas_auxiliares(
 CREATE TABLE contabilidad.plancuenta_dependencia (
 	id serial4 NOT NULL,
 	id_plancuenta int4 NULL,
-	id_dependecia int4 NULL,
+	id_dependencia int4 NULL,
 	fecha_registro timestamp DEFAULT now() NULL,
 	id_usuario_registro int4 NULL,
 	fecha_modificacion timestamp NULL,
 	estado varchar(3) DEFAULT 'ACT'::character varying null,
 	CONSTRAINT entidad_dependencia_pkey PRIMARY KEY (id)
 );
-
-/*ENTIDAD*/
-CREATE TABLE administracion.entidad (
-	id serial4 NOT NULL,
-	nombre varchar(100) NULL,
-	sigla varchar(100) NULL,
-	fecha_registro timestamp DEFAULT now() NULL,
-	fecha_modificacion timestamp NULL,
-	activo bool NULL,
-	id_usuario int4 NULL,
-	id_dependencia int4 NULL,
-	observaciones text NULL,
-	/*documento_admin varchar(100) NULL,
-	nro_admin varchar(15) NULL,
-	fecha_admin date NULL,*/
-	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
-	CONSTRAINT entidad_pkey PRIMARY KEY (id)
-);
-CREATE TABLE administracion.entidad_dependencia (
-	id serial4 NOT NULL,
-	id_entidad int4 NULL,
-	id_dependecia int4 NULL,
-	fecha_registro timestamp DEFAULT now() NULL,
-	id_usuario_registro int4 NULL,
-	fecha_modificacion timestamp NULL,
-	estado varchar(3) DEFAULT 'AC'::character varying null,
-	CONSTRAINT entidad_dependencia_pkey PRIMARY KEY (id)
-);
-
-
 /*REGISTRO COMPROBANTE */
 
 CREATE TABLE contabilidad.comprobante (
@@ -190,19 +188,21 @@ COMMENT ON COLUMN contabilidad.comprobante.sec_log IS 'Campo para control de cam
 
 CREATE TABLE contabilidad.detalle_comprobante (
 	id serial4 NOT NULL,
-	id_entidad int4 not null,
-	id_cuenta int4 not null,
-	tipo_movimiento varchar(3) not null,
-	tipo_cambio numeric null,
-	importe_moneda_nacional numeric DEFAULT 0 null,
-	importe_moneda_extranjera numeric DEFAULT 0 null,
-	glosa_cuenta text null,
+	id_entidad int4 NOT NULL,
+	id_comprobante int4 NOT NULL,
+	id_cuenta int4 NOT NULL,
+	id_cuenta_auxiliar int4 NULL,
+	tipo_movimiento varchar(3) NOT NULL,
+	tipo_cambio numeric(10, 2) NULL,
+	importe_moneda_nacional numeric(10, 2) DEFAULT 0 NULL,
+	importe_moneda_extranjera numeric DEFAULT 0 NULL,
+	glosa_cuenta text NULL,
 	fecha_registro timestamp DEFAULT now() NULL,
 	id_usuario_registro int4 NULL,
 	fecha_modificacion timestamp NULL,
-	id_funcionario_update int4 null,
+	id_funcionario_update int4 NULL,
 	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
-	sec_log numeric(10,0),
+	sec_log numeric(10) NULL,
 	CONSTRAINT detalle_comprobante_pkey PRIMARY KEY (id)
 );
 
@@ -223,6 +223,40 @@ COMMENT ON COLUMN contabilidad.detalle_comprobante.fecha_modificacion IS 'Fecha 
 COMMENT ON COLUMN contabilidad.detalle_comprobante.id_funcionario_update IS 'Funcionario que realizó la última modificación.';
 COMMENT ON COLUMN contabilidad.detalle_comprobante.estado IS 'Estado del detalle (AC = Activo, AN = Anulado, etc.).';
 COMMENT ON COLUMN contabilidad.detalle_comprobante.sec_log IS 'Campo para control de cambios o logging.';
+
+
+CREATE TABLE contabilidad.tipo_cambio (
+	id serial4 NOT NULL,
+	fecha date NULL,
+	valor numeric null,
+	id_usuario_registro int4 NULL,
+	fecha_registro timestamp DEFAULT now() NULL,
+	fecha_modificacion timestamp NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	sec_log numeric(10,0),
+	CONSTRAINT tipo_cambio_pkey PRIMARY KEY (id)
+);
+
+
+COMMENT ON TABLE  contabilidad.tipo_cambio  IS 'Define los valores de los tipo de cambio registrados por fecha.';
+
+COMMENT ON COLUMN contabilidad.tipo_cambio.id IS 'Identificador único del tipo de cambio.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.fecha IS 'Fecha a la que corresponde el tipo de cambio registrado.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.valor IS 'Valor del tipo de cambio.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.id_usuario_registro IS 'ID del usuario que registró el valor. Se usa para trazabilidad.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.fecha_registro IS 'Fecha y hora en que se registró el tipo de cambio. Por defecto: now().';
+COMMENT ON COLUMN contabilidad.tipo_cambio.fecha_modificacion IS 'Fecha de la última modificación (si la hubo). Puede ser NULL si no se modificó.';
+COMMENT ON COLUMN contabilidad.tipo_cambio.estado IS 'Define el estado del registro(AC = Activo, AN = Anulado, etc.).';
+COMMENT ON COLUMN contabilidad.tipo_cambio.sec_log IS 'Campo para fines de auditoría o bitácora';
+
+
+
+-- alter table contabilidad.detalle_comprobante add column id_cuenta_auxiliar int4 null;
+
+
+
+
+
 
 
 
@@ -275,30 +309,15 @@ COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.fecha_registro IS 'F
 COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.fecha_modificacion IS 'Fecha de la última modificación del registro.';
 COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.estado IS 'Estado del detalle (AC = Activo, AN = Anulado, etc.).';
 
-CREATE TABLE contabilidad.tipo_cambio (
-	id serial4 NOT NULL,
-	fecha date NULL,
-	valor numeric null,
-	id_usuario_registro int4 NULL,
-	fecha_registro timestamp DEFAULT now() NULL,
-	fecha_modificacion timestamp NULL,
-	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
-	sec_log numeric(10,0),
-	CONSTRAINT tipo_cambio_pkey PRIMARY KEY (id)
-);
-
-
-COMMENT ON TABLE  contabilidad.tipo_cambio  IS 'Define los valores de los tipo de cambio registrados por fecha.';
-
-COMMENT ON COLUMN contabilidad.tipo_cambio.id IS 'Identificador único del tipo de cambio.';
-COMMENT ON COLUMN contabilidad.tipo_cambio.fecha IS 'Fecha a la que corresponde el tipo de cambio registrado.';
-COMMENT ON COLUMN contabilidad.tipo_cambio.valor IS 'Valor del tipo de cambio.';
-COMMENT ON COLUMN contabilidad.tipo_cambio.id_usuario_registro IS 'ID del usuario que registró el valor. Se usa para trazabilidad.';
-COMMENT ON COLUMN contabilidad.tipo_cambio.fecha_registro IS 'Fecha y hora en que se registró el tipo de cambio. Por defecto: now().';
-COMMENT ON COLUMN contabilidad.tipo_cambio.fecha_modificacion IS 'Fecha de la última modificación (si la hubo). Puede ser NULL si no se modificó.';
-COMMENT ON COLUMN contabilidad.tipo_cambio.estado IS 'Define el estado del registro(AC = Activo, AN = Anulado, etc.).';
-COMMENT ON COLUMN contabilidad.tipo_cambio.sec_log IS 'Campo para fines de auditoría o bitácora';
 
 
 
-alter table contabilidad.detalle_comprobante add column id_cuenta_auxiliar int4 null;
+
+
+/*INSERT CORRELATIVOS*/
+
+INSERT INTO correlativos.correlativos (nombre_documento, abreviatura, descripcion, estado) VALUES('COMPROBANTE DE DIARIO', 'CD', 'REGISTRO DE TODOS LOS INGRESOS Y EGRESOS EFECTUADOS POR LA EMPRESA , EN EL ORDEN QUE SE VAYA REALIZANDO DURANTE EL PERÍODO (TRANSFERENCIAS,PAGOS,COBROS,GASTOS,OTROS)', 'ACT');
+INSERT INTO correlativos.correlativos (nombre_documento, abreviatura, descripcion, estado) VALUES('COMPROGANTE DE TRASPASO', 'TR', 'NO REGISTRA INGRESOS NI EGRESOS DE FONDOS, SINO EL MOVIMIENTO DE LOS RECURSOS DE LA EMPRESA.', 'ACT');
+INSERT INTO correlativos.correlativos (nombre_documento, abreviatura, descripcion, estado) VALUES('COMPROBANTE DE GASTO', 'GA', NULL, 'ACT');
+INSERT INTO correlativos.correlativos (nombre_documento, abreviatura, descripcion, estado) VALUES('COMPROBANTE DE INGRESO', 'IN', NULL, 'ACT');
+

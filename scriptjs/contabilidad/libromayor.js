@@ -16,6 +16,14 @@ function cargarCombos()
             valoresIniciales();
         }
     }); 
+    var enlace = base_url + "Comunes/Comunes/cargarTipoMoneda";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#tipo_moneda').html(data);
+        }
+    });
     cargarCuentasLista();
 }
 function valoresIniciales(){
@@ -309,13 +317,15 @@ function generarReporteLibroMayor()
 	} 
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
+    var valorCheckConMovimiento    = $('input[name="soloConMovimientos"]').is(':checked');
+    var moneda         = $('#tipo_moneda').val();
     if(fecha_inicio!='' && fecha_fin !='')
     {
         $('#divPDF').html('');
         var iframe = document.createElement("iframe");
             iframe.width = '100%';
             iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/LibroMayor/ReporteLibroMayorPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin; 
+            iframe.src = base_url+'Contabilidad/LibroMayor/ReporteLibroMayorPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+valorCheckConMovimiento+"/"+moneda; 
             $('#divPDF').append(iframe);
         $('#divCapa').addClass('overlay');    
         $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);

@@ -43,6 +43,7 @@
                         <th style="color: white;">NIVEL</th>
                         <th style="color: white;">SIGLA</th>
                         <th style="color: white;">ESTADO</th>
+                        <th style="color: white;">CODIGO_CUENTA</th>
                       </tr>
                     </thead>
                   </table>
@@ -87,6 +88,7 @@
                   <input type="hidden" class="form-control" id="txtAccion" name="txtAccion" />
                   <input type="hidden" class="form-control" id="idCuenta" name="idCuenta" />
                   <input type="hidden" class="form-control" id="nivel" name="nivel" />
+                
 
                   <div class="card card-outline card-success">
                     <div class="card-header">
@@ -191,7 +193,7 @@
                   <input type="hidden" class="form-control" id="nivel_padre" name="nivel_padre" />
                   <input type="hidden" class="form-control" id="id_padre" name="id_padre" />
                   <input type="hidden" class="form-control" id="ruta" name="ruta" />
-
+                  <input type="hidden" class="form-control" id="codigo_cuenta_padre" name="codigo_cuenta_padre" />
                   <div class="card card-outline card-info mb-4">
                     <div class="card-header">
                       <h3 class="card-title">

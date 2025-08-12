@@ -82,144 +82,6 @@
                     </div>
                 </div>
             </div>
-            <!-- SECCION TOTALES -->
-            <!-- <div class="row" id="totales" style="display: none">
-                        <div class="col-md-3 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff;
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-                                border-radius: 0.25rem;
-                            "
-                            >
-                            <span class="info-box-icon bg-info">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style="padding: 15px;">
-                                <span class="info-box-text">Total Debe</span>
-                                <span class="info-box-number" style="font-size: 24px; font-weight: bold;">
-                                </span>
-                            </div>
-
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #17a2b8,
-                                display: flex,
-                                alignItems: center,
-                                justify-content: center,
-                                color: white,
-                                font-size: 24px;
-                                "
-                            >
-                                📊
-                            </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff,
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-                                border-radius: 0.25rem;
-                            "
-                            >
-                            <span class="info-box-icon bg-success">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style="padding: 15px;">
-                                <span class="info-box-text">Total Haber</span>
-                                <span
-                                class="info-box-number"
-                                style="font-size: 24px; font-weight: bold; color: #28a745;"
-                                >
-                                </span>
-                            </div>
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #28a745,
-                                display: flex,
-                                align-items: center,
-                                justify-content: center,
-                                color: white,
-                                font-size: 24px;
-                                "
-                            >
-                                ✓
-                            </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff,
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                                border-radius: 0.25rem;
-                            "
-                            >
-                            <span class="info-box-icon bg-warning">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style=" padding:15px;">
-                                <span class="info-box-text">Saldo Final</span>
-                                <span
-                                class="info-box-number"
-                                style="font-size:24px; font-weight: bold; color: #ffc107;" 
-                                >   
-                                </span>
-                            </div>
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #ffc107,
-                                display: flex,
-                                align-items: center,
-                                justify-content: center,
-                                color: white,
-                                fontSize: 24px:"
-                            >
-                                ⏳
-                            </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 col-12">
-                            <div
-                            class="info-box"
-                            style="
-                                background-color: #fff,
-                                box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                                border-radius: 0.25rem;"
-                            >
-                            <span class="info-box-icon bg-danger">
-                                <i class="far fa-file-alt"></i>
-                            </span>
-                            <div class="info-box-content" style=" padding:15px">
-                                <span class="info-box-text">Movimientos Cuentas</span>
-                                <span
-                                class="info-box-number"
-                                style="font-size: 24px; font-weight: bold; color: #dc3545;" 
-                                >
-                                </span>
-                            </div>
-                            <div
-                                style="
-                                width: 50px,
-                                background-color: #dc3545,
-                                display: flex,
-                                align-items: center,
-                                justify-content: center,
-                                color: white,
-                                font-size: 24px;"
-                            >
-                                ❌
-                            </div>
-                            </div>
-                        </div>
-            </div> -->
             <!-- FILTROS DE BUSQUEDA -->
             <div class="card card-primary card-outline" id ="filtrosConsulta" style="display: none">
                 <div class="card-header">
@@ -270,13 +132,13 @@
                         <div class="form-group">
                             <div class="d-flex align-items-end">
                                 <div style="flex-grow: 1; margin-right: 10px;">
-                                    <label for="tipo_comprobante">
+                                    <label for="tipo_moneda">
                                         <strong>MONEDA:</strong>
                                     </label>
                                     <select
                                         class="form-control"
-                                        id="tipo_comprobante"
-                                        name="tipo_comprobante"
+                                        id="tipo_moneda"
+                                        name="tipo_moneda"
                                         value="selectedEntity"
                                     >
                                     </select>
@@ -284,7 +146,7 @@
                             </div>
                         </div>                        
                       </div>
-                      <div class="col-md-2">
+                      <!-- <div class="col-md-2">
                         <div class="form-group">
                             <div class="d-flex align-items-end">
                                 <div style="flex-grow: 1; margin-right: 10px;">
@@ -301,67 +163,15 @@
                                 </div>
                             </div>
                         </div>                        
-                      </div>
-                      <div class="col-md-2">
-                      </div>
-                      <div class="col-md-2">
-                      </div>
-                      <!-- <div class="col-md-1">
-                        <div class="form-group">
-                          <label>
-                            <strong>OPCIONES:</strong>
-                          </label>
-                          <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="soloConMovimientos"                              
-                            />
-                            <label class="form-check-label" htmlFor="soloConMovimientos">
-                              Solo cuentas con movimientos
-                            </label>
-                          </div>
-                        </div>
-                      </div>  -->
-                      <!-- <div class="col-md-5">
-                        <div class="form-group">
-                          <label>
-                            <i class="text-danger">*</i>
-                            <strong> CUENTA CONTABLE:</strong>
-                          </label>
-                          <div class="input-group">
-                              <input
-                                  type="text"
-                                  class="form-control"
-                                  placeholder="Buscar cuenta..."
-                                  list="listaCuentas"
-                                  id="txtCuenta" 
-                                  name="txtCuenta"
-                              />
-                              <datalist id='listaCuentas'></datalist>
-                              <div class="input-group-append">
-                                  <button
-                                  type="button"
-                                  class="btn btn-success"
-                                  onclick="añadirCuenta();"
-                                  >
-                                  <i>➕</i>
-                                  </button>
-                                  <button
-                                  type="button"
-                                  class="btn btn-warning"
-                                  onclick="listaCuentasBusqueda();"
-                                  >
-                                  <i>🔍</i>
-                                  </button>
-                              </div>
-                          </div>
-                        </div>
                       </div> -->
+                      <div class="col-md-2">
+                      </div>
+                      <div class="col-md-2">
+                      </div>
                     </div>
                     <div class="row">
                        <div class="col-md-2">
-                        <div class="form-group">
+                        <div class="form-check m-0"">
                           <label>
                             <strong>OPCIONES:</strong>
                           </label>
@@ -369,7 +179,8 @@
                             <input
                               class="form-check-input"
                               type="checkbox"
-                              id="soloConMovimientos"                              
+                              id="soloConMovimientos"  
+                              name="soloConMovimientos"                            
                             />
                             <label class="form-check-label" htmlFor="soloConMovimientos">
                               Solo cuentas con movimientos

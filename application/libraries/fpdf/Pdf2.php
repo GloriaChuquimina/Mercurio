@@ -118,21 +118,21 @@ class Pdf2 extends FPDF {
             $this->SetFont('Arial','B',7);
             // $this->SetX(20);
             $this->Cell(20,13,utf8_decode('Fecha'), 1, 0, 'C', 1);
-            $this->Cell(15,13,utf8_decode('Tipo'), 1, 0, 'C', 1);
-            $this->Cell(20,13,utf8_decode('Número'), 1, 0, 'C', 1);
-            $this->Cell(90,13,utf8_decode('Descripción(Glosa)'), 1, 0, 'C', 1);
-            $this->SetXY(150,40);
-            $this->Cell(30,5,utf8_decode('Movimientos'),1,0,'C',1);
+            $this->Cell(10,13,utf8_decode('Tipo'), 1, 0, 'C', 1);
+            $this->Cell(10,13,utf8_decode('Número'), 1, 0, 'C', 1);
+            $this->Cell(80,13,utf8_decode('Descripción(Glosa)'), 1, 0, 'C', 1);
+            $this->SetXY(130,40);
+            $this->Cell(40,5,utf8_decode('Movimientos'),1,0,'C',1);
+            $this->SetXY(130,45);
+            $this->Cell(20,8,utf8_decode('Debe'),1, 0, 'C', 1);
             $this->SetXY(150,45);
-            $this->Cell(15,8,utf8_decode('Debe'),1, 0, 'C', 1);
-            $this->SetXY(165,45);
-            $this->Cell(15,8,utf8_decode('Haber'),1, 0, 'C', 1);
-            $this->SetXY(180,40);
-            $this->Cell(30,5,utf8_decode('Saldos'),1,1,'C',1);
-            $this->SetXY(180,45);
-            $this->Cell(15,8,utf8_decode('Deudor'),1, 0, 'C', 1);
-            $this->SetXY(195,45);
-            $this->Cell(15,8,utf8_decode('Acreedor'),1, 1, 'C', 1);
+            $this->Cell(20,8,utf8_decode('Haber'),1, 0, 'C', 1);
+            $this->SetXY(170,40);
+            $this->Cell(40,5,utf8_decode('Saldos'),1,1,'C',1);
+            $this->SetXY(170,45);
+            $this->Cell(20,8,utf8_decode('Deudor'),1, 0, 'C', 1);
+            $this->SetXY(190,45);
+            $this->Cell(20,8,utf8_decode('Acreedor'),1, 1, 'C', 1);
 
         }
         if($this->opcion_cabecera==4)
@@ -387,6 +387,43 @@ class Pdf2 extends FPDF {
             // // $this->SetXY(180,45);
             // $this->Cell(30,5,utf8_decode('BOLIVIANOS'),1,0,'C',1);
 
+        }
+        if($this->opcion_cabecera==9)
+        {
+            // $this->Image('resources/images/logos/bicentenario.jpg', 17, 10,23);
+            // $this->Image('resources/images/logos/logo_senape_reporte.png', 70, 10, 74.5);
+            // $this->Image('resources/images/logos/chakana.png', 160, 8, 43);
+
+            $this->Ln();
+            $this->SetTextColor(0);
+            $this->SetFont('Arial','B',6);
+            $y = $this->GetY();
+            $this->SetX(10);
+            $this->MultiCell(40,3,utf8_decode($this->entidad),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(40,3,utf8_decode($this->sigla),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(40,3,utf8_decode('SENAPE'),0,'C',0);
+            $this->Ln(3);
+            $this->SetXY(189, $y); 
+            $this->Cell(10, 5, utf8_decode('Página: ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
+            $this->SetXY(170,$y+3);            
+            $fecha_hoy = $this->fechaformato();
+            $this->Cell(10, 5,utf8_decode('Fecha de impresión: ').$fecha_hoy, 0, 0, 'L');
+            $this->Ln(3);           
+            $this->SetXY(0,30);
+            $this->SetFont('Arial', 'BU', 12);
+            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
+            $this->Ln(4);
+            $this->SetFont('Arial','B',7);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera1),0,1,'C',0);
+            $this->Ln(3);
+            $this->SetX(0);
+            $this->SetFont('Arial', 'BU', 7);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera2),0,1,'C',0);
+            $this->Ln(3);
+            
         }
     }
 	public function getBottomMargin() {
@@ -940,9 +977,151 @@ class Pdf2 extends FPDF {
         //Go to the next line
         $this->Ln($h);
     }
+    function Row_Reportes_BG($data,$code=false,$fills='',$fh='',$nivel=0,$formato_celdas=0)
+    {
+         //Calculate the height of the row
+        $lineHeight = 3.5;
+        $nb=0;
+        for($i=0;$i<count($data);$i++)
+            $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
+        if ($fh==""){
+            $h=4*$nb;
+        }else{
+            $h=4*$nb;
+            if ($h < $fh)
+                $h = $fh;
+        }
+         
+        //Issue a page break first if needed
+        $h= $lineHeight * $nb; // Altura de la fila sin considerar el valor de $fh
+        $this->CheckPageBreak_LM($h);
+        // Forzar margen izquierdo deseado tras salto
+        $this->SetX(10);
+        //Draw the cells of the row
+        // $nivel = end($data);//con la ultima columna
+         $nivel = array_pop($data);//sin la ultima columna
+        for($i=0;$i<count($data);$i++)
+        {
+            $w=$this->widths[$i];
+            $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
+            //Save the current position
+            $x=$this->GetX();
+            $y=$this->GetY();
+            //Draw the border
+            $ax=$x; $ay=$y; $aw=$w; $ah=$h;
+            // $this->Rect($x,$y,$w,$h,$fills);
+            //Print the text
+
+            if ($nivel== 1 || $nivel== 2) {
+
+                $estilos = [
+                                0 => 'BU', 
+                                1 => 'BU', 
+                                2 => 'BU', 
+                                3 => 'BU', 
+                                4 => 'BU', 
+                            ];
+
+                // Estilo de fuente por columna (si está definido)
+                $estiloFuente = isset($estilos[$i]) ? $estilos[$i] : '';
+                $this->SetFont('', $estiloFuente);
+            
+                // $text = $data[$i];
+                // $style = isset($data[$i]['style']) ? $data[$i]['style'] : '';
+                // $this->SetFont('', $style);
+            } 
+            else
+            {
+                $text = $data[$i];
+                $this->SetFont('', '');
+            }
+            // $text = $data[$i];
+            // $this->SetFont('', '');
+
+            // APLICAR UTF-8 DECODING AQUÍ
+            $text = utf8_decode($data[$i]);      
+
+            $this->MultiCell($w,$lineHeight,$text,0,$a);
+            //Put the position to the right of the cell
+            $this->SetXY($x+$w,$y);
+        }
+        //Go to the next line
+        $this->Ln($h);
+    }
+    function Row_Reportes_BG_CUENTAS($data,$code=false,$fills='',$fh='',$nivel=0,$formato_celdas=0)
+    {
+         //Calculate the height of the row
+        $lineHeight = 3.5;
+        $nb=0;
+        for($i=0;$i<count($data);$i++)
+            $nb=max($nb,$this->NbLines($this->widths[$i],$data[$i]));
+        if ($fh==""){
+            $h=4*$nb;
+        }else{
+            $h=4*$nb;
+            if ($h < $fh)
+                $h = $fh;
+        }
+         
+        //Issue a page break first if needed
+        $h= $lineHeight * $nb; // Altura de la fila sin considerar el valor de $fh
+        $this->CheckPageBreak_LM($h);
+        // Forzar margen izquierdo deseado tras salto
+        $this->SetX(10);
+        //Draw the cells of the row
+        // $nivel = end($data);//con la ultima columna
+         $nivel = array_pop($data);//sin la ultima columna
+        for($i=0;$i<count($data);$i++)
+        {
+            $w=$this->widths[$i];
+            $a=isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
+            //Save the current position
+            $x=$this->GetX();
+            $y=$this->GetY();
+            //Draw the border
+            $ax=$x; $ay=$y; $aw=$w; $ah=$h;
+            // $this->Rect($x,$y,$w,$h,$fills);
+            //Print the text
+
+            if ($nivel== 1) {
+
+                $estilos = [
+                                0 => 'BU', 
+                                1 => 'BU', 
+                                2 => 'BU', 
+                                3 => 'BU', 
+                                4 => 'BU', 
+                            ];
+
+                // Estilo de fuente por columna (si está definido)
+                $estiloFuente = isset($estilos[$i]) ? $estilos[$i] : '';
+                $this->SetFont('', $estiloFuente);
+            
+                // $text = $data[$i];
+                // $style = isset($data[$i]['style']) ? $data[$i]['style'] : '';
+                // $this->SetFont('', $style);
+            } 
+            else
+            {
+                $text = $data[$i];
+                $this->SetFont('', '');
+            }
+            // $text = $data[$i];
+            // $this->SetFont('', '');
+
+            // APLICAR UTF-8 DECODING AQUÍ
+            $text = utf8_decode($data[$i]);      
+
+            $this->MultiCell($w,$lineHeight,$text,0,$a);
+            //Put the position to the right of the cell
+            $this->SetXY($x+$w,$y);
+        }
+        //Go to the next line
+        $this->Ln($h);
+    }
     
 
-    function Row_Reportes_BG($data,$code=false,$fills='',$fh='',$indentacion_invertida2=0,$nivel=0)
+    function Row_Reportes_BGX($data,$code=false,$fills='',$fh='',$indentacion_invertida2=0,$nivel=0)
     {
         //Aplicar sangría al último campo (por ejemplo, nombre cuenta)
         // if (!empty($data)) {

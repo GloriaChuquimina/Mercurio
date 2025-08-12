@@ -202,8 +202,22 @@ function cargarDatosBalanceGeneral(){
                 valorCheckCero:valorCheckCero,
                 moneda:moneda,
                 nivel:nivel
+            },
+            dataSrc: function(json) {
+                $('.txtTotalImporteActivo').text(json.totalimporteActivo);
+                $('.txtTotalImportePasivoPatrimonio').text(json.totalimportePasivoPatrimonio);
+                $('.txtTotalImporteCuentasOrdenDeudoras').text(json.totalimporteCuentasOrdenDeudoras);
+                $('.txtTotalImporteCuentasOrdenAcreedoras').text(json.totalimporteCuentasOrdenAcreedoras);
+                $('#cant_cuentas').val(json.recordsTotal);
+                return json.data;
             }
         },
+         columnDefs: [
+            { 
+                targets: [2, 3, 4], 
+                className: 'text-end' 
+            } // columnas 2, 3 y 4 alineadas a la derecha
+         ]
     });
 }
 function ReporteBalanceGeneralPDF1()

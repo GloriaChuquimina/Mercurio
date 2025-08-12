@@ -125,9 +125,10 @@ class PlanDeCuentas extends CI_Controller {
 			}
 				
 
-			$indentacion = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
-			$descripcion = $fila['descripcion'];
-			$codigo      = $fila['codigo'];
+			$indentacion		= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
+			$descripcion 		= $fila['descripcion'];
+			$codigo      		= $fila['codigo'];
+			$codigo_cuenta      = $fila['codigo_cuenta'];
 
 			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
 				$descripcion = "<strong><u>{$descripcion}</u></strong>";
@@ -148,12 +149,16 @@ class PlanDeCuentas extends CI_Controller {
 				$segundo_valor = $partes[1];
 				$tipo =getCuenta($segundo_valor);
 			}
-			
-			// if($primer_valor == 0)
-			// {
-			// 	$tipo =getCuenta($partes[1]);
-			// }
-			// $tipo=$partes[0];
+
+			$codigoXXX="";
+
+			for ($i = 1; $i < $cont; $i++) {
+				$valor=$partes[$i];
+				$codigoXXX =$codigoXXX.".".getCodigoCuentaById($valor);
+			}
+			$codigoXXX=$codigoXXX.".".$codigo_cuenta;
+
+
 			$estado =getValor2Configuraciones("ESTADO REGISTRO", $fila['estado']);
 			switch ($fila['estado']) {
 			case "ACT":
@@ -177,7 +182,8 @@ class PlanDeCuentas extends CI_Controller {
 				$tipo,
                 $fila['nivel'],
                 $fila['sigla'],
-				$estado
+				$estado,
+				"<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
 			);
 		}
 
@@ -360,12 +366,13 @@ class PlanDeCuentas extends CI_Controller {
 		$nivel_subcuenta=0;
         if($resul == 1)
 		{
-            $accion      = $data['txtAccionSubCuenta'];
+            $accion         = $data['txtAccionSubCuenta'];
 			/*DATOS CUENTA PRINCIPAL SELECCIONADA*/
-			$id_cuenta   = $data['id_cuenta'];
-			$nivel       = $data['nivel_padre'];
-			$padre       = $data['id_padre'];
-			$ruta        = $data['ruta'];
+			$id_cuenta      = $data['id_cuenta'];
+			$nivel          = $data['nivel_padre'];
+			$padre          = $data['id_padre'];
+			$ruta           = $data['ruta'];
+			$codigo_cuenta_p= $data['codigo_cuenta_padre'];
 			
 			
 			/*DATOS A REGISTRAR DE LA SUBCUENTA*/
@@ -376,6 +383,7 @@ class PlanDeCuentas extends CI_Controller {
 			// $ruta_subcuenta		= $padre."-".$id_cuenta;
 			$ruta_subcuenta		= $ruta."-".$id_cuenta;
 			$sigla       		= $data['txtSigla'];
+			$codigo_cuenta      = str_replace($codigo_cuenta_p, "", $codigo);
 
 			if($accion === 'nuevo')
 			{
@@ -386,7 +394,8 @@ class PlanDeCuentas extends CI_Controller {
                     'padre'                   => $padre_subcuenta,
                     'ruta'                    => $ruta_subcuenta,
                     'id_funcionario_registro' => $id_funcionario,
-					'sigla'                   => $sigla
+					'sigla'                   => $sigla,
+					'codigo_cuenta'			  => $codigo_cuenta
 				);
 				// echo json_encode($datosPlanCuentas);
 				// die();
@@ -456,12 +465,28 @@ class PlanDeCuentas extends CI_Controller {
 		foreach ($filas as $fila)
 		{   
 
+			$estado =getValor2Configuraciones("ESTADO REGISTRO", $fila->estado);
+			switch ($fila->estado) {
+			case "ACT":
+				$estado="<span class='badge badge-success'>".$estado."</span>";
+				break;
+			case "ANU":
+				$estado="<span class='badge badge-danger'>".$estado."</span>";
+				// $boton="";
+				break;
+			default:
+				$estado="<span class='badge badge-secondary'>".$estado."</span>";
+				break;
+			}
+
+
+
 			$data[] = array(
 				$num++,
 				$fila->codigo,
 				$fila->descripcion,			
                 $fila->nivel,
-				$fila->estado
+				$estado
 			);
 		}
 		$output = array(
