@@ -37,7 +37,7 @@ class SumasSaldos_model extends CI_Model
 										  );
 		return $query->result();
     }
-    function getSumasSaldosCuentasConMovimientoByIds($id_entidad,$cuentas,$fecha_inicio,$fecha_fin)
+    function getSumasSaldosCuentasConMovimientoByIds($id_entidad,$cuentas,$fecha_inicio,$fecha_fin,$whereFecha)
 	{
         $query = $this->db_mercurio->query("
                                           SELECT  pc.id
@@ -66,7 +66,7 @@ class SumasSaldos_model extends CI_Model
 										  );
 		return $query->result();
     }
-    function getGeneralSumasSaldosCuentasByIds($id_entidad,$cuentas,$fecha_inicio,$fecha_fin)
+    function getGeneralSumasSaldosCuentasByIds($id_entidad,$cuentas,$fecha_inicio,$fecha_fin,$whereFecha)
 	{
         $query = $this->db_mercurio->query("
                                           SELECT 
