@@ -58,7 +58,14 @@ class EstadoDeResultados extends CI_Controller {
 		$fecha_hasta           = $this->input->post('fecha_fin');
 		// $id_cuenta             = $this->input->post('id_cuenta');
 
-		$estadoResultadoAcreedor = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_desde,$fecha_hasta);
+		$id_cuenta_ingreso   	   = 40;
+		$codigo_cuenta_ingreso     = 4;
+		
+
+		$estadoResultadoAcreedor = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_desde,$fecha_hasta,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
+
+
+
 		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_desde,$fecha_hasta);
 		if (!empty($resultado) && isset($resultado[0]->total_estado_resultado)) {
 			$total_resultado = $resultado[0]->total_estado_resultado;
@@ -75,7 +82,7 @@ class EstadoDeResultados extends CI_Controller {
 
 			$data[] = array(
 				"<span class='badge badge-secondary'>".$codigo."</span>",
-				$descripcion,	
+				"<span style='text-align: left; '>".$descripcion."</span>",	
 				"<div style='text-align: right; color: #28a745; font-weight: bold;'>
 				".number_format($saldoAcreedor,2,'.',',').
 				"</div>",				
@@ -109,7 +116,10 @@ class EstadoDeResultados extends CI_Controller {
 		$fecha_hasta           = $this->input->post('fecha_fin');
 		// $id_cuenta             = $this->input->post('id_cuenta');
 
-		$estadoResultadoDeudor = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_desde,$fecha_hasta);
+		$id_cuenta_egreso   	   = 41;
+		$codigo_cuenta_egreso     = 5;
+
+		$estadoResultadoDeudor = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_desde,$fecha_hasta,$id_cuenta_egreso,$codigo_cuenta_egreso);
 		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_desde,$fecha_hasta);
 
 		if (!empty($resultado) && isset($resultado[0]->total_estado_resultado)) {
@@ -127,7 +137,7 @@ class EstadoDeResultados extends CI_Controller {
 
 			$data[] = array(
 				"<span class='badge badge-secondary'>".$codigo."</span>",
-				$descripcion,	
+				"<span style='text-align: left; '>".$descripcion."</span>",	
 				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>
 				".number_format($totalDeudor,2,'.',',').
 				"</div>",				

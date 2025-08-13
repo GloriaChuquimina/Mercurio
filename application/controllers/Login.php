@@ -45,6 +45,11 @@ class Login extends CI_Controller
 					$id_persona = $login[0]->id_persona;
 					$rolescero = $this->roles_model->obtener_roles_cero($id_usuario,$IDAPLICACION);
 					$roles     = $this->roles_model->obtener_roles($id_usuario,$IDAPLICACION);
+
+					// echo("<pre>");
+					// print_r($roles);
+					// echo("</pre>");
+					// die();
 					
 					$lista_puestos = $this->puestos_model->listaPuestos($id_persona);
 					if($lista_puestos)

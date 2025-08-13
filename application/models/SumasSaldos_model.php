@@ -9,7 +9,7 @@ class SumasSaldos_model extends CI_Model
 		parent::__construct();	
 		$this->db_mercurio = $this->load->database('db_mercurio', TRUE);		
 	}
-    function getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_inicio,$fecha_fin)
+    function getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_inicio,$fecha_fin ,$whereFecha)
 	{
         $query = $this->db_mercurio->query("
                                           SELECT  pc.id
@@ -29,7 +29,8 @@ class SumasSaldos_model extends CI_Model
                                              AND c.estado IN ('ACT')
                                              AND dc.estado IN ('ACT')
                                              AND e.id = ".$id_entidad."
-                                             AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
+                                          -- AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
+																					       ".$whereFecha."
                                         GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre
                                         ORDER BY pc.codigo ,pc.nivel ASC;
 		    							   " 
@@ -57,7 +58,8 @@ class SumasSaldos_model extends CI_Model
                                              AND dc.estado IN ('ACT')
                                              AND e.id = ".$id_entidad."
                                              AND pc.id in(".$cuentas.")                                          
-                                             AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
+                                         --  AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
+																				  			".$whereFecha."
                                         GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre
                                         ORDER BY pc.id ASC;
 		    							   " 
@@ -100,7 +102,8 @@ class SumasSaldos_model extends CI_Model
                                                           AND dc.estado IN ('ACT')
                                                           AND e.id = ".$id_entidad."
                                                           AND pc.id in(".$cuentas.")    
-                                                          AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
+                                                       -- AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
+																											  			".$whereFecha."
                                                      GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre,e.id
                                                         ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                               WHERE pc.id in(".$cuentas.")  

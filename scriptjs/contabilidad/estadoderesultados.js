@@ -15,6 +15,14 @@ function cargarCombos()
         }
     }); 
     cargarCuentasLista();
+	 var enlace = base_url + "Comunes/Comunes/cargarTipoMoneda";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#tipo_moneda').html(data);
+        }
+    });
 }
 function valoresIniciales(){
     var entidad = $('#entidades').val();    
@@ -111,6 +119,11 @@ $(function (){
         // alert('El modal se ha cerrado');
         $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
+    });
+	 $('#nivel').on('input', function () {
+        if (this.value < 0) {
+            this.value = 0; // Si es menor que 0, lo ajusta a 0
+        }
     });
 
 });

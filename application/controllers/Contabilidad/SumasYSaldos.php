@@ -231,10 +231,19 @@ class SumasYSaldos extends CI_Controller {
 		// echo("Numero de Cuentas".$numero_cuentas);
 		// die();
 
+
+		$whereFecha = "";
+		if($idSeleccionado == 'radioAl'){
+			$whereFecha = " AND fecha_comprobante <='$fecha_al' ";
+		}
+		elseif($idSeleccionado == 'radioEntre'){
+			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_inicio' AND '$fecha_fin' ";
+		}
+
 		if($cuentas_con_movimiento === 'true' && $cuentas == 0 )
 		{
 			// echo("Cuentas con movimiento");
-			$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_inicio,$fecha_fin);
+			$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimiento($id_entidad,$fecha_inicio,$fecha_fin,$whereFecha);
 			// echo("<pre>");
 			// print_r($sumasysaldos);
 			// echo("</pre>");
@@ -244,11 +253,11 @@ class SumasYSaldos extends CI_Controller {
 		{
 			if($cuentas_con_movimiento === 'true' && $numero_cuentas > 0 )
 			{
-				$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimientoByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
+				$sumasysaldos  	 = $this->SumasSaldos_model->getSumasSaldosCuentasConMovimientoByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin,$whereFecha);
 			}
 			else
 			{
-				$sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin);
+				$sumasysaldos  	 = $this->SumasSaldos_model->getGeneralSumasSaldosCuentasByIds($id_entidad,$cadena,$fecha_inicio,$fecha_fin,$whereFecha);
 			}
 		}
 

@@ -121,13 +121,13 @@
                         <div class="form-group">
                             <div class="d-flex align-items-end">
                                 <div style="flex-grow: 1; margin-right: 10px;">
-                                    <label for="tipo_comprobante">
+                                    <label for="tipo_moneda">
                                         <strong>MONEDA:</strong>
                                     </label>
                                     <select
                                         class="form-control"
-                                        id="tipo_comprobante"
-                                        name="tipo_comprobante"
+                                        id="tipo_moneda"
+                                        name="tipo_moneda"
                                         value="selectedEntity"
                                     >
                                     </select>
@@ -138,7 +138,7 @@
                       <div class="col-md-1">
                           <div class="form-group">
                               <label>Nivel:</label>
-                              <input type="number"  class="form-control is-warning" name="numero_inicio" id="numero_inicio" class="form-control" placeholder="Ej: 1">
+                              <input type="number"  class="form-control is-warning" name="nivel" id="nivel" class="form-control" placeholder="Ej: 1">
                           </div>
                       </div>
 
