@@ -43,6 +43,115 @@ class EstadoDeResultados extends CI_Controller {
 		$this->load->view('contabilidad/estadoderesultados',$dato);
 		$this->load->view('inicio/pie');
 	}
+    private function ordenarJerarquicamenteCuentasOrdenEstadoDeResultados(array $cuentas, int $padreId = 0, int $indentacion = 0,bool $excluirDesdeNivelDos=false,int $nivelMaximo = null)
+	{
+		$ordenadas     = [];
+		$totalImporte  = 0;
+
+		foreach ($cuentas as &$cuenta) {
+			if ($cuenta['padre'] == $padreId) {
+
+				// --- ¿Tiene hijos? -------------------------------------------------
+				$tieneHijos = false;
+				foreach ($cuentas as $posibleHijo) {
+					if (
+						$posibleHijo['padre'] == $cuenta['id'] ||
+						$posibleHijo['padre'] == $cuenta['ruta']   // para cuentas mayores
+					) {
+						$tieneHijos = true;
+						break;
+					}
+				}
+
+				// --- Procesar hijos recursivamente --------------------------------
+				// [$hijosOrdenados, $sumaHijos] =$this->ordenarJerarquicamenteCuentasOrden($cuentas, $cuenta['id'], $indentacion + 1,$excluirDesdeNivelDos);
+				[$hijosOrdenados, $sumaHijos] =
+					$this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados(
+						$cuentas, 
+						$cuenta['id'], 
+						$indentacion + 1,
+						$excluirDesdeNivelDos,
+						$nivelMaximo
+					);
+
+				// --- Sumar importe propio + importe hijos -------------------------
+				$importePropio              = isset($cuenta['saldo'])
+												? (float) $cuenta['saldo']
+												: 0;
+				$importePropio              = isset($cuenta['saldUSD'])
+												? (float) $cuenta['saldoUSD']
+												: 0;
+
+
+
+				// Si el nivel máximo está definido y la cuenta está en ese nivel máximo, sumamos saldo hijos
+				if ($nivelMaximo !== null && isset($cuenta['nivel']) && $cuenta['nivel'] == $nivelMaximo) {
+					$saldoConHijos = $importePropio + $sumaHijos;
+				} else {
+					// No sumamos hijos, solo saldo propio
+					$saldoConHijos = $importePropio;
+				}
+
+				$cuenta['saldo_cuenta'] = $saldoConHijos;
+				$cuenta['importe_total'] = $saldoConHijos;
+
+				// $cuenta['importe_total']    = $importePropio + $sumaHijos;			
+				// --- Campos extra --------------------------------------------------
+				$cuenta['indentacion']      = $indentacion;
+				$cuenta['es_padre']         = $tieneHijos;
+
+				// --- Añadir al resultado ------------------------------------------
+
+				$agregarCuenta =true;
+				// Si hay límite de nivel y esta cuenta está por debajo, no se muestra
+				if ($nivelMaximo !== null && isset($cuenta['nivel']) && $cuenta['nivel'] > $nivelMaximo) {
+					$agregarCuenta = false;
+				}
+
+				// if($excluirEnCero && $cuenta['importe_total'] == 0)
+				//EXCLUYE CUENTAS EN 0 DESDE EL NIVEL DOS
+				if(
+					$excluirDesdeNivelDos &&
+					isset($cuenta['nivel']) &&
+					$cuenta['nivel'] >=2 &&
+					$importePropio == 0) {
+					$agregarCuenta = false;
+				}
+				
+				if($agregarCuenta)
+				{
+					$ordenadas[] = $cuenta;
+				}
+
+				// $ordenadas   = array_merge($ordenadas, $hijosOrdenados);
+
+
+				// Agregar hijos solo si no hay límite de nivel o si el hijo está permitido
+				if ($nivelMaximo === null || (isset($cuenta['nivel']) && $cuenta['nivel'] < $nivelMaximo)) {
+					$ordenadas = array_merge($ordenadas, $hijosOrdenados);
+				}
+
+				$totalImporte += $cuenta['importe_total'];
+			}
+		}
+		unset($cuenta);   // rompe la referencia del foreach
+
+		/*───────────────────────────────────────────────────────────────
+		Invertir la indentación EN ESTE BLOQUE devuelto, sea raíz
+		o subárbol: buscamos la profundidad máxima dentro de $ordenadas
+		───────────────────────────────────────────────────────────────*/
+
+		if ($ordenadas) {
+			$profMax = max(array_column($ordenadas, 'indentacion'));
+
+			foreach ($ordenadas as &$c) {
+				$c['indentacion_invertida'] = $profMax - $c['indentacion'];
+			}
+			unset($c);
+		}
+
+		return [$ordenadas, $totalImporte];
+	}
 	public function cargarDatosEstadoDeResultadosIngreso()
 	{
 		$id_usuario  = $this->session->userdata('id_usuario');
@@ -55,16 +164,41 @@ class EstadoDeResultados extends CI_Controller {
 
 		$id_entidad            = $this->input->post('id_entidad');
 		$fecha_inicio  		   = $this->input->post('fecha_inicio');
-		$fecha_fin           = $this->input->post('fecha_fin');
+		$fecha_fin             = $this->input->post('fecha_fin');
 		// $id_cuenta             = $this->input->post('id_cuenta');
+		$moneda                  = $this->input->post('moneda');
+		$nivel				     = $this->input->post('nivel');
+		$saldoCero  			 = $this->input->post('saldoCero');
+		$cuentasSeleccionadas    = $this->input->post('cuentasSeleccionadas');
 
 		$id_cuenta_ingreso   	   = 40;
 		$codigo_cuenta_ingreso     = 4;
 		$id_cuenta_egreso   	   = 41;
-		$codigo_cuenta_egreso     = 5;
-		
+		$codigo_cuenta_egreso      = 5;
 
-		$estadoResultadoAcreedor = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
+		if($nivel== 0)
+		{
+			$nivel=getNivelMaximo();
+		}
+
+		if($saldoCero == "true")
+		{
+			$andCuentasCeroAcreedor    = "";
+			$andCuentasCeroDeudor      = "";
+			$excluirCuentasEnCero      = false;
+		}
+		else
+		{
+			$excluirCuentasEnCero      = true;
+			$andCuentasCeroAcreedor    = "AND saldo_acreedor <> 0";
+			$andCuentasCeroDeudor      = "AND saldo_deudor <> 0";
+		}
+		
+		$estadoResultadoIngreso    = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$andCuentasCeroAcreedor);
+		$cuentasIngreso  	       = json_decode(json_encode($estadoResultadoIngreso), true);		
+		$ordenadas_cuentas_ingreso = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasIngreso ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasIngreso   = $ordenadas_cuentas_ingreso[0];
+		$sumaTotalGlobalIngreso    = $ordenadas_cuentas_ingreso[1];
 
 		// $resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_desde,$fecha_hasta);
 		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso);
@@ -75,11 +209,24 @@ class EstadoDeResultados extends CI_Controller {
 		}
 		$totalSaldoAcreedor =0;
 
-		foreach ($estadoResultadoAcreedor as $fila)
+
+		// echo("<pre>");
+		// print_r($ordenadas_cuentas_acreedor);
+		// echo("</pre>");
+		// die();
+
+		foreach ($cuentasOrdenadasIngreso as $cuenta)
 		{   
-			$codigo 		 = $fila->codigo;
-			$descripcion     	 = $fila->descripcion;
-			$saldoAcreedor	     = $fila->saldo_acreedor;
+			$codigo 		 = $cuenta['codigo'];
+
+			$descripcion     = $cuenta['descripcion'];
+			
+			if($moneda === 'BOB'){
+				$saldoAcreedor	 = $cuenta['saldo'];
+			}
+			elseif ($moneda === 'USD') {
+				$saldoAcreedor	 = $cuenta['saldoUSD'];
+			} 
 
 			$data[] = array(
 				"<span class='badge badge-secondary'>".$codigo."</span>",
@@ -93,7 +240,7 @@ class EstadoDeResultados extends CI_Controller {
 		}		
 		$output =( array(
 			             "     resultado" => 1, 
-		                  "nro_registros" => count($estadoResultadoAcreedor) , 
+		                  "nro_registros" => count($cuentasOrdenadasIngreso) , 
 					 "totalSaldoAcreedor" => number_format($totalSaldoAcreedor,2,'.',','),
 					     "totalResultado" => number_format($total_resultado,2,'.',','),
 						           "data" => $data ) );
@@ -114,15 +261,43 @@ class EstadoDeResultados extends CI_Controller {
 
 		$id_entidad            = $this->input->post('id_entidad');
 		$fecha_inicio  		   = $this->input->post('fecha_inicio');
-		$fecha_fin           = $this->input->post('fecha_fin');
+		$fecha_fin             = $this->input->post('fecha_fin');
 		// $id_cuenta             = $this->input->post('id_cuenta');
-
+		$moneda                = $this->input->post('moneda');
+		$nivel				   = $this->input->post('nivel');
+		$saldoCero  			 = $this->input->post('saldoCero');
+		$cuentasSeleccionadas    = $this->input->post('cuentasSeleccionadas');
 		$id_cuenta_ingreso   	   = 40;
 		$codigo_cuenta_ingreso     = 4;
 		$id_cuenta_egreso   	   = 41;
 		$codigo_cuenta_egreso     = 5;
 
-		$estadoResultadoDeudor = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso);
+
+		if($saldoCero == "true")
+		{
+			$andCuentasCeroAcreedor    = "";
+			$andCuentasCeroDeudor      = "";
+			$excluirCuentasEnCero      = false;
+		}
+		else
+		{
+			$excluirCuentasEnCero      = true;
+			$andCuentasCeroAcreedor    = "AND saldo_acreedor <> 0";
+			$andCuentasCeroDeudor      = "AND saldo_deudor <> 0";
+		}
+
+		$estadoResultadoEgreso     = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso,$andCuentasCeroDeudor );
+		echo("<pre>");
+		print_r($estadoResultadoEgreso);
+		echo("<pre>");
+		$cuentasDeEgreso		   = json_decode(json_encode($estadoResultadoEgreso), true);		
+		$ordenadas_cuentas_egreso  = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasDeEgreso ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasEgreso    = $ordenadas_cuentas_egreso[0];
+		$sumaTotalGlobalEgreso     = $ordenadas_cuentas_egreso[1];
+		echo("<pre>");
+		print_r($ordenadas_cuentas_egreso);
+		echo("</pre>");
+		die();
 		
 		
 		// $resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_desde,$fecha_hasta);
@@ -136,11 +311,17 @@ class EstadoDeResultados extends CI_Controller {
 		}
 		$totalSaldoDeudor =0;
 
-		foreach ($estadoResultadoDeudor as $fila)
+		foreach ($cuentasOrdenadasEgreso as $cuenta)
 		{   
-			$codigo 		 = $fila->codigo;
-			$descripcion     = $fila->descripcion;
-			$totalDeudor	 = $fila->saldo_deudor;
+			$codigo 		 = $cuenta['codigo'];
+			$descripcion     = $cuenta['descripcion'];
+			
+			if($moneda === 'BOB'){
+				$totalDeudor	 = $cuenta['saldo'];
+			}
+			elseif ($moneda === 'USD') {
+				$totalDeudor	 = $cuenta['saldoUSD'];
+			} 
 
 			$data[] = array(
 				"<span class='badge badge-secondary'>".$codigo."</span>",
@@ -154,7 +335,7 @@ class EstadoDeResultados extends CI_Controller {
 		}		
 		$output =( array(
 			             "     resultado" => 1, 
-		                  "nro_registros" => count($estadoResultadoDeudor) , 
+		                  "nro_registros" => count($cuentasOrdenadasEgreso) , 
 					   "totalSaldoDeudor" => number_format($totalSaldoDeudor,2,'.',','),
 					     "totalResultado" => number_format($total_resultado,2,'.',','),
 						           "data" => $data ) );

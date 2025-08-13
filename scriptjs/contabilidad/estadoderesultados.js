@@ -248,10 +248,18 @@ function consultar() {
 //   alert("steph");
   $('#tablaEstadoDeResultados').show();
   $("#mensajeSeleccion").hide();
-  var id_entidad   = $('#id_entidad').val();
-  var fecha_inicio = $('#fechaDesde').val();
-  var fecha_fin    = $('#fechaHasta').val();
+  var id_entidad             = $('#id_entidad').val();
+  var fecha_inicio           = $('#fechaDesde').val();
+  var fecha_fin              = $('#fechaHasta').val();
 //   var id_cuenta    = $('#id_cuenta').val();
+  var saldoCero = $('#saldoCero').prop('checked');
+  var moneda                 = $('#tipo_moneda').val();
+  var cuentasSeleccionadas   = $('#id_cuenta_seleccionadas').val();
+  var nivel                  = $('#nivel').val();
+  if(nivel == null || nivel.length === 0 || nivel <= 0)
+  {
+     nivel= 0;
+  }
   var enlace = base_url + "Contabilidad/EstadoDeResultados/cargarDatosEstadoDeResultadosIngreso";
   $('#tablaDatosCuentasIngreso').DataTable({
         destroy: true,
@@ -264,7 +272,11 @@ function consultar() {
             url: enlace,
             data: { id_entidad: id_entidad,
                   fecha_inicio: fecha_inicio,
-                     fecha_fin: fecha_fin
+                     fecha_fin: fecha_fin,
+                        moneda: moneda,
+                         nivel: nivel,
+                     saldoCero: saldoCero,
+          cuentasSeleccionadas: cuentasSeleccionadas
                   },
 
             dataSrc: function(json) {
@@ -289,8 +301,12 @@ function consultar() {
                 type: "POST",
                 url: enlace,
                 data: { id_entidad: id_entidad,
-                    fecha_inicio: fecha_inicio,
-                        fecha_fin: fecha_fin
+                      fecha_inicio: fecha_inicio,
+                         fecha_fin: fecha_fin,
+                            moneda: moneda,
+                             nivel: nivel,
+                         saldoCero: saldoCero,
+              cuentasSeleccionadas: cuentasSeleccionadas 
                     },
 
                 dataSrc: function(json) {

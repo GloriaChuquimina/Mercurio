@@ -186,9 +186,9 @@
                             <input
                               class="form-check-input"
                               type="checkbox"
-                              id="soloConMovimientos"                              
+                              id="saldoCero"                              
                             />
-                            <label class="form-check-label" htmlFor="soloConMovimientos">
+                            <label class="form-check-label" htmlFor="saldoCero">
                               Incluir cuentas con saldo cero
                             </label>
                           </div>
