@@ -167,7 +167,7 @@ $(function (){
         });
         /**CIERRA EL MODAL */
         $('#pdfModal').on('hidden.bs.modal', function (e) {
-            alert("MOLDAL PDF STEPH");
+            // alert("MOLDAL PDF STEPH");
             swal({
             title: "¿Deseas volver a la pantalla principal?",
             text: "El comprobante ya fue generado.",
@@ -337,9 +337,9 @@ function guardarRegistroCuenta()
 	var id_cuenta_auxiliar		  = $('#id_cuenta_auxiliar').val();
 	var cuenta_auxiliar		      = $('#txtAuxiliarCuenta').val();
     var cadRegistroCuenta         = $('#registroCuentaT').val();
-    var enlace = base_url + "Contabilidad/Comprobante/validarDatosRegistroCuenta";
-    var datos = $('#formularioRegistroCuenta').serialize();
-    var datos_cuenta = $('#formularioRegistroCuenta').serialize();
+    var enlace                    = base_url + "Contabilidad/Comprobante/validarDatosRegistroCuenta";
+    var datos                     = $('#formularioRegistroCuenta').serialize();
+    var datos_cuenta              = $('#formularioRegistroCuenta').serialize();
     // var datos_cuenta = datos;
     $.ajax({
                 type:"POST",
@@ -1232,7 +1232,7 @@ function cargarCuentasAuxiliaresLista(id_cuenta)
 function cargarCuentasAuxiliares(){
 
     var idCuenta =$('#id_cuenta').val();
-    alert("idCuenta===>"+idCuenta);
+    // alert("idCuenta===>"+idCuenta);
     var enlace = base_url + "Contabilidad/Comprobante/listarTablaCuentasAuxiliares";
     $('#tbl_CuentasAuxiliares').DataTable({
         destroy: true,

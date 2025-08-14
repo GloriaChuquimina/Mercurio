@@ -90,6 +90,7 @@
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
       cargarTipoCambio();
+      cargarCombos();
     //   cargarTablaComprobantesEntidades();
     });
 </script>  

@@ -38,7 +38,7 @@ class EstadoDeResultado_model extends CI_Model
 	// 	    							");
 	// 	return $query->result();
 	// }
-    function getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_ingreso,$cuenta_mayor_ingreso,$andCuentasCero)
+    function getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_ingreso,$cuenta_mayor_ingreso)
 	{
 		$query = $this->db_mercurio->query("
                                            SELECT 
@@ -49,8 +49,14 @@ class EstadoDeResultado_model extends CI_Model
                                                     ,pc.nivel
                                                     ,pc.ruta
                                                     ,pc.padre
-                                                    ,cuentas_con_movimiento.saldo_acreedor as saldo
-                                                    ,cuentas_con_movimiento.saldo_acreedorUSD as saldoUSD
+                                                    ,CASE 
+                                                        WHEN cuentas_con_movimiento.saldo_acreedor is null then  0.00
+                                                        else cuentas_con_movimiento.saldo_acreedor                
+                                                     end  as saldo
+                                                    ,CASE 
+                                                        WHEN cuentas_con_movimiento.saldo_acreedorUSD is null then  0.00
+                                                        else cuentas_con_movimiento.saldo_acreedorUSD                
+                                                     end  as saldoUSD
                                                 FROM contabilidad.plancuentas pc
                                            LEFT JOIN(
                                                             select	 
@@ -76,7 +82,7 @@ class EstadoDeResultado_model extends CI_Model
                                                     group by pc.codigo,pc.descripcion,pc.id
                                                 ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                                 WHERE ('".$id_cuenta_mayor_ingreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_ingreso."') 
-                                                     ".$andCuentasCero."
+                                                   
                                             ORDER BY pc.id ASC;
 		    							");
 		return $query->result();
@@ -110,7 +116,7 @@ class EstadoDeResultado_model extends CI_Model
 	// 	    							");
 	// 	return $query->result();
 	// }
-    function getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_egreso,$cuenta_mayor_egreso,$andCuentasCero)
+    function getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_egreso,$cuenta_mayor_egreso)
 	{
 		$query = $this->db_mercurio->query("
                                              SELECT 
@@ -145,7 +151,7 @@ class EstadoDeResultado_model extends CI_Model
                                                             group by pc.codigo,pc.descripcion,pc.id
                                                     ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                                 WHERE ('".$id_cuenta_mayor_egreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_egreso."') 
-                                                   ".$andCuentasCero."
+                                                 
                                             ORDER BY pc.id ASC;
 		    							");
 		return $query->result();
@@ -192,7 +198,9 @@ class EstadoDeResultado_model extends CI_Model
 	  function getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_ingreso,$cuenta_mayor_ingreso,$id_cuenta_mayor_egreso,$cuenta_mayor_egreso)
     {
         $query = $this->db_mercurio->query("
-                                             SELECT sum(resultado.saldo_acreedor)-sum(resultado.saldo_deudor) as total_estado_resultado 
+                                             SELECT 
+                                                 sum(resultado.saldo_acreedor)-sum(resultado.saldo_deudor) as total_estado_resultado 
+                                                ,sum(resultado.saldo_acreedorUSD)-sum(resultado.saldo_deudorUSD) as total_estado_resultadoUSD 
                                                FROM (
                                                                  select  pc.codigo
                                                                         ,pc.descripcion 

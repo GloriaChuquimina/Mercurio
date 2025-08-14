@@ -90,7 +90,8 @@ class BalanceGeneral extends CI_Controller {
 				}
 
 				$cuenta['saldo_cuenta'] = $saldoConHijos;
-				$cuenta['importe_total'] = $saldoConHijos;
+				// $cuenta['importe_total'] = $saldoConHijos;
+				$cuenta['importe_total'] = $importePropio + $sumaHijos;
 			
 				// $cuenta['importe_total']    = $importePropio + $sumaHijos;
 
@@ -183,7 +184,8 @@ class BalanceGeneral extends CI_Controller {
 
 
 				// Si el nivel máximo está definido y la cuenta está en ese nivel máximo, sumamos saldo hijos
-				if ($nivelMaximo !== null && isset($cuenta['nivel']) && $cuenta['nivel'] == $nivelMaximo) {
+				// if ($nivelMaximo !== null && isset($cuenta['nivel']) && $cuenta['nivel'] == $nivelMaximo) {
+				if ($nivelMaximo !== null && isset($cuenta['nivel']) && $cuenta['nivel']>= $nivelMaximo) {
 					$saldoConHijos = $importePropio + $sumaHijos;
 				} else {
 					// No sumamos hijos, solo saldo propio
@@ -375,6 +377,12 @@ class BalanceGeneral extends CI_Controller {
 		// $num     = 1;
 
 		$cuentasUnidas = array_merge($cuentasOrdenadasActivo,$cuentasOrdenadasPasivo, $cuentasOrdenadasPatrimonio,$cuentasOrdenadasDeudoras,$cuentasOrdenadasAcreedoras);
+
+		// echo("<pre>");
+		// print_r($cuentasOrdenadasActivo);
+		// echo("</pre>");
+		// die();
+
 		foreach ($cuentasUnidas as $cuenta) {
 			$valor_cero='';
 			$valor1=0;
@@ -618,7 +626,7 @@ class BalanceGeneral extends CI_Controller {
 		$ini_x=$pdf->GetX();
 		// $ini_y=$pdf->GetY();
 		
-		$pdf->setX(12); 
+		$pdf->setX(10); 
 		$pdf->SetWidths([105, 105]);
 		$pdf->SetAligns(['L','L']);
 		$cabecera1="1 ACTIVO";
@@ -691,6 +699,7 @@ class BalanceGeneral extends CI_Controller {
 
 			if($nivel_activo==1 && $nivel_pasivo==1)
 			{
+				$formato=3;
 				$pdf->SetFont('Arial', 'BU', 7);
 				$valor_cero='';
 				$fila=array(
@@ -706,8 +715,8 @@ class BalanceGeneral extends CI_Controller {
 							$total_cuenta,
 							$formato
 							);
-				$pdf->setX(12);	
-				$pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+				$pdf->setX(8);	
+				$pdf->SetWidths([20,50,20,20,20,20,50,20,20,20,5]);
 				$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R','R']);		
 				$pdf->Row_SinLinea_BG($fila,true, '', 11);
 
@@ -716,7 +725,7 @@ class BalanceGeneral extends CI_Controller {
 			{
 				if($nivel_activo==2 && $nivel_pasivo==2 )
 				{
-					
+					$formato=3;
 					$fila=array(
 							$codigo_activo,	
 							$descripcion_activo,
@@ -732,8 +741,9 @@ class BalanceGeneral extends CI_Controller {
 							);		
 					
 					$pdf->SetFont('Arial', 'BU', 7);
-					$pdf->setX(12);		
-					$pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+					$pdf->setX(8);		
+					// $pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+					$pdf->SetWidths([20,50,20,20,20,20,50,20,20,20,5]);
 					$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R','R']);		
 					$pdf->Row_SinLinea_BG($fila,true, '', 11);
 
@@ -848,8 +858,9 @@ class BalanceGeneral extends CI_Controller {
 						
 					// $pdf->ln(2);
 					$pdf->SetFont('Arial', '', 7);
-					$pdf->setX(12);		
-					$pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+					$pdf->setX(8);		
+					// $pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+					$pdf->SetWidths([20,50,20,20,20,20,50,20,20,20,5]);
 					$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R']);		
 					$pdf->Row_SinLinea_BG($fila,true, '', 11);
 					
@@ -868,8 +879,8 @@ class BalanceGeneral extends CI_Controller {
 					number_format($sumaTotalGlobalPasivo,2,'.',',')
 					);		
 					
-					$pdf->setX(12);		
-					$pdf->SetWidths([105,15,105,15]);
+					$pdf->setX(8);		
+					$pdf->SetWidths([110,20,110,20]);
 					$pdf->SetAligns(['C','R','C','R']);	
 					$pdf->SetFont('Arial', 'B', 7);	
 					$pdf->Row_SinLinea_BG_SUBTOTALES($fila,true, '', 4);
@@ -964,8 +975,9 @@ class BalanceGeneral extends CI_Controller {
 							$formato2
 							
 							);
-				$pdf->setX(12);	
-				$pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+				$pdf->setX(8);	
+				// $pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+				$pdf->SetWidths([20,50,20,20,20,20,50,20,20,20,5]);
 				$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R','R']);		
 				$pdf->Row_SinLinea_BG($fila,true, '', 11);
 
@@ -990,8 +1002,9 @@ class BalanceGeneral extends CI_Controller {
 							);		
 					// $pdf->ln(2);
 					$pdf->SetFont('Arial', '', 7);
-					$pdf->setX(12);		
-					$pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+					$pdf->setX(8);		
+					// $pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+					$pdf->SetWidths([20,50,20,20,20,20,50,20,20,20,5]);
 					$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R','R']);		
 					$pdf->Row_SinLinea_BG($fila,true, '', 11);
 
@@ -1071,8 +1084,9 @@ class BalanceGeneral extends CI_Controller {
 						
 					// $pdf->ln(2);
 					$pdf->SetFont('Arial', '', 7);
-					$pdf->setX(12);		
-					$pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+					$pdf->setX(8);		
+					// $pdf->SetWidths([25,50,15,15,15,25,50,15,15,15,5]);
+					$pdf->SetWidths([20,50,20,20,20,20,50,20,20,20,5]);
 					$pdf->SetAligns(['R','L','R','R','R','R','L','R','R','R','R']);		
 					$pdf->Row_SinLinea_BG($fila,true, '', 11);
 
@@ -1089,8 +1103,8 @@ class BalanceGeneral extends CI_Controller {
 					number_format($sumaTotalGlobalAcreedoras,2,'.',',')
 					);		
 					
-					$pdf->setX(12);		
-					$pdf->SetWidths([105,15,105,15]);
+					$pdf->setX(8);		
+					$pdf->SetWidths([110,20,110,20]);
 					$pdf->SetAligns(['C','R','C','R']);	
 					$pdf->SetFont('Arial', 'B', 7);	
 					$pdf->Row_SinLinea_BG_SUBTOTALES($fila,true, '', 4);
@@ -1103,10 +1117,10 @@ class BalanceGeneral extends CI_Controller {
 					number_format(($sumaTotalGlobalAcreedoras+$sumaTotalGlobalPasivo),2,'.',',')
 					);		
 					
-					$pdf->setX(12);		
-					$pdf->SetWidths([105,15,105,15]);
+					$pdf->setX(8);		
+					$pdf->SetWidths([110,20,110,20]);
 					$pdf->SetAligns(['C','R','C','R']);	
-					$pdf->SetFont('Arial', 'B', 7);	
+					$pdf->SetFont('Arial', 'B', 6);	
 					$pdf->Row_SinLinea_BG_TOTALES($fila,true, '', 4);
 		
 		$pdf->Output('I',utf8_decode('ReporteBalanceGeneral.pdf')); 

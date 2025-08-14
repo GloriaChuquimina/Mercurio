@@ -933,7 +933,9 @@ class Pdf2 extends FPDF {
             $ax=$x; $ay=$y; $aw=$w; $ah=$h;
             // $this->Rect($x,$y,$w,$h,$fills);
             //Print the text
-            $this->MultiCell($w,4,$data[$i],0,$a);
+            // APLICAR UTF-8 DECODING AQUÍ
+            $text = utf8_decode($data[$i]); 
+            $this->MultiCell($w,4,$text,0,$a);
             //Put the position to the right of the cell
             $this->SetXY($x+$w,$y);
         }

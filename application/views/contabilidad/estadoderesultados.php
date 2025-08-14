@@ -85,9 +85,9 @@
                 </div>
 
                   <div class="card-body">
-                    <input class="form-control" id="id_entidad" name="id_entidad">
-                    <input class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+                    <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
+                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
                     <div class="row">
                       <div class="col-md-2">
                         <div class="form-group">
@@ -137,13 +137,33 @@
                       </div>
                       <div class="col-md-1">
                           <div class="form-group">
-                              <label>Nivel:</label>
+                              <label>NIVEL:</label>
                               <input type="number"  class="form-control is-warning" name="nivel" id="nivel" class="form-control" placeholder="Ej: 1">
                           </div>
                       </div>
 
-                      <div class="col-md-3">
+                      <div class="col-md-2">
                         <div class="form-group">
+                          <label>
+                            <strong>OPCIONES:</strong>
+                          </label>
+                          <br>
+                          <!-- <br> -->
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="saldoCero"                              
+                            />
+                            <label class="form-check-label" htmlFor="saldoCero">
+                              Incluir cuentas con saldo cero
+                            </label>
+                          </div>
+                        </div>
+                      </div> 
+
+                      <div class="col-md-3">
+                        <!-- <div class="form-group">
                           <label>
                             <strong>CUENTAS:</strong>
                           </label>
@@ -174,26 +194,9 @@
                                   </button>
                               </div>
                           </div>
-                        </div>
+                        </div> -->
                       </div> 
-                      <div class="col-md-2">
-                        <div class="form-group">
-                          <label>
-                            <strong>OPCIONES:</strong>
-                          </label>
-                          <br>
-                          <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="saldoCero"                              
-                            />
-                            <label class="form-check-label" htmlFor="saldoCero">
-                              Incluir cuentas con saldo cero
-                            </label>
-                          </div>
-                        </div>
-                      </div> 
+                      
                       
                       <div class="col-md-12">
                         <br>
@@ -274,10 +277,11 @@
                     <table id="tablaDatosCuentasIngreso" class="table table-striped table-hover " style="width: 100%;">
                       <thead class="bg-dark text-white">
                           <tr>
-                            <th colspan ="3" style="text-align: center;">CUENTAS DE INGRESO</th>
+                            <th colspan ="4" style="text-align: center;">CUENTAS DE INGRESO</th>
                           </tr>
                           <tr>
                             <th style="text-align: center;">CÓDIGO</th>
+                            <th style="text-align: center;">NIVEL</th>
                             <th style="text-align: center;">NOMBRE</th>
                             <th style="text-align: center;">BOLIVIANOS</th>
                           </tr>
@@ -287,14 +291,14 @@
                       </tbody> -->
                       <tfoot>
                           <tr class="bg-primary">
-                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              <td colSpan="3" style="color: white; font-weight: bold;">
                               TOTAL CUENTAS DE INGRESO:
                               </td>
                                   <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteIngreso">0.00</td>
                               </td>
                           </tr>
                           <tr class="bg-secondary">
-                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              <td colSpan="3" style="color: white; font-weight: bold;">
                               RESULTADO DEL EJERCICIO:
                               </td>
                                   <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteResultado1">0.00</td>
@@ -308,10 +312,11 @@
                     <table id="tablaDatosCuentasEgreso" class="table table-striped table-hover " style="width: 100%;">
                       <thead class="bg-dark text-white">
                           <tr>
-                            <th colspan ="3" style="text-align: center;">CUENTAS DE EGRESO</th>
+                            <th colspan ="4" style="text-align: center;">CUENTAS DE EGRESO</th>
                           </tr>
                           <tr>
                             <th style="text-align: center;">CÓDIGO</th>
+                            <th style="text-align: center;">NIVEL</th>
                             <th style="text-align: center;">NOMBRE</th>
                             <th style="text-align: center;">BOLIVIANOS</th>
                           </tr>
@@ -321,14 +326,14 @@
                       </tbody> -->
                       <tfoot>
                           <tr class="bg-primary">
-                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              <td colSpan="3" style="color: white; font-weight: bold;">
                               TOTAL CUENTAS DE EGRESO:
                               </td>
                                   <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteEgreso">0.00</td>
                               </td>
                           </tr>
                           <tr class="bg-secondary">
-                              <td colSpan="2" style="color: white; font-weight: bold;">
+                              <td colSpan="3" style="color: white; font-weight: bold;">
                               RESULTADO DEL EJERCICIO:
                               </td>
                                   <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteResultado2">0.00</td>

@@ -18,6 +18,16 @@ class TipoCambio_model extends CI_Model
 											");
 		return $query->result();
 	}
+    function getGestionTipoCambio()
+	{
+		$query = $this->db_mercurio->query("  select DISTINCT CAST(EXTRACT(YEAR FROM fecha) AS INT) AS gestion
+												from contabilidad.tipo_cambio
+											   where estado = 'ACT'
+											order by gestion DESC;
+											");
+		return $query->result();
+	}
+    
 	function getTipoCambioFecha($fecha)
 	{
 		$query = $this->db_mercurio->query("select *

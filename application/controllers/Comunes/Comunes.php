@@ -9,6 +9,7 @@ class Comunes extends CI_Controller
 		$this->load->model('Comunes_model');
 		$this->load->model('Entidades_model');
 		$this->load->model('PlanDeCuentas_model');
+		$this->load->model('TipoCambio_model');
 		$this->load->helper('configuraciones_helper');
 
 	}
@@ -148,6 +149,29 @@ class Comunes extends CI_Controller
 	    foreach ($filas as $fila)
 	    {
 	        $option.="<option value = '".$fila->valor1."'>".$fila->valor2."</option>";
+	    }
+   		 echo $option;
+	}
+	function cargarMeses()
+	{
+	    $concepto = "MESES";
+		$estado = "ACT";
+	    $filas = $this->Comunes_model->getCatalogoDominio($concepto,$estado);
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->valor1."'>".$fila->valor2."</option>";
+	    }
+   		 echo $option;
+	}
+	function cargarGestionTipoCambio()
+	{
+
+	    $filas = $this->TipoCambio_model->getGestionTipoCambio();
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->gestion."'>".$fila->gestion."</option>";
 	    }
    		 echo $option;
 	}

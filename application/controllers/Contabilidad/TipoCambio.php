@@ -63,7 +63,12 @@ class TipoCambio extends CI_Controller {
             //                 <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaEntidad(". $fila->id . ")'><i class='fas fa-trash-alt'></i></button>     
             //             </span>	
             //             ";		
-			$boton   = "";		
+			$boton   = "<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarTipoCambio(". $fila->id.")\"><i class='fas fa-edit'></i></button>     
+                        </span>	
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
+                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick='elimnarTipoCambio(". $fila->id. ")'><i class='fas fa-trash-alt'></i></button>     
+                        </span>	";		
 
 			$data[] = array(
 				// formato_fecha($fila->fecha),

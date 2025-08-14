@@ -7,13 +7,29 @@ function baseurl(enlace) {
 }
 function cargarCombos()
 {
-    var enlace = base_url + "Comunes/Comunes/cargarEntidad";
+    // var enlace = base_url + "Comunes/Comunes/cargarEntidad";
+    // $.ajax({
+    //     type: "GET",
+    //     url: enlace,
+    //     success: function(data) {
+    //         $('#entidades').html(data);
+    //         valoresIniciales();
+    //     }
+    // }); 
+    var enlace = base_url + "Comunes/Comunes/cargarMeses";
     $.ajax({
         type: "GET",
         url: enlace,
         success: function(data) {
-            $('#entidades').html(data);
-            valoresIniciales();
+            $('#mesTipoCambio').html(data);
+        }
+    }); 
+    var enlace = base_url + "Comunes/Comunes/cargarGestionTipoCambio";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#anioTipoCambio').html(data);
         }
     }); 
 }

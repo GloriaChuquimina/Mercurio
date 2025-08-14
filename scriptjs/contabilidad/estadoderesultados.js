@@ -255,6 +255,9 @@ function consultar() {
   var saldoCero = $('#saldoCero').prop('checked');
   var moneda                 = $('#tipo_moneda').val();
   var cuentasSeleccionadas   = $('#id_cuenta_seleccionadas').val();
+  if (cuentasSeleccionadas == null || cuentasSeleccionadas.length === 0) {
+		cuentasSeleccionadas = '0'; // o algún valor por defecto
+	} 
   var nivel                  = $('#nivel').val();
   if(nivel == null || nivel.length === 0 || nivel <= 0)
   {
@@ -327,13 +330,25 @@ function generarReporteEstadoDeResultados()
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
     // var id_cuenta    = $('#id_cuenta').val();
+    var saldoCero = $('#saldoCero').prop('checked');
+    var moneda                 = $('#tipo_moneda').val();
+    var cuentasSeleccionadas   = $('#id_cuenta_seleccionadas').val();
+    if (cuentasSeleccionadas == null || cuentasSeleccionadas.length === 0) {
+        cuentasSeleccionadas = '0'; // o algún valor por defecto
+	} 
+    var nivel                  = $('#nivel').val();
+    if(nivel == null || nivel.length === 0 || nivel <= 0)
+    {
+        nivel= 0;
+    }
+
     if(fecha_inicio!='' && fecha_fin !='')
     {
         $('#divPDF').html('');
         var iframe = document.createElement("iframe");
             iframe.width = '100%';
             iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/EstadoDeResultados/ReporteEstadoDeResultadosPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin; 
+            iframe.src = base_url+'Contabilidad/EstadoDeResultados/ReporteEstadoDeResultadosPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin+"/"+moneda+"/"+nivel+"/"+saldoCero+"/"+cuentasSeleccionadas; 
             $('#divPDF').append(iframe);
         $('#divCapa').addClass('overlay');    
         $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
