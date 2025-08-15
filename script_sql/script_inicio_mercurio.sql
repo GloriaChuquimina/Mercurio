@@ -66,6 +66,10 @@ INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orde
 INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden) VALUES('MONEDA', 'TIPO MONEDA DE CAMBIO', 'USD', 'DOLAR', 2);
 INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden) VALUES('MONEDA', 'TIPO MONEDA DE CAMBIO', 'BOB', 'BOLIVIANO', 1);
 
+/*TIPO DE CIERRE*/
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden) VALUES('TIPO CIERRE', 'TIPO DE CIERRE CONTABLE', 'CIR', 'CIERRE DE RESULTADOS', 1);
+INSERT INTO administracion.dominios (concepto, descripcion, valor1, valor2, orden) VALUES('TIPO CIERRE', 'TIPO DE CIERRE CONTABLE', 'CIB', 'CIERRE DE BALANCE', 2);
+
 
 
 /*ENTIDAD*/
@@ -195,7 +199,7 @@ CREATE TABLE contabilidad.detalle_comprobante (
 	tipo_movimiento varchar(3) NOT NULL,
 	tipo_cambio numeric(10, 2) NULL,
 	importe_moneda_nacional numeric(10, 2) DEFAULT 0 NULL,
-	importe_moneda_extranjera numeric DEFAULT 0 NULL,
+	importe_moneda_extranjera numeric(10, 2) DEFAULT 0 NULL,
 	glosa_cuenta text NULL,
 	fecha_registro timestamp DEFAULT now() NULL,
 	id_usuario_registro int4 NULL,
@@ -252,14 +256,8 @@ COMMENT ON COLUMN contabilidad.tipo_cambio.sec_log IS 'Campo para fines de audit
 
 
 -- alter table contabilidad.detalle_comprobante add column id_cuenta_auxiliar int4 null;
-
-
-
-
-
-
-
-
+-- alter table contabilidad.detalle_comprobante add column saldo_moneda_nacional numeric(10, 2) null;
+alter table contabilidad.detalle_comprobante add column estado_balance varchar(3) DEFAULT 'PEN'::character varying NULL,
 
 
 /*TABLAS DE CONTROL PARA LOS CORRELATIVOS*/
@@ -310,10 +308,6 @@ COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.fecha_modificacion I
 COMMENT ON COLUMN correlativos.correlativos_entidad_gestion.estado IS 'Estado del detalle (AC = Activo, AN = Anulado, etc.).';
 
 
-
-
-
-
 /*INSERT CORRELATIVOS*/
 
 INSERT INTO correlativos.correlativos (nombre_documento, abreviatura, descripcion, estado) VALUES('COMPROBANTE DE DIARIO', 'CD', 'REGISTRO DE TODOS LOS INGRESOS Y EGRESOS EFECTUADOS POR LA EMPRESA , EN EL ORDEN QUE SE VAYA REALIZANDO DURANTE EL PERÍODO (TRANSFERENCIAS,PAGOS,COBROS,GASTOS,OTROS)', 'ACT');
@@ -321,3 +315,122 @@ INSERT INTO correlativos.correlativos (nombre_documento, abreviatura, descripcio
 INSERT INTO correlativos.correlativos (nombre_documento, abreviatura, descripcion, estado) VALUES('COMPROBANTE DE GASTO', 'GA', NULL, 'ACT');
 INSERT INTO correlativos.correlativos (nombre_documento, abreviatura, descripcion, estado) VALUES('COMPROBANTE DE INGRESO', 'IN', NULL, 'ACT');
 
+
+
+/*TABLAS CIERRES DE CUENTAS*/
+CREATE TABLE contabilidad.cierres_contables (
+    id serial4 NOT NULL, 
+    id_entidad int4 not null,
+    gestion int4 NOT NULL,          
+    mes int4 NOT NULL,              
+    tipo_cierre varchar(3) NOT null,
+    fecha_cierre DATE NOT NULL,    
+	id_comprobante int4 null,
+    descripcion TEXT,              
+
+    -- Totales en moneda local
+    saldo_resultado NUMERIC(14, 2) NULL,
+    saldo_activo NUMERIC(14, 2) NULL,
+    saldo_pasivo NUMERIC(14, 2) NULL,
+    saldo_patrimonio NUMERIC(14, 2) NULL,
+    saldo_cuentas_deudor NUMERIC(14, 2) NULL,
+    saldo_cuentas_acreedor NUMERIC(14, 2) NULL,
+
+    -- Totales en USD
+    saldo_resultado_usd NUMERIC(14, 2) NULL,
+    saldo_activo_usd NUMERIC(14, 2) NULL,
+    saldo_pasivo_usd NUMERIC(14, 2) NULL,
+    saldo_patrimonio_usd NUMERIC(14, 2) NULL,
+    saldo_cuentas_deudor_usd NUMERIC(14, 2) NULL,
+    saldo_cuentas_acreedor_usd NUMERIC(14, 2) NULL,
+
+    id_usuario_registro int4  NULL,  
+    fecha_registro TIMESTAMP DEFAULT NOW(),
+	fecha_modificacion timestamp NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	sec_log numeric(10,0),	
+	CONSTRAINT cierres_contables_pkey PRIMARY KEY (id)
+);
+
+-- Comentarios para la tabla y columnas
+COMMENT ON TABLE contabilidad.cierres_contables IS 'Tabla que almacena los registros de cierres contables (RESULTADOS o BALANCE) con sus totales en moneda local y USD.';
+
+COMMENT ON COLUMN contabilidad.cierres_contables.id IS 'Identificador único del cierre contable.';
+COMMENT ON COLUMN contabilidad.cierres_contables.id_entidad IS 'Identificador de la entidad al que pertenece el cierre contable';
+COMMENT ON COLUMN contabilidad.cierres_contables.gestion IS 'Año de la gestión contable (ej. 2025).';
+COMMENT ON COLUMN contabilidad.cierres_contables.mes IS 'Mes del cierre (1-12). Si es 0, indica cierre anual.';
+COMMENT ON COLUMN contabilidad.cierres_contables.tipo_cierre IS 'Tipo de cierre: RESULTADOS o BALANCE.';
+COMMENT ON COLUMN contabilidad.cierres_contables.fecha_cierre IS 'Fecha exacta en la que se ejecutó el cierre.';
+COMMENT ON COLUMN contabilidad.cierres_contables.id_comprobante IS 'Identificador unico del comprobante de resultados del cierre';
+COMMENT ON COLUMN contabilidad.cierres_contables.descripcion IS 'Notas u observaciones adicionales del cierre contable.';
+
+-- Totales moneda local
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_resultado IS 'Saldo total de la cuenta de resultados en moneda local.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_activo IS 'Saldo total de las cuentas de activo en moneda local.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_pasivo IS 'Saldo total de las cuentas de pasivo en moneda local.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_patrimonio IS 'Saldo total de las cuentas de patrimonio en moneda local.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_cuentas_deudor IS 'Saldo total de cuentas deudoras en moneda local.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_cuentas_acreedor IS 'Saldo total de cuentas acreedoras en moneda local.';
+
+-- Totales USD
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_resultado_usd IS 'Saldo total de la cuenta de resultados en USD.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_activo_usd IS 'Saldo total de las cuentas de activo en USD.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_pasivo_usd IS 'Saldo total de las cuentas de pasivo en USD.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_patrimonio_usd IS 'Saldo total de las cuentas de patrimonio en USD.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_cuentas_deudor_usd IS 'Saldo total de cuentas deudoras en USD.';
+COMMENT ON COLUMN contabilidad.cierres_contables.saldo_cuentas_acreedor_usd IS 'Saldo total de cuentas acreedoras en USD.';
+
+COMMENT ON COLUMN contabilidad.cierres_contables.estado IS 'Estado del cierre: APROBADO, ANULADO, PENDIENTE, etc.';
+COMMENT ON COLUMN contabilidad.cierres_contables.id_usuario_registro IS 'ID del usuario que realizó el cierre.';
+COMMENT ON COLUMN contabilidad.cierres_contables.fecha_registro IS 'Fecha y hora de registro del cierre contable.';
+COMMENT ON COLUMN contabilidad.cierres_contables.fecha_modificacion IS 'Fecha y hora de registro de modificacion del registro cierre contable.';
+COMMENT ON COLUMN contabilidad.cierres_contables.sec_log IS 'Campo para fines de auditoría o bitácora';
+
+-- ======================================
+-- Tabla: contabilidad.cierres_contables_detalle
+-- Detalle de saldos por cuenta en un cierre
+-- ======================================
+CREATE TABLE contabilidad.cierres_contables_detalle (
+    id serial4 not NULL,
+    id_entidad int4 not null,
+    id_cierre int4 not null, -- Relación con la cabecera de cierre
+    id_cuenta int4 not null,
+    codigo_cuenta VARCHAR(50) NOT NULL, -- Código de la cuenta contable
+    nombre_cuenta VARCHAR(300) NOT NULL, -- Nombre de la cuenta contable
+
+    -- Saldos en moneda local
+    saldo_local NUMERIC(14, 2) NULL, -- Saldo total en moneda local
+    saldo_deudor NUMERIC(14, 2) NULL, -- Saldo deudor en moneda local
+    saldo_acreedor NUMERIC(14, 2) NULL, -- Saldo acreedor en moneda local
+
+    -- Saldos en USD
+    saldo_usd NUMERIC(14, 2) NULL, -- Saldo total en USD
+    saldo_deudor_usd NUMERIC(14, 2) NULL, -- Saldo deudor en USD
+    saldo_acreedor_usd NUMERIC(14, 2) null, -- Saldo acreedor en USD
+    
+    id_usuario_registro int4  NULL,  
+    fecha_registro TIMESTAMP DEFAULT NOW(),
+	fecha_modificacion timestamp NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	sec_log numeric(10,0),	
+    CONSTRAINT cierres_contables_detalle_pkey PRIMARY KEY (id)
+);
+
+COMMENT ON TABLE contabilidad.cierres_contables_detalle IS 'Detalle de cuentas y saldos para un cierre contable, tanto en moneda local como en USD.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.id IS 'Identificador único del detalle del cierre.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.id_entidad IS 'ID del de la entidad al que pertenece este detalle.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.id_cierre IS 'ID del cierre contable al que pertenece este detalle.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.id_cuenta IS 'ID de la cuenta contable.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.codigo_cuenta IS 'Código contable de la cuenta.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.nombre_cuenta IS 'Nombre de la cuenta contable.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.saldo_local IS 'Saldo total de la cuenta en moneda local.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.saldo_deudor IS 'Saldo deudor en moneda local.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.saldo_acreedor IS 'Saldo acreedor en moneda local.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.saldo_usd IS 'Saldo total de la cuenta en USD.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.saldo_deudor_usd IS 'Saldo deudor en USD.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.saldo_acreedor_usd IS 'Saldo acreedor en USD.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.id_usuario_registro IS 'ID del usuario que realizó el cierre.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.fecha_registro IS 'Fecha y hora de registro del cierre contable.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.fecha_modificacion IS 'Fecha y hora de registro de modificacion del registro cierre contable.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.estado IS 'Estado del cierre: CONSOLIDADO, ANULADO, PENDIENTE, etc.';
+COMMENT ON COLUMN contabilidad.cierres_contables_detalle.sec_log IS 'Campo para fines de auditoría o bitácora';
