@@ -45,7 +45,43 @@ class TipoCambio extends CI_Controller {
 	public function cargarTipoCambio()
 	{
 		$id_usuario = $this->session->userdata('id_usuario');
-		$filas   = $this->TipoCambio_model->getTipoCambio();
+
+		$gestion = $this->input->post('gestion');
+		$mes     = $this->input->post('mes');
+
+		
+
+		// echo("GESTION".$gestion);
+		// echo("MES".$mes);
+		// die();
+
+		if(($gestion != -1 && $mes != -1) && (!empty($gestion) && !empty($mes)))
+		{
+			// echo("GESTION".$gestion);
+			// echo("MES".$mes);
+			// die();
+			$busqueda="and  EXTRACT(YEAR FROM fecha) = '".$gestion."'
+					   and  EXTRACT(MONTH  FROM fecha) = '".$mes."'";
+		}
+		else
+		{
+			if($gestion != -1 && $mes == -1 )
+			{
+				$busqueda="and  EXTRACT(YEAR FROM fecha) = '".$gestion."'";
+			}
+			elseif(($gestion == -1 && $mes == -1) || (empty($gestion) && empty($mes))){
+				$busqueda="";
+			}
+
+
+		}
+		// echo("BUSQUEDA".$busqueda);
+		// die();
+		$filas   = $this->TipoCambio_model->getTipoCambio($busqueda);
+		// echo json_encode($filas);
+		// die();
+
+
 		// echo json_encode($filas);
 		$draw    = intval($this->input->get("draw"));
 		$start   = intval($this->input->get("start"));
@@ -67,7 +103,7 @@ class TipoCambio extends CI_Controller {
                             <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarTipoCambio(". $fila->id.")\"><i class='fas fa-edit'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick='elimnarTipoCambio(". $fila->id. ")'><i class='fas fa-trash-alt'></i></button>     
+                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaTipoCambio(". $fila->id. ")'><i class='fas fa-trash-alt'></i></button>     
                         </span>	";		
 
 			$data[] = array(
@@ -86,5 +122,133 @@ class TipoCambio extends CI_Controller {
 		);
 		echo json_encode($output);
 		exit();
+	}
+	public function guardarTipoCambio()
+	{
+		$id_usuario       = $this->session->userdata('id_usuario');
+		$id_funcionario   = $this->session->userdata('id_funcionario');
+		$id_dependencia   = $this->session->userdata('id_dependencia_principal');
+		$fecha_actual	  = getFechaHoraActual();
+		$data 			  = $this->input->post();
+
+		// $resultado   = json_decode($this->validarDatos($data));		
+		// $resul       = $resultado[0]->resultado;
+		// $mensaje     = $resultado[0]->mensaje;
+        $resul=1;
+        $mensaje = "OK";
+        $this->db->trans_begin();
+        if($resul == 1)
+		{
+            $accion          = $data['txtAccion'];
+            $fecha           = $data['txtFecha'];
+			$tipo_cambio  	 = $data['tipo_cambio'];
+			$id_tipocambio   = $data['id_tipocambio'];
+
+						
+			if($accion === 'nuevo')
+			{
+				
+				$datosTipoCambio = array(
+					'fecha'                   => $fecha,
+					'valor'                   => $tipo_cambio,
+                    'id_usuario_registro'     => $id_usuario
+				);
+
+				$tipo_cambio = $this->TipoCambio_model->guardarTipoCambio($datosTipoCambio);
+                if (!$tipo_cambio) {
+                    $this->db->trans_rollback();
+                    echo json_encode([["resultado" => "0", "mensaje" => "ERROR EN EL REGISTRO DEL TIPO DE CAMBIO."]]);
+                    return;
+                }
+                
+                $mensaje = "SE REGISTRO CORRECTAMENTE.";
+				
+			}
+			else
+			{
+				$updateTipoCambio = array(
+					'valor'                   => $tipo_cambio,
+                    'fecha_modificacion'      => $fecha_actual
+				   );
+
+				$actualizarTipoCambio = $this->TipoCambio_model->updateTipoCambio($id_tipocambio,$updateTipoCambio);
+				if($actualizarTipoCambio)
+				{
+					$resul = 1;
+					$mensaje = "SE ACTUALIZÓ LOS DATOS DEL TIPO DE CAMBIO CORRECTAMENTE.";
+				}
+				else
+				{
+					$resul = 0;
+					$mensaje = "ERROR EN LA ACTUALIZACIÓN!!!";
+				}
+			}			
+		}
+
+		/******TRANSACT*****/
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            echo json_encode([["resultado" => "0", "mensaje" => "OCURRIÓ UN ERROR EN LA TRANSACCIÓN."]]);
+        } else {
+            $this->db->trans_commit();
+            echo json_encode([["resultado" => "1", "mensaje" => $mensaje]]);
+        }       
+
+		// $resultado ='[{
+		// 				"resultado":"'.$resul.'",
+		// 				"mensaje":"'.$mensaje.'"
+		// 			 }]';
+
+		// echo $resultado;
+	}
+	function datosTipoCambio()
+	{
+		$id_tipocambio = $this->input->post('id_tipocambio');
+		$filas = $this->TipoCambio_model->getTipoCambioById($id_tipocambio);
+        if($filas)
+        {
+            $resul = 1;
+            $mensaje = "Datos Seleccionados.";
+            $resultado ='[{
+                "fecha":         "'.$filas[0]->fecha.'",
+                "valor":         "'.$filas[0]->valor.'",
+                "resultado":     "'.$resul.'",
+                "mensaje":       "'.$mensaje.'"
+                }]';
+        }
+        else
+        {       
+                $resul = 0;
+                $mensaje = "No se obtuvieron registros.";
+        }
+		echo $resultado;
+	}
+	public function bajaTipoCambio()
+	{
+		$id_usuario   = $this->session->userdata('id_usuario');
+		$id_tipocambio   = $this->input->post('id_tipocambio');
+		$fecha_actual = getFechaHoraActual();
+		$estado       = 'ANU';
+		$updateTipoCambio = array(
+			'fecha_modificacion' => $fecha_actual,
+			'estado'           => $estado
+		);
+
+		$entidad = $this->TipoCambio_model->updateTipoCambio($id_tipocambio, $updateTipoCambio);
+		if ($entidad) {
+			$resul = 1;
+			$mensaje = "SE REGISTRO LA BAJA CORRECTAMENTE.";
+		} else {
+			$resul = 0;
+			$mensaje = "ERROR EN EL REGISTRO DE LA BAJA!!!";
+		}
+
+		$resultado = '[{
+						"resultado":"' . $resul . '",
+						"mensaje":"' . $mensaje . '"
+					 }]';
+
+		echo $resultado;
 	}
 }
