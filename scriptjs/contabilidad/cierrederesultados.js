@@ -192,7 +192,119 @@ function procedimientoCierreCuentasDeResultados()
     // var tipo_cambio=$('#txtTipoCambio').val();
     // $('#tipoCambio').text(tipo_cambio);
     // $('#tipo_cambio_movimiento').val(tipo_cambio);
+    cargarEstadoDeResultados();
     $('#modalRegistroCierreDeResultados').modal({backdrop: 'static', keyboard: false})
     $('#modalRegistroCierreDeResultados').modal('show');  
 }
+function cargarEstadoDeResultados()
+{
+    var enlace = base_url + "Contabilidad/CierreDeResultados/cargarDatosEstadoDeResultadosIngreso";
+  $('#tablaDatosCuentasIngreso').DataTable({
+        destroy: true,
+        searching: false,
+        paging: false,
+        "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+        "iDisplayLength": 5,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+        //     data: { id_entidad: id_entidad,
+        //           fecha_inicio: fecha_inicio,
+        //              fecha_fin: fecha_fin,
+        //                 moneda: moneda,
+        //                  nivel: nivel,
+        //              saldoCero: saldoCero,
+        //   cuentasSeleccionadas: cuentasSeleccionadas
+        //           },
 
+            dataSrc: function(json) {
+
+                    
+                        $('.txtTotalImporteIngreso').text(json.totalSaldoAcreedor);
+                        $('.txtTotalImporteResultado1').text(json.totalResultado);
+                        $('#cant_cuentas').val(json.nro_registros);
+                        return json.data;
+                    
+                }
+        },
+    });
+    var enlace = base_url + "Contabilidad/CierreDeResultados/cargarDatosEstadoDeResultadosEgreso";
+    $('#tablaDatosCuentasEgreso').DataTable({
+        destroy: true,
+        searching: false,
+        paging: false,
+        "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+        "iDisplayLength": 5,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            // data: { id_entidad: id_entidad,
+            //         fecha_inicio: fecha_inicio,
+            //             fecha_fin: fecha_fin,
+            //             moneda: moneda,
+            //                 nivel: nivel,
+            //             saldoCero: saldoCero,
+            // cuentasSeleccionadas: cuentasSeleccionadas 
+            //     },
+
+            dataSrc: function(json) {
+
+                    
+                        $('.txtTotalImporteEgreso').text(json.totalSaldoDeudor);
+                        $('.txtTotalImporteResultado2').text(json.totalResultado);
+                        $('#cant_cuentas').val(json.nro_registros);
+                        return json.data;
+                    
+                }
+        },
+    });
+}
+function cerrarCuentaDeResultados()
+{
+    alert("Steph");  
+
+    mensaje = "¿Confirma que desea registrar el cierre de cuentas de resultados? Tenga en cuenta que, una vez realizado, este proceso no podrá revertirse.";
+    boton   = "Guardar";
+
+    swal({
+        title: 'ATENCIÓN',
+        text: mensaje,
+        icon: 'warning',
+        dangerMode: true,
+        buttons: {
+            cancel: "Cancelar",
+            verificar: {
+                text: boton,
+                value: "verificar",
+            }
+        },
+    })
+    .then(respuesta => {
+        if (respuesta)
+        {
+
+            // var enlace = base_url + "Entidades/Entidades/guardarEntidad";
+            var enlace = base_url + "Contabilidad/CierreDeResultados/cerrarCuentaDeResultados";
+            var datos = $('#formularioCierreResultados').serialize();
+            $.ajax({
+                type: "POST",
+                url: enlace,
+                data: datos,
+                success: function(data) {
+                    var result =JSON.parse(data);
+                    $.each(result,function(i,datos){
+                        if(datos.resultado == 0)
+                        {
+                            // visualizarValidaciones(datos.mensaje);
+                            swal({title:"ALERTA",text:datos.mensaje,icon:"warning",button:"OK",dangerMode:true});
+                        }else{
+                            swal({title:"!Excelente¡",text:datos.mensaje,icon:"success",button:"OK"});
+                            // cargarTablaEntidades();
+                            $("#modalRegistroCierreDeResultados").modal('hide'); 
+                        }
+                    });
+                }
+            });
+        }
+    });
+}

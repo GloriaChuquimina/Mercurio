@@ -12,6 +12,7 @@ class CierreDeResultados extends CI_Controller {
 		$this->load->library('form_validation');
         $this->load->model('Comprobantes_model');
         $this->load->model('PlanDeCuentas_model');
+        $this->load->model('EstadoDeResultado_model');
 		$this->load->helper('configuraciones_helper');
 		$this->load->helper('funcionarios_helper');
 		$this->load->helper('correlativos_helper');
@@ -47,672 +48,728 @@ class CierreDeResultados extends CI_Controller {
 		$this->load->view('contabilidad/cierrederesultados',$dato);
 		$this->load->view('inicio/pie');
 	}
-	public function principalComprobante($entidad=-1,$tipo_comprobante=-1)
+	private function ordenarJerarquicamenteCuentasOrdenEstadoDeResultados(array $cuentas, int $padreId = 0, int $indentacion = 0,bool $excluirDesdeNivelDos=false,int $nivelMaximo = null)
 	{
+		$ordenadas     = [];
+		$totalImporte  = 0;
+		$totalImporteUSD  = 0;
 
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "MERCURIO";
-		$dato['tipo_sistema']  = "Sistema Contable";
-		
-		
-		$id_usuario = $this->session->userdata('id_usuario');
-		$dato['rolescero'] = $this->session->userdata('rolescero');
-		$dato['roles']  = $this->session->userdata('roles');
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
+		foreach ($cuentas as &$cuenta) {
+			if ($cuenta['padre'] == $padreId) {
 
-		$titulo = "Gestión de Comprobantes";		
-		$dato['titulo'] = $titulo;
-		$dato['entidad'] = $entidad;
-		$dato['tipo_comprobante'] =$tipo_comprobante;
+				// --- ¿Tiene hijos? -------------------------------------------------
+				$tieneHijos = false;
+				foreach ($cuentas as $posibleHijo) {
+					if (
+						$posibleHijo['padre'] == $cuenta['id'] ||
+						$posibleHijo['padre'] == $cuenta['ruta']   // para cuentas mayores
+					) {
+						$tieneHijos = true;
+						break;
+					}
+				}
 
-		$this->load->view('inicio/cabecera',$dato);
-		$this->load->view('inicio/menu',$dato);
-		$this->load->view('contabilidad/comprobantes',$dato);
-		$this->load->view('inicio/pie');
-	}
-	public function registroComprobante($entidad,$accion='nuevo',$id_comprobante=0)
-	{
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "MERCURIO";
-		$dato['tipo_sistema']  = "Sistema Contable";
-		$id_usuario = $this->session->userdata('id_usuario');
-		$dato['rolescero'] = $this->session->userdata('rolescero');
-		$dato['roles']  = $this->session->userdata('roles');
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
-		$dato['nombre_entidad']  = descripcion_nombre_entidad($entidad);
-		$dato['entidad']  = $entidad;
-		$dato['accion']  = $accion;
-		$dato['id_comprobante']  = $id_comprobante;
+				// --- Procesar hijos recursivamente --------------------------------
+				// [$hijosOrdenados, $sumaHijos] =$this->ordenarJerarquicamenteCuentasOrden($cuentas, $cuenta['id'], $indentacion + 1,$excluirDesdeNivelDos);
+				[$hijosOrdenados, $sumaHijos,$sumaHijosUSD] =
+					$this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados(
+						$cuentas, 
+						$cuenta['id'], 
+						$indentacion + 1,
+						$excluirDesdeNivelDos,
+						$nivelMaximo
+					);
 
-		$titulo = "Comprobante Contable";		
-		$dato['titulo'] = $titulo;
-
-		$this->load->view('inicio/cabecera',$dato);
-		$this->load->view('inicio/menu',$dato);		
-		$this->load->view('contabilidad/registro_comprobante',$dato); //cuerpo
-		$this->load->view('inicio/pie');
-	}
-	function verificarValorCombo($valor)
-	{
-		if($valor == -1 || strlen($valor) == 0)
-		{
-			$this->form_validation->set_message('verificarValorCombo', 'Seleccione una opción del combo TIPO de movimiento.');
-			return false;
-		}
-		else
-		{
-			return true;	
-		}
-	}
-	function verificarValorCuentaBusqueda()
-	{
-
-		$idCuenta = $this->input->post('id_cuenta');
-
-		if (empty($idCuenta) || !is_numeric($idCuenta)) {
-			$this->form_validation->set_message('verificarValorCuentaBusqueda', 'La cuenta seleccionada no es válida. Seleccione una cuenta válida de la lista.');
-			return FALSE;
-		}
-		return TRUE;
-	}
-	function verificarEntidad()
-	{
-
-		$idEntidad = $this->input->post('nombre_entidad');
-		// if (empty($idEntidad) || (!is_numeric($idEntidad) && $idEntidad == -1)) {
-		if (empty($idEntidad)) {
-			$this->form_validation->set_message('verificarEntidad', 'No se ha registrado una entidad para asociar el comprobante.');
-			return FALSE;
-		}
-		return TRUE;
-	}
-	public function fecha_valida($fecha)
-	{
-		// $fecha = $this->input->post('txtFecha');
-		// echo ($fecha);
-		if (DateTime::createFromFormat('Y-m-d', $fecha) !== false) {
-			return true;
-		} else {
-			$this->form_validation->set_message('fecha_valida', 'El campo {field} no contiene una fecha válida.');
-			return false;
-		}
-		
-	}
-	function validarDatosRegistroCuenta()
-	{
- 		$data = $this->input->post(); 
- 		$accion 	= $data['txtAccionMovimiento'];
- 		$this->form_validation->set_data($data);
- 		$resul = 1;
-		$mensaje = "OK";
-
-		if($accion == 'nuevo' || $accion == 'editar')
-		{	
-			if($this->form_validation->run('validar_registro_movimiento_cuenta'))
-			{
-				$resul = 1;
-				$mensaje = "OK";
-			}
-			else
-			{
-				$resul = 0;
-				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
-				$mensaje = formaterarValidacion($mensaje);
-			}
-		}
-		else
-		{
-			// if($this->form_validation->run('validar_opcion_editar'))
-			// {
-			// 	$resul = 1;
-			// 	$mensaje = "OK";
-			// }
-			// else
-			// {
-			// 	$resul = 0;
-			// 	$mensaje = json_encode($this->form_validation->get_errores_arreglo());
-			// 	$mensaje = formaterarValidacion($mensaje);
-			// }
-		}
-
-		$resultado ='[{								
-					"resultado":"'.$resul.'",
-					"mensaje":"'.$mensaje.'"
-					}]';
-
-		// echo json_encode($resultado);
-		echo $resultado; 		
-	}
-	public function cargarTablaRegistroCuenta( )
-	{
-
-		$id_usuario          = $this->session->userdata('id_usuario');
-		$id_funcionario      = $this->session->userdata('id_funcionario');
-		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-
-		$draw = intval($this->input->get("draw"));
-        $start = intval($this->input->get("start"));
-        $length = intval($this->input->get("length"));
-
-		// $datos_registro_cuenta	   = $this->input->post('datos_cuenta');
-		$datos    	        			= $this->input->post('datos_cuenta');
-		$cuentas    	    			= $this->input->post('cuentas');
-		// $data 			= $this->input->post(); 
-		parse_str($datos, $datos_registro_cuenta);
-		$accion_comprobante		        = $datos_registro_cuenta['txtAccionComprobanteCuenta'];
-		$accion_cuenta   		        = $datos_registro_cuenta['txtAccionMovimiento'];
-		$id_registroCuentaComprobante   = $datos_registro_cuenta['id_registroCuentaComprobante'];
-		$id_comprobante   		   		= $datos_registro_cuenta['id_comprobante'];
-		$id_entidad       		   		= $datos_registro_cuenta['id_entidad_registro'];
-		$id_cuenta   		       		= $datos_registro_cuenta['id_cuenta'];
-		$tipo_cambio     		   		= $datos_registro_cuenta['tipo_cambio_movimiento'];
-		$tipo_movimiento   		   		= $datos_registro_cuenta['txtTipoMovimiento'];
-		$importe   		           		= $datos_registro_cuenta['txtImporte'];
-		$glosa_cuenta   		   		= $datos_registro_cuenta['txtGlosaCuenta'];
-		$id_cuenta_auxiliar 		   	= $datos_registro_cuenta['id_cuenta_auxiliar'];
-		$cuenta_auxiliar  		   	    = $datos_registro_cuenta['txtAuxiliarCuenta'];
-		// $cadRegistroCuenta				   = $datos_registro_cuenta['registroCuentaT'];
-		$cadRegistroCuenta		   		= $cuentas;
-		$fechaActual          			= getFechaHoraActual();
+				// --- Sumar importe propio + importe hijos -------------------------
+				$importePropio              = isset($cuenta['saldo'])
+												? (float) $cuenta['saldo']
+												: 0;
+				$importePropioUSD              = isset($cuenta['saldousd'])
+												? (float) $cuenta['saldousd']
+												: 0;
+				// Si el nivel máximo está definido y la cuenta está en ese nivel máximo, sumamos saldo hijos
+				// if ($nivelMaximo !== null && isset($cuenta['nivel']) && $cuenta['nivel'] == $nivelMaximo) {
 				
-		$resul =1;
-		$mensaje="";
-		$data = array();
-		$num =1;
-		$importeDebe=0;
-		$importeHaber=0;
-		$importeDebeUs=0;
-		$importeHaberUs=0;
-		$totalimporteDebe=0;
-		$totalimporteHaber=0;
-		$totalimporteDebeUs=0;
-		$totalimporteHaberUs=0;
-		$nro_registros=0;
-		if($resul == 1)
+				// if ( isset($cuenta['nivel']) && $cuenta['nivel'] >= $nivelMaximo) {
+				// 	$saldoConHijos 		= $importePropio + $sumaHijos;
+				// 	$saldoConHijosUSD   = $importePropioUSD + $sumaHijosUSD;
+				// } else {
+				// 	// No sumamos hijos, solo saldo propio
+				// 	$saldoConHijos = $importePropio;
+				// 	$saldoConHijosUSD = $importePropioUSD;
+				// }
+
+				$saldoConHijos 		= $importePropio + $sumaHijos;
+				$saldoConHijosUSD   = $importePropioUSD + $sumaHijosUSD;
+
+				$cuenta['saldo'] 			 = $saldoConHijos;
+				$cuenta['importe_total'] 	 = $importePropio + $sumaHijos;
+				$cuenta['saldousd'] 		 = $saldoConHijosUSD;
+				$cuenta['importe_total_USD'] = $importePropioUSD + $sumaHijosUSD;
+
+				// $cuenta['importe_total']    = $importePropio + $sumaHijos;			
+				// --- Campos extra --------------------------------------------------
+				$cuenta['indentacion']      = $indentacion;
+				$cuenta['es_padre']         = $tieneHijos;
+
+				// --- Añadir al resultado ------------------------------------------
+
+				$agregarCuenta =true;
+				// Si hay límite de nivel y esta cuenta está por debajo, no se muestra
+				if ( isset($cuenta['nivel']) && $cuenta['nivel'] > $nivelMaximo) {
+					$agregarCuenta = false;
+				}
+
+				// if($excluirEnCero && $cuenta['importe_total'] == 0)
+				//EXCLUYE CUENTAS EN 0 DESDE EL NIVEL DOS
+				// if(
+				// 	$excluirDesdeNivelDos &&
+				// 	isset($cuenta['nivel']) &&
+				// 	$cuenta['nivel'] >=2 &&
+				// 	$importePropio == 0) 
+				if(
+					$excluirDesdeNivelDos &&
+					isset($cuenta['nivel']) &&
+					$cuenta['nivel'] >=2 &&
+					$saldoConHijos == 0) 
+				{
+					$agregarCuenta = false;
+				}
+				
+				if($agregarCuenta)
+				{
+					$ordenadas[] = $cuenta;
+				}
+
+				// $ordenadas   = array_merge($ordenadas, $hijosOrdenados);
+
+
+				// Agregar hijos solo si no hay límite de nivel o si el hijo está permitido
+				if ($nivelMaximo === null || (isset($cuenta['nivel']) && $cuenta['nivel'] <= $nivelMaximo)) {
+					$ordenadas = array_merge($ordenadas, $hijosOrdenados);
+				}
+
+				$totalImporte += $cuenta['importe_total'];
+				$totalImporteUSD += $cuenta['importe_total_USD'];
+			}
+		}
+		unset($cuenta);   // rompe la referencia del foreach
+
+		/*───────────────────────────────────────────────────────────────
+		Invertir la indentación EN ESTE BLOQUE devuelto, sea raíz
+		o subárbol: buscamos la profundidad máxima dentro de $ordenadas
+		───────────────────────────────────────────────────────────────*/
+
+		if ($ordenadas) {
+			$profMax = max(array_column($ordenadas, 'indentacion'));
+
+			foreach ($ordenadas as &$c) {
+				$c['indentacion_invertida'] = $profMax - $c['indentacion'];
+			}
+			unset($c);
+		}
+
+		return [$ordenadas, $totalImporte,$totalImporteUSD];
+	}
+
+	public function cargarDatosEstadoDeResultadosIngreso()
+	{
+		$id_usuario  = $this->session->userdata('id_usuario');
+			
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		// $id_entidad            = $this->input->post('id_entidad');
+		// $fecha_inicio  		   = $this->input->post('fecha_inicio');
+		// $fecha_fin             = $this->input->post('fecha_fin');
+		// // $id_cuenta             = $this->input->post('id_cuenta');
+		// $moneda                  = $this->input->post('moneda');
+		// $nivel				     = $this->input->post('nivel');
+		// $saldoCero  			 = $this->input->post('saldoCero');
+		// $cuentasSeleccionadas    = $this->input->post('cuentasSeleccionadas');
+
+		$codigo_cuenta_ingreso     = 4;
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+		$codigo_cuenta_egreso      = 5;
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+
+		$id_entidad	  = 1;
+		$nivel		  = 0;
+		$moneda		  = 'BOB';
+		$saldoCero	  = true;
+		$fecha_inicio = '2025-01-01';
+		$fecha_fin    = '2025-08-18';	
+
+		if($nivel== 0)
 		{
-				if($accion_comprobante == "nuevo" && $accion_cuenta == "nuevo")
-				{  
-					// echo ("CUENTAS CADENA".$cadRegistroCuenta);
-					$filas = explode("|", $cadRegistroCuenta);  
-					$nro_registros = count($filas)-1;
-					// echo("<pre>");
-					// print_r ($filas);
-					// echo("</pre>");
-					// echo ($nro_registros);
-					foreach($filas as $fila )
+			$nivel=getNivelMaximo();
+			// $nivel=4;
+		}
+
+		if($saldoCero == "true")
+		{
+			$excluirCuentasEnCero      = false;
+		}
+		else
+		{
+			$excluirCuentasEnCero      = true;
+		}
+		// echo("Fecha Inicio".$fecha_inicio."<br>");
+		// echo("Fecha Fin".$fecha_fin."<br>");
+		
+		$estadoResultadoIngreso    = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
+		$cuentasIngreso  	       = json_decode(json_encode($estadoResultadoIngreso), true);		
+		$ordenadas_cuentas_ingreso = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasIngreso ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasIngreso   = $ordenadas_cuentas_ingreso[0];
+
+		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso);
+		if($moneda === 'BOB'){
+				$sumaTotalGlobalIngreso    = $ordenadas_cuentas_ingreso[1];
+				if (!empty($resultado) && isset($resultado[0]->total_estado_resultado) ) {
+					$total_resultado = $resultado[0]->total_estado_resultado;
+				} else {
+					$total_resultado = 0; 
+				}
+		}
+		elseif ($moneda === 'USD') {
+				$sumaTotalGlobalIngreso    = $ordenadas_cuentas_ingreso[2];
+				if (!empty($resultado) && isset($resultado[0]->total_estado_resultadousd) ) {
+						$total_resultado = $resultado[0]->total_estado_resultadousd;
+					} else {
+						$total_resultado = 0; 
+					}
+		} 
+		
+		
+		$totalSaldoAcreedor =0;
+		foreach ($cuentasOrdenadasIngreso as $cuenta)
+		{   
+			$codigo 		 	   = $cuenta['codigo'];
+			$nivel 		 	 	   = $cuenta['nivel'];
+			$descripcion     	   = $cuenta['descripcion'];
+			// $indentacion_invertida = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $cuenta['indentacion_invertida']);
+			$indentacion           = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $cuenta['indentacion']);
+			// $padding_px 		   = $cuenta['nivel'] * 20; // 20px por nivel
+			if($moneda === 'BOB'){
+				$saldoAcreedor	 = $cuenta['saldo'];
+			}
+			elseif ($moneda === 'USD') {
+				$saldoAcreedor	 = $cuenta['saldousd'];
+			} 
+
+			$data[] = array(
+				"<span class='badge badge-secondary'>".$codigo."</span>",
+				"<span style='text-align: left; '>".$nivel."</span>",	
+				"<span style='text-align: left; '>".$indentacion.$descripcion."</span>",	
+				"<div style='text-align: right; color: #28a745; font-weight: bold; white-space: pre;'>"
+				. number_format($saldoAcreedor, 2, '.', ',') .$indentacion.
+				"</div>"		
+				
+			);
+			// $totalSaldoAcreedor+=$saldoAcreedor;
+							
+		}		
+		$output =( array(
+			             "     resultado" => 1, 
+		                  "nro_registros" => count($cuentasOrdenadasIngreso) , 
+					 "totalSaldoAcreedor" => number_format($sumaTotalGlobalIngreso,2,'.',','),
+					     "totalResultado" => number_format($total_resultado,2,'.',','),
+						           "data" => $data ) );
+
+		echo json_encode($output);
+		exit();
+
+	}
+	public function cargarDatosEstadoDeResultadosEgreso()
+	{
+		$id_usuario  = $this->session->userdata('id_usuario');
+			
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		// $id_entidad            = $this->input->post('id_entidad');
+		// $fecha_inicio  		   = $this->input->post('fecha_inicio');
+		// $fecha_fin             = $this->input->post('fecha_fin');
+		// // // $id_cuenta             = $this->input->post('id_cuenta');
+		// $moneda                = $this->input->post('moneda');
+		// $nivel				   = $this->input->post('nivel');
+		// $saldoCero  			 = $this->input->post('saldoCero');
+		// $cuentasSeleccionadas    = $this->input->post('cuentasSeleccionadas');
+		$codigo_cuenta_ingreso     = 4;
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+		$codigo_cuenta_egreso      = 5;
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+
+
+		$id_entidad	  = 1;
+		$nivel		  = 0;
+		$moneda		  = 'BOB';
+		$saldoCero	  = true;
+		$fecha_inicio = '2025-01-01';
+		$fecha_fin    = '2025-08-18';
+
+
+		if($nivel== 0)
+		{
+			$nivel=getNivelMaximo();
+		}
+
+
+		if($saldoCero == "true")
+		{
+			$excluirCuentasEnCero      = false;
+		}
+		else
+		{
+			$excluirCuentasEnCero      = true;
+		}
+
+		$estadoResultadoEgreso     = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso );
+		$cuentasDeEgreso		   = json_decode(json_encode($estadoResultadoEgreso), true);		
+		$ordenadas_cuentas_egreso  = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasDeEgreso ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasEgreso    = $ordenadas_cuentas_egreso[0];
+		
+		
+		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso);
+
+		if($moneda === 'BOB'){
+			$sumaTotalGlobalEgreso     = $ordenadas_cuentas_egreso[1];
+			if (!empty($resultado) && (isset($resultado[0]->total_estado_resultado)||isset($resultado[0]->total_estado_resultado))) {
+				$total_resultado = $resultado[0]->total_estado_resultado;
+			} else {
+				$total_resultado = 0; 
+			}
+		}
+		elseif ($moneda === 'USD') {
+			$sumaTotalGlobalEgreso  = $ordenadas_cuentas_egreso[2];
+			if (!empty($resultado) && (isset($resultado[0]->total_estado_resultado)||isset($resultado[0]->total_estado_resultadousd))) {
+				$total_resultado = $resultado[0]->total_estado_resultadousd;
+			} else {
+				$total_resultado = 0; 
+			}
+		} 
+
+	
+		$totalSaldoDeudor =0;
+
+		foreach ($cuentasOrdenadasEgreso as $cuenta)
+		{   
+			$codigo 		 = $cuenta['codigo'];
+			$descripcion     = $cuenta['descripcion'];
+			$nivel     		 = $cuenta['nivel'];
+			$indentacion           = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $cuenta['indentacion']);
+			if($moneda === 'BOB'){
+				$totalDeudor	 = $cuenta['saldo'];
+			}
+			elseif ($moneda === 'USD') {
+				$totalDeudor	 = $cuenta['saldousd'];
+			} 
+
+			$data[] = array(
+				"<span class='badge badge-secondary'>".$codigo."</span>",
+				"<span style='text-align: left; '>".$nivel."</span>",	
+				"<span style='text-align: left; '>".$indentacion.$descripcion."</span>",	
+				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>
+				".number_format($totalDeudor,2,'.',',').$indentacion."</div>",				
+			);
+			// $totalSaldoDeudor+=$totalDeudor;
+							
+		}		
+		$output =( array(
+			             "     resultado" => 1, 
+		                  "nro_registros" => count($cuentasOrdenadasEgreso) , 
+					   "totalSaldoDeudor" => number_format($sumaTotalGlobalEgreso,2,'.',','),
+					     "totalResultado" => number_format($total_resultado,2,'.',','),
+						           "data" => $data ) );
+
+		echo json_encode($output);
+		exit();
+
+	}
+	public function cerrarCuentaDeResultados()
+	{
+		$this->db->trans_start();
+		$id_usuario  = $this->session->userdata('id_usuario');	
+		$codigo_cuenta_ingreso     = 4;
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+		$codigo_cuenta_egreso      = 5;
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+
+
+		$id_entidad	  = 1;
+		$nivel		  = 0;
+		$moneda		  = 'BOB';
+		$saldoCero	  = true;
+		$fecha_inicio = '2025-01-01';
+		$fecha_fin    = '2025-08-18';
+		$fecha_actual = getFechaHoraActual();
+
+		if($nivel== 0)
+		{
+			$nivel=getNivelMaximo();
+		}
+		if($saldoCero == "true")
+		{
+			$excluirCuentasEnCero      = false;
+		}
+		else
+		{
+			$excluirCuentasEnCero      = true;
+		}
+
+		$estadoResultadoIngreso    = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
+		$cuentasIngreso  	       = json_decode(json_encode($estadoResultadoIngreso), true);		
+		$ordenadas_cuentas_ingreso = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasIngreso ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasIngreso   = $ordenadas_cuentas_ingreso[0];
+
+		$estadoResultadoEgreso     = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso );
+		$cuentasDeEgreso		   = json_decode(json_encode($estadoResultadoEgreso), true);		
+		$ordenadas_cuentas_egreso  = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasDeEgreso ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasEgreso    = $ordenadas_cuentas_egreso[0];
+		
+		// $sumaTotalGlobalIngreso    = $ordenadas_cuentas_ingreso[1];
+
+		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso);
+		if($moneda === 'BOB'){
+				$sumaTotalGlobalIngreso    = $ordenadas_cuentas_ingreso[1];
+				$sumaTotalGlobalEgreso     = $ordenadas_cuentas_egreso[1];
+				if (!empty($resultado) && isset($resultado[0]->total_estado_resultado) ) {
+					$total_resultado = $resultado[0]->total_estado_resultado;
+				} else {
+					$total_resultado = 0; 
+				}
+		}
+		elseif ($moneda === 'USD') {
+				$sumaTotalGlobalIngresoUSD    = $ordenadas_cuentas_ingreso[2];
+				$sumaTotalGlobalEgreso  	  = $ordenadas_cuentas_egreso[2];
+				if (!empty($resultado) && isset($resultado[0]->total_estado_resultadousd) ) {
+						$total_resultadousd = $resultado[0]->total_estado_resultadousd;
+					} else {
+						$total_resultadousd = 0; 
+					}
+		} 
+
+
+
+		// echo("<pre>");
+		// print_r($estadoResultadoIngreso);
+		// echo("</pre>");
+		// die();
+
+		// CUENTAS DE RESULTADOS ACUMULADOS -INGRESO
+		$idCuentaCierre 	  = 54; ///ojo
+		$idCuentaSaldoCierre  = 54; ///ojo
+		$tipo_comprobante     = 'TR';
+		$id_dependencia       = $this->session->userdata('id_dependencia_principal');
+		$fecha_comprobante    = '2025-01-01';
+		$periodo        	  = (int)date('m', strtotime($fecha_comprobante));
+		$gestion        	  = date("Y", strtotime($fecha_comprobante));
+		$referencia_general   = "*****";
+		$glosa_general        = "*****";
+		$tipo_cambio	      = "6.96";
+		$tipo_cierre          = "CIR";
+		// $tipo_movimiento	  = "DB";
+		$contador=3;
+		$estado_resultado     = 'CNS';//CONSOLIDADO
+		$comprobantes ='';
+		$id_comprobante=0;
+		for($i=1 ;$i<=$contador;$i++)
+		{
+
+			$tipoCorrelativo  	  = $tipo_comprobante ;
+			$datosCorrelativo     = json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
+			$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
+			$correlativo      		        = $datosCorrelativo[0]->correlativo;			
+			$datosComprobante = array(
+				'id_entidad'              => $id_entidad,
+				'tipo_comprobante'        => $tipo_comprobante,
+				'correlativo'             => $correlativo,
+				'periodo'                 => $periodo,
+				'gestion'                 => $gestion,
+				'referencia_comprobante'  => $referencia_general,
+				'glosa_comprobante' 	  => $glosa_general,
+				'fecha_comprobante'       => $fecha_comprobante,
+				'tipo_cambio'             => $tipo_cambio,
+				'id_usuario_registro'     => $id_usuario,
+				"tipo_cierre"			  => $tipo_cierre
+			);
+			
+
+			$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
+			$comprobantes = $comprobantes."-".$saveComprobante;
+			$updateCorrelativoEntidadGestion = array(
+				'correlativo' => $correlativo,
+				'fecha_modificacion' => $fecha_actual
+			);	
+
+			$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
+
+			if($saveComprobante)
+			{
+				if($i==3)
+				{
+					$id_comprobante = $saveComprobante;
+				}
+
+				/*DETALLE DE CUENTA DE INGRESO*/
+				if($i==1)//primero se registrara el comprobante de ingreso	
+				{
+							
+					foreach($estadoResultadoIngreso as $cuenta)
 					{
-						$importeDebe=0;
-						$importeHaber=0;
-						$importeDebeUs=0;
-						$importeHaberUs=0;
-						if( $fila)
+						$id_cuenta = $cuenta->id;
+						$saldo     = $cuenta->saldo;
+						$saldoUSD  = $cuenta->saldousd;
+						if($saldo > 0)
 						{
-							$row = explode("*", $fila); 
-							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
-
-							$codigoCuenta = explode("-",$cuenta);
-							list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
-							if($tipo_movimiento == "DB")
-							{
-								$importeDebe=$importe;
-								// $importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
-							elseif ($tipo_movimiento == "HB") {
-								$importeHaber=$importe;
-								// $importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
-
-							// echo("Importe DOLARES:".$importeHaberUs);
-							// die();
-
-							$botonEditar = "<div style='text-align: center;'>
-										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
-											<button type='button' class='btn btn-block btn-success btn-sm' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."','". $glosa_cuenta."' )\"><i>✏️</i></button>
-										</span>										
-									</div>";
-							$botonEliminar = "<div style='text-align: center;'>
-										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro'>
-											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$id_cuenta_auxiliar."','".$cuenta_auxiliar."','".$cadRegistroCuenta."')\"><i>🗑️</i></button>
-										</span>										
-									</div>";
-									
-							if($cuenta_auxiliar === '-')
-							{
-								$cuenta_auxiliar=''; 
-							}
-							else
-							{
-								$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$cuenta_auxiliar."</b></span>";			
-							}
-				
-							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta."<br><br>".$cuenta_auxiliar;
-							$data[] = array(
-								"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
-								$cuenta_registro,
-								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
-								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
-								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
-								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
-								$botonEliminar
-							);
-							$totalimporteDebe+=$importeDebe;
-							$totalimporteHaber+=$importeHaber;
-							$totalimporteDebeUs+=$importeDebeUs;
-							$totalimporteHaberUs+=$importeHaberUs;
-							$mensaje="SE AGREGO CORRECTAMENTE LA CUENTA.";
+							$tipo_movimiento='HB';
 						}
 						else
 						{
-							$resul=0;
-						}			
-					}
-				}
-				else
-				{
-
-					/*AÑADIR NUEVO REGISTRO DE CUENTA EN EL COMPROBANTE */
-					// $importe=$importe;
-					$verificacion_registro =0;
-
-					$importe_sin_comas = str_replace(',', '', $importe);
-					$importeUs=$importe_sin_comas/$tipo_cambio;
-					
-					if($accion_comprobante == "editar" && $accion_cuenta == "nuevo"){
-						$datosComprobanteDetalle = array(
-						'id_entidad'	            => $id_entidad,
-						'id_comprobante'            => $id_comprobante,
-						'id_cuenta'                 => $id_cuenta,
-						'tipo_movimiento'           => $tipo_movimiento,
-						'tipo_cambio'               => $tipo_cambio,
-						'importe_moneda_nacional'   => $importe_sin_comas,
-						'importe_moneda_extranjera' => $importeUs,
-						'glosa_cuenta'              => $glosa_cuenta,
-						'id_usuario_registro'       => $id_usuario,					
-						'id_cuenta_auxiliar'        => $id_cuenta_auxiliar				
-					);
-						$save_count_record = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
-						if($save_count_record){
-							$verificacion_registro =1;
-							$mensaje="SE AGREGO CORRECTAMENTE LA CUENTA.";
+							$tipo_movimiento='DB';
 						}
-					}
-					elseif($accion_comprobante == "editar" && $accion_cuenta == "editar") {
+						$tipo_cambio  = 6.96;
+						$glosa_cuenta = '';
+
+						/*REGISTRO DE CUENTAS DETALLE COMPROBANTE*/
+
 						$datosComprobanteDetalle = array(
-						'id_cuenta'                 => $id_cuenta,
-						'tipo_movimiento'           => $tipo_movimiento,
-						'tipo_cambio'               => $tipo_cambio,
-						'importe_moneda_nacional'   => $importe_sin_comas,
-						'importe_moneda_extranjera' => $importeUs,
-						'glosa_cuenta'              => $glosa_cuenta,
-						'fecha_modificacion'        => $fechaActual,					
-						'id_funcionario_update'     => $id_funcionario					
+							'id_entidad'	            => $id_entidad,
+							'id_comprobante'            => $saveComprobante,
+							'id_cuenta'                 => $id_cuenta,
+							'tipo_movimiento'           => $tipo_movimiento,
+							'tipo_cambio'               => $tipo_cambio,
+							'importe_moneda_nacional'   => $saldo,
+							'importe_moneda_extranjera' => $saldoUSD,
+							'glosa_cuenta'              => $glosa_cuenta,
+							'id_usuario_registro'       => $id_usuario,
+							'estado_resultado'          => $estado_resultado									
 						);
-						$update_count_record = $this->Comprobantes_model->updateDetalleComprobante($id_registroCuentaComprobante,$datosComprobanteDetalle);
-						if($update_count_record){
-							$verificacion_registro =1;
-							$mensaje="SE ACTUALIZÓ CORRECTAMENTE LA CUENTA.";
-						}
-					}
-
-					
-					if($verificacion_registro)
-					{
-						$filas = $this->Comprobantes_model->getDetalleComprobanteById($id_comprobante);
-						$nro_registros = count($filas);
-						foreach($filas as $fila )
+						$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
+						if($detalle_comprobante)
 						{
-							 
-							$cuenta_auxiliar="";
-							$importeDebe=0;
-							$importeHaber=0;
-							$importeDebeUs=0;
-							$importeHaberUs=0;
-
-							/*DATOS*/
-							$id_registro			   = $fila->id;
-							$id_entidad				   = $fila->id_entidad;
-							$id_comprobante			   = $fila->id_comprobante;
-							$id_cuenta				   = $fila->id_cuenta;
-							$descripcion_cuenta		   = getCuenta($fila->id_cuenta);
-							$tipo_movimiento		   = $fila->tipo_movimiento;
-							$tipo_cambio			   = $fila->tipo_cambio;
-							$importe_moneda_nacional   = $fila->importe_moneda_nacional;
-							$importe_moneda_extranjera = $fila->importe_moneda_extranjera;
-							$glosa_cuenta			   = $fila->glosa_cuenta;
-							$fecha_registro			   = $fila->fecha_registro;
-							$codigo_cuenta			   = getCodigoCuenta($fila->id_cuenta);
-							$id_cuenta_auxiliar		   = $fila->id_cuenta_auxiliar;
-							$codigo_auxiliar		   = $fila->codigo_auxiliar;
-							$descripcion_auxiliar	   = $fila->descripcion_auxiliar;
-							if($tipo_movimiento == "DB")
-							{
-								$importeDebe=$importe_moneda_nacional;
-								// $importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeDebeUs=$importe_moneda_extranjera;
-							}
-							elseif ($tipo_movimiento == "HB") {
-								$importeHaber=$importe_moneda_nacional;
-								// $importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeHaberUs=$importe_moneda_extranjera;
-							}
-
-							$botonEditar = "<div style='text-align: center;'>
-										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar Registro Cuenta'>
-											<button type='button' class='btn btn-block btn-success btn-sm' onclick=\"editarRegistroCuentaComprobante(".$id_registro.")\"><i>✏️</i></button>
-										</span>										
-									</div>";
-							$botonEliminar = "<div style='text-align: center;'>
-										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro'>
-											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaComprobante(".$id_registro.")\"><i>🗑️</i></button>
-										</span>										
-									</div>";
-
-							if(!empty($id_cuenta_auxiliar))
-							{
-								$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$codigo_auxiliar." - " .$descripcion_auxiliar."</b></span>";					
-							}
-							else
-							{
-								$cuenta_auxiliar=''; 
-								// $cuenta_auxiliar = "<span class='badge badge-warning'><b>".$cuenta_auxiliar."</b></span>";	
-							}
 							
-							// $cuenta_auxiliar = "<span class='badge badge-warning'><b>".$cuenta_auxiliar."</b></span>";		
-							
-							
-							$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta."<br><br>".$cuenta_auxiliar;
-							// $cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta;
-							$data[] = array(
-								"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
-								$cuenta_registro,
-								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
-								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
-								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
-								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
-								$botonEliminar.$botonEditar
-							);
-							$totalimporteDebe+=$importeDebe;
-							$totalimporteHaber+=$importeHaber;
-							$totalimporteDebeUs+=$importeDebeUs;
-							$totalimporteHaberUs+=$importeHaberUs;
-							
+							$resul = 1;
+							$mensaje = "SE REGISTRO CORRECTAMENTE";
+						}
+						else {
+							$resul = 0;
+							$mensaje = "ERROR EN EL REGISTRO!!!";
 						}
 
 					}
+					/*ASIENTO CONTABLE*/
+					$tipo_movimiento	  = "HB";
+					$glosa_cuenta		  = "";
+					$datosComprobanteDetalle = array(
+						'id_entidad'	            => $id_entidad,
+						'id_comprobante'            => $saveComprobante,
+						'id_cuenta'                 => $idCuentaCierre,
+						'tipo_movimiento'           => $tipo_movimiento,
+						'tipo_cambio'               => $tipo_cambio,
+						'importe_moneda_nacional'   => $sumaTotalGlobalIngreso,
+						'importe_moneda_extranjera' => $sumaTotalGlobalIngresoUSD,
+						'glosa_cuenta'              => $glosa_cuenta,
+						'id_usuario_registro'       => $id_usuario,
+						'estado_resultado'          => $estado_resultado				
+					);
+					$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);	
+
+
+					// $updateCorrelativoEntidadGestion = array(
+					// 	'correlativo' => $correlativo,
+					// 	'fecha_modificacion' => $fechaActual
+					// );	
+
+					// $data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
+
 				}
-		
-		}	
-		 $output = array(
-            "draw" => $draw,
-            "recordsTotal" => count($filas)-1,
-            "recordsFiltered" => count($filas)-1,
-            "nro_registros" => $nro_registros,
-            "totalimporteDebe" => number_format($totalimporteDebe,2,'.',','),
-            "totalimporteHaber" => number_format($totalimporteHaber,2,'.',','),
-            "totalimporteDebeUs" => number_format($totalimporteDebeUs,2,'.',','),
-            "totalimporteHaberUs" => number_format($totalimporteHaberUs,2,'.',','),
-            "data" => $data,
-			"resultado"=>$resul,
-			"mensaje"=>$mensaje
-        );
-	    echo json_encode($output);
-	    exit();
-	}		
-	function validarDatos($data)
-	{
+				elseif($i==2)
+				{
+					/*DETALLE DE CUENTA DE GASTO O EGRESO*/
+					$tipo_movimiento	  = "DB";
+					$glosa_cuenta		  = "";
+					$datosComprobanteDetalle = array(
+						'id_entidad'	            => $id_entidad,
+						'id_comprobante'            => $saveComprobante,
+						'id_cuenta'                 => $idCuentaCierre,
+						'tipo_movimiento'           => $tipo_movimiento,
+						'tipo_cambio'               => $tipo_cambio,
+						'importe_moneda_nacional'   => $sumaTotalGlobalIngreso,
+						'importe_moneda_extranjera' => $sumaTotalGlobalIngresoUSD,
+						'glosa_cuenta'              => $glosa_cuenta,
+						'id_usuario_registro'       => $id_usuario,
+						'estado_resultado'          => $estado_resultado					
+					);
+					$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);			
+					foreach($estadoResultadoEgreso as $cuenta)
+					{
+						$id_cuenta = $cuenta->id;
+						$saldo     = $cuenta->saldo;
+						$saldoUSD  = $cuenta->saldousd;
+						if($saldo > 0)
+						{
+							$tipo_movimiento='DB';
+						}
+						else
+						{
+							$tipo_movimiento='HB';
+						}
+						$tipo_cambio  = '';
+						$glosa_cuenta = '';
 
- 		$txtAccion 	= $data['txtAccionComprobante'];
-		$idEntidad  = $data['id_entidad'];
-		$fecha      = $data['txtFecha'];
+						/*REGISTRO DE CUENTAS DETALLE COMPROBANTE*/
 
-		// $verifica =$this->verificarEntidad($idEntidad);
-		$verifica_fecha = $this->fecha_valida($fecha);
-		// echo $verifica;	
-		// echo $verifica_fecha;	
-		// die();
+						$datosComprobanteDetalle = array(
+							'id_entidad'	            => $id_entidad,
+							'id_comprobante'            => $saveComprobante,
+							'id_cuenta'                 => $id_cuenta,
+							'tipo_movimiento'           => $tipo_movimiento,
+							'tipo_cambio'               => $tipo_cambio,
+							'importe_moneda_nacional'   => $saldo,
+							'importe_moneda_extranjera' => $saldoUSD,
+							'glosa_cuenta'              => $glosa_cuenta,
+							'id_usuario_registro'       => $id_usuario,
+							'estado_resultado'          => $estado_resultado									
+						);
+						$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
+						if($detalle_comprobante)
+						{
+							// $updateCorrelativoEntidadGestion = array(
+							// 	'correlativo' => $correlativo,
+							// 	'fecha_modificacion' => $fechaActual
+							// );	
 
- 		$this->form_validation->set_data($data);
- 		$resul = 1;
-		$mensaje = "OK";
+							// $data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
 
-		// echo json_encode($data);
+							$resul = 1;
+							$mensaje = "SE REGISTRO CORRECTAMENTE";
+						}
+						else {
+							$resul = 0;
+							$mensaje = "ERROR EN EL REGISTRO!!!";
+						}
 
-		if($txtAccion == 'nuevo')
-		{	
-			if($this->form_validation->run('validar_registro_comprobante'))
-			{
-				$resul = 1;
-				$mensaje = "OK";
+					}
+
+				}else
+				{
+					/*REGISTRO DE COMPROBANTE DE CIERRE CONTABLE */
+					if($total_resultado < 0)
+					{
+						$tipo_movimiento    = 'HB';
+						$total_resultado    = $total_resultado*-1;
+						$total_resultadousd = $total_resultadousd*-1;
+					}	
+					else {
+						$tipo_movimiento = 'DB';
+					}				
+					// $tipo_movimiento	  = "DB";
+					$glosa_cuenta		  = "";
+					$datosComprobanteDetalleA = array(
+						'id_entidad'	            => $id_entidad,
+						'id_comprobante'            => $saveComprobante,
+						'id_cuenta'                 => $idCuentaCierre,
+						'tipo_movimiento'           => $tipo_movimiento,
+						'tipo_cambio'               => $tipo_cambio,
+						'importe_moneda_nacional'   => $total_resultado,
+						'importe_moneda_extranjera' => $total_resultadousd,
+						'glosa_cuenta'              => $glosa_cuenta,
+						'id_usuario_registro'       => $id_usuario,
+						'estado_resultado'          => $estado_resultado					
+					);
+					$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalleA);		
+
+					if($total_resultado < 0){
+						$tipo_movimiento = 'DB';
+						$total_resultado    = $total_resultado*-1;
+						$total_resultadousd = $total_resultadousd*-1;
+					}
+					else {
+						$tipo_movimiento = 'HB';
+					}
+					
+					// $tipo_movimiento	  = "DB";
+					$glosa_cuenta		  = "";
+					$datosComprobanteDetalleB = array(
+						'id_entidad'	            => $id_entidad,
+						'id_comprobante'            => $saveComprobante,
+						'id_cuenta'                 => $idCuentaSaldoCierre,
+						'tipo_movimiento'           => $tipo_movimiento,
+						'tipo_cambio'               => $tipo_cambio,
+						'importe_moneda_nacional'   => $total_resultado,
+						'importe_moneda_extranjera' => $total_resultadousd,
+						'glosa_cuenta'              => $glosa_cuenta,
+						'id_usuario_registro'       => $id_usuario,
+						'estado_resultado'          => $estado_resultado					
+					);
+					$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalleB);		
+
+				}	
+				
+				
 			}
 			else
 			{
-				// $filas = explode("|", $detalleComprobante);
 				$resul = 0;
-				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
-				$mensaje = formaterarValidacion($mensaje);
+				$mensaje = "ERROR EN EL REGISTRO!!!";
 			}
+
+
+		}
+
+		/*CONSOLIDAR CUENTAS DEL CIERRE DE RESULTADOS*/
+		$cuentasIngreso    = $this->EstadoDeResultado_model->getCuentasConMovimientoByIdMayor($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
+		$cuentasEgreso     = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso);
+		$cuentasConsolidadas =  array_merge($cuentasIngreso,$cuentasEgreso);
+		foreach($cuentasConsolidadas as $cuenta)
+		{
+			$id_cuenta        = $cuenta->id_detalle_cuenta;
+			$estado_resultado = 'CNS';//CONSOLIDADO
+			$fecha_actual     = fecha_actual();
+			$datosDetalleComprobante = array(
+				'estado_resultado'        => $estado_resultado,
+				'fecha_modificacion'      => $fecha_actual,
+				'id_usuario_update'       => $id_usuario					
+			);
+			$detalle_comprobante = $this->Comprobantes_model->updateDetalleComprobante($id_cuenta,$datosDetalleComprobante);		
+		}
+		/*GUARDAR CIERRE */
+		$tipo_cierre = "CIR";
+		$descripcion = "";
+		$comprobantes = preg_replace('/^-/', '', $comprobantes, 1);
+		$datosCierre = array(
+			'id_entidad'	            => $id_entidad,
+			'gestion'		            => $gestion,
+			'mes'	                    => $mes,
+			'tipo_cierre'               => $tipo_cierre,
+			'fecha_cierre'              => $fecha_actual,
+			'id_comprobante'            => $id_comprobante,
+			'descripcion'               => $descripcion,
+			'saldo_resultado'           => $total_resultado,
+			'id_usuario_registro'       => $id_usuario,
+			'comprobante'               => $comprobantes					
+		);
+		$cierre = $this->Comprobantes_model->guardarCierre($datosCierre);				
+		if($cierre)
+		{
+			$resul = 1;
+			$mensaje = "SE REGISTRO EL CIERRE DE RESULTADOS CORRECTAMENTE.";
 		}
 		else
 		{
-			if($this->form_validation->run('validar_registro_comprobante_editar'))
-			{
-				$resul = 1;
-				$mensaje = "OK";
-			}
-			else
-			{
-				$resul = 0;
-				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
-				$mensaje = formaterarValidacion($mensaje);
-			}
+			$resul = 0;
+			$mensaje = "ERROR EN EL PROCESO!!!";
 		}
 
-		$resultado ='[{								
-					"resultado":"'.$resul.'",
-					"mensaje":"'.$mensaje.'"
-					}]';
-
-		return $resultado; 		
-
-	}
-	public function guardarComprobante()
-	{
-		$id_usuario          = $this->session->userdata('id_usuario');
-		$id_funcionario      = $this->session->userdata('id_funcionario');
-		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-		$fechaActual         = getFechaHoraActual();
-		parse_str($this->input->post('datos'), $data);
-		$detalleComprobante  = $this->input->post('detalleComprobante');
-	
-		$validacomprobante   = json_decode($this->validarDatos($data));	
-		$resultado   = $validacomprobante[0]->resultado;
-		$mensaje     = $validacomprobante[0]->mensaje;
-        $idComprobante=0;
-		$this->db->trans_start();
-        if($resultado == 1)
-		{
-			
-            $accion      		  = $data['txtAccionComprobante'];
-			// $idComprobante   	  = $data['id_comprobante'];
-			$id_entidad       	  = $data['id_entidad'];
-			$fecha_comprobante    = $data['txtFecha'];
-			$tipo_cambio	      = $data['txtTipoCambio'];
-			$referencia_general   = $data['txtReferencia'];
-			$glosa_general	      = $data['txtGlosaGeneral'];
-			$correlativo		  = 0;
-			// $periodo        	  = date("m", strtotime($fecha_comprobante));
-			$periodo        	  = (int)date('m', strtotime($fecha_comprobante));
-			$gestion        	  = date("Y", strtotime($fecha_comprobante));
 
 
-
-			$totalImporteDebe	  = $data['total_debe'];
-			$totalImporteHaber    = $data['total_haber'];
-			$totalImporteDebeUs	  = $data['total_debe_us'];
-			$totalImporteHaberUs  = $data['total_haber_us'];
-
-			if(($totalImporteDebe === $totalImporteHaber) && ($totalImporteDebeUs === $totalImporteHaberUs))
-			{
-				if($accion === 'nuevo')
-				{
-				// $idComprobante   	  = $data['id_comprobante'];
-					$tipo_comprobante     = $data['txtTipo'];
-
-					$tipoCorrelativo  = $tipo_comprobante ;
-					$datosCorrelativo = json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
-					$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
-					$correlativo      		        = $datosCorrelativo[0]->correlativo;
-
-					
-					$datosComprobante = array(
-						'id_entidad'              => $id_entidad,
-						'tipo_comprobante'        => $tipo_comprobante,
-						'correlativo'             => $correlativo,
-						'periodo'                 => $periodo,
-						'gestion'                 => $gestion,
-						'referencia_comprobante'  => $referencia_general,
-						'glosa_comprobante' 	  => $glosa_general,
-						'fecha_comprobante'       => $fecha_comprobante,
-						'tipo_cambio'             => $tipo_cambio,
-						'id_usuario_registro'     => $id_usuario
-					);
-
-					$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
-					if($saveComprobante)
-					{
-						/*REGISTRO DE CUENTAS DEL COMPROBANTE*/
-						$idComprobante = $saveComprobante;
-						$filas = explode("|", $detalleComprobante);
-						if(!empty($filas))
-						{
-							foreach($filas as $fila)
-							{
-								if(!empty($fila) && $fila != "undefined" && $fila != "null")
-								{
-									$row = explode("*", $fila);
-									if(!isset($row[0]) || empty($row[0]))
-									{
-										list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
-										// $importe   = number_format($importe,2,'.',',');
-										// $importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
-										$importeUsBase = round($importe/$tipo_cambio,2);
-										$importeBase = floatval(str_replace(',', '', $importe));
-										//$importeUsBase = floatval(str_replace(',', '', $importeOriginal));
-										if($id_cuenta_auxiliar === '-')
-										{
-											$datosComprobanteDetalle = array(
-											'id_entidad'	            => $id_entidad,
-											'id_comprobante'            => $saveComprobante,
-											'id_cuenta'                 => $id_cuenta,
-											'tipo_movimiento'           => $tipo_movimiento,
-											'tipo_cambio'               => $tipo_cambio,
-											'importe_moneda_nacional'   => $importeBase,
-											'importe_moneda_extranjera' => $importeUsBase,
-											'glosa_cuenta'              => $glosa_cuenta,
-											'id_usuario_registro'       => $id_usuario									
-											);
-										}
-										else
-										{
-											$datosComprobanteDetalle = array(
-											'id_entidad'	            => $id_entidad,
-											'id_comprobante'            => $saveComprobante,
-											'id_cuenta'                 => $id_cuenta,
-											'tipo_movimiento'           => $tipo_movimiento,
-											'tipo_cambio'               => $tipo_cambio,
-											'importe_moneda_nacional'   => $importe,
-											'importe_moneda_extranjera' => $importeUs,
-											'glosa_cuenta'              => $glosa_cuenta,
-											'id_usuario_registro'       => $id_usuario,					
-											'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
-											);
-										}
-										
-										// $datosComprobanteDetalle = array(
-										// 	'id_entidad'	            => $id_entidad,
-										// 	'id_comprobante'            => $saveComprobante,
-										// 	'id_cuenta'                 => $id_cuenta,
-										// 	'tipo_movimiento'           => $tipo_movimiento,
-										// 	'tipo_cambio'               => $tipo_cambio,
-										// 	'importe_moneda_nacional'   => $importe,
-										// 	'importe_moneda_extranjera' => $importeUs,
-										// 	'glosa_cuenta'              => $glosa_cuenta,
-										// 	'id_usuario_registro'       => $id_usuario,					
-										// 	'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
-										// );
-										$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
-										if($detalle_comprobante)
-										{
-											$updateCorrelativoEntidadGestion = array(
-												'correlativo' => $correlativo,
-												'fecha_modificacion' => $fechaActual
-											);	
-
-											$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
-
-											$resul = 1;
-											$mensaje = "SE REGISTRO CORRECTAMENTE";
-										}
-										else
-										{
-											$resul = 0;
-											$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE!!!";
-										}
-									}
-									else
-									{
-										// echo("FALSOOOOO");
-										$resul = 0;
-										$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE....!!!";
-									}
-
-								}
-															
-							}
-						}
-					}
-					else
-					{
-						$resul = 0;
-						$mensaje = "ERROR EN EL REGISTRO!!!";
-					}
-				}
-				else
-				{
-					$idComprobante   	  = $data['id_comprobanteP'];
-					$updateComprobante = array(
-						'periodo'                 => $periodo,
-						'gestion'                 => $gestion,
-						'glosa_comprobante' 	  => $glosa_general,
-						'referencia_comprobante'  => $referencia_general,
-						'fecha_comprobante'       => $fecha_comprobante,
-						'tipo_cambio'             => $tipo_cambio,
-						'fecha_modificacion'      => $fechaActual,
-						'id_funcionario_update'   => $id_funcionario
-					);
-					$saveComprobante = $this->Comprobantes_model->updateComprobante($idComprobante,$updateComprobante);
-					if($saveComprobante)
-					{
-						$resul = 1;
-						$mensaje = "SE ACTUALIZÓ CORRECTAMENTE EL COMPROBANTE";
-					}
-					else
-					{
-						$resul = 0;
-						$mensaje = "ERROR EN EL REGISTRO!!!";
-					}
-				}
-			}
-			else
-			{
-				$resultado = 2;
-				$mensaje = "Comprobante Contable Descuadrado:El comprobante presenta una diferencia contable.Verifique que el total del debe y del haber sean iguales para cumplir con la partida doble.";
-
-			}		
-						
-		}
 		/******TRANSACT*****/
 		if ($this->db->trans_status() === FALSE && $resul == 1) { 
 			$this->db->trans_rollback(); // Deshacer los cambios si hay un error
@@ -721,1193 +778,228 @@ class CierreDeResultados extends CI_Controller {
 			$this->db->trans_commit(); // Confirmar los cambios si todo está bien
 			// $resultado = 1;
 		}
-		echo '[{"idComprobante":"'.$idComprobante.'",
-				    "resultado":"'.$resultado.'",
-		              "mensaje":"'.$mensaje.'"}]';
+		echo '[{
+				"resultado":"'.$resul.'",
+					"mensaje":"'.$mensaje.'"}]';
+
+		// $resultado ='[{
+		// 				"resultado":"'.$resul.'",
+		// 				"mensaje":"'.$mensaje.'"
+		// 			 }]';
+
+		// echo $resultado;
+
 
 	}
-	public function cargarComprobantesByEntidad()
-	{
-		$id_usuario  = $this->session->userdata('id_usuario');
-			
-		$draw    = intval($this->input->get("draw"));
-		$start   = intval($this->input->get("start"));
-		$length  = intval($this->input->get("length"));	
-		$data    = array();
-		$num     = 1;
 
-		$id_entidad  		  = $this->input->post('id_entidad');
-		$id_tipo_comprobante  = $this->input->post('id_tipo_comprobante');
-		if($id_tipo_comprobante == -1)
-		{
-			$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidad($id_entidad);
-		}
-		else
-		{
-			$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidadTipoComprobante($id_entidad,$id_tipo_comprobante);
-		}
-		
-		foreach ($filas as $fila)
-		{   
-			$boton      			   = "";
-			$tipo_comprobante_generado = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
-			$correlativo	 		   = $fila->correlativo;
-			$nombre_entidad 		   = descripcion_nombre_entidad($fila->id_entidad);
-			$tipo_comprobante = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
-			$nombre_entidad =descripcion_nombre_entidad($fila->id_entidad);
-			if($fila->estado == 'ANU')
-			{
-				$estado ="<span class='badge badge-danger'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
-			}
-			else
-			{
-				$estado ="<span class='badge badge-success'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
-				$boton .= "
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
-                            <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
-                        </span>	
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Imprimir'>
-                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"generarReporteComprobanteRegistrado(". $fila->id . ")\"><i class='fas fa-print'></i></button>     
-                        </span>	
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick=\"eliminarComprobante(". $fila->id .",'".$tipo_comprobante_generado."',".$correlativo.",'".$nombre_entidad."')\"><i class='fas fa-trash-alt'></i></button>     
-                        </span>	
-                        ";	
-			}
-			$data[] = array(
-				$boton,
-				// $num++,
-				$tipo_comprobante,
-				$fila->correlativo,
-				formato_fecha($fila->fecha_comprobante),
-				$fila->glosa_comprobante,
-				datos_persona_nombre2($fila->id_usuario_registro),	
-				$estado			);
-		}
-		$output = array(
-			"draw" => $draw,
-			"recordsTotal" => count($filas),
-			"recordsFiltered" => count($filas),
-			"data" => $data
-		);
-		echo json_encode($output);
-		exit();
-	}
-	function eliminarRegistroCuentaTemporal()
-	{				
-		$accion 				  = $this->input->post('accion');
-		$id_cuenta   			  = $this->input->post('id_cuenta');
-		$codigoCuenta   		  = $this->input->post('codigoCuenta');
-		$tipo_movimiento   		  = $this->input->post('tipo_movimiento');
-		$tipo_movimiento_literal  = $this->input->post('tipo_movimiento_literal');
-		$importe   				  = $this->input->post('importe');
-		$tipo_cambio   			  = $this->input->post('tipo_cambio');
-		$glosa_cuenta   		  = $this->input->post('glosa_cuenta');
-		$id_cuenta_auxiliar   	  = $this->input->post('id_cuenta_auxiliar');
-		$cuenta_auxiliar   		  = $this->input->post('cuenta_auxiliar');
-		$cadRegistroCuenta		  = $this->input->post('cadRegistroCuenta');
-
-		$doc  			= $this->input->post('doc');
-		$nrodoc   		= $this->input->post('nrodoc');
-		$fechadoc 		= $this->input->post('fechadoc');
-		$cadDocumentos 	=$this->input->post('documentos');
-		if(trim($accion) == 'nuevo')
-		{
-			$cadCuentas = str_replace('*'.$id_cuenta.'*'.$codigoCuenta.'*'.$tipo_movimiento.'*'.$tipo_movimiento_literal.'*'.$importe.'*'.$tipo_cambio.'*'.$glosa_cuenta.'*'.$id_cuenta_auxiliar.'*'.$cuenta_auxiliar."|","",$cadRegistroCuenta);
-			$mensaje = array("resultado" => 1 , 
-			                    "mensaje"=>"Se ha eliminado el registro", 
-								"cuentas"=> $cadCuentas);
-		}
-		// else{
-		// 	$data = array (
-		// 	'estado' => 'AN',
-		// 	'fecha' => date('Y-m-d H:i:s')
-		// 	);
-		// 	$filas = $this->entidaddocumento_model->updateEntidadDocumento($id,$data);
-		// 	$mensaje = array("resultado" => 1 , "mensaje"=>"Se ha eliminado el registro", "cuentas"=>"");
-		// }	
-		echo json_encode($mensaje);
-	}	
-	private function ordenarJerarquicamente($cuentas, $padreId = 0, $indentacion = 0)
-	{
-		$ordenadas = [];
-
-		foreach ($cuentas as $cuenta) {
-			if ($cuenta['padre'] == $padreId) {
-				// Buscar si esta cuenta tiene hijos
-				$tieneHijos = false;
-				foreach ($cuentas as $posibleHijo) {
-					if ($posibleHijo['padre'] == $cuenta['id']) {
-						$tieneHijos = true;
-						break;
-					}
-					elseif($posibleHijo['padre'] == $cuenta['ruta'])/*ojo*/
-					{
-						$tieneHijos = true;
-						break;
-					}
-				}
-				// Añadir campo extra
-				$cuenta['indentacion'] = $indentacion;
-				$cuenta['es_padre'] = $tieneHijos;
-
-				// Agregar la cuenta ordenada
-				$ordenadas[] = $cuenta;
-
-				// Agregar recursivamente los hijos
-				$ordenadas = array_merge($ordenadas, $this->ordenarJerarquicamente($cuentas, $cuenta['id'], $indentacion + 1));
-			}
-		}
-
-		return $ordenadas;
-	}
-	public function listarPlanDeCuentasBusquedaComprobante()
-    {
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda();
-		$cuentas = json_decode(json_encode($cuentas), true);
-		$ordenadas = $this->ordenarJerarquicamente($cuentas);
-		
-		$draw    = intval($this->input->get("draw"));
-		$start   = intval($this->input->get("start"));
-		$length  = intval($this->input->get("length"));	
-		$data    = array();
-		$num     = 1;
-
-		foreach ($ordenadas as $fila)
-		{   
-			$cuenta= $fila['codigo']."-". $fila['descripcion'];
-			$boton   = "
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Seleccionar'>
-                            <button type='button' class='btn btn-success btn-sm' onclick=\"busquedaIDCuenta(".$fila['id'].",'".$cuenta."')\"><i>✓</i></button>     
-                        </span>				
-                        ";		
-
-			$indentacion = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
-			$descripcion = $fila['descripcion'];
-			$codigo      = $fila['codigo'];
-			$nivel       = $fila['nivel'];
-
-			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
-				$descripcion = "<strong><u>{$descripcion}</u></strong>";
-				$codigo =  "<strong><u>{$codigo}</u></strong>";
-			}
-			$data[] = array(
-				"<div style='text-align: center;'>$boton</div>",
-				"<span class='badge badge-secondary'>".$codigo."</span>",
-				$descripcion,
-				$nivel
-			);
-		}
-
-		// die();
-		$output = array(
-			"draw" => $draw,
-			"recordsTotal" => count($ordenadas),
-			"recordsFiltered" => count($ordenadas),
-			"data" => $data
-		);
-		echo json_encode($output);
-		exit();
-    }
-	function ReporteComprobanteRegistradoPDF($id_comprobante,$accion)
-	{
-
-		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-		// $datos_json = json_decode($this->input->post('datos'));
-		// $detalle_json =json_decode($this->input->post('detalleComprobante'));
-		
-		// parse_str($datos_json, $datos1);		
-		
-		$datosComprobante    = $this->Comprobantes_model->getComprobanteById($id_comprobante);
-		// echo json_encode($datosComprobante);
-		/****************************/
-		/*INICIO DEL REPORTE*/
-		/****************************/
-		$orden = array("\r\n", "\n", "\r" ,'"') ;
-		$pdf=new exFPDFCartaContable('P','mm','Letter');
-		// $this->load->library('fpdf/pdf2');
-		// $pdf=new Pdf2('P','mm','Letter');
-		$pdf->fechahora_impresion='SI';
-		// $pdf->opcion_pie ="PAGINADOR_FECHA";
-		$pdf->SetFont('Arial','',14);
-		$pdf->AliasNbPages();
-		$pdf->AddPage(); 
-		/****************************/
-		/*DATOS CABECERA DEL REPORTE*/
-		/****************************/
-		// $accion = $datos1['txtAccionComprobante'];
-		if($accion === 'editar'){
-
-			$id_comprobante					= $datosComprobante[0]->id;
-			$marcaAgua='SI';
-			$nombre_entidad					= descripcion_nombre_entidad($datosComprobante[0]->id_entidad);
-			$sigla_entidad					= sigla_entidad($datosComprobante[0]->id_entidad);
-			$sigla_senape					= "SENAPE";
-			// $this->Cell(20, 3, utf8_decode('Página ' . $this->PageNo() . '/{nb}'), 0, 0, 'C');
-			// $paginador 						= "Pag. 1/2";
-			// $paginador 						= 'Pág.' . $pdf->PageNo().'/{nb}';
-			$paginador 						= 'Pág.' . $pdf->PageNo();
-			$fecha_comprobante  			= formato_fecha_slash($datosComprobante[0]->fecha_comprobante);
-			$tipo_cambio					= number_format($datosComprobante[0]->tipo_cambio,2,'.',',');
-			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $datosComprobante[0]->tipo_comprobante);
-			// $mes							= date("n", strtotime($fecha_comprobante));
-			$mes							= $datosComprobante[0]->periodo;
-			$periodo						= mb_strtolower(getValor2Configuraciones("MESES", $mes));
-			$gestion						= $datosComprobante[0]->gestion;
-			$correlativo      		        = $datosComprobante[0]->correlativo;
-			$correlativo_comprobante		= $correlativo;
-			$referencia_comprobante 		= $datosComprobante[0]->referencia_comprobante;
-			$glosa_general					= $datosComprobante[0]->glosa_comprobante;
-
-
-			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-
-			$texto_cabecera_izquierda = utf8_decode(mb_strtoupper($nombre_entidad)) . "\n" .
-										utf8_decode(mb_strtoupper($sigla_entidad)) . "\n" .
-										utf8_decode(mb_strtoupper($sigla_senape));
-			$table->easyCell("<b>".$texto_cabecera_izquierda."</b>", 'valign:M;halign:C;font-size:7');
-
-			$table->easyCell(' ', 'valign:M;halign:C;font-size:7');
-
-			$texto_cabecera_derecha = utf8_decode($paginador) ."\n" .
-									utf8_decode($fecha_comprobante) . "\n" .
-									utf8_decode("T.C.:".$tipo_cambio);
-			$table->easyCell("<b>".$texto_cabecera_derecha."</b>", 'valign:M;halign:R;font-size:7');
-
-			$table->printRow();
-			$table->endTable(0);
-
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-			$table->easyCell(utf8_decode(mb_strtoupper($tipo_comprobante)), 'valign:M;halign:C;font-size:8 ;font-style:BU');
-			$table->printRow();
-			$table->endTable(0);
-
-			$table = new easyTable($pdf, '{40,25,40,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-
-			$texto_periodo =  utf8_decode("Periodo: <b>".$periodo."-".$gestion."</b>");
-			$table->easyCell($texto_periodo, 'val
-			// $filas = explode("|", $detalleComprobante);ign:M;font-size:8;halign:R;');
-
-			$texto_nrocomprobante =  utf8_decode("Nro: <b>".$correlativo_comprobante."</b>");
-			$table->easyCell($texto_nrocomprobante, 'valign:M;font-size:8;halign:L;');
-
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-
-			$table->printRow();
-			$table->endTable(2);
-
-
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{L}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-			$table->easyCell(utf8_decode("<b>Ref.:</b>".$referencia_comprobante), 'valign:M;halign:L;font-size:8 ;font-style:N');
-			$table->printRow();
-			$table->endTable(2);
-
-			/******************************/
-			/*CUERPO*/
-			/******************************/
-			/*CABECERA*/
-			$table=new easyTable($pdf, '{30,80,20,20,20,20}', 'width:190;align:{CLCCCC}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
-			$table->easyCell(utf8_decode("CÓDIGO"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DESCRIPCIÓN"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DEBE") ,'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("HABER"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DEBE Us."),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("HABER Us."),'valign:M;font-style:B;font-size:6;' );
-			$table->printRow(true);
-			$table->endTable(0);
-
-			$table=new easyTable($pdf, '{30,80,20,20,20,20}', 'width:190;align:{LLRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LR;border-color:#c0c0c0;line-height:1.2;');
-			// $detalleComprobante=$detalle_json;		
-			// $filas = explode("|", $detalleComprobante);
-			$detalleComprobante    = $this->Comprobantes_model->getDetalleComprobanteById($id_comprobante);
-			// echo json_encode($detalleComprobante);
-			$importeDebe=0;
-			$importeHaber=0;
-			$importeDebeUs=0;
-			$importeHaberUs=0;
-			$totalimporteDebe=0;
-			$totalimporteHaber=0;
-			$totalimporteDebeUs=0;
-			$totalimporteHaberUs=0;
-			$nro_registros=0;
-
-			if(!empty($detalleComprobante))
-			{
-				foreach($detalleComprobante as $fila)
-				{
-							$importeDebe=0;
-							$importeHaber=0;
-							$importeDebeUs=0;
-							$importeHaberUs=0;
-
-							$id_registro 			   = $fila->id;
-							$id_cuenta   			   = $fila->id_cuenta;
-							$descripcion_cuenta		   = getCuenta($id_cuenta);
-							$tipo_movimiento		   = $fila->tipo_movimiento;
-							$tipo_movimiento_literal   = getValor2Configuraciones("TIPO MOVIMIENTO", $fila->tipo_movimiento);
-							$importe				   = $fila->importe_moneda_nacional;
-							$importe_moneda_extranjera = $fila->importe_moneda_extranjera;
-							$tipo_cambio			   = $fila->tipo_cambio;
-							$glosa_cuenta			   = $fila->glosa_cuenta;
-							$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
-							
-							if($tipo_movimiento == "DB")
-							{
-								$importeDebe   = $importe;
-								$importeDebeUs = $importe_moneda_extranjera;
-								// $importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
-							elseif ($tipo_movimiento == "HB") {
-								$importeHaber   = $importe;
-								$importeHaberUs = $importe_moneda_extranjera;
-								// $importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
-
-							$cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta;
-							$table->easyCell($codigo_cuenta,'valign:M;bgcolor:#fff;font-size:7;rowspam:2;' );
-							$table->easyCell(utf8_decode("<b>".$descripcion_cuenta."</b>"),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;font-style:BU' );
-							
-							if($importeDebe > 0)
-							{
-								$table->easyCell(number_format($importeDebe, 2, '.', ','),'valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							}
-							else
-							{
-								$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							}
-							if($importeHaber > 0)
-							{
-								$table->easyCell(number_format($importeHaber,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							else
-							{
-								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							if($importeDebeUs>0)
-							{
-								$table->easyCell(number_format($importeDebeUs,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							else
-							{
-								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							if($importeHaberUs>0)
-							{
-								$table->easyCell(number_format($importeHaberUs,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							else
-							{
-								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							$table->printRow();
-							$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(utf8_decode($glosa_cuenta),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->printRow();
-
-							$totalimporteDebe+=$importeDebe;
-							$totalimporteHaber+=$importeHaber;
-							$totalimporteDebeUs+=$importeDebeUs;
-							$totalimporteHaberUs+=$importeHaberUs;
-				}
-			}
-				
-			$table->endTable(0);
-		}
-		
-		$table=new easyTable($pdf, '{110,20,20,20,20}', 'width:190;align:{RRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
-		$table->easyCell(utf8_decode("TOTALES:"),'valign:M;font-style:B;font-size:6;' );
-		$table->easyCell(number_format($totalimporteDebe, 2, '.', ','),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		$table->easyCell(number_format($totalimporteHaber,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-		$table->easyCell(number_format($totalimporteDebeUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-		$table->easyCell(number_format($totalimporteHaberUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-		$table->printRow(true);
-		$table->endTable(3);
-		$table=new easyTable($pdf, '{110,7,30,7,30,6}', 'width:190;align:{LCCCCC}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border-color:#c0c0c0;line-height:1.2;');
-
-		$table->easyCell(utf8_decode("<b>Glosa:</b> ".$glosa_general), 'valign:T;rowspan:5;font-size:7;');
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->printRow(true);	
-
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->printRow(true);	
-
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->printRow(true);	
-
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->printRow(true);	
-
-
-		$pie_contador="CONTADOR";
-		$pie_gerentegeneral="GERENTE GENERAL";
-		
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
-		$table->easyCell(utf8_decode("$pie_contador"),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;T;' );	
-		$table->easyCell(utf8_decode($pie_gerentegeneral),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
-		$table->printRow(true);	
-		$table->endTable(5);
-				
-		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
-	}
-	function ReporteComprobanteTemporalPDF()
-	{
-
-		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-		$datos_json 		 = $this->input->post('datos');
-		// $datos_json = json_decode($this->input->post('datos'));
-		// $detalle_json =json_decode($this->input->post('detalleComprobante'));
-		$detalle_json =$this->input->post('detalleComprobante');
-		// ******parse_str($this->input->post('datos'), $data1);
-		parse_str($datos_json, $datos1);		
-		// // echo("<pre>");
-		// // print_r($datos1);
-		// // echo("<br>");
-		// // print_r($detalle_json);
-		// // echo("</pre>");
-		$orden = array("\r\n", "\n", "\r" ,'"') ;
-		$pdf=new exFPDFCartaContable('P','mm','Letter');
-		$pdf->SetFont('Arial','',14);
-		$pdf->AliasNbPages();
-		$pdf->opcion_pie='COMPROBANTE_TEMPORAL';
-		$pdf->SetTextColor(0); 
-		$pdf->SetFont('Arial', '', 10);
-		$pdf->AddPage(); 
-		/****************************/
-		/*DATOS CABECERA DEL REPORTE*/
-		/****************************/
-		$accion = $datos1['txtAccionComprobante'];
-		if($accion === 'nuevo'){
-
-			$marcaAgua					    = 'SI';
-			$nombre_entidad					= descripcion_nombre_entidad($datos1['id_entidad']);
-			$sigla_entidad					= sigla_entidad($datos1['id_entidad']);
-			$sigla_senape					= "SENAPE";
-			// $this->Cell(20, 3, utf8_decode('Página ' . $this->PageNo() . '/{nb}'), 0, 0, 'C');
-			$paginador 					    = 'Pág.' . $pdf->PageNo();
-			$fecha_comprobante  			= formato_fecha_slash($datos1['txtFecha']);
-			$tipo_cambio					= number_format($datos1['txtTipoCambio'],2,'.',',');
-			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $datos1['txtTipo']);
-			
-			$mes							= date("n", strtotime($fecha_comprobante));
-			$periodo						= mb_strtolower(getValor2Configuraciones("MESES", $mes));
-			$gestion						= date("Y", strtotime($fecha_comprobante));	
-
-			$tipoCorrelativo  				= $datos1['txtTipo'] ;
-			$datosCorrelativo   			= json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$datos1["id_entidad"],$id_dependencia, $gestion));
-			$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
-			$correlativo      		        = $datosCorrelativo[0]->correlativo;
-			$correlativo_comprobante		= $correlativo;
-			$referencia_comprobante 		= $datos1['txtReferencia'];
-			$glosa_general					= $datos1['txtGlosaGeneral'];
-
-			$table = new easyTable($pdf, '{40,90,60}', 'width:190;align:{C,R,R}; font-size:7; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-
-			$texto_cabecera_izquierda = utf8_decode(mb_strtoupper($nombre_entidad)) . "\n" .
-										utf8_decode(mb_strtoupper($sigla_entidad)) . "\n" .
-										utf8_decode(mb_strtoupper($sigla_senape));
-			$table->easyCell("<b>".$texto_cabecera_izquierda."</b>", 'valign:M;halign:C;font-size:7');
-
-			$table->easyCell(' ', 'valign:M;halign:C;font-size:7');
-
-			$texto_cabecera_derecha = utf8_decode($paginador) . "\n" .
-									utf8_decode($fecha_comprobante) . "\n" .
-									utf8_decode("T.C.:".$tipo_cambio);
-			$table->easyCell("<b>".$texto_cabecera_derecha."</b>", 'valign:M;halign:R;font-size:7');
-
-			$table->printRow();
-			$table->endTable(0);
-
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{C}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-			$table->easyCell(utf8_decode(mb_strtoupper($tipo_comprobante)), 'valign:M;halign:C;font-size:8 ;font-style:BU');
-			$table->printRow();
-			$table->endTable(0);
-
-			$table = new easyTable($pdf, '{40,25,40,35,50}', 'width:190; align:{L,L,R,L,L}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-
-			$texto_periodo =  utf8_decode("Periodo: <b>".$periodo."-".$gestion."</b>");
-			$table->easyCell($texto_periodo, 'valign:M;font-size:8;halign:R;');
-
-			$texto_nrocomprobante =  utf8_decode("Nro: <b>".$correlativo_comprobante."</b>");
-			$table->easyCell($texto_nrocomprobante, 'valign:M;font-size:8;halign:L;');
-
-			$table->easyCell(' ', 'valign:M;font-size:7;halign:R');
-
-			$table->printRow();
-			$table->endTable(2);
-
-
-			$table = new easyTable($pdf, '{190}', 'width:190;align:{L}; font-size:8; bgcolor:#FFFFFF;border:0;border-color:#c0c0c0;valign:M;');
-			$table->easyCell(utf8_decode("<b>Ref.:</b>".$referencia_comprobante), 'valign:M;halign:L;font-size:8 ;font-style:N');
-			$table->printRow();
-			$table->endTable(2);
-
-			/******************************/
-			/*CUERPO*/
-			/******************************/
-			/*CABECERA*/
-			$table=new easyTable($pdf, '{30,80,20,20,20,20}', 'width:190;align:{CLCCCC}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
-			$table->easyCell(utf8_decode("CÓDIGO"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DESCRIPCIÓN"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DEBE") ,'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("HABER"),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("DEBE Us."),'valign:M;font-style:B;font-size:6;' );
-			$table->easyCell(utf8_decode("HABER Us."),'valign:M;font-style:B;font-size:6;' );
-			$table->printRow(true);
-			$table->endTable(0);
-
-			$table=new easyTable($pdf, '{30,80,20,20,20,20}', 'width:190;align:{LLRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LR;border-color:#c0c0c0;line-height:1.2;');
-			$detalleComprobante=$detalle_json;		
-			$filas = explode("|", $detalleComprobante);
-			
-			$importeDebe=0;
-			$importeHaber=0;
-			$importeDebeUs=0;
-			$importeHaberUs=0;
-			$totalimporteDebe=0;
-			$totalimporteHaber=0;
-			$totalimporteDebeUs=0;
-			$totalimporteHaberUs=0;
-			$nro_registros=0;
-
-			if(!empty($filas))
-			{
-				foreach($filas as $fila)
-				{
-					$importeDebe=0;
-					$importeHaber=0;
-					$importeDebeUs=0;
-					$importeHaberUs=0;
-					if(!empty($fila) && $fila != "undefined" && $fila != "null")
-					{
-						$row = explode("*", $fila);
-						if(!isset($row[0]) || empty($row[0]))
-						{
-							
-							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta) = $row;
-
-							$codigoCuenta = explode("-",$cuenta);
-							list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
-							if($tipo_movimiento == "DB")
-							{
-								$importeDebe=$importe;
-								// $importeDebeUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
-							elseif ($tipo_movimiento == "HB") {
-								$importeHaber=$importe;
-								// $importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
-								$importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-							}
-							$cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta;
-							$table->easyCell($codigo_cuenta,'valign:M;bgcolor:#fff;font-size:7;rowspam:2;' );
-							$table->easyCell(utf8_decode("<b>".$descripcion_cuenta."</b>"),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;font-style:BU' );
-							
-							if($importeDebe > 0)
-							{
-								$table->easyCell(number_format($importeDebe, 2, '.', ','),'valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							}
-							else
-							{
-								$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							}
-							if($importeHaber > 0)
-							{
-								$table->easyCell(number_format($importeHaber,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							else
-							{
-								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							if($importeDebeUs>0)
-							{
-								$table->easyCell(number_format($importeDebeUs,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							else
-							{
-								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							if($importeHaberUs>0)
-							{
-								$table->easyCell(number_format($importeHaberUs,2,'.',','),'valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							else
-							{
-								$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							}
-							$table->printRow();
-							$table->easyCell('','valign:M;halign:R;bgcolor:#fff;font-size:7;' );
-							$table->easyCell(utf8_decode($glosa_cuenta),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->easyCell('','valign:M;halign:R;font-style:N ;bgcolor:#fff;font-size:7;' );
-							$table->printRow();
-
-							$totalimporteDebe+=$importeDebe;
-							$totalimporteHaber+=$importeHaber;
-							$totalimporteDebeUs+=$importeDebeUs;
-							$totalimporteHaberUs+=$importeHaberUs;
-
-						}
-					}
-				}
-			}
-				
-			$table->endTable(0);
-		}
-		$table=new easyTable($pdf, '{110,20,20,20,20}', 'width:190;align:{RRRRR}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border:LTRB;border-color:#c0c0c0;line-height:1.2;');
-		$table->easyCell(utf8_decode("TOTALES:"),'valign:M;font-style:B;font-size:6;' );
-		$table->easyCell(number_format($totalimporteDebe, 2, '.', ','),'valign:M;font-style:N ;bgcolor:#fff;font-size:7;' );
-		$table->easyCell(number_format($totalimporteHaber,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-		$table->easyCell(number_format($totalimporteDebeUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-		$table->easyCell(number_format($totalimporteHaberUs,2,'.',','),'valign:M;bgcolor:#fff;font-size:7;' );
-		$table->printRow(true);
-		$table->endTable(3);
-		$table=new easyTable($pdf, '{110,7,30,7,30,6}', 'width:190;align:{LCCCCC}; font-size:7; paddingY:1;bgcolor:#F2F2F2;border-color:#c0c0c0;line-height:1.2;');
-
-		$table->easyCell(utf8_decode("<b>Glosa:</b> ".$glosa_general), 'valign:T;rowspan:5;font-size:7;');
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->printRow(true);	
-
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->printRow(true);	
-
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->printRow(true);	
-
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
-		$table->printRow(true);	
-		$pie_contador="CONTADOR";
-		$pie_gerentegeneral="GERENTE GENERAL";
-		
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
-		$table->easyCell(utf8_decode("$pie_contador"),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;T;' );	
-		$table->easyCell(utf8_decode($pie_gerentegeneral),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	
-		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
-		$table->printRow(true);	
-		$table->endTable(5);
-				
-		$pdf->Output('I',utf8_decode('ReporteComprobante.pdf')); 
-	}
-	/*EDITAR*/
-	public function cargarComprobanteByIdComprobanteEntidad()
-	{
-		$id_usuario       = $this->session->userdata('id_usuario');
-		$id_entidad  = $this->input->post('id_entidad');
-		$id_comprobanteP  = $this->input->post('id_comprobanteP');
-
-		/*DATOS CABECERA*/
-		
-		$draw    = intval($this->input->get("draw"));
-		$start   = intval($this->input->get("start"));
-		$length  = intval($this->input->get("length"));	
-		$data    = array();
-		$num     = 1;
-
-		
-		$datos_comprobante  	 = $this->Comprobantes_model->getComprobanteById($id_comprobanteP);
-
-		if($datos_comprobante)
-		{
-			$id_comprobante  		 = $id_comprobanteP;
-			$id_entidad      		 = $id_entidad;
-			$tipo_comprobante 		 = $datos_comprobante[0]->tipo_comprobante;
-			$correlativo     		 = $datos_comprobante[0]->correlativo;
-			$periodo     		     = $datos_comprobante[0]->periodo;
-			$gestion      		     = $datos_comprobante[0]->gestion ;
-			$referencia_comprobante  = $datos_comprobante[0]->referencia_comprobante;
-			$glosa_comprobante     	 = $datos_comprobante[0]->glosa_comprobante;
-			$fecha_comprobante     	 = formato_fecha_slash_invertido2($datos_comprobante[0]->fecha_comprobante);
-			$tipo_cambio     		 = $datos_comprobante[0]->tipo_cambio;
-			$estado     		     = $datos_comprobante[0]->estado;
-			$resul 				     = 1;
-			$mensaje				 = "OK";	
-		}
+	// public function guardarComprobante()
+	// {
+	// 	$id_usuario          = $this->session->userdata('id_usuario');
+	// 	$id_funcionario      = $this->session->userdata('id_funcionario');
+	// 	$id_dependencia      = $this->session->userdata('id_dependencia_principal');
+	// 	$fechaActual         = getFechaHoraActual();
+	// 	parse_str($this->input->post('datos'), $data);
+	// 	$detalleComprobante  = $this->input->post('detalleComprobante');
 	
-		$data = array(
-						'id_comprobante'  		 => $id_comprobante,
-						'id_entidad'      		 => $id_entidad,
-						'tipo_comprobante' 		 => $tipo_comprobante,
-						'correlativo'     		 => $correlativo,
-						'periodo'     		     => $periodo,
-						'gestion'      		     => $gestion ,
-						'referencia_comprobante' => $referencia_comprobante,
-						'glosa_comprobante'    	 => $glosa_comprobante,
-						'fecha_comprobante'    	 => $fecha_comprobante,
-						'tipo_cambio'     		 => $tipo_cambio,
-						'estado'     		     => $estado,
-						'resultado'				 => $resul,
-						'mensaje'				 => $mensaje
-					);
-		echo json_encode($data);
-		// exit();
-	}
-	public function cargarDetalleComprobanteByIdComprobanteEntidad()
-	{
-		$id_usuario  = $this->session->userdata('id_usuario');
+	// 	$validacomprobante   = json_decode($this->validarDatos($data));	
+	// 	$resultado   = $validacomprobante[0]->resultado;
+	// 	$mensaje     = $validacomprobante[0]->mensaje;
+    //     $idComprobante=0;
+	// 	$this->db->trans_start();
+    //     if($resultado == 1)
+	// 	{
 			
-		$draw    = intval($this->input->get("draw"));
-		$start   = intval($this->input->get("start"));
-		$length  = intval($this->input->get("length"));	
-		$data    = array();
-		$num     = 1;
+    //         $accion      		  = $data['txtAccionComprobante'];
+	// 		// $idComprobante   	  = $data['id_comprobante'];
+	// 		$id_entidad       	  = $data['id_entidad'];
+	// 		$fecha_comprobante    = $data['txtFecha'];
+	// 		$tipo_cambio	      = $data['txtTipoCambio'];
+	// 		$referencia_general   = $data['txtReferencia'];
+	// 		$glosa_general	      = $data['txtGlosaGeneral'];
+	// 		$correlativo		  = 0;
+	// 		// $periodo        	  = date("m", strtotime($fecha_comprobante));
+	// 		$periodo        	  = (int)date('m', strtotime($fecha_comprobante));
+	// 		$gestion        	  = date("Y", strtotime($fecha_comprobante));
 
-		$id_comprobante  = $this->input->post('id_comprobante');
-		$detalleComprobante    = $this->Comprobantes_model->getDetalleComprobanteById($id_comprobante);
-		// echo json_encode($detalleComprobante);
-		$importeDebe=0;
-		$importeHaber=0;
-		$importeDebeUs=0;
-		$importeHaberUs=0;
-		$totalimporteDebe=0;
-		$totalimporteHaber=0;
-		$totalimporteDebeUs=0;
-		$totalimporteHaberUs=0;
-		$nro_registros=count($detalleComprobante);	
-		$cuenta_auxiliar="";
-		// echo($nro_registros);
-		// $data[] = array();
-		if($nro_registros>0)
-		{
-			foreach ($detalleComprobante as $fila)
-			{   
-				$boton   = "
-							<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
-								<button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
-							</span>	
-							<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-								<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaEntidad(". $fila->id . ")'><i class='fas fa-trash-alt'></i></button>     
-							</span>	
-							";	
-				$importeDebe=0;
-				$importeHaber=0;
-				$importeDebeUs=0;
-				$importeHaberUs=0;
 
-				$id_registro 			   = $fila->id;
-				$id_cuenta   			   = $fila->id_cuenta;
-				$descripcion_cuenta		   = getCuenta($id_cuenta);
-				$tipo_movimiento		   = $fila->tipo_movimiento;
-				$tipo_movimiento_literal   = getValor2Configuraciones("TIPO MOVIMIENTO", $fila->tipo_movimiento);
-				$importe				   = $fila->importe_moneda_nacional;
-				$importe_moneda_extranjera = $fila->importe_moneda_extranjera;
-				$tipo_cambio			   = $fila->tipo_cambio;
-				$glosa_cuenta			   = $fila->glosa_cuenta;
-				$id_cuenta_auxiliar 	   = $fila->id_cuenta_auxiliar;
-				$codigo_auxiliar		   = $fila->codigo_auxiliar;
-				$descripcion_auxiliar	   = $fila->descripcion_auxiliar;
-				$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
-				
-				if($tipo_movimiento == "DB")
-				{
-					$importeDebe   = $importe;
-					$importeDebeUs = $importe_moneda_extranjera;
-					// $importeDebeUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-				}
-				elseif ($tipo_movimiento == "HB") {
-					$importeHaber   = $importe;
-					$importeHaberUs = $importe_moneda_extranjera;
-					// $importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
-				}
 
-				if(!empty($id_cuenta_auxiliar))
-				{
-					// $cuenta_auxiliar = "<b>".$codigo_auxiliar."</b>" .$descripcion_auxiliar;			
-					$cuenta_auxiliar = "<span class='badge badge-warning'><b>".$codigo_auxiliar." - " .$descripcion_auxiliar."</b></span>";			
-				}
-				else
-				{
-					$cuenta_auxiliar ="";
-				}
-				
+	// 		$totalImporteDebe	  = $data['total_debe'];
+	// 		$totalImporteHaber    = $data['total_haber'];
+	// 		$totalImporteDebeUs	  = $data['total_debe_us'];
+	// 		$totalImporteHaberUs  = $data['total_haber_us'];
 
-				// $cuenta_registro = "<b>".$descripcion_cuenta."</b> \n" .$glosa_cuenta." \n".$cuenta_auxiliar;			
+	// 		if(($totalImporteDebe === $totalImporteHaber) && ($totalImporteDebeUs === $totalImporteHaberUs))
+	// 		{
+	// 			if($accion === 'nuevo')
+	// 			{
+	// 			// $idComprobante   	  = $data['id_comprobante'];
+	// 				$tipo_comprobante     = $data['txtTipo'];
 
-				$botonEditar = "<div style='text-align: center;'>
-									<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar Registro Cuenta'>
-										<button type='button' class='btn btn-block btn-success btn-sm' onclick=\"editarRegistroCuentaComprobante(".$id_registro.")\"><i>✏️</i></button>
-									</span>										
-								</div>";
-				$botonEliminar = "<div style='text-align: center;'>
-									<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro Cuenta'>
-										<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaComprobante(".$id_registro.")\"><i>🗑️</i></button>
-									</span>										
-								</div>";
-				$cuenta_registro = "<b>".$descripcion_cuenta."</b><br>".$glosa_cuenta."<br>".$cuenta_auxiliar;
-				$data[] = array(
-					"<span class='badge badge-secondary'>".$codigo_cuenta."</span>",
-					$cuenta_registro,
-					"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
-					"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
-					"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
-					"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
-					$botonEliminar.$botonEditar
-				);
-				$totalimporteDebe+=$importeDebe;
-				$totalimporteHaber+=$importeHaber;
-				$totalimporteDebeUs+=$importeDebeUs;
-				$totalimporteHaberUs+=$importeHaberUs;
+	// 				$tipoCorrelativo  = $tipo_comprobante ;
+	// 				$datosCorrelativo = json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
+	// 				$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
+	// 				$correlativo      		        = $datosCorrelativo[0]->correlativo;
 
-			}
-		}
-		else {
-			
-			$data[] = array(
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					""
-				);
-		}
-		
-		$output = array(
-            "draw" => $draw,
-            "recordsTotal" => count($detalleComprobante)-1,
-            "recordsFiltered" => count($detalleComprobante)-1,
-            "nro_registros" => $nro_registros,
-            "totalimporteDebe" => number_format($totalimporteDebe,2,'.',','),
-            "totalimporteHaber" => number_format($totalimporteHaber,2,'.',','),
-            "totalimporteDebeUs" => number_format($totalimporteDebeUs,2,'.',','),
-            "totalimporteHaberUs" => number_format($totalimporteHaberUs,2,'.',','),
-            "data" => $data
-        );
-	    echo json_encode($output);
-	    exit();
-	}
-	function getTipoCambio()
-	{
-		$fecha_buscar  = $this->input->post('fecha');
-		// echo ($fecha_buscar);
-		$tipoCambio    = number_format(getTipoCambio(formato_fecha_slash_invertido2($fecha_buscar)),2,'.',',');
-        echo json_encode(['tipo_cambio_fecha' => $tipoCambio]);
+					
+	// 				$datosComprobante = array(
+	// 					'id_entidad'              => $id_entidad,
+	// 					'tipo_comprobante'        => $tipo_comprobante,
+	// 					'correlativo'             => $correlativo,
+	// 					'periodo'                 => $periodo,
+	// 					'gestion'                 => $gestion,
+	// 					'referencia_comprobante'  => $referencia_general,
+	// 					'glosa_comprobante' 	  => $glosa_general,
+	// 					'fecha_comprobante'       => $fecha_comprobante,
+	// 					'tipo_cambio'             => $tipo_cambio,
+	// 					'id_usuario_registro'     => $id_usuario
+	// 				);
 
-	}
-	public function eliminarRegistroCuentaComprobante()
-	{
-		$id_usuario       = $this->session->userdata('id_usuario');
-		$id_funcionario   = $this->session->userdata('id_funcionario');
+	// 				$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
+	// 				if($saveComprobante)
+	// 				{
+	// 					/*REGISTRO DE CUENTAS DEL COMPROBANTE*/
+	// 					$idComprobante = $saveComprobante;
+	// 					$filas = explode("|", $detalleComprobante);
+	// 					if(!empty($filas))
+	// 					{
+	// 						foreach($filas as $fila)
+	// 						{
+	// 							if(!empty($fila) && $fila != "undefined" && $fila != "null")
+	// 							{
+	// 								$row = explode("*", $fila);
+	// 								if(!isset($row[0]) || empty($row[0]))
+	// 								{
+	// 									list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
+	// 									// $importe   = number_format($importe,2,'.',',');
+	// 									// $importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
+	// 									$importeUsBase = round($importe/$tipo_cambio,2);
+	// 									$importeBase = floatval(str_replace(',', '', $importe));
+	// 									//$importeUsBase = floatval(str_replace(',', '', $importeOriginal));
+	// 									if($id_cuenta_auxiliar === '-')
+	// 									{
+	// 										$datosComprobanteDetalle = array(
+	// 										'id_entidad'	            => $id_entidad,
+	// 										'id_comprobante'            => $saveComprobante,
+	// 										'id_cuenta'                 => $id_cuenta,
+	// 										'tipo_movimiento'           => $tipo_movimiento,
+	// 										'tipo_cambio'               => $tipo_cambio,
+	// 										'importe_moneda_nacional'   => $importeBase,
+	// 										'importe_moneda_extranjera' => $importeUsBase,
+	// 										'glosa_cuenta'              => $glosa_cuenta,
+	// 										'id_usuario_registro'       => $id_usuario									
+	// 										);
+	// 									}
+	// 									else
+	// 									{
+	// 										$datosComprobanteDetalle = array(
+	// 										'id_entidad'	            => $id_entidad,
+	// 										'id_comprobante'            => $saveComprobante,
+	// 										'id_cuenta'                 => $id_cuenta,
+	// 										'tipo_movimiento'           => $tipo_movimiento,
+	// 										'tipo_cambio'               => $tipo_cambio,
+	// 										'importe_moneda_nacional'   => $importe,
+	// 										'importe_moneda_extranjera' => $importeUs,
+	// 										'glosa_cuenta'              => $glosa_cuenta,
+	// 										'id_usuario_registro'       => $id_usuario,					
+	// 										'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
+	// 										);
+	// 									}
+										
+	// 									// $datosComprobanteDetalle = array(
+	// 									// 	'id_entidad'	            => $id_entidad,
+	// 									// 	'id_comprobante'            => $saveComprobante,
+	// 									// 	'id_cuenta'                 => $id_cuenta,
+	// 									// 	'tipo_movimiento'           => $tipo_movimiento,
+	// 									// 	'tipo_cambio'               => $tipo_cambio,
+	// 									// 	'importe_moneda_nacional'   => $importe,
+	// 									// 	'importe_moneda_extranjera' => $importeUs,
+	// 									// 	'glosa_cuenta'              => $glosa_cuenta,
+	// 									// 	'id_usuario_registro'       => $id_usuario,					
+	// 									// 	'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
+	// 									// );
+	// 									$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
+	// 									if($detalle_comprobante)
+	// 									{
+	// 										$updateCorrelativoEntidadGestion = array(
+	// 											'correlativo' => $correlativo,
+	// 											'fecha_modificacion' => $fechaActual
+	// 										);	
 
-		$id_registro_cuenta        = $this->input->post('id_registro_cuenta');
-		$cantidad_cuentas          = $this->input->post('cant_cuenta');
-		$fecha_actual	  = getFechaHoraActual();
-		$estado  		  = 'ANU';
-		$dataRegistroCuenta     = array(
-									'fecha_modificacion'    => $fecha_actual,
-									'id_funcionario_update' => $id_funcionario,
-									'estado'       		    => $estado
-								 );
-		
-		$updateRegistroCuenta = $this->Comprobantes_model->updateRegistroCuentaComprobante($id_registro_cuenta,$dataRegistroCuenta);
-		if($updateRegistroCuenta)
-		{
-			$cantidad_cuentas--;
-			$resul = 1;
-			$mensaje = "SE ELIMINO LA CUENTA DEL COMPROBANTE CORRECTAMENTE.";
-		}
-		else
-		{
-			$resul = 0;
-			$mensaje = "ERROR EN LA ELIMINACIÓN!!!";
-		}
-		
+	// 										$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
 
-		$resultado ='[{
-						"resultado":"'.$resul.'",
-						"mensaje":"'.$mensaje.'",
-						"cant_cuentas":"'.$cantidad_cuentas.'"
-					 }]';
+	// 										$resul = 1;
+	// 										$mensaje = "SE REGISTRO CORRECTAMENTE";
+	// 									}
+	// 									else
+	// 									{
+	// 										$resul = 0;
+	// 										$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE!!!";
+	// 									}
+	// 								}
+	// 								else
+	// 								{
+	// 									// echo("FALSOOOOO");
+	// 									$resul = 0;
+	// 									$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE....!!!";
+	// 								}
 
-		echo $resultado;
-	}
-	/*EDITAR*/
-	public function cargarComprobanteCuentaByIdRegistro()
-	{
-		$id_usuario       = $this->session->userdata('id_usuario');
-		$id_entidad  = $this->input->post('id_entidad');
-		$id_registro_cuenta  = $this->input->post('id_registro_cuenta');
+	// 							}
+															
+	// 						}
+	// 					}
+	// 				}
+	// 				else
+	// 				{
+	// 					$resul = 0;
+	// 					$mensaje = "ERROR EN EL REGISTRO!!!";
+	// 				}
+	// 			}
+	// 			else
+	// 			{
+	// 				$idComprobante   	  = $data['id_comprobanteP'];
+	// 				$updateComprobante = array(
+	// 					'periodo'                 => $periodo,
+	// 					'gestion'                 => $gestion,
+	// 					'glosa_comprobante' 	  => $glosa_general,
+	// 					'referencia_comprobante'  => $referencia_general,
+	// 					'fecha_comprobante'       => $fecha_comprobante,
+	// 					'tipo_cambio'             => $tipo_cambio,
+	// 					'fecha_modificacion'      => $fechaActual,
+	// 					'id_funcionario_update'   => $id_funcionario
+	// 				);
+	// 				$saveComprobante = $this->Comprobantes_model->updateComprobante($idComprobante,$updateComprobante);
+	// 				if($saveComprobante)
+	// 				{
+	// 					$resul = 1;
+	// 					$mensaje = "SE ACTUALIZÓ CORRECTAMENTE EL COMPROBANTE";
+	// 				}
+	// 				else
+	// 				{
+	// 					$resul = 0;
+	// 					$mensaje = "ERROR EN EL REGISTRO!!!";
+	// 				}
+	// 			}
+	// 		}
+	// 		else
+	// 		{
+	// 			$resultado = 2;
+	// 			$mensaje = "Comprobante Contable Descuadrado:El comprobante presenta una diferencia contable.Verifique que el total del debe y del haber sean iguales para cumplir con la partida doble.";
 
-		/*DATOS CABECERA*/
-		
-		$draw    = intval($this->input->get("draw"));
-		$start   = intval($this->input->get("start"));
-		$length  = intval($this->input->get("length"));	
-		$data    = array();
-		$num     = 1;
+	// 		}		
+						
+	// 	}
+	// 	/******TRANSACT*****/
+	// 	if ($this->db->trans_status() === FALSE && $resul == 1) { 
+	// 		$this->db->trans_rollback(); // Deshacer los cambios si hay un error
+	// 		// $resultado = 0;
+	// 	} else {
+	// 		$this->db->trans_commit(); // Confirmar los cambios si todo está bien
+	// 		// $resultado = 1;
+	// 	}
+	// 	echo '[{"idComprobante":"'.$idComprobante.'",
+	// 			    "resultado":"'.$resultado.'",
+	// 	              "mensaje":"'.$mensaje.'"}]';
 
-		
-		$datos_cuenta_comprobante  	 = $this->Comprobantes_model->getDetalleComprobanteByIdDetalle($id_registro_cuenta);
-
-		if($datos_cuenta_comprobante)
-		{
-			$id_cuenta_comprobante	   = $id_registro_cuenta;
-			$id_entidad      		   = $datos_cuenta_comprobante[0]->id_entidad;
-			$id_comprobante 		   = $datos_cuenta_comprobante[0]->id_comprobante;
-			$id_cuenta     		       = $datos_cuenta_comprobante[0]->id_cuenta;
-			$tipo_movimiento	       = $datos_cuenta_comprobante[0]->tipo_movimiento;
-			$tipo_cambio  		       = $datos_cuenta_comprobante[0]->tipo_cambio ;
-			$importe_moneda_nacional   = $datos_cuenta_comprobante[0]->importe_moneda_nacional;
-			$importe_moneda_extranjera = $datos_cuenta_comprobante[0]->importe_moneda_extranjera;
-			$glosa_cuenta     	       = $datos_cuenta_comprobante[0]->glosa_cuenta;
-			$estado     		       = $datos_cuenta_comprobante[0]->estado;
-			$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
-			$descripcion_cuenta		   = getCuenta($id_cuenta);
-			$codigo_descripcion		   = $codigo_cuenta."-".$descripcion_cuenta;
-			$resul 				       = 1;
-			$mensaje				   = "OK";	
-		}
-	
-		$data = array(
-						'id_cuenta_comprobante'  	=> $id_cuenta_comprobante,
-						'id_entidad'      		    => $id_entidad,
-						'id_comprobante' 		    => $id_comprobante,
-						'id_cuenta'     		    => $id_cuenta,
-						'tipo_movimiento'     		=> $tipo_movimiento,
-						'tipo_cambio'      		    => $tipo_cambio ,
-						'importe_moneda_nacional'   => number_format($importe_moneda_nacional,2,'.',','),
-						'importe_moneda_extranjera' => number_format($importe_moneda_extranjera,2,'.',','),
-						'glosa_cuenta'    	        => $glosa_cuenta,
-						'estado'     		        => $estado,
-						'codigo_cuenta'				=> $codigo_cuenta,
-						'descripcion_cuenta'		=> $descripcion_cuenta,
-						'codigo_descripcion'		=> $codigo_descripcion,
-						'resultado'				    => $resul,
-						'mensaje'				    => $mensaje
-					);
-		echo json_encode($data);
-		// exit();
-	}
-	public function recalcularCuentasDelComprobante()
-	{
-		$id_usuario          = $this->session->userdata('id_usuario');
-		$id_funcionario      = $this->session->userdata('id_funcionario');
-		$fechaActual         = getFechaHoraActual();		
-		$id_comprobante      = $this->input->post('id_comprobante');
-		$fecha_comprobante   = $this->input->post('fecha_tipocambio');
-		$periodo        	  = date("n", strtotime($fecha_comprobante));
-		$gestion        	  = date("Y", strtotime($fecha_comprobante));
-		$tipo_cambio         = $this->input->post('tipo_cambio');
-		$verificacion_registro =0;
-		$cuentas_comprobante = $this->Comprobantes_model->getDetalleComprobanteByIdComprobante($id_comprobante);
-
-		$resul=0;
-		foreach ($cuentas_comprobante as $cuenta)
-		{ 
-			$importe   = 0;
-			$importeUs = 0;
-			$id		   = $cuenta->id;
-			$importe   = $cuenta->importe_moneda_nacional;
- 			$importeUs = $importe/$tipo_cambio;
-			$datosCuentaComprobante = array(
-							'tipo_cambio'				=> $tipo_cambio,
-							'importe_moneda_extranjera' => $importeUs,
-							'fecha_modificacion'        => $fechaActual,					
-							'id_funcionario_update'     => $id_funcionario					
-						);
-			$update_count_record = $this->Comprobantes_model->updateRegistroCuentaComprobante($id,$datosCuentaComprobante);
-		}
-		if($update_count_record){
-
-			$datosComprobante = array(
-							'periodo'					=> $periodo,
-							'gestion'					=> $gestion,
-							'fecha_comprobante'			=> $fecha_comprobante,
-							'tipo_cambio'				=> $tipo_cambio,
-							'fecha_modificacion'        => $fechaActual,					
-							'id_funcionario_update'     => $id_funcionario					
-						);
-			$update_comprobante = $this->Comprobantes_model->updateComprobante($id_comprobante,$datosComprobante);
-			if($update_comprobante){
-				$mensaje="SE ACTUALIZARÓN CORRECTAMENTE LA CUENTAS.";
-				$resul=1;
-			}
-			else
-			{
-				$mensaje="HUBO UN ERROR EN LA ACTUALIZACIÓN DE CUENTAS.";
-			}
-		}
-		else
-		{
-			$mensaje="HUBO UN ERROR EN LA ACTUALIZACIÓN DE CUENTAS.";
-		}
-		 $output = array(
-            "recordsTotal" => count($cuentas_comprobante)-1,
-            "recordsFiltered" => count($cuentas_comprobante)-1,
-			"resultado"=>$resul,
-			"mensaje"=>$mensaje
-        );
-	    echo json_encode($output);
-	    exit();
-	}
-	public function eliminarComprobante()
-	{
-		$id_usuario       = $this->session->userdata('id_usuario');
-		$id_funcionario   = $this->session->userdata('id_funcionario');
-		$id_comprobante   = $this->input->post('id_comprobante');
-		$fecha_actual	  = getFechaHoraActual();
-		$estado  		  = 'ANU';
-		$resul=0;
-		$dataRegistroComprobante = array(
-									'fecha_modificacion'    => $fecha_actual,
-									'id_funcionario_update' => $id_funcionario,
-									'estado'       		    => $estado
-								   );
-		
-		$updateComprobante = $this->Comprobantes_model->updateComprobante($id_comprobante,$dataRegistroComprobante);
-		if($updateComprobante)
-		{
-			$cuentas_comprobante = $this->Comprobantes_model->getDetalleComprobanteByIdComprobante($id_comprobante);
-			foreach ($cuentas_comprobante as $cuenta)
-			{ 
-				$id		   = $cuenta->id;
-				$datosCuentaComprobante = array(
-								'fecha_modificacion'        => $fecha_actual,					
-								'id_funcionario_update'     => $id_funcionario,
-								'estado'					=> $estado					
-							);
-				$update_count_record = $this->Comprobantes_model->updateRegistroCuentaComprobante($id,$datosCuentaComprobante);
-			}
-
-			$resul = 1;
-			$mensaje = "SE ELIMINO EL COMPROBANTE CORRECTAMENTE.";
-		}
-		else
-		{
-			$resul = 0;
-			$mensaje = "ERROR EN LA ELIMINACIÓN!!!";
-		}
-		
-
-		$resultado ='[{
-						"resultado":"'.$resul.'",
-						"mensaje":"'.$mensaje.'"
-					 }]';
-
-		echo $resultado;
-	}
-	function listCuentasAuxiliares($id_cuenta)
-	{
-		$cuentas   = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($id_cuenta);
-		// $cuentas = json_decode(json_encode($cuentas), true);
-		// $ordenadas = $this->ordenarJerarquicamente($cuentas);
-		$option= "";
-		foreach($cuentas as $fila)
-		{
-			$option .="<option data-value='".$fila->id."'><b>".$fila->codigo."</b>-". $fila->descripcion."</option>";
-		}
-		echo $option;
-	}
-	function buscaCuentasAuxiliares()
-	{
-		$id_cuenta=$this->input->post('id_cuenta');
-		$cuentas   = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($id_cuenta);
-		$resul=0;
-		$mensaje ="";
-		$cantAuxCuentas=0;
-
-		if($cuentas)
-		{
-			$resul=1;
-			$cantAuxCuentas=count($cuentas);
-			$mensaje="La cuenta seleccionada tiene registrada cuentas auxiliares.";
-		}
-		$resultado ='[{
-						"resultado":"'.$resul.'",
-						"mensaje":"'.$mensaje.'",
-						"cant_cuentas":"'.$cantAuxCuentas.'"
-					 }]';
-
-		echo $resultado;
-	}
-	public function listarTablaCuentasAuxiliares()
-    {
-		$id_cuenta=$this->input->post('id_cuenta');
-		$cuentasAuxiliares   = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($id_cuenta);
-		// echo("<pre>");
-		// print_r($cuentasAuxiliares);
-		// echo("</pre>");
-		// die();
-		
-		$draw    = intval($this->input->get("draw"));
-		$start   = intval($this->input->get("start"));
-		$length  = intval($this->input->get("length"));	
-		$data    = array();
-		$num     = 1;
-
-		foreach ($cuentasAuxiliares as $fila)
-		{   
-			$cuenta= $fila->codigo."-". $fila->descripcion;
-			$boton   = "
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Seleccionar'>
-                            <button type='button' class='btn btn-success btn-sm' onclick=\"busquedaIDCuentaAuxliar(".$fila->id.",'".$cuenta."')\"><i>✓</i></button>     
-                        </span>				
-                        ";	
-			$descripcion = $fila->descripcion;
-			$codigo      = $fila->codigo;
-
-			$data[] = array(
-				"<div style='text-align: center;'>$boton</div>",
-				"<span class='badge badge-secondary'>".$codigo."</span>",
-				$descripcion
-			);
-		}
-
-		// die();
-		$output = array(
-			"draw" => $draw,
-			"recordsTotal" => count($cuentasAuxiliares),
-			"recordsFiltered" => count($cuentasAuxiliares),
-			"data" => $data
-		);
-		echo json_encode($output);
-		exit();
-    }
+	// }
 	
 }

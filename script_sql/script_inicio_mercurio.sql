@@ -258,6 +258,8 @@ COMMENT ON COLUMN contabilidad.tipo_cambio.sec_log IS 'Campo para fines de audit
 -- alter table contabilidad.detalle_comprobante add column id_cuenta_auxiliar int4 null;
 -- alter table contabilidad.detalle_comprobante add column saldo_moneda_nacional numeric(10, 2) null;
 alter table contabilidad.detalle_comprobante add column estado_balance varchar(3) DEFAULT 'PEN'::character varying NULL,
+alter table contabilidad.detalle_comprobante add column estado_resultado varchar(3);
+alter table contabilidad.comprobante add column tipo_cierre varchar(3);
 
 
 /*TABLAS DE CONTROL PARA LOS CORRELATIVOS*/
@@ -326,6 +328,7 @@ CREATE TABLE contabilidad.cierres_contables (
     tipo_cierre varchar(3) NOT null,
     fecha_cierre DATE NOT NULL,    
 	id_comprobante int4 null,
+	comprobantes TEXT,
     descripcion TEXT,              
 
     -- Totales en moneda local

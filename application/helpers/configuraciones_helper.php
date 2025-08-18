@@ -1046,6 +1046,20 @@ function getNivelMaximo()
     return $valor;
   }
 }
+function getIdCuenta($codigo)
+{
+  $fila =& get_instance();
+  $fila->load->model('PlanDeCuentas_model');
+  $datos = $fila->PlanDeCuentas_model->getPlanDeCuentasByCodigo($codigo);
+  if($datos)
+  {
+    return $datos[0]->id;
+  }
+  else
+  {
+    return $valor;
+  }
+}
 
 
 ?>
