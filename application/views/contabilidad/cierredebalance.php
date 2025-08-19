@@ -4,7 +4,7 @@
     <section class="content">
         <div class="container-fluid">
              <!-- SECCION ENTIDAD -->
-            <div class="card card-warning card-outline" id="cardEntidad">
+            <div class="card card-success card-outline" id="cardEntidad">
                 <div class="card-header">
                     <h3 class="card-title">
                     <i class="mr-2">🏢</i>
@@ -36,7 +36,7 @@
                 </div>
             </div>
             <!-- SECCION ENTIDAD SELECCIONADA -->
-            <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;" id="entidadSeleccionada" style="display: none">
+            <div class="card" style="background-color: #c2f1bcff; border-left: 4px solid #139c26ff;" id="entidadSeleccionada" style="display: none">
                 <div class="card-body p-3">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -46,7 +46,7 @@
                                         width: 48px,
                                         height: 48px,
                                         border-radius: 50%,
-                                        background-color: #ffc107,
+                                        background-color: #09972dff,
                                         display: flex,
                                         align-items: center,
                                         justify-content: center,
@@ -58,7 +58,7 @@
                                     </div>
                                     <div class="ml-3">
                                     <h5 class="mb-0">ENTIDAD SELECCIONADA:</h5>
-                                    <h4 class="mb-0" style="color: #856404; font-weight: bold;" id ="nombre_entidad" name="nombre_entidad">
+                                    <h4 class="mb-0" style="color: #000000; font-weight: bold;" id ="nombre_entidad" name="nombre_entidad">
                                         ....
                                     </h4>
                                     </div>
@@ -71,7 +71,7 @@
                 </div>
             </div>
             <!-- FILTROS Y OPCIONES -->
-            <div class="card card-primary card-outline">
+            <div class="card card-success card-outline">
                 <div class="card-header">
                   <h3 class="card-title">
                     <i class="mr-2">🔍</i>
@@ -140,20 +140,36 @@
                         </label>
                       </div>
                     </div>
+                    <!-- cierre -->
+                    <div class="col-sm-4 col-md-auto text-md-right">
+                      <div class="form-check m-0">
+                        <button class = "btn btn-success mr-1"
+                              onClick = "procedimientoCierreCuentasDeBalance()">
+                          <i class="mr-1">⏳</i> Procesar Cierre 
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <!-- Botones -->
                   <div class="row mt-2">
                     <div class="col-12 text-center text-md-right">
-                      <button class="btn btn-primary btn-sm mr-1" onClick="cargarDatosBalanceGeneral()">
+                      <!-- <button class="btn btn-primary btn-sm mr-1" onClick="cargarDatosBalanceGeneral()">
                         🔍 Generar Balance
-                      </button>
-                      <button class="btn btn-success btn-sm mr-1" onClick="ReporteBalanceGeneralPDF1()">
+                      </button> -->
+                      <!-- <div class="col-md-3 text-right">
+                        <br> -->
+                        <!-- <button class = "btn btn-primary mr-1"
+                              onClick = "procedimientoCierreCuentasDeResultados()">
+                          <i class="mr-1">⏳</i> Procesar Cierre de Resultados
+                        </button> -->
+                      <!-- </div>   -->
+                      <!-- <button class="btn btn-success btn-sm mr-1" onClick="ReporteBalanceGeneralPDF1()">
                         📄 Reporte 1
                       </button>
                       <button class="btn btn-warning btn-sm" onClick="ReporteBalanceGeneralPDF2()">
                         📄 Reporte 2
-                      </button>
+                      </button> -->
                     </div>
                   </div>
                 </div>                
@@ -266,6 +282,291 @@
             </form>
         </div>
     </div>
+</div>
+
+<!-- MODAL PARA EL REGISTRO DE CIERRE DE BALANCE GENERAL  -->
+
+<div class="modal fade show" id="modalRegistroCierreDeBalance" style="backgroundColor: rgba(0,0,0,0.4)" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="max-width: 1000px">
+    <div class="modal-content">
+            <div class="modal-header bg-success">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div class="col-md-8">
+                        <h7 class="modal-title text-white">
+                            <i class="mr-2">📋</i>
+                            CIERRE DE CUENTAS DE BALANCE
+                            <span style="color:white;"><label id="nombreEntidad">...</label></span>
+                        </h7>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <!-- <span class="badge badge-warning">Tipo Cambio:<label id="tipoCambio">...</label></span> -->
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                        <span>&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="formularioCierreDeBalance">
+                  <div class="card card-outline card-success">
+                    <div class="card-header">
+                      <h7 class="card-title">
+                          <i class="mr-2">✏️</i>
+                          CIERRE DE CUENTAS DE BALANCE
+                      </h7>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                          <div class="col-sm-3 col-md-auto">
+                              <div class="form-group">
+                                <label>
+                                  <i class="text-danger">*</i>
+                                  <strong>Fecha hasta la que se considera la gestión(Fecha del asiento contable de cierre de gestión):</strong>
+                                </label>
+                                <input
+                                  id="fechaCierreResultado"
+                                  name="fechaCierreResultado"
+                                  placeHolder="Fecha Cierre"
+                                  type="date"
+                                  class="form-control"
+                                />
+                              </div> 
+                          </div>
+                          <div class="col-sm-12 col-md-auto">
+                              <!-- <div class="form-group">
+                                  <label>
+                                  <i class="text-danger">*</i>
+                                  <strong>  Cuenta contable que se considera para resgistrar los Resultados de la Gestión:</strong>
+                                  </label>
+                                  <div class="input-group">
+                                      <input
+                                          type="text"
+                                          class="form-control"
+                                          placeholder="Buscar cuenta..."
+                                          list="listaCuentas"
+                                          id="txtCuenta" 
+                                          name="txtCuenta"
+                                      />
+                                      <datalist id='listaCuentas'></datalist>
+                                      
+                                      <div class="input-group-append">
+                                          <button
+                                          type="button"
+                                          class="btn btn-warning"
+                                          onclick="listaCuentasBusqueda();"
+                                          >
+                                          <i>🔍</i>
+                                          </button>
+                                      </div>
+                                  </div>
+                              </div> -->
+                          </div>                          
+                      </div>
+                      <div class="row" id="auxiliares_cuenta" style="display:none;">
+                          <div class="col-md-12">
+                              <div class="form-group">
+                                  <label>
+                                  <i class="text-danger">*</i>
+                                  <strong> AUXILIARES DE LA CUENTA:</strong>
+                                  </label>
+                                  <div class="input-group">
+                                      <input
+                                          type="text"
+                                          class="form-control"
+                                          placeholder="Buscar auxiliar de la cuenta..."
+                                          list="listaAuxiliaresDeCuenta"
+                                          id="txtAuxiliarCuenta" 
+                                          name="txtAuxiliarCuenta"
+                                      />
+                                      <datalist id='listaAuxiliaresDeCuenta'></datalist>
+                                      <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
+                                      <div class="input-group-append">
+                                          <button
+                                          type="button"
+                                          class="btn btn-info"
+                                          onclick="listaCuentasAuxiliaresBusqueda();"
+                                          >
+                                          <i>🕵️</i>
+                                          </button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-6">
+                              <label>
+                                <strong> ASIENTO DE CIERRE</strong>
+                              </label>
+                              <div class="form-group">
+                                  <label>
+                                  <i class="text-danger">*</i>
+                                  <strong> Referencia:</strong>
+                                  </label>
+                                  <textarea 
+                                  id="txtGlosaCuenta" 
+                                  name="txtGlosaCuenta"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Por cierre transitorio de Cuentas de Balance."
+                                  ></textarea>
+                              </div>
+                          </div>
+                          <div class="col-md-6">
+                              <label>
+                                <strong> ASIENTO DE REAPERTURA</strong>
+                              </label>
+                              <div class="form-group">
+                                  <label>
+                                  <i class="text-danger">*</i>
+                                  <strong> Referencia:</strong>
+                                  </label>
+                                  <textarea 
+                                  id="txtGlosaCuenta" 
+                                  name="txtGlosaCuenta"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Por reapertura de Cuentas de Balance."
+                                  ></textarea>
+                              </div>
+                          </div>                          
+                      </div>
+                      <div class="row">
+                          <div class="col-md-6">
+                              <div class="form-group">
+                                  <label>
+                                  <i class="text-danger">*</i>
+                                  <strong> Glosa:</strong>
+                                  </label>
+                                  <textarea 
+                                  id="txtGlosaCuenta" 
+                                  name="txtGlosaCuenta"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Para cerrar transitoriamente cuentas de balance apropiadas hasta el cierre del presente periodo."
+                                  ></textarea>
+                              </div>
+                          </div>
+                          <div class="col-md-6">
+                              <div class="form-group">
+                                  <label>
+                                  <i class="text-danger">*</i>
+                                  <strong> Glosa:</strong>
+                                  </label>
+                                  <textarea 
+                                  id="txtGlosaCuenta" 
+                                  name="txtGlosaCuenta"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Por reapertura de las Cuentas de Balance."
+                                  ></textarea>
+                              </div>
+                          </div>
+                          <div class="col-md-12 text-right">
+                              <div class="input-group-append">
+                                  <button
+                                  type="button"
+                                  class="btn btn-success"
+                                  onclick="cerrarCuentaDeBalance();"
+                                  >
+                                  <i>⏳</i>Procesar Cierre
+                                  </button>
+                              </div>
+                          </div>                          
+                      </div>
+                    </div>  
+                  </div>
+                  <!-- TABLA BALANCE GENERAL-->
+
+                <div class="card">
+                  <div class="card-header bg-gradient-secondary">
+                    <h3 class="card-title text-white">
+                      <i class="mr-2">⚖️</i>
+                      BALANCE GENERAL
+                    </h3>
+                    <div class="card-tools">
+                      <span class="badge badge-light">
+                        Período: {dateFrom} al {dateTo}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="table-responsive">
+                      <table id="tablaBalanceGeneral" class="table table-striped table-hover" style="width: 100%;">
+                          <thead class="bg-dark">
+                          <tr>
+                              <th style="color: white;">CÓDIGO</th>
+                              <th style="color: white;">DESCRIPCIÓN</th>
+                              <th style="color: white; text-align: right;">-</th>
+                              <th style="color: white; text-align: right;">-</th>
+                              <th style="color: white; text-align: right;">IMPORTE</th>
+                          </tr>
+                          </thead>
+                          <tfoot>
+                                <tr class="bg-secondary">
+                                    <td colSpan="4" style="color: white; font-weight: bold;">
+                                    TOTAL ACTIVO :
+                                    </td>
+                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteActivo" >0.00</td>
+                                    </td>
+                                </tr>
+                                <tr class="bg-secondary">
+                                    <td colSpan="4" style="color: white; font-weight: bold;">
+                                    TOTAL PASIVO Y PATRIMONIO  :
+                                    </td>
+                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImportePasivoPatrimonio" >0.00</td>
+                                    </td>
+                                </tr>
+                                <tr class="bg-dark">
+                                    <td colSpan="4" style="color: white; font-weight: bold;">
+                                    TOTAL CUENTAS DE ORDEN DEUDORAS :
+                                    </td>
+                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteCuentasOrdenDeudoras" >0.00</td>
+                                    </td>
+                                </tr>
+                                <tr class="bg-dark">
+                                    <td colSpan="4" style="color: white; font-weight: bold;">
+                                    TOTAL CUENTAS DE ORDEN ACREEDORAS :
+                                    </td>
+                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteCuentasOrdenAcreedoras" >0.00</td>
+                                    </td>
+                                </tr>
+                          </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="card-footer">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <p class="text-muted">
+                          Empresa: • Período:  al  • 
+                          cuentas mostradas
+                        </p>
+                      </div>
+                      <div class="col-md-6 text-right">
+                        <small class="text-muted">
+                          Estado: Balanceado : Desbalanceado • Generado:
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+                </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal" >
+                  <i class="mr-1">❌</i>
+                  Cerrar
+              </button>
+              <button type="button" class="btn btn-info" onclick="guardarRegistroCuenta();">
+                  <i class="mr-1">💾</i>
+                  Guardar Registro
+              </button>
+            </div>
+      </div>
+  </div>
 </div>
 <script type="text/javascript">
     $(document).ready(function(){

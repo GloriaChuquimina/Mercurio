@@ -431,13 +431,13 @@ class BalanceGeneral extends CI_Controller {
 			
 		}
 
-		$sumaTotalGlobalPasivoPatrimonio = $sumaTotalGlobalPasivo + $sumaTotalGlobalPatrimonio;
+		// $sumaTotalGlobalPasivoPatrimonio = $sumaTotalGlobalPasivo + $sumaTotalGlobalPatrimonio;
 		$output = array(
 			"draw" => $draw,
 			"recordsTotal" => count($cuentasUnidas),
 			"recordsFiltered" => count($cuentasUnidas),
 			"totalimporteActivo" => number_format($sumaTotalGlobalActivo,2,'.',','),
-            "totalimportePasivoPatrimonio" => number_format($sumaTotalGlobalPasivoPatrimonio,2,'.',','),
+            "totalimportePasivoPatrimonio" => number_format($sumaTotalGlobalPasivo,2,'.',','),
             "totalimporteCuentasOrdenDeudoras" => number_format($sumaTotalGlobalDeudoras,2,'.',','),
             "totalimporteCuentasOrdenAcreedoras" => number_format($sumaTotalGlobalAcreedoras,2,'.',','),
 			"data" => $data
@@ -1609,4 +1609,6 @@ class BalanceGeneral extends CI_Controller {
 		$pdf->Footer();
 		$pdf->Output('I',utf8_decode('ReporteBalanceGeneral.pdf')); 
 	}
+
+
 }

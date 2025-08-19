@@ -13,6 +13,7 @@ class CierreDeResultados extends CI_Controller {
         $this->load->model('Comprobantes_model');
         $this->load->model('PlanDeCuentas_model');
         $this->load->model('EstadoDeResultado_model');
+        $this->load->model('CierresContables_model');
 		$this->load->helper('configuraciones_helper');
 		$this->load->helper('funcionarios_helper');
 		$this->load->helper('correlativos_helper');
@@ -392,602 +393,380 @@ class CierreDeResultados extends CI_Controller {
 		exit();
 
 	}
-	public function cerrarCuentaDeResultados()
-	{
-		$this->db->trans_start();
-		$id_usuario  = $this->session->userdata('id_usuario');	
-		$codigo_cuenta_ingreso     = 4;
-		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
-		$codigo_cuenta_egreso      = 5;
-		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
-
-
-		$id_entidad	  = 1;
-		$nivel		  = 0;
-		$moneda		  = 'BOB';
-		$saldoCero	  = true;
-		$fecha_inicio = '2025-01-01';
-		$fecha_fin    = '2025-08-18';
-		$fecha_actual = getFechaHoraActual();
-
-		if($nivel== 0)
-		{
-			$nivel=getNivelMaximo();
-		}
-		if($saldoCero == "true")
-		{
-			$excluirCuentasEnCero      = false;
-		}
-		else
-		{
-			$excluirCuentasEnCero      = true;
-		}
-
-		$estadoResultadoIngreso    = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
-		$cuentasIngreso  	       = json_decode(json_encode($estadoResultadoIngreso), true);		
-		$ordenadas_cuentas_ingreso = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasIngreso ,0,0,$excluirCuentasEnCero,$nivel);
-		$cuentasOrdenadasIngreso   = $ordenadas_cuentas_ingreso[0];
-
-		$estadoResultadoEgreso     = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso );
-		$cuentasDeEgreso		   = json_decode(json_encode($estadoResultadoEgreso), true);		
-		$ordenadas_cuentas_egreso  = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasDeEgreso ,0,0,$excluirCuentasEnCero,$nivel);
-		$cuentasOrdenadasEgreso    = $ordenadas_cuentas_egreso[0];
-		
-		// $sumaTotalGlobalIngreso    = $ordenadas_cuentas_ingreso[1];
-
-		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso);
-		if($moneda === 'BOB'){
-				$sumaTotalGlobalIngreso    = $ordenadas_cuentas_ingreso[1];
-				$sumaTotalGlobalEgreso     = $ordenadas_cuentas_egreso[1];
-				if (!empty($resultado) && isset($resultado[0]->total_estado_resultado) ) {
-					$total_resultado = $resultado[0]->total_estado_resultado;
-				} else {
-					$total_resultado = 0; 
-				}
-		}
-		elseif ($moneda === 'USD') {
-				$sumaTotalGlobalIngresoUSD    = $ordenadas_cuentas_ingreso[2];
-				$sumaTotalGlobalEgreso  	  = $ordenadas_cuentas_egreso[2];
-				if (!empty($resultado) && isset($resultado[0]->total_estado_resultadousd) ) {
-						$total_resultadousd = $resultado[0]->total_estado_resultadousd;
-					} else {
-						$total_resultadousd = 0; 
-					}
-		} 
-
-
-
-		// echo("<pre>");
-		// print_r($estadoResultadoIngreso);
-		// echo("</pre>");
-		// die();
-
-		// CUENTAS DE RESULTADOS ACUMULADOS -INGRESO
-		$idCuentaCierre 	  = 54; ///ojo
-		$idCuentaSaldoCierre  = 54; ///ojo
-		$tipo_comprobante     = 'TR';
-		$id_dependencia       = $this->session->userdata('id_dependencia_principal');
-		$fecha_comprobante    = '2025-01-01';
-		$periodo        	  = (int)date('m', strtotime($fecha_comprobante));
-		$gestion        	  = date("Y", strtotime($fecha_comprobante));
-		$referencia_general   = "*****";
-		$glosa_general        = "*****";
-		$tipo_cambio	      = "6.96";
-		$tipo_cierre          = "CIR";
-		// $tipo_movimiento	  = "DB";
-		$contador=3;
-		$estado_resultado     = 'CNS';//CONSOLIDADO
-		$comprobantes ='';
-		$id_comprobante=0;
-		for($i=1 ;$i<=$contador;$i++)
-		{
-
-			$tipoCorrelativo  	  = $tipo_comprobante ;
-			$datosCorrelativo     = json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
-			$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
-			$correlativo      		        = $datosCorrelativo[0]->correlativo;			
-			$datosComprobante = array(
-				'id_entidad'              => $id_entidad,
-				'tipo_comprobante'        => $tipo_comprobante,
-				'correlativo'             => $correlativo,
-				'periodo'                 => $periodo,
-				'gestion'                 => $gestion,
-				'referencia_comprobante'  => $referencia_general,
-				'glosa_comprobante' 	  => $glosa_general,
-				'fecha_comprobante'       => $fecha_comprobante,
-				'tipo_cambio'             => $tipo_cambio,
-				'id_usuario_registro'     => $id_usuario,
-				"tipo_cierre"			  => $tipo_cierre
-			);
-			
-
-			$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
-			$comprobantes = $comprobantes."-".$saveComprobante;
-			$updateCorrelativoEntidadGestion = array(
-				'correlativo' => $correlativo,
-				'fecha_modificacion' => $fecha_actual
-			);	
-
-			$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
-
-			if($saveComprobante)
-			{
-				if($i==3)
-				{
-					$id_comprobante = $saveComprobante;
-				}
-
-				/*DETALLE DE CUENTA DE INGRESO*/
-				if($i==1)//primero se registrara el comprobante de ingreso	
-				{
-							
-					foreach($estadoResultadoIngreso as $cuenta)
-					{
-						$id_cuenta = $cuenta->id;
-						$saldo     = $cuenta->saldo;
-						$saldoUSD  = $cuenta->saldousd;
-						if($saldo > 0)
-						{
-							$tipo_movimiento='HB';
-						}
-						else
-						{
-							$tipo_movimiento='DB';
-						}
-						$tipo_cambio  = 6.96;
-						$glosa_cuenta = '';
-
-						/*REGISTRO DE CUENTAS DETALLE COMPROBANTE*/
-
-						$datosComprobanteDetalle = array(
-							'id_entidad'	            => $id_entidad,
-							'id_comprobante'            => $saveComprobante,
-							'id_cuenta'                 => $id_cuenta,
-							'tipo_movimiento'           => $tipo_movimiento,
-							'tipo_cambio'               => $tipo_cambio,
-							'importe_moneda_nacional'   => $saldo,
-							'importe_moneda_extranjera' => $saldoUSD,
-							'glosa_cuenta'              => $glosa_cuenta,
-							'id_usuario_registro'       => $id_usuario,
-							'estado_resultado'          => $estado_resultado									
-						);
-						$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
-						if($detalle_comprobante)
-						{
-							
-							$resul = 1;
-							$mensaje = "SE REGISTRO CORRECTAMENTE";
-						}
-						else {
-							$resul = 0;
-							$mensaje = "ERROR EN EL REGISTRO!!!";
-						}
-
-					}
-					/*ASIENTO CONTABLE*/
-					$tipo_movimiento	  = "HB";
-					$glosa_cuenta		  = "";
-					$datosComprobanteDetalle = array(
-						'id_entidad'	            => $id_entidad,
-						'id_comprobante'            => $saveComprobante,
-						'id_cuenta'                 => $idCuentaCierre,
-						'tipo_movimiento'           => $tipo_movimiento,
-						'tipo_cambio'               => $tipo_cambio,
-						'importe_moneda_nacional'   => $sumaTotalGlobalIngreso,
-						'importe_moneda_extranjera' => $sumaTotalGlobalIngresoUSD,
-						'glosa_cuenta'              => $glosa_cuenta,
-						'id_usuario_registro'       => $id_usuario,
-						'estado_resultado'          => $estado_resultado				
-					);
-					$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);	
-
-
-					// $updateCorrelativoEntidadGestion = array(
-					// 	'correlativo' => $correlativo,
-					// 	'fecha_modificacion' => $fechaActual
-					// );	
-
-					// $data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
-
-				}
-				elseif($i==2)
-				{
-					/*DETALLE DE CUENTA DE GASTO O EGRESO*/
-					$tipo_movimiento	  = "DB";
-					$glosa_cuenta		  = "";
-					$datosComprobanteDetalle = array(
-						'id_entidad'	            => $id_entidad,
-						'id_comprobante'            => $saveComprobante,
-						'id_cuenta'                 => $idCuentaCierre,
-						'tipo_movimiento'           => $tipo_movimiento,
-						'tipo_cambio'               => $tipo_cambio,
-						'importe_moneda_nacional'   => $sumaTotalGlobalIngreso,
-						'importe_moneda_extranjera' => $sumaTotalGlobalIngresoUSD,
-						'glosa_cuenta'              => $glosa_cuenta,
-						'id_usuario_registro'       => $id_usuario,
-						'estado_resultado'          => $estado_resultado					
-					);
-					$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);			
-					foreach($estadoResultadoEgreso as $cuenta)
-					{
-						$id_cuenta = $cuenta->id;
-						$saldo     = $cuenta->saldo;
-						$saldoUSD  = $cuenta->saldousd;
-						if($saldo > 0)
-						{
-							$tipo_movimiento='DB';
-						}
-						else
-						{
-							$tipo_movimiento='HB';
-						}
-						$tipo_cambio  = '';
-						$glosa_cuenta = '';
-
-						/*REGISTRO DE CUENTAS DETALLE COMPROBANTE*/
-
-						$datosComprobanteDetalle = array(
-							'id_entidad'	            => $id_entidad,
-							'id_comprobante'            => $saveComprobante,
-							'id_cuenta'                 => $id_cuenta,
-							'tipo_movimiento'           => $tipo_movimiento,
-							'tipo_cambio'               => $tipo_cambio,
-							'importe_moneda_nacional'   => $saldo,
-							'importe_moneda_extranjera' => $saldoUSD,
-							'glosa_cuenta'              => $glosa_cuenta,
-							'id_usuario_registro'       => $id_usuario,
-							'estado_resultado'          => $estado_resultado									
-						);
-						$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
-						if($detalle_comprobante)
-						{
-							// $updateCorrelativoEntidadGestion = array(
-							// 	'correlativo' => $correlativo,
-							// 	'fecha_modificacion' => $fechaActual
-							// );	
-
-							// $data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
-
-							$resul = 1;
-							$mensaje = "SE REGISTRO CORRECTAMENTE";
-						}
-						else {
-							$resul = 0;
-							$mensaje = "ERROR EN EL REGISTRO!!!";
-						}
-
-					}
-
-				}else
-				{
-					/*REGISTRO DE COMPROBANTE DE CIERRE CONTABLE */
-					if($total_resultado < 0)
-					{
-						$tipo_movimiento    = 'HB';
-						$total_resultado    = $total_resultado*-1;
-						$total_resultadousd = $total_resultadousd*-1;
-					}	
-					else {
-						$tipo_movimiento = 'DB';
-					}				
-					// $tipo_movimiento	  = "DB";
-					$glosa_cuenta		  = "";
-					$datosComprobanteDetalleA = array(
-						'id_entidad'	            => $id_entidad,
-						'id_comprobante'            => $saveComprobante,
-						'id_cuenta'                 => $idCuentaCierre,
-						'tipo_movimiento'           => $tipo_movimiento,
-						'tipo_cambio'               => $tipo_cambio,
-						'importe_moneda_nacional'   => $total_resultado,
-						'importe_moneda_extranjera' => $total_resultadousd,
-						'glosa_cuenta'              => $glosa_cuenta,
-						'id_usuario_registro'       => $id_usuario,
-						'estado_resultado'          => $estado_resultado					
-					);
-					$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalleA);		
-
-					if($total_resultado < 0){
-						$tipo_movimiento = 'DB';
-						$total_resultado    = $total_resultado*-1;
-						$total_resultadousd = $total_resultadousd*-1;
-					}
-					else {
-						$tipo_movimiento = 'HB';
-					}
-					
-					// $tipo_movimiento	  = "DB";
-					$glosa_cuenta		  = "";
-					$datosComprobanteDetalleB = array(
-						'id_entidad'	            => $id_entidad,
-						'id_comprobante'            => $saveComprobante,
-						'id_cuenta'                 => $idCuentaSaldoCierre,
-						'tipo_movimiento'           => $tipo_movimiento,
-						'tipo_cambio'               => $tipo_cambio,
-						'importe_moneda_nacional'   => $total_resultado,
-						'importe_moneda_extranjera' => $total_resultadousd,
-						'glosa_cuenta'              => $glosa_cuenta,
-						'id_usuario_registro'       => $id_usuario,
-						'estado_resultado'          => $estado_resultado					
-					);
-					$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalleB);		
-
-				}	
-				
-				
-			}
-			else
-			{
-				$resul = 0;
-				$mensaje = "ERROR EN EL REGISTRO!!!";
-			}
-
-
-		}
-
-		/*CONSOLIDAR CUENTAS DEL CIERRE DE RESULTADOS*/
-		$cuentasIngreso    = $this->EstadoDeResultado_model->getCuentasConMovimientoByIdMayor($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
-		$cuentasEgreso     = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso);
-		$cuentasConsolidadas =  array_merge($cuentasIngreso,$cuentasEgreso);
-		foreach($cuentasConsolidadas as $cuenta)
-		{
-			$id_cuenta        = $cuenta->id_detalle_cuenta;
-			$estado_resultado = 'CNS';//CONSOLIDADO
-			$fecha_actual     = fecha_actual();
-			$datosDetalleComprobante = array(
-				'estado_resultado'        => $estado_resultado,
-				'fecha_modificacion'      => $fecha_actual,
-				'id_usuario_update'       => $id_usuario					
-			);
-			$detalle_comprobante = $this->Comprobantes_model->updateDetalleComprobante($id_cuenta,$datosDetalleComprobante);		
-		}
-		/*GUARDAR CIERRE */
-		$tipo_cierre = "CIR";
-		$descripcion = "";
-		$comprobantes = preg_replace('/^-/', '', $comprobantes, 1);
-		$datosCierre = array(
-			'id_entidad'	            => $id_entidad,
-			'gestion'		            => $gestion,
-			'mes'	                    => $mes,
-			'tipo_cierre'               => $tipo_cierre,
-			'fecha_cierre'              => $fecha_actual,
-			'id_comprobante'            => $id_comprobante,
-			'descripcion'               => $descripcion,
-			'saldo_resultado'           => $total_resultado,
-			'id_usuario_registro'       => $id_usuario,
-			'comprobante'               => $comprobantes					
-		);
-		$cierre = $this->Comprobantes_model->guardarCierre($datosCierre);				
-		if($cierre)
-		{
-			$resul = 1;
-			$mensaje = "SE REGISTRO EL CIERRE DE RESULTADOS CORRECTAMENTE.";
-		}
-		else
-		{
-			$resul = 0;
-			$mensaje = "ERROR EN EL PROCESO!!!";
-		}
-
-
-
-		/******TRANSACT*****/
-		if ($this->db->trans_status() === FALSE && $resul == 1) { 
-			$this->db->trans_rollback(); // Deshacer los cambios si hay un error
-			// $resultado = 0;
-		} else {
-			$this->db->trans_commit(); // Confirmar los cambios si todo está bien
-			// $resultado = 1;
-		}
-		echo '[{
-				"resultado":"'.$resul.'",
-					"mensaje":"'.$mensaje.'"}]';
-
-		// $resultado ='[{
-		// 				"resultado":"'.$resul.'",
-		// 				"mensaje":"'.$mensaje.'"
-		// 			 }]';
-
-		// echo $resultado;
-
-
-	}
-
-	// public function guardarComprobante()
+	// public function cerrarCuentaDeResultados()
 	// {
-	// 	$id_usuario          = $this->session->userdata('id_usuario');
-	// 	$id_funcionario      = $this->session->userdata('id_funcionario');
-	// 	$id_dependencia      = $this->session->userdata('id_dependencia_principal');
-	// 	$fechaActual         = getFechaHoraActual();
-	// 	parse_str($this->input->post('datos'), $data);
-	// 	$detalleComprobante  = $this->input->post('detalleComprobante');
-	
-	// 	$validacomprobante   = json_decode($this->validarDatos($data));	
-	// 	$resultado   = $validacomprobante[0]->resultado;
-	// 	$mensaje     = $validacomprobante[0]->mensaje;
-    //     $idComprobante=0;
 	// 	$this->db->trans_start();
-    //     if($resultado == 1)
+	// 	/*DATOS COMUNES */
+	// 	$id_usuario  	 = $this->session->userdata('id_usuario');	
+	// 	$id_funcionario  = $this->session->userdata('id_funcionario');	
+	// 	$id_dependencia  = $this->session->userdata('id_dependencia_principal');
+	// 	$id_entidad	     = 1;
+	// 	$fecha_actual    = getFechaHoraActual();
+	// 	/*DATOS PARA GENERAR EL CIERRE DE RESULTADOS */
+	// 	// CUENTAS DE RESULTADOS ACUMULADOS -INGRESO
+	// 	$idCuentaCierre 	  = 54; ///ojo
+	// 	$idCuentaSaldoCierre  = 33; ///ojo
+	// 	$tipo_comprobante     = 'TR';		
+	// 	$fecha_comprobante    = '2025-01-01';
+	// 	$periodo        	  = (int)date('m', strtotime($fecha_comprobante));
+	// 	$gestion        	  = date("Y", strtotime($fecha_comprobante));
+	// 	$referencia_general   = "*****";
+	// 	$glosa_general        = "*****";
+	// 	$tipo_cambio	      = "6.96";
+	// 	$tipo_cierre          = "CIR";
+	// 	$contador			  = 3;//NUMERO DE COMPROBANTES A GENERAR PARA EL CIERRE
+	// 	$estado_resultado     = 'CNS';//CONSOLIDADO ESTADO DE LOS COMPROBANTES GENERADOS Y CUENTAS CONSOLIDADAS
+	// 	$comprobantes ='';
+	// 	$id_comprobante=0;
+
+
+	// 	/*DATOS DE LAS CUENTAS DE INGRESO Y EGRESO PARA GENERAR EL ESTADO DE RESULTADOS A LA FECHA */		
+	// 	$codigo_cuenta_ingreso     = 4;
+	// 	$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+	// 	$codigo_cuenta_egreso      = 5;
+	// 	$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+		
+	// 	$nivel		  = 0;
+	// 	$moneda		  = 'BOB';
+	// 	$saldoCero	  = true;
+	// 	$fecha_inicio = '2025-01-01';
+	// 	$fecha_fin    = '2025-08-18';
+
+	// 	if($nivel== 0)
 	// 	{
+	// 		$nivel=getNivelMaximo();
+	// 	}
+	// 	if($saldoCero == "true")
+	// 	{
+	// 		$excluirCuentasEnCero      = false;
+	// 	}
+	// 	else
+	// 	{
+	// 		$excluirCuentasEnCero      = true;
+	// 	}
+	// 	$sumaTotalGlobalIngreso     = 0;
+	// 	$sumaTotalGlobalIngresoUSD  = 0;
+	// 	$sumaTotalGlobalEgreso      = 0;
+	// 	$sumaTotalGlobalEgresoUSD   = 0;
+	// 	$total_resultado            = 0; 
+	// 	$total_resultadousd         = 0;
+
+	// 	$estadoResultadoIngreso    = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
+	// 	// echo("<pre>");
+	// 	// print_r($estadoResultadoIngreso);
+	// 	// echo("</pre>");
+	// 	// die();
+	// 	$cuentasIngreso  	       = json_decode(json_encode($estadoResultadoIngreso), true);		
+	// 	$ordenadas_cuentas_ingreso = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasIngreso ,0,0,$excluirCuentasEnCero,$nivel);
+	// 	$cuentasOrdenadasIngreso   = $ordenadas_cuentas_ingreso[0];
+
+	// 	$estadoResultadoEgreso     = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso );
+	// 	$cuentasDeEgreso		   = json_decode(json_encode($estadoResultadoEgreso), true);		
+	// 	$ordenadas_cuentas_egreso  = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasDeEgreso ,0,0,$excluirCuentasEnCero,$nivel);
+	// 	$cuentasOrdenadasEgreso    = $ordenadas_cuentas_egreso[0];
+		
+	// 	$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso);
+	// 	if($moneda === 'BOB'){
+	// 			$sumaTotalGlobalIngreso    = $ordenadas_cuentas_ingreso[1];
+	// 			$sumaTotalGlobalEgreso     = $ordenadas_cuentas_egreso[1];
+	// 			if (!empty($resultado) && isset($resultado[0]->total_estado_resultado) ) {
+	// 				$total_resultado = $resultado[0]->total_estado_resultado;
+	// 			} else {
+	// 				$total_resultado = 0; 
+	// 			}
+	// 	}
+	// 	elseif ($moneda === 'USD') {
+	// 			$sumaTotalGlobalIngresoUSD    = $ordenadas_cuentas_ingreso[2];
+	// 			$sumaTotalGlobalEgresoUSD  	  = $ordenadas_cuentas_egreso[2];
+	// 			if (!empty($resultado) && isset($resultado[0]->total_estado_resultadousd) ) {
+	// 					$total_resultadousd = $resultado[0]->total_estado_resultadousd;
+	// 				} else {
+	// 					$total_resultadousd = 0; 
+	// 				}
+	// 	} 
+
+		
+	// 	for($i=1 ;$i<=$contador;$i++)
+	// 	{
+
+	// 		$tipoCorrelativo  	  = $tipo_comprobante ;
+	// 		$datosCorrelativo     = json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
+	// 		$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
+	// 		$correlativo      		        = $datosCorrelativo[0]->correlativo;			
+	// 		$datosComprobante = array(
+	// 			'id_entidad'              => $id_entidad,
+	// 			'tipo_comprobante'        => $tipo_comprobante,
+	// 			'correlativo'             => $correlativo,
+	// 			'periodo'                 => $periodo,
+	// 			'gestion'                 => $gestion,
+	// 			'referencia_comprobante'  => $referencia_general,
+	// 			'glosa_comprobante' 	  => $glosa_general,
+	// 			'fecha_comprobante'       => $fecha_comprobante,
+	// 			'tipo_cambio'             => $tipo_cambio,
+	// 			'id_usuario_registro'     => $id_usuario,
+	// 			"tipo_cierre"			  => $tipo_cierre
+	// 		);
 			
-    //         $accion      		  = $data['txtAccionComprobante'];
-	// 		// $idComprobante   	  = $data['id_comprobante'];
-	// 		$id_entidad       	  = $data['id_entidad'];
-	// 		$fecha_comprobante    = $data['txtFecha'];
-	// 		$tipo_cambio	      = $data['txtTipoCambio'];
-	// 		$referencia_general   = $data['txtReferencia'];
-	// 		$glosa_general	      = $data['txtGlosaGeneral'];
-	// 		$correlativo		  = 0;
-	// 		// $periodo        	  = date("m", strtotime($fecha_comprobante));
-	// 		$periodo        	  = (int)date('m', strtotime($fecha_comprobante));
-	// 		$gestion        	  = date("Y", strtotime($fecha_comprobante));
 
+	// 		$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
+	// 		$comprobantes = $comprobantes."-".$saveComprobante;
+	// 		$updateCorrelativoEntidadGestion = array(
+	// 			'correlativo' => $correlativo,
+	// 			'fecha_modificacion' => $fecha_actual
+	// 		);	
 
+	// 		$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
 
-	// 		$totalImporteDebe	  = $data['total_debe'];
-	// 		$totalImporteHaber    = $data['total_haber'];
-	// 		$totalImporteDebeUs	  = $data['total_debe_us'];
-	// 		$totalImporteHaberUs  = $data['total_haber_us'];
-
-	// 		if(($totalImporteDebe === $totalImporteHaber) && ($totalImporteDebeUs === $totalImporteHaberUs))
+	// 		if($saveComprobante)
 	// 		{
-	// 			if($accion === 'nuevo')
+	// 			if($i==3)
 	// 			{
-	// 			// $idComprobante   	  = $data['id_comprobante'];
-	// 				$tipo_comprobante     = $data['txtTipo'];
+	// 				$id_comprobante = $saveComprobante;
+	// 			}
 
-	// 				$tipoCorrelativo  = $tipo_comprobante ;
-	// 				$datosCorrelativo = json_decode(obtenerCorrelativoComprobanteGestionEntidad($tipoCorrelativo,$id_entidad,$id_dependencia, $gestion));
-	// 				$idcorrelativoentidadgestion    = $datosCorrelativo[0]->idcorrelativoentidadgestion;
-	// 				$correlativo      		        = $datosCorrelativo[0]->correlativo;
-
-					
-	// 				$datosComprobante = array(
-	// 					'id_entidad'              => $id_entidad,
-	// 					'tipo_comprobante'        => $tipo_comprobante,
-	// 					'correlativo'             => $correlativo,
-	// 					'periodo'                 => $periodo,
-	// 					'gestion'                 => $gestion,
-	// 					'referencia_comprobante'  => $referencia_general,
-	// 					'glosa_comprobante' 	  => $glosa_general,
-	// 					'fecha_comprobante'       => $fecha_comprobante,
-	// 					'tipo_cambio'             => $tipo_cambio,
-	// 					'id_usuario_registro'     => $id_usuario
-	// 				);
-
-	// 				$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
-	// 				if($saveComprobante)
+	// 			/*DETALLE DE CUENTA DE INGRESO*/
+	// 			if($i==1)//primero se registrara el comprobante de ingreso	
+	// 			{
+							
+	// 				foreach($estadoResultadoIngreso as $cuenta)
 	// 				{
-	// 					/*REGISTRO DE CUENTAS DEL COMPROBANTE*/
-	// 					$idComprobante = $saveComprobante;
-	// 					$filas = explode("|", $detalleComprobante);
-	// 					if(!empty($filas))
+	// 					$id_cuenta = $cuenta->id;
+	// 					$saldo     = $cuenta->saldo;
+	// 					$saldoUSD  = $cuenta->saldousd;
+
+	// 					if($saldo != 0)
 	// 					{
-	// 						foreach($filas as $fila)
+	// 						if($saldo > 0)
 	// 						{
-	// 							if(!empty($fila) && $fila != "undefined" && $fila != "null")
-	// 							{
-	// 								$row = explode("*", $fila);
-	// 								if(!isset($row[0]) || empty($row[0]))
-	// 								{
-	// 									list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
-	// 									// $importe   = number_format($importe,2,'.',',');
-	// 									// $importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
-	// 									$importeUsBase = round($importe/$tipo_cambio,2);
-	// 									$importeBase = floatval(str_replace(',', '', $importe));
-	// 									//$importeUsBase = floatval(str_replace(',', '', $importeOriginal));
-	// 									if($id_cuenta_auxiliar === '-')
-	// 									{
-	// 										$datosComprobanteDetalle = array(
-	// 										'id_entidad'	            => $id_entidad,
-	// 										'id_comprobante'            => $saveComprobante,
-	// 										'id_cuenta'                 => $id_cuenta,
-	// 										'tipo_movimiento'           => $tipo_movimiento,
-	// 										'tipo_cambio'               => $tipo_cambio,
-	// 										'importe_moneda_nacional'   => $importeBase,
-	// 										'importe_moneda_extranjera' => $importeUsBase,
-	// 										'glosa_cuenta'              => $glosa_cuenta,
-	// 										'id_usuario_registro'       => $id_usuario									
-	// 										);
-	// 									}
-	// 									else
-	// 									{
-	// 										$datosComprobanteDetalle = array(
-	// 										'id_entidad'	            => $id_entidad,
-	// 										'id_comprobante'            => $saveComprobante,
-	// 										'id_cuenta'                 => $id_cuenta,
-	// 										'tipo_movimiento'           => $tipo_movimiento,
-	// 										'tipo_cambio'               => $tipo_cambio,
-	// 										'importe_moneda_nacional'   => $importe,
-	// 										'importe_moneda_extranjera' => $importeUs,
-	// 										'glosa_cuenta'              => $glosa_cuenta,
-	// 										'id_usuario_registro'       => $id_usuario,					
-	// 										'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
-	// 										);
-	// 									}
-										
-	// 									// $datosComprobanteDetalle = array(
-	// 									// 	'id_entidad'	            => $id_entidad,
-	// 									// 	'id_comprobante'            => $saveComprobante,
-	// 									// 	'id_cuenta'                 => $id_cuenta,
-	// 									// 	'tipo_movimiento'           => $tipo_movimiento,
-	// 									// 	'tipo_cambio'               => $tipo_cambio,
-	// 									// 	'importe_moneda_nacional'   => $importe,
-	// 									// 	'importe_moneda_extranjera' => $importeUs,
-	// 									// 	'glosa_cuenta'              => $glosa_cuenta,
-	// 									// 	'id_usuario_registro'       => $id_usuario,					
-	// 									// 	'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
-	// 									// );
-	// 									$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
-	// 									if($detalle_comprobante)
-	// 									{
-	// 										$updateCorrelativoEntidadGestion = array(
-	// 											'correlativo' => $correlativo,
-	// 											'fecha_modificacion' => $fechaActual
-	// 										);	
-
-	// 										$data = $this->Correlativos_model->updateCorrelativoEntidadGestion($idcorrelativoentidadgestion,$updateCorrelativoEntidadGestion);
-
-	// 										$resul = 1;
-	// 										$mensaje = "SE REGISTRO CORRECTAMENTE";
-	// 									}
-	// 									else
-	// 									{
-	// 										$resul = 0;
-	// 										$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE!!!";
-	// 									}
-	// 								}
-	// 								else
-	// 								{
-	// 									// echo("FALSOOOOO");
-	// 									$resul = 0;
-	// 									$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE....!!!";
-	// 								}
-
-	// 							}
-															
+	// 							$tipo_movimiento='DB';
 	// 						}
+	// 						else
+	// 						{
+	// 							$tipo_movimiento='HB';
+	// 							$saldo     = $cuenta->saldo  * -1;
+	// 							$saldoUSD  = $cuenta->saldousd * -1;
+	// 						}
+	// 						$tipo_cambio  = 6.96;
+	// 						$glosa_cuenta = '';
+
+	// 						/*REGISTRO DE CUENTAS DETALLE COMPROBANTE*/
+
+	// 						$datosComprobanteDetalle = array(
+	// 							'id_entidad'	            => $id_entidad,
+	// 							'id_comprobante'            => $saveComprobante,
+	// 							'id_cuenta'                 => $id_cuenta,
+	// 							'tipo_movimiento'           => $tipo_movimiento,
+	// 							'tipo_cambio'               => $tipo_cambio,
+	// 							'importe_moneda_nacional'   => $saldo,
+	// 							'importe_moneda_extranjera' => $saldoUSD,
+	// 							'glosa_cuenta'              => $glosa_cuenta,
+	// 							'id_usuario_registro'       => $id_usuario,
+	// 							'estado_resultado'          => $estado_resultado									
+	// 						);
+	// 						$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
+	// 						if($detalle_comprobante)
+	// 						{
+								
+	// 							$resul = 1;
+	// 							$mensaje = "SE REGISTRO CORRECTAMENTE";
+	// 						}
+	// 						else {
+	// 							$resul = 0;
+	// 							$mensaje = "ERROR EN EL REGISTRO!!!";
+	// 						}
+
 	// 					}
+						
 	// 				}
-	// 				else
-	// 				{
-	// 					$resul = 0;
-	// 					$mensaje = "ERROR EN EL REGISTRO!!!";
-	// 				}
-	// 			}
-	// 			else
-	// 			{
-	// 				$idComprobante   	  = $data['id_comprobanteP'];
-	// 				$updateComprobante = array(
-	// 					'periodo'                 => $periodo,
-	// 					'gestion'                 => $gestion,
-	// 					'glosa_comprobante' 	  => $glosa_general,
-	// 					'referencia_comprobante'  => $referencia_general,
-	// 					'fecha_comprobante'       => $fecha_comprobante,
-	// 					'tipo_cambio'             => $tipo_cambio,
-	// 					'fecha_modificacion'      => $fechaActual,
-	// 					'id_funcionario_update'   => $id_funcionario
+	// 				/*ASIENTO CONTABLE*/
+	// 				$tipo_movimiento	  = "HB";
+	// 				$glosa_cuenta		  = "";
+	// 				$datosComprobanteDetalle = array(
+	// 					'id_entidad'	            => $id_entidad,
+	// 					'id_comprobante'            => $saveComprobante,
+	// 					'id_cuenta'                 => $idCuentaCierre,
+	// 					'tipo_movimiento'           => $tipo_movimiento,
+	// 					'tipo_cambio'               => $tipo_cambio,
+	// 					'importe_moneda_nacional'   => $sumaTotalGlobalIngreso,
+	// 					'importe_moneda_extranjera' => $sumaTotalGlobalIngresoUSD,
+	// 					'glosa_cuenta'              => $glosa_cuenta,
+	// 					'id_usuario_registro'       => $id_usuario,
+	// 					'estado_resultado'          => $estado_resultado				
 	// 				);
-	// 				$saveComprobante = $this->Comprobantes_model->updateComprobante($idComprobante,$updateComprobante);
-	// 				if($saveComprobante)
-	// 				{
-	// 					$resul = 1;
-	// 					$mensaje = "SE ACTUALIZÓ CORRECTAMENTE EL COMPROBANTE";
-	// 				}
-	// 				else
-	// 				{
-	// 					$resul = 0;
-	// 					$mensaje = "ERROR EN EL REGISTRO!!!";
-	// 				}
+	// 				$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);	
 	// 			}
+	// 			elseif($i==2)
+	// 			{
+	// 				/*DETALLE DE CUENTA DE GASTO O EGRESO*/
+	// 				$tipo_movimiento	  = "DB";
+	// 				$glosa_cuenta		  = "";
+	// 				$datosComprobanteDetalle = array(
+	// 					'id_entidad'	            => $id_entidad,
+	// 					'id_comprobante'            => $saveComprobante,
+	// 					'id_cuenta'                 => $idCuentaCierre,
+	// 					'tipo_movimiento'           => $tipo_movimiento,
+	// 					'tipo_cambio'               => $tipo_cambio,
+	// 					'importe_moneda_nacional'   => $sumaTotalGlobalEgreso,
+	// 					'importe_moneda_extranjera' => $sumaTotalGlobalEgresoUSD,
+	// 					'glosa_cuenta'              => $glosa_cuenta,
+	// 					'id_usuario_registro'       => $id_usuario,
+	// 					'estado_resultado'          => $estado_resultado					
+	// 				);
+	// 				$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);			
+	// 				foreach($estadoResultadoEgreso as $cuenta)
+	// 				{
+	// 					$id_cuenta = $cuenta->id;
+	// 					$saldo     = $cuenta->saldo;
+	// 					$saldoUSD  = $cuenta->saldousd;
+	// 					if($saldo != 0)
+	// 					{
+	// 						if($saldo > 0)
+	// 						{
+	// 							$tipo_movimiento='HB';
+	// 						}
+	// 						else
+	// 						{
+	// 							$tipo_movimiento='DB';
+	// 							$saldo     = $cuenta->saldo  * -1;
+	// 							$saldoUSD  = $cuenta->saldousd * -1;
+
+
+	// 						}
+	// 						$tipo_cambio  = 6.96;
+	// 						$glosa_cuenta = '';
+
+	// 						/*REGISTRO DE CUENTAS DETALLE COMPROBANTE*/
+
+	// 						$datosComprobanteDetalle = array(
+	// 							'id_entidad'	            => $id_entidad,
+	// 							'id_comprobante'            => $saveComprobante,
+	// 							'id_cuenta'                 => $id_cuenta,
+	// 							'tipo_movimiento'           => $tipo_movimiento,
+	// 							'tipo_cambio'               => $tipo_cambio,
+	// 							'importe_moneda_nacional'   => $saldo,
+	// 							'importe_moneda_extranjera' => $saldoUSD,
+	// 							'glosa_cuenta'              => $glosa_cuenta,
+	// 							'id_usuario_registro'       => $id_usuario,
+	// 							'estado_resultado'          => $estado_resultado									
+	// 						);
+	// 						$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
+	// 						if($detalle_comprobante)
+	// 						{
+	// 							$resul = 1;
+	// 							$mensaje = "SE REGISTRO CORRECTAMENTE";
+	// 						}
+	// 						else {
+	// 							$resul = 0;
+	// 							$mensaje = "ERROR EN EL REGISTRO!!!";
+	// 						}
+	// 					}					
+	// 				}
+
+	// 			}else
+	// 			{
+	// 				/*REGISTRO DE COMPROBANTE DE CIERRE CONTABLE */
+	// 				$total_balance_resultado = $total_resultado;
+	// 				if($total_balance_resultado < 0)
+	// 				{
+	// 					$tipo_movimiento    = 'HB';
+	// 					$importe            = $total_resultado*-1;
+	// 					$importeUSD         = $total_resultadousd*-1;
+	// 				}	
+	// 				else {
+	// 					$tipo_movimiento = 'DB';
+	// 				}				
+	// 				// $tipo_movimiento	  = "DB";
+	// 				$glosa_cuenta		  = "";
+	// 				$datosComprobanteDetalleA = array(
+	// 					'id_entidad'	            => $id_entidad,
+	// 					'id_comprobante'            => $saveComprobante,
+	// 					'id_cuenta'                 => $idCuentaCierre,
+	// 					'tipo_movimiento'           => $tipo_movimiento,
+	// 					'tipo_cambio'               => $tipo_cambio,
+	// 					'importe_moneda_nacional'   => $importe,
+	// 					'importe_moneda_extranjera' => $importeUSD,
+	// 					'glosa_cuenta'              => $glosa_cuenta,
+	// 					'id_usuario_registro'       => $id_usuario,
+	// 					'estado_resultado'          => $estado_resultado					
+	// 				);
+	// 				$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalleA);		
+
+	// 				if($total_balance_resultado < 0){
+	// 					$tipo_movimiento = 'DB';
+	// 				}
+	// 				else {
+	// 					$tipo_movimiento = 'HB';
+	// 				}
+					
+	// 				// $tipo_movimiento	  = "DB";
+	// 				$glosa_cuenta		  = "";
+	// 				$datosComprobanteDetalleB = array(
+	// 					'id_entidad'	            => $id_entidad,
+	// 					'id_comprobante'            => $saveComprobante,
+	// 					'id_cuenta'                 => $idCuentaSaldoCierre,
+	// 					'tipo_movimiento'           => $tipo_movimiento,
+	// 					'tipo_cambio'               => $tipo_cambio,
+	// 					'importe_moneda_nacional'   => $importe,
+	// 					'importe_moneda_extranjera' => $importeUSD,
+	// 					'glosa_cuenta'              => $glosa_cuenta,
+	// 					'id_usuario_registro'       => $id_usuario,
+	// 					'estado_resultado'          => $estado_resultado					
+	// 				);
+	// 				$detalle_comprobante = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalleB);		
+
+	// 			}	
+				
 	// 		}
 	// 		else
 	// 		{
-	// 			$resultado = 2;
-	// 			$mensaje = "Comprobante Contable Descuadrado:El comprobante presenta una diferencia contable.Verifique que el total del debe y del haber sean iguales para cumplir con la partida doble.";
-
-	// 		}		
-						
+	// 			$resul = 0;
+	// 			$mensaje = "ERROR EN EL REGISTRO!!!";
+	// 		}
 	// 	}
+
+	// 	/*CONSOLIDAR CUENTAS DEL CIERRE DE RESULTADOS*/
+	// 	$cuentasIngreso    = $this->CierresContables_model->getCuentasConMovimientoByIdMayor($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
+	// 	$cuentasEgreso     = $this->CierresContables_model->getCuentasConMovimientoByIdMayor($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso);
+	// 	$cuentasConsolidadas =  array_merge($cuentasIngreso,$cuentasEgreso);
+	// 	foreach($cuentasConsolidadas as $cuenta)
+	// 	{
+	// 		$id_cuenta        = $cuenta->id_detalle_cuenta;
+	// 		$estado_resultado = 'CNS';//CONSOLIDADO
+	// 		$datosDetalleComprobante = array(
+	// 			'estado_resultado'        => $estado_resultado,
+	// 			'fecha_modificacion'      => $fecha_actual,
+	// 			'id_funcionario_update'   => $id_usuario					
+	// 		);
+	// 		$detalle_comprobante = $this->Comprobantes_model->updateDetalleComprobante($id_cuenta,$datosDetalleComprobante);		
+	// 	}
+	// 	/*GUARDAR CIERRE */
+	// 	$tipo_cierre = "CIR";
+	// 	$descripcion = "";
+	// 	$comprobantes = preg_replace('/^-/', '', $comprobantes, 1);
+	// 	$datosCierre = array(
+	// 		'id_entidad'	            => $id_entidad,
+	// 		'gestion'		            => $gestion,
+	// 		'mes'	                    => $periodo,
+	// 		'tipo_cierre'               => $tipo_cierre,
+	// 		'fecha_cierre'              => $fecha_actual,
+	// 		'id_comprobante'            => $id_comprobante,
+	// 		'descripcion'               => $descripcion,
+	// 		'saldo_resultado'           => $total_resultado,
+	// 		'id_usuario_registro'       => $id_usuario,
+	// 		'comprobante'               => $comprobantes					
+	// 	);
+	// 	$cierre = $this->CierresContables_model->guardarCierre($datosCierre);				
+	// 	if($cierre)
+	// 	{
+	// 		$resul = 1;
+	// 		$mensaje = "SE REGISTRO EL CIERRE DE RESULTADOS CORRECTAMENTE.";
+	// 	}
+	// 	else
+	// 	{
+	// 		$resul = 0;
+	// 		$mensaje = "ERROR EN EL PROCESO!!!";
+	// 	}
+
 	// 	/******TRANSACT*****/
 	// 	if ($this->db->trans_status() === FALSE && $resul == 1) { 
 	// 		$this->db->trans_rollback(); // Deshacer los cambios si hay un error
@@ -996,10 +775,325 @@ class CierreDeResultados extends CI_Controller {
 	// 		$this->db->trans_commit(); // Confirmar los cambios si todo está bien
 	// 		// $resultado = 1;
 	// 	}
-	// 	echo '[{"idComprobante":"'.$idComprobante.'",
-	// 			    "resultado":"'.$resultado.'",
-	// 	              "mensaje":"'.$mensaje.'"}]';
+	// 	echo '[{
+	// 			"resultado":"'.$resul.'",
+	// 				"mensaje":"'.$mensaje.'"}]';
 
 	// }
+
+	// REFACTORIZANDO FUNCION 
+	private function ordenarCuentas($cuentas, $excluirCuentasEnCero, $nivel)
+	{
+		$cuentasArray = json_decode(json_encode($cuentas), true);
+		return $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados(
+			$cuentasArray,
+			0,
+			0,
+			$excluirCuentasEnCero,
+			$nivel
+		);
+	}
+	public function cerrarCuentaDeResultados()
+	{
+		// 1. Manejo de transacciones
+		$this->db->trans_begin();
+
+		try {
+			// 2. Definición de constantes y datos de la sesión
+			$id_usuario      = $this->session->userdata('id_usuario');
+			$id_funcionario  = $this->session->userdata('id_funcionario');
+			$id_dependencia  = $this->session->userdata('id_dependencia_principal');
+			$id_entidad      = 1;
+			$fecha_actual    = getFechaHoraActual();
+			$tipo_cambio     = 6.96;
+			$tipo_cierre     = 'CIR';
+			$estado_resultado = 'CNS';
+			$tipo_comprobante = 'TR';
+
+			// 3. Preparación de datos de cierre
+			$idCuentaCierre      = 54;
+			$idCuentaSaldoCierre = 33;
+			$fecha_comprobante   = '2025-01-01';
+			$gestion             = date('Y', strtotime($fecha_comprobante));
+			$periodo             = (int)date('m', strtotime($fecha_comprobante));
+			$referencia_general  = '*****';
+			$glosa_general       = '*****';
+			$contador            = 3; // NÚMERO DE COMPROBANTES A GENERAR
+
+			// 4. Parámetros para la consulta de resultados
+			$codigo_cuenta_ingreso = 4;
+			$id_cuenta_ingreso     = getIdCuenta($codigo_cuenta_ingreso);
+			$codigo_cuenta_egreso  = 5;
+			$id_cuenta_egreso      = getIdCuenta($codigo_cuenta_egreso);
+
+			$nivel        = getNivelMaximo();
+			$saldoCero    = false;
+			$fecha_inicio = '2025-01-01';
+			$fecha_fin    = '2025-08-18';
+			$moneda       = 'BOB';
+
+			// 5. Obtención de datos de ingresos y egresos
+			$ingresosData = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso(
+				$id_entidad,
+				$fecha_inicio,
+				$fecha_fin,
+				$id_cuenta_ingreso,
+				$codigo_cuenta_ingreso
+			);
+			$egresosData = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso(
+				$id_entidad,
+				$fecha_inicio,
+				$fecha_fin,
+				$id_cuenta_egreso,
+				$codigo_cuenta_egreso
+			);
+
+			// 6. Ordenar y calcular totales
+			list($cuentasIngresoOrdenadas, $sumaIngreso, $sumaIngresoUSD) = $this->ordenarCuentas(
+				$ingresosData,
+				$saldoCero,
+				$nivel
+			);
+			list($cuentasEgresoOrdenadas, $sumaEgreso, $sumaEgresoUSD) = $this->ordenarCuentas(
+				$egresosData,
+				$saldoCero,
+				$nivel
+			);
+
+			$resultado = $this->EstadoDeResultado_model->getMontoResultado(
+				$id_entidad,
+				$fecha_inicio,
+				$fecha_fin,
+				$id_cuenta_ingreso,
+				$codigo_cuenta_ingreso,
+				$id_cuenta_egreso,
+				$codigo_cuenta_egreso
+			);
+
+			$total_resultado    = $resultado[0]->total_estado_resultado ?? 0;
+			$total_resultadousd = $resultado[0]->total_estado_resultadousd ?? 0;
+
+			// 7. Generación de los comprobantes
+			$comprobantes = [];
+			$id_comprobante_cierre = 0;
+
+			for ($i = 1; $i <= $contador; $i++) {
+				$datosCorrelativo = json_decode(obtenerCorrelativoComprobanteGestionEntidad(
+					$tipo_comprobante,
+					$id_entidad,
+					$id_dependencia,
+					$gestion
+				));
+
+				$correlativo = $datosCorrelativo[0]->correlativo;
+				$idcorrelativoentidadgestion = $datosCorrelativo[0]->idcorrelativoentidadgestion;
+
+				$datosComprobante = [
+					'id_entidad'             => $id_entidad,
+					'tipo_comprobante'       => $tipo_comprobante,
+					'correlativo'            => $correlativo,
+					'periodo'                => $periodo,
+					'gestion'                => $gestion,
+					'referencia_comprobante' => $referencia_general,
+					'glosa_comprobante'      => $glosa_general,
+					'fecha_comprobante'      => $fecha_comprobante,
+					'tipo_cambio'            => $tipo_cambio,
+					'id_usuario_registro'    => $id_usuario,
+					'tipo_cierre'            => $tipo_cierre
+				];
+
+				$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
+				$comprobantes[] = $saveComprobante;
+
+				// Actualizar correlativo
+				$this->Correlativos_model->updateCorrelativoEntidadGestion(
+					$idcorrelativoentidadgestion,
+					['correlativo' => $correlativo, 'fecha_modificacion' => $fecha_actual]
+				);
+
+				// 8. Registro de detalles del comprobante
+				switch ($i) {
+					case 1:
+						$this->registrarDetalle(
+							$saveComprobante,
+							$ingresosData,
+							$id_entidad,
+							$id_usuario,
+							$estado_resultado,
+							'DB',
+							'HB',
+							$idCuentaCierre,
+							$sumaIngreso,
+							$sumaIngresoUSD
+						);
+						break;
+					case 2:
+						$this->registrarDetalle(
+							$saveComprobante,
+							$egresosData,
+							$id_entidad,
+							$id_usuario,
+							$estado_resultado,
+							'HB',
+							'DB',
+							$idCuentaCierre,
+							$sumaEgreso,
+							$sumaEgresoUSD
+						);
+						break;
+					case 3:
+						$id_comprobante_cierre = $saveComprobante;
+						$this->registrarAsientoCierre(
+							$saveComprobante,
+							$id_entidad,
+							$id_usuario,
+							$estado_resultado,
+							$idCuentaCierre,
+							$idCuentaSaldoCierre,
+							$total_resultado,
+							$total_resultadousd
+						);
+						break;
+				}
+			}
+
+			// 9. Consolidar cuentas del cierre
+			$cuentasConsolidadas = $this->CierresContables_model->getCuentasConMovimientoByIdMayor(
+				$id_entidad,
+				$fecha_inicio,
+				$fecha_fin,
+				$id_cuenta_ingreso,
+				$codigo_cuenta_ingreso
+			);
+			$cuentasConsolidadas = array_merge(
+				$cuentasConsolidadas,
+				$this->CierresContables_model->getCuentasConMovimientoByIdMayor(
+					$id_entidad,
+					$fecha_inicio,
+					$fecha_fin,
+					$id_cuenta_egreso,
+					$codigo_cuenta_egreso
+				)
+			);
+
+			foreach ($cuentasConsolidadas as $cuenta) {
+				$this->Comprobantes_model->updateDetalleComprobante(
+					$cuenta->id_detalle_cuenta,
+					[
+						'estado_resultado'      => $estado_resultado,
+						'fecha_modificacion'    => $fecha_actual,
+						'id_funcionario_update' => $id_usuario
+					]
+				);
+			}
+
+			// 10. Guardar el cierre contable
+			$datosCierre = [
+				'id_entidad'          => $id_entidad,
+				'gestion'             => $gestion,
+				'mes'                 => $periodo,
+				'tipo_cierre'         => $tipo_cierre,
+				'fecha_cierre'        => $fecha_actual,
+				'id_comprobante'      => $id_comprobante_cierre,
+				'descripcion'         => 'Cierre de cuentas de resultado',
+				'saldo_resultado'     => $total_resultado,
+				'id_usuario_registro' => $id_usuario,
+				'comprobante'         => implode('-', $comprobantes)
+			];
+			$this->CierresContables_model->guardarCierre($datosCierre);
+
+			$this->db->trans_commit();
+			$response = ['resultado' => 1, 'mensaje' => 'SE REGISTRÓ EL CIERRE DE RESULTADOS CORRECTAMENTE.'];
+		} catch (\Exception $e) {
+			$this->db->trans_rollback();
+			$response = ['resultado' => 0, 'mensaje' => 'ERROR EN EL PROCESO: ' . $e->getMessage()];
+		}
+
+		echo json_encode([$response]);
+	}
+	/**
+	 * Registra los detalles de un comprobante para cuentas de ingresos o egresos.
+	 */
+	private function registrarDetalle($comprobanteId, $cuentas, $entidadId, $usuarioId, $estado, $tipoMovimientoPositivo, $tipoMovimientoNegativo, $idCuentaCierre, $sumaTotal, $sumaTotalUSD)
+	{
+		foreach ($cuentas as $cuenta) {
+			$saldo     = $cuenta->saldo;
+			$saldoUSD  = $cuenta->saldousd;
+			//SOLO SE REGISTRAN CUENTAS CON SALDO DIFERENTE DE CERO
+			if ($saldo != 0) {
+				$tipo_movimiento = ($saldo > 0) ? $tipoMovimientoPositivo : $tipoMovimientoNegativo;
+				$saldo           = ($saldo > 0) ? $saldo : $saldo * -1;
+				$saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
+
+				$datosDetalle = [
+					'id_entidad'              => $entidadId,
+					'id_comprobante'          => $comprobanteId,
+					'id_cuenta'               => $cuenta->id,
+					'tipo_movimiento'         => $tipo_movimiento,
+					'tipo_cambio'             => 6.96,
+					'importe_moneda_nacional' => $saldo,
+					'importe_moneda_extranjera' => $saldoUSD,
+					'glosa_cuenta'            => '',
+					'id_usuario_registro'     => $usuarioId,
+					'estado_resultado'        => $estado
+				];
+				$this->Comprobantes_model->guardarDetalleComprobante($datosDetalle);
+			}
+		}
+
+		// Registro del asiento contable de cierre
+		$datosDetalleCierre = [
+			'id_entidad'              => $entidadId,
+			'id_comprobante'          => $comprobanteId,
+			'id_cuenta'               => $idCuentaCierre,
+			'tipo_movimiento'         => $tipoMovimientoNegativo,
+			'tipo_cambio'             => 6.96,
+			'importe_moneda_nacional' => $sumaTotal,
+			'importe_moneda_extranjera' => $sumaTotalUSD,
+			'glosa_cuenta'            => '',
+			'id_usuario_registro'     => $usuarioId,
+			'estado_resultado'        => $estado
+		];
+		$this->Comprobantes_model->guardarDetalleComprobante($datosDetalleCierre);
+	}
+	/**
+	 * Registra el asiento de cierre final.
+	 */
+	private function registrarAsientoCierre($comprobanteId, $entidadId, $usuarioId, $estado, $idCuentaCierre, $idCuentaSaldoCierre, $total_resultado, $total_resultadousd)
+	{
+		$importe    = abs($total_resultado);
+		$importeUSD = abs($total_resultadousd);
+
+		// Movimiento para la cuenta de cierre
+		$tipo_movimiento_cierre = ($total_resultado < 0) ? 'HB' : 'DB';
+		$this->Comprobantes_model->guardarDetalleComprobante([
+			'id_entidad'              => $entidadId,
+			'id_comprobante'          => $comprobanteId,
+			'id_cuenta'               => $idCuentaCierre,
+			'tipo_movimiento'         => $tipo_movimiento_cierre,
+			'tipo_cambio'             => 6.96,
+			'importe_moneda_nacional' => $importe,
+			'importe_moneda_extranjera' => $importeUSD,
+			'glosa_cuenta'            => '',
+			'id_usuario_registro'     => $usuarioId,
+			'estado_resultado'        => $estado
+		]);
+
+		// Movimiento para la cuenta de saldo
+		$tipo_movimiento_saldo = ($total_resultado < 0) ? 'DB' : 'HB';
+		$this->Comprobantes_model->guardarDetalleComprobante([
+			'id_entidad'              => $entidadId,
+			'id_comprobante'          => $comprobanteId,
+			'id_cuenta'               => $idCuentaSaldoCierre,
+			'tipo_movimiento'         => $tipo_movimiento_saldo,
+			'tipo_cambio'             => 6.96,
+			'importe_moneda_nacional' => $importe,
+			'importe_moneda_extranjera' => $importeUSD,
+			'glosa_cuenta'            => '',
+			'id_usuario_registro'     => $usuarioId,
+			'estado_resultado'        => $estado
+		]);
+	}
+
 	
 }
