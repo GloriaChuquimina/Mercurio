@@ -193,7 +193,8 @@ class BalanceGeneral extends CI_Controller {
 				}
 
 				$cuenta['saldo_cuenta'] = $saldoConHijos;
-				$cuenta['importe_total'] = $saldoConHijos;
+				// $cuenta['importe_total'] = $saldoConHijos;
+				$cuenta['importe_total'] = $importePropio + $sumaHijos;
 
 				// $cuenta['importe_total']    = $importePropio + $sumaHijos;			
 				// --- Campos extra --------------------------------------------------
@@ -278,8 +279,8 @@ class BalanceGeneral extends CI_Controller {
 
 		$codigo_cuentas_deudoras   = 6;
 		$codigo_cuentas_acreedoras = 7;
-		$id_cuentas_deudoras   	   = 28;
-		$id_cuentas_acreedoras 	   = 29;
+		$id_cuentas_deudoras   	   = 4;
+		$id_cuentas_acreedoras 	   = 5;
 
 
 		if($valorCheckCero === true){
@@ -302,22 +303,38 @@ class BalanceGeneral extends CI_Controller {
 			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_inicio' AND '$fecha_fin' ";
 		}
 
+		$tipo_cuenta_deudor="deudor";
+		$tipo_cuenta_acreedor="acreedor";
+
 		if($moneda === 'BOB'){
  
 			// echo("Ingresar Steph BOB");
-			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha);
-			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha);
-			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha);
-			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha);
-			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha);
+			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha,$tipo_cuenta_deudor);
+			// echo("<pre>");
+			// print_r($cuentas_activo);
+			// echo("</pre>");
+			// die();
+
+			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor);
+			// echo("<pre>");
+			// print_r($cuentas_deudoras);
+			// echo("</pre>");
+			// die();
+			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor);
+			// echo("<pre>");
+			// print_r($cuentas_acreedoras);
+			// echo("</pre>");
+			// die();
 		}
 		elseif ($moneda === 'USD') {
 
-			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha);
-			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha);
-			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha);
-			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha);
-			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha);
+			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor);
 		}
 		
 		/*ORDENANDO CUENTAS*/
@@ -352,8 +369,12 @@ class BalanceGeneral extends CI_Controller {
 		
 
 		/*CUENTAS DE ORDEN DEUDORAS*/
-		$cuentas_deudoras 		= json_decode(json_encode($cuentas_deudoras), true);		
+		$cuentas_deudoras 		     = json_decode(json_encode($cuentas_deudoras), true);		
 		$ordenadas_cuentas_deudoras  = $this->ordenarJerarquicamenteCuentasOrden($cuentas_deudoras ,0,0,$excluirCuentasEnCero,$nivel);
+		// echo("<pre>");
+		// print_r($ordenadas_cuentas_deudoras);
+		// echo("</pre>");
+		// die();
 		$cuentasOrdenadasDeudoras    = $ordenadas_cuentas_deudoras[0];
 		$sumaTotalGlobalDeudoras     = $ordenadas_cuentas_deudoras[1];
 		$total_deudoras			     = count($cuentasOrdenadasDeudoras);
@@ -515,8 +536,8 @@ class BalanceGeneral extends CI_Controller {
 
 		$codigo_cuentas_deudoras   = 6;
 		$codigo_cuentas_acreedoras = 7;
-		$id_cuentas_deudoras   	   = 28;
-		$id_cuentas_acreedoras 	   = 29;
+		$id_cuentas_deudoras   	   = 4;
+		$id_cuentas_acreedoras 	   = 5;
 
 		/*CONSULTAS CUENTAS EMPRESA*/
 
@@ -545,17 +566,18 @@ class BalanceGeneral extends CI_Controller {
 		elseif($idSeleccionado == 'radioEntre'){
 			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_inicio' AND '$fecha_fin' ";
 		}
-
+		$tipo_cuenta_deudor="deudor";
+		$tipo_cuenta_acreedor="acreedor";
 		if($moneda === 'BOB'){
 
 			$pdf->subtituloCabecera2 = "Expresado en Bolivianos";  
 
 			// echo("Ingresar Steph BOB");
-			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha);
-			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha);
-			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha);
-			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha);
-			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha);
+			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor);
 		}
 		elseif ($moneda === 'USD') {
 

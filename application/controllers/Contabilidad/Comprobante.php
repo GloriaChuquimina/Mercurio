@@ -597,7 +597,7 @@ class Comprobante extends CI_Controller {
 										list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
 										// $importe   = number_format($importe,2,'.',',');
 										// $importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
-										$importeUsBase = round($importe/$tipo_cambio,2);
+										$importeUs = round($importe/$tipo_cambio,2);
 										$importeBase = floatval(str_replace(',', '', $importe));
 										//$importeUsBase = floatval(str_replace(',', '', $importeOriginal));
 										if($id_cuenta_auxiliar === '-')

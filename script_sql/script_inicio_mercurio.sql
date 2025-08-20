@@ -111,19 +111,20 @@ CREATE TABLE configuraciones.gestion (
 );
 /*CONTABILIDAD*/
 create table contabilidad.plancuentas(
-	id serial4 NOT null,
-	codigo varchar(50),
-	sigla varchar(5) NULL,	
-	descripcion varchar(300),
+	id serial4 NOT NULL,
+	codigo_cuenta varchar(10) NULL,
+	codigo varchar(50) NULL,
+	sigla varchar(5) NULL,
+	descripcion varchar(300) NULL,
 	nivel int4 NULL,
-	orden int4 null,
+	orden int4 NULL,
 	padre int4 NULL,
 	ruta varchar(30) NULL,
 	hijos varchar(30) NULL,
 	fecha_registro timestamp DEFAULT now() NULL,
-	id_funcionario_registro int4 null,
+	id_funcionario_registro int4 NULL,
 	fecha_modificacion timestamp NULL,
-	id_funcionario_update int4 null,
+	id_funcionario_update int4 NULL,
 	id_dependencia int4 NULL,
 	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
 	CONSTRAINT plancuentas_pkey PRIMARY KEY (id)
@@ -154,21 +155,22 @@ CREATE TABLE contabilidad.plancuenta_dependencia (
 
 CREATE TABLE contabilidad.comprobante (
 	id serial4 NOT NULL,
-	id_entidad int4 not null,
-	tipo_comprobante varchar(3) not null,
-	correlativo int4 null,
-	periodo varchar(25) not null,
-	gestion int4 null,	
-	referencia_comprobante text null,
-	glosa_comprobante text null,
-	fecha_comprobante timestamp not NULL,
-	tipo_cambio numeric null,
+	id_entidad int4 NOT NULL,
+	tipo_comprobante varchar(3) NOT NULL,
+	correlativo int4 NULL,
+	periodo varchar(25) NOT NULL,
+	gestion int4 NULL,
+	referencia_comprobante text NULL,
+	glosa_comprobante text NULL,
+	fecha_comprobante timestamp NOT NULL,
+	tipo_cambio numeric NULL,
 	fecha_registro timestamp DEFAULT now() NULL,
 	id_usuario_registro int4 NULL,
 	fecha_modificacion timestamp NULL,
-	id_funcionario_update int4 null,
-	estado varchar(3) DEFAULT 'ACT'::character varying null,
-	sec_log numeric(10,0),
+	id_funcionario_update int4 NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	sec_log numeric(10) NULL,
+	tipo_cierre varchar(3) NULL,
 	CONSTRAINT comprobante_pkey PRIMARY KEY (id)
 );
 
@@ -199,13 +201,15 @@ CREATE TABLE contabilidad.detalle_comprobante (
 	tipo_movimiento varchar(3) NOT NULL,
 	tipo_cambio numeric(10, 2) NULL,
 	importe_moneda_nacional numeric(10, 2) DEFAULT 0 NULL,
-	importe_moneda_extranjera numeric(10, 2) DEFAULT 0 NULL,
+	importe_moneda_extranjera numeric DEFAULT 0 NULL,
 	glosa_cuenta text NULL,
 	fecha_registro timestamp DEFAULT now() NULL,
 	id_usuario_registro int4 NULL,
 	fecha_modificacion timestamp NULL,
 	id_funcionario_update int4 NULL,
 	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	estado_balance varchar(3) DEFAULT 'PEN'::character varying NULL,
+	estado_resultado varchar(3) NULL,
 	sec_log numeric(10) NULL,
 	CONSTRAINT detalle_comprobante_pkey PRIMARY KEY (id)
 );
@@ -328,7 +332,7 @@ CREATE TABLE contabilidad.cierres_contables (
     tipo_cierre varchar(3) NOT null,
     fecha_cierre DATE NOT NULL,    
 	id_comprobante int4 null,
-	comprobantes TEXT,
+	comprobante TEXT,
     descripcion TEXT,              
 
     -- Totales en moneda local
