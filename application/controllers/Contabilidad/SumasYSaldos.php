@@ -125,27 +125,46 @@ class SumasYSaldos extends CI_Controller {
 			// $haber = $fila->haber;
 
 
-			if($haber == 0)
+			// // if($haber == 0)
+			// // {
+			// // 	$deudor = $debe;
+			// // 	$acreedor = 0;
+			// // }
+			// // else{
+			// // 	if($debe == 0)
+			// // 	{
+			// // 		$acreedor = $haber;
+			// // 		$deudor = 0;
+			// // 	}
+			// // 	else
+			// // 	{
+			// // 		if($debe <> 0 && $haber <> 0)
+			// // 		{
+			// // 			$deudor = $debe-$haber;
+			// // 			$acreedor = 0;
+			// // 		}
+				
+			// // 	}
+			// // }
+
+			$saldo = $debe - $haber;
+			
+			if($saldo>0)
 			{
-				$deudor = $debe;
+				$deudor = $saldo;
 				$acreedor = 0;
 			}
-			else{
-				if($debe == 0)
+			else
+			{
+				if($saldo < 0)
 				{
-					$acreedor = $haber;
 					$deudor = 0;
-				}
-				else
-				{
-					if($debe <> 0 && $haber <> 0)
-					{
-						$deudor = $debe-$haber;
-						$acreedor = 0;
-					}
-				
+					$acreedor = $saldo * -1 ;
 				}
 			}
+
+
+
 			// number_format($totalimporteDebe,2,'.',','),
 			$data[] = array(
 				$codigo,
