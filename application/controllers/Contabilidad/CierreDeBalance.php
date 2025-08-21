@@ -49,51 +49,192 @@ class CierreDeBalance extends CI_Controller {
 		$this->load->view('contabilidad/cierredebalance',$dato);
 		$this->load->view('inicio/pie');
 	}
-	public function principalComprobante($entidad=-1,$tipo_comprobante=-1)
-	{
+	public function cargarDatosBalanceGeneral()
+    {
+		$id_entidad            = $this->input->post('id_entidad');
+		$fecha_cierre          = $this->input->post('fecha_cierre');
+		$fecha_inicio  		   = primerDiaDelAnio($fecha_cierre);
+		$idSeleccionado        = $this->input->post('idSeleccionado');	
+		$valorCheckCero        = true;
+		$moneda                = 'BOB';
+		$nivel				   = 0;
 
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "MERCURIO";
-		$dato['tipo_sistema']  = "Sistema Contable";
+		/*CUENTAS PARA EL REPORTE*/
+
+		$codigo_activo			   = 1;
+		$codigo_pasivo			   = 2;
+		$codigo_patrimonio	   	   = 3;
+		$codigo_cuentas_deudoras   = 6;
+		$codigo_cuentas_acreedoras = 7;
+		$id_activo                 = getIdCuenta($codigo_activo);
+		$id_pasivo                 = getIdCuenta($codigo_pasivo);
+		$id_patrimonio             = getIdCuenta($codigo_patrimonio);		
+		$id_cuentas_deudoras   	   = getIdCuenta($codigo_cuentas_deudoras);
+		$id_cuentas_acreedoras 	   = getIdCuenta($codigo_cuentas_acreedoras);
+
+
+		if($valorCheckCero === true){
+			$excluirCuentasEnCero= false;
+		}
+		else{
+			$excluirCuentasEnCero= true;
+		}
+
+		if($nivel== 0)
+		{
+			$nivel=getNivelMaximo();
+		}
+
+		$whereFecha = "";
+		if($idSeleccionado == 'radioAl'){
+			$whereFecha = " AND fecha_comprobante <='$fecha_al' ";
+		}
+		elseif($idSeleccionado == 'radioEntre'){
+			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_inicio' AND '$fecha_fin' ";
+		}
+
+		$tipo_cuenta_deudor="deudor";
+		$tipo_cuenta_acreedor="acreedor";
+
+		if($moneda === 'BOB'){
+			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor);
+		}
+		elseif ($moneda === 'USD') {
+
+			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor);
+		}
 		
+		/*ORDENANDO CUENTAS*/
+		$cuentas_activo1 		= json_decode(json_encode($cuentas_activo), true);		
+		list($cuentasOrdenadasActivo, $sumaTotalGlobalActivo, $sumaPatrimonioUSD) = $this->ordenarCuentas(
+				$cuentas_activo,
+				$saldoCero,
+				$nivel,
+				$tipo_cuenta_balance
+			);
+
+		$ordenadas_activo 		= $this->ordenarJerarquicamente($cuentas_activo1,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasActivo = $ordenadas_activo[0];
+		$sumaTotalGlobalActivo  = $ordenadas_activo[1];
+		$total_activo			= count($cuentasOrdenadasActivo);
+
+		/*CUENTAS PASIVO*/
+		$cuentas_pasivo 		= json_decode(json_encode($cuentas_pasivo), true);
+		$ordenadas_pasivo 		= $this->ordenarJerarquicamente($cuentas_pasivo,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasPasivo = $ordenadas_pasivo[0];
+		$sumaTotalGlobalPasivo  = $ordenadas_pasivo[1];
+		$total_pasivo  		    = count($cuentasOrdenadasPasivo);
+
+		/*CUENTAS PATRIMONIO*/
 		
-		$id_usuario = $this->session->userdata('id_usuario');
-		$dato['rolescero'] = $this->session->userdata('rolescero');
-		$dato['roles']  = $this->session->userdata('roles');
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
+		$cuentas_patrimonio 		   = json_decode(json_encode($cuentas_patrimonio), true);
+		$ordenadas_patrimonio 		   = $this->ordenarJerarquicamente($cuentas_patrimonio,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasPatrimonio    = $ordenadas_patrimonio[0];
+		$sumaTotalGlobalPatrimonio     = $ordenadas_patrimonio[1];
+		$total_patrimonio			   = count($cuentasOrdenadasPatrimonio);
+		$sumaTotalGlobalPasivo 		   = $sumaTotalGlobalPasivo + $sumaTotalGlobalPatrimonio;
 
-		$titulo = "Gestión de Comprobantes";		
-		$dato['titulo'] = $titulo;
-		$dato['entidad'] = $entidad;
-		$dato['tipo_comprobante'] =$tipo_comprobante;
+		$total_pasivopatrimonio 	   = $total_pasivo+$total_patrimonio; 
+		
 
-		$this->load->view('inicio/cabecera',$dato);
-		$this->load->view('inicio/menu',$dato);
-		$this->load->view('contabilidad/cierredebalance',$dato);
-		$this->load->view('inicio/pie');
-	}
-	public function registroComprobante($entidad,$accion='nuevo',$id_comprobante=0)
-	{
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "MERCURIO";
-		$dato['tipo_sistema']  = "Sistema Contable";
-		$id_usuario = $this->session->userdata('id_usuario');
-		$dato['rolescero'] = $this->session->userdata('rolescero');
-		$dato['roles']  = $this->session->userdata('roles');
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
-		$dato['nombre_entidad']  = descripcion_nombre_entidad($entidad);
-		$dato['entidad']  = $entidad;
-		$dato['accion']  = $accion;
-		$dato['id_comprobante']  = $id_comprobante;
+		/*CUENTAS DE ORDEN DEUDORAS*/
+		$cuentas_deudoras 		     = json_decode(json_encode($cuentas_deudoras), true);		
+		$ordenadas_cuentas_deudoras  = $this->ordenarJerarquicamenteCuentasOrden($cuentas_deudoras ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasDeudoras    = $ordenadas_cuentas_deudoras[0];
+		$sumaTotalGlobalDeudoras     = $ordenadas_cuentas_deudoras[1];
+		$total_deudoras			     = count($cuentasOrdenadasDeudoras);
 
-		$titulo = "Comprobante Contable";		
-		$dato['titulo'] = $titulo;
 
-		$this->load->view('inicio/cabecera',$dato);
-		$this->load->view('inicio/menu',$dato);		
-		$this->load->view('contabilidad/registro_comprobante',$dato); //cuerpo
-		$this->load->view('inicio/pie');
-	}
+		/*CUENTAS DE ORDEN ACREEDORAS*/		
+		// $total_acreedoras             = count($cuentas_acreedoras);
+		$cuentas_acreedoras 		  = json_decode(json_encode($cuentas_acreedoras), true);
+		$ordenadas_cuentas_acreedoras = $this->ordenarJerarquicamenteCuentasOrden($cuentas_acreedoras ,0,0,$excluirCuentasEnCero,$nivel);
+		$cuentasOrdenadasAcreedoras   = $ordenadas_cuentas_acreedoras[0];
+		$sumaTotalGlobalAcreedoras    = $ordenadas_cuentas_acreedoras[1];
+		$total_acreedoras             = count($ordenadas_cuentas_acreedoras);
+
+
+		$max_filas				       = $total_activo+$total_pasivopatrimonio+$total_deudoras+$total_acreedoras;
+
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		// $num     = 1;
+
+		$cuentasUnidas = array_merge($cuentasOrdenadasActivo,$cuentasOrdenadasPasivo, $cuentasOrdenadasPatrimonio,$cuentasOrdenadasDeudoras,$cuentasOrdenadasAcreedoras);
+
+		foreach ($cuentasUnidas as $cuenta) {
+			$valor_cero='';
+			$valor1=0;
+			$valor2=0;
+			$valor3=0;
+			$nivel							= $cuenta['nivel'];
+			$indentacion_invertida          = $cuenta['indentacion_invertida'];
+			$codigo            			    = $cuenta['codigo'];
+			$descripcion 					= $cuenta['descripcion'];
+			$saldo_cuenta     	    		= $cuenta['saldo_cuenta'] ? number_format($cuenta['saldo_cuenta'], 2, '.', ',') : '';
+			$total_cuenta    	    		= $cuenta['importe_total'] ? number_format($cuenta['importe_total'], 2, '.', ',') : '0';
+			$indentacion 					= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $cuenta['indentacion']);
+			$indentacion_invertida 			= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $cuenta['indentacion_invertida']);
+
+
+
+			if ($nivel== 1) {
+				$codigo 	   = "<span class='badge badge-primary'><strong><u>{$codigo}</u></strong></span>";
+				$descripcion   = "<strong><u>{$descripcion}</u></strong>";
+				$valor1    	   = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$valor_cero."</u></div>";
+				$valor2        = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$saldo_cuenta."</u></div>";
+				$valor3        = "<div style='text-align: right; color: #28a745; font-weight: bold;'><u>".$total_cuenta."</u></div>";
+			}
+			elseif ($nivel== 2) {
+				$codigo 	   = "<span class='badge badge-info'><strong><u>{$codigo}</u></strong></span>";
+				$descripcion   = "<strong><u>{$descripcion}</u></strong>";
+				$valor1    	   = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$valor_cero."</u></div>";
+				$valor2        = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$total_cuenta."</u></div>";
+				$valor3        = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$valor_cero."</u></div>";
+
+			}else{
+				$codigo 	   =  "<span class='badge badge-secondary'><strong><u>{$codigo}</u></strong></span>";
+				$valor1    	   = "<div style='text-align: right; color: black;'>".$saldo_cuenta."</div>";
+				$valor2        = "<div style='text-align: right; color: black;'>".$valor_cero."</div>";
+				$valor3        = "<div style='text-align: right; color: black;'>".$valor_cero."</div>";
+			}
+
+			$data[] = array(
+				$codigo,
+				$indentacion.$descripcion,
+				$valor1,
+				$valor2,
+				$valor3
+			);
+
+			
+		}
+
+		// $sumaTotalGlobalPasivoPatrimonio = $sumaTotalGlobalPasivo + $sumaTotalGlobalPatrimonio;
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($cuentasUnidas),
+			"recordsFiltered" => count($cuentasUnidas),
+			"totalimporteActivo" => number_format($sumaTotalGlobalActivo,2,'.',','),
+            "totalimportePasivoPatrimonio" => number_format($sumaTotalGlobalPasivo,2,'.',','),
+            "totalimporteCuentasOrdenDeudoras" => number_format($sumaTotalGlobalDeudoras,2,'.',','),
+            "totalimporteCuentasOrdenAcreedoras" => number_format($sumaTotalGlobalAcreedoras,2,'.',','),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
+    }
+
 	/*FUNCIONES PARA EL CIERRE DE BALANCE */
 	private function ordenarJerarquicamente(
     array $cuentas, 
@@ -492,68 +633,68 @@ class CierreDeBalance extends CI_Controller {
 					$tipo_cuenta_acreedor);
 
 			// 6. Ordenar y calcular totales
-			$tipo1="balance";
-			$tipo2="orden";
+			$tipo_cuenta_balance="balance";
+			$tipo_cuenta_orden="orden";
 			list($cuentasActivoOrdenadas, $sumaActivo, $sumaActivoUSD) = $this->ordenarCuentas(
 				$cuentas_activo,
 				$saldoCero,
 				$nivel,
-				$tipo1
+				$tipo_cuenta_balance
 			);
-			echo("<pre>");
-			print_r($cuentasActivoOrdenadas);
-			echo("</pre>");
-			echo("SumaActivo=>".$sumaActivo."<br>");
-			echo("SumaActivoUSD=>".$sumaActivoUSD."<br>");
+			// echo("<pre>");
+			// print_r($cuentasActivoOrdenadas);
+			// echo("</pre>");
+			// echo("SumaActivo=>".$sumaActivo."<br>");
+			// echo("SumaActivoUSD=>".$sumaActivoUSD."<br>");
 			$totalActivo=count($cuentasActivoOrdenadas);
 			list($cuentasPasivoOrdenadas, $sumaPasivo, $sumaPasivoUSD) = $this->ordenarCuentas(
 				$cuentas_pasivo,
 				$saldoCero,
 				$nivel,
-				$tipo1
+				$tipo_cuenta_balance
 			);
-			echo("<pre>");
-			print_r($cuentasPasivoOrdenadas);
-			echo("</pre>");
-			echo("Pasivo=>".$sumaPasivo."<br>");
-			echo("PasivoUSD=>".$sumaPasivoUSD."<br>");
+			// echo("<pre>");
+			// print_r($cuentasPasivoOrdenadas);
+			// echo("</pre>");
+			// echo("Pasivo=>".$sumaPasivo."<br>");
+			// echo("PasivoUSD=>".$sumaPasivoUSD."<br>");
 			$totalPasivo=count($cuentasPasivoOrdenadas);
 			list($cuentasPatrimonioOrdenadas, $sumaPatrimonio, $sumaPatrimonioUSD) = $this->ordenarCuentas(
 				$cuentas_patrimonio,
 				$saldoCero,
 				$nivel,
-				$tipo1
+				$tipo_cuenta_balance
 			);
-			echo("<pre>");
-			print_r($cuentasPatrimonioOrdenadas);
-			echo("</pre>");
-			echo("Patrimonio=>".$sumaPatrimonio."<br>");
-			echo("PatrimonioUSD=>".$sumaPatrimonioUSD."<br>");
+			// echo("<pre>");
+			// print_r($cuentasPatrimonioOrdenadas);
+			// echo("</pre>");
+			// echo("Patrimonio=>".$sumaPatrimonio."<br>");
+			// echo("PatrimonioUSD=>".$sumaPatrimonioUSD."<br>");
 			$totalPatrimonio=count($cuentasPatrimonioOrdenadas);
 			list($cuentasDeudorasOrdenadas, $sumaDeudor, $sumaDeudorasUSD) = $this->ordenarCuentas(
 				$cuentas_deudoras,
 				$saldoCero,
 				$nivel,
-				$tipo2
+				$tipo_cuenta_orden
 			);
-			echo("<pre>");
-			print_r($cuentasDeudorasOrdenadas);
-			echo("</pre>");
-			echo("Acreedoras=>".$sumaDeudor."<br>");
-			echo("AcreedorasUSD=>".$sumaDeudorasUSD."<br>");
+			// echo("<pre>");
+			// print_r($cuentasDeudorasOrdenadas);
+			// echo("</pre>");
+			// echo("Acreedoras=>".$sumaDeudor."<br>");
+			// echo("AcreedorasUSD=>".$sumaDeudorasUSD."<br>");
 			$totalDeudor=count($cuentasDeudorasOrdenadas);
 			list($cuentasAcreedorasOrdenadas, $sumaAcreedor, $sumaAcreedorUSD) = $this->ordenarCuentas(
 				$cuentas_acreedoras,
 				$saldoCero,
 				$nivel,
-				$tipo2
+				$tipo_cuenta_orden
 			);
-			echo("<pre>");
-			print_r($cuentasAcreedorasOrdenadas);
-			echo("</pre>");
-			echo("Acreedoras=>".$sumaAcreedor."<br>");
-			echo("AcreedorasUSD=>".$sumaAcreedorUSD."<br>");
-			die();
+			// echo("<pre>");
+			// print_r($cuentasAcreedorasOrdenadas);
+			// echo("</pre>");
+			// echo("Acreedoras=>".$sumaAcreedor."<br>");
+			// echo("AcreedorasUSD=>".$sumaAcreedorUSD."<br>");
+			// die();
 			$totalAcreedor=count($cuentasAcreedorasOrdenadas);
 
 			$max_filas  = $totalActivo+$totalPasivo+$totalPatrimonio+$totalDeudor+$totalAcreedor;

@@ -200,7 +200,7 @@ class CierreDeResultados extends CI_Controller {
 		$id_entidad	  = 1;
 		$nivel		  = 0;
 		$moneda		  = 'BOB';
-		$saldoCero	  = true;
+		$saldoCero	  = false;
 		$fecha_inicio = '2025-01-01';
 		$fecha_fin    = '2025-08-18';	
 

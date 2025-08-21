@@ -168,21 +168,8 @@ function cargarCuentas(marcar){
         },
     });
 }
-function cargarDatosBalanceGeneral(){
-    // alert("STEPH");
-    var id_entidad = $('#id_entidad').val();
-    var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
-    var fecha_desde = $('#fechaDesde').val();
-    var fecha_hasta = $('#fechaHasta').val();
-    var fecha_al     = $('#fechaAl').val();  
-    var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
-    var valorCheckCero    = $('input[name="saldoCero"]').is(':checked');
-    var moneda         = $('#tipo_moneda').val();
-    var nivel          = $('#nivel').val();
-    if(nivel == null || nivel.length === 0 || nivel <= 0)
-    {
-        nivel= 0;
-    }
+function cargarDatosBalanceGeneral(id_entidad,fecha){
+    // alert("STEPH");  
     var enlace = base_url + "Contabilidad/BalanceGeneral/cargarDatosBalanceGeneral";
     $('#tablaBalanceGeneral').DataTable({
         destroy: true,
@@ -194,14 +181,7 @@ function cargarDatosBalanceGeneral(){
             url: enlace,
             data:{          
                 id_entidad:id_entidad,
-                cuentasSeleccionadas:cuentasSeleccionadas,
-                fecha_desde:fecha_desde,
-                fecha_hasta:fecha_hasta,
-                fecha_al:fecha_al,
-                idSeleccionado:idSeleccionado,
-                valorCheckCero:valorCheckCero,
-                moneda:moneda,
-                nivel:nivel
+                fecha_cierre:fecha
             },
             dataSrc: function(json) {
                 $('.txtTotalImporteActivo').text(json.totalimporteActivo);
@@ -220,190 +200,20 @@ function cargarDatosBalanceGeneral(){
          ]
     });
 }
-// function ReporteBalanceGeneralPDF1()
-// {
-//     var id_entidad   = $('#id_entidad').val();
-//     var cuentas      = $('#id_cuenta_seleccionadas').val();
-//     if (cuentas == null || cuentas.length === 0) {
-// 		cuentas = '0'; // o algún valor por defecto
-// 	} 
-//     var fecha_al     = $('#fechaAl').val();  
-//     var fecha_inicio = $('#fechaDesde').val();
-//     var fecha_fin    = $('#fechaHasta').val();
-
-//     // var alactivo     = $('input[name="radioAl"]:checked').val();
-//     // var rangoactivo  = $('input[name="radioEntre"]:checked').val();
-
-//     var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
-//     // var valorCheckCero = $('input[name="saldoCero"]:checked').val();
-//     var valorCheckCero    = $('input[name="saldoCero"]').is(':checked');
-//     var moneda         = $('#tipo_moneda').val();
-//     var nivel          = $('#nivel').val();
-    
-//     var mensaje      ="";
-//     var sw=0;
-//     // alert(id_entidad);
-
-//     if(nivel == null || nivel.length === 0 || nivel <= 0)
-//     {
-//         nivel= 0;
-//     }
-    
-//     if(id_entidad == null || id_entidad.length === 0){
-//         // alert("SELECCIONE UNA ENTIDAD POR FAVOR");
-//         var mensaje ="SELECCIONE UNA ENTIDAD POR FAVOR";
-//         swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
-//         return;
-//     }
-//     else
-//     {
-//         sw=0;
-//         if(idSeleccionado == 'radioAl')
-//         {
-//             if(fecha_al == null || fecha_al.length === 0){
-//                fecha_inicio='01/01/1900';
-//                 fecha_fin='01/01/1900';
-//                 mensaje = "SELECCIONE UNA FECHA VÁLIDA POR FAVOR";
-//                 sw=1;
-//             }
-//             else
-//             {
-//                 fecha_inicio=fecha_al;
-//                 fecha_fin=fecha_al;
-//             }
-//         }
-//         else if(idSeleccionado == 'radioEntre')
-//         {
-//             if((fecha_inicio=='' && fecha_fin =='')|| (fecha_inicio.length === 0 && fecha_fin.length === 0)){
-                
-//                 mensaje = "SELECCIONE UN RANGO DE FECHA VÁLIDO POR FAVOR";
-//                 sw=1;
-//             }
-//             else
-//             {
-//                 fecha_al=fecha_inicio;
-//             }
-//         }
-//         if(sw==0)
-//         {
-//             $('#divPDF').html('');
-//             var iframe = document.createElement("iframe");
-//                 iframe.width = '100%';
-//                 iframe.height = '700px';
-//                 iframe.src = base_url+'Contabilidad/BalanceGeneral/ReporteBalanceGeneralPDF_1/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+valorCheckCero+"/"+idSeleccionado+"/"+fecha_al+"/"+nivel+"/"+moneda;
-
-//                 $('#divPDF').append(iframe);
-//             $('#divCapa').addClass('overlay');    
-//             $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
-//             $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
-//             $('#pdfModal').show();   
-            
-//         }
-//         else
-//         {
-//             // alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
-//             // var mensaje ="SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR";
-//             swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
-//             return;
-//         }
-//     }
-    
-// }
-// function ReporteBalanceGeneralPDF2()
-// {
-//     var id_entidad   = $('#id_entidad').val();
-//     var cuentas      = $('#id_cuenta_seleccionadas').val();
-//     if (cuentas == null || cuentas.length === 0) {
-// 		cuentas = '0'; // o algún valor por defecto
-// 	} 
-//     var fecha_al     = $('#fechaAl').val();  
-//     var fecha_inicio = $('#fechaDesde').val();
-//     var fecha_fin    = $('#fechaHasta').val();
-
-//     // var alactivo     = $('input[name="radioAl"]:checked').val();
-//     // var rangoactivo  = $('input[name="radioEntre"]:checked').val();
-
-//     var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
-//     // var valorCheckCero = $('input[name="saldoCero"]:checked').val();
-//     var valorCheckCero    = $('input[name="saldoCero"]').is(':checked');
-//     var moneda         = $('#tipo_moneda').val();
-//     var nivel          = $('#nivel').val();
-    
-//     var mensaje      ="";
-//     var sw=0;
-//     // alert(id_entidad);
-
-//     if(nivel == null || nivel.length === 0 || nivel <= 0)
-//     {
-//         nivel= 0;
-//     }
-    
-//     if(id_entidad == null || id_entidad.length === 0){
-//         // alert("SELECCIONE UNA ENTIDAD POR FAVOR");
-//         var mensaje ="SELECCIONE UNA ENTIDAD POR FAVOR";
-//         swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
-//         return;
-//     }
-//     else
-//     {
-//         sw=0;
-//         if(idSeleccionado == 'radioAl')
-//         {
-//             if(fecha_al == null || fecha_al.length === 0){
-//                fecha_inicio='01/01/1900';
-//                 fecha_fin='01/01/1900';
-//                 mensaje = "SELECCIONE UNA FECHA VÁLIDA POR FAVOR";
-//                 sw=1;
-//             }
-//             else
-//             {
-//                 fecha_inicio=fecha_al;
-//                 fecha_fin=fecha_al;
-//             }
-//         }
-//         else if(idSeleccionado == 'radioEntre')
-//         {
-//             if((fecha_inicio=='' && fecha_fin =='')|| (fecha_inicio.length === 0 && fecha_fin.length === 0)){
-                
-//                 mensaje = "SELECCIONE UN RANGO DE FECHA VÁLIDO POR FAVOR";
-//                 sw=1;
-//             }
-//             else
-//             {
-//                 fecha_al=fecha_inicio;
-//             }
-//         }
-//         if(sw==0)
-//         {
-//             $('#divPDF').html('');
-//             var iframe = document.createElement("iframe");
-//                 iframe.width = '100%';
-//                 iframe.height = '700px';
-//                 iframe.src = base_url+'Contabilidad/BalanceGeneral/ReporteBalanceGeneralPDF_2/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+valorCheckCero+"/"+idSeleccionado+"/"+fecha_al+"/"+nivel+"/"+moneda;
-
-//                 $('#divPDF').append(iframe);
-//             $('#divCapa').addClass('overlay');    
-//             $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
-//             $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
-//             $('#pdfModal').show();   
-            
-//         }
-//         else
-//         {
-//             // alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
-//             // var mensaje ="SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR";
-//             swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
-//             return;
-//         }
-//     }
-    
-// }
 
 // FUNCIONES PARA EL CIERRE DE BALANCE
 function procedimientoCierreCuentasDeBalance()
 {
-    
-    // cargarDatosBalanceGeneral();
+    $('#id_entidad_registro').val(id_entidad);
+    $('#nombreEntidad').text(nombre_entidad);
+	 var id_entidad = $('#id_entidad').val();
+	const hoy = new Date();
+	const yyyy = hoy.getFullYear();
+	const mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
+	const dd = String(hoy.getDate()).padStart(2, '0');
+	const fechaActual = `${yyyy}-${mm}-${dd}`;
+	$('#fechaCierreBalance').val(fechaActual);
+    cargarDatosBalanceGeneral(id_entidad,fechaActual);
     $('#modalRegistroCierreDeBalance').modal({backdrop: 'static', keyboard: false})
     $('#modalRegistroCierreDeBalance').modal('show');  
 }

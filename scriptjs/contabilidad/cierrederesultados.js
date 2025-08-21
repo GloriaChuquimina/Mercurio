@@ -188,10 +188,10 @@ function procedimientoCierreCuentasDeResultados()
     // }
     // // alert (id_entidad);
     // $('#id_entidad_registro').val(id_entidad);
-    // $('#nombreEntidad').text(nombre_entidad);
-    // var tipo_cambio=$('#txtTipoCambio').val();
     // $('#tipoCambio').text(tipo_cambio);
     // $('#tipo_cambio_movimiento').val(tipo_cambio);
+    $('#id_entidad').text(nombre_entidad);
+    var tipo_cambio=$('#id_entidad').val();
     cargarEstadoDeResultados();
     $('#modalRegistroCierreDeResultados').modal({backdrop: 'static', keyboard: false})
     $('#modalRegistroCierreDeResultados').modal('show');  
