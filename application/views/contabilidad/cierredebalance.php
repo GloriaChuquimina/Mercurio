@@ -38,7 +38,7 @@
             <!-- SECCION ENTIDAD SELECCIONADA -->
             <div class="card" style="background-color: #c2f1bcff; border-left: 4px solid #139c26ff;" id="entidadSeleccionada" style="display: none">
                 <div class="card-body p-3">
-									 <input  class="form-control" id="id_entidad" name="id_entidad">
+									 <input type ="hidden" class="form-control" id="id_entidad" name="id_entidad">
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <div class="d-flex align-items-center">
@@ -177,14 +177,15 @@
                 </div>
                 <div class="card-body p-0">
                   <div class="table-responsive">
-                    <table id="tablaBalanceGeneral" class="table table-striped table-hover" style="width: 100%;">
+                    <table id="tablaCierresDeBalance" class="table table-striped table-hover" style="width: 100%;">
                         <thead class="bg-dark">
                         <tr>
-                            <th style="color: white;">CÓDIGO</th>
-                            <th style="color: white;">DESCRIPCIÓN</th>
-                            <th style="color: white; text-align: right;">-</th>
-                            <th style="color: white; text-align: right;">-</th>
-                            <th style="color: white; text-align: right;">IMPORTE</th>
+                            <th style="color: white;">NÚMERO</th>
+                            <th style="color: white;">ENTIDAD</th>
+                            <th style="color: white;">FECHA CIERRE</th>
+                            <th style="color: white;">DESCRIPCION</th>
+                            <th style="color: white;">USUARIO</th>
+                            <th style="color: white;">ESTADO</th>
                         </tr>
                         </thead>
                     </table>
@@ -194,13 +195,13 @@
                   <div class="row">
                     <div class="col-md-6">
                       <p class="text-muted">
-                        Empresa: • Período:  al  • 
-                        cuentas mostradas
+                        Empresa •   • 
+                        Cierres
                       </p>
                     </div>
                     <div class="col-md-6 text-right">
                       <small class="text-muted">
-                        Estado: Balanceado : Desbalanceado • Generado:
+                        Balance:  Generado:
                       </small>
                     </div>
                   </div>
@@ -208,39 +209,6 @@
             </div>
         </div>
     </section>
-</div>
-<div class="modal fade show" id="modalListaCuentas" style="backgroundColor: rgba(0,0,0,0.4)" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" style="max-width: 700px">
-        <div class="modal-content">
-            <div class="modal-header bg-secondary">
-                <h7 class="modal-title text-white">
-                    <i class="mr-2">🔍</i>
-                    BÚSQUEDA DE CUENTAS CONTABLES
-                </h7>
-                <button type="button" class="close text-white" data-dismiss="modal" >
-                    <span>&times;</span>
-                </button>
-            </div>
-            <form id="formListaCuentas" name="formListaCuentas">
-              <div class="modal-body">
-                  <div class="table-responsive">
-                    <table class="table table-striped table-hover" id="tbl_CuentasContables" style="width: 100%;">
-                      <thead class="bg-dark">
-                        <tr>
-                          <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th>
-                          <!-- <th style="color: white; text-align: center;">SELECCIONAR</th> -->
-                          <th style="color: white; text-align: center;">OPCIONES</th>
-                          <th style="color: white;">CÓDIGO</th>
-                          <th style="color: white;">DESCRIPCIÓN</th>
-                          <th style="color: white;">NIVEL</th>
-                        </tr>
-                      </thead>
-                    </table>
-                  </div>
-              </div>
-            </form>
-        </div>
-    </div>
 </div>
 
 <!-- MODAL PARA EL REGISTRO DE CIERRE DE BALANCE GENERAL  -->
@@ -268,7 +236,7 @@
             <div class="modal-body">
 							<form id="formularioCierreDeBalance">
 									<!-- CAMPOS OCULTOS -->
-									<input  class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+									<input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
                   
 									<div class="card card-outline card-success">
 										<div class="card-header">
@@ -308,7 +276,7 @@
 											</div>
 
 											<!-- AUXILIARES -->
-											<div class="row" id="auxiliares_cuenta" style="display:none;">
+											<!-- <div class="row" id="auxiliares_cuenta" style="display:none;">
 												<div class="col-12">
 													<div class="form-group">
 														<label>
@@ -337,7 +305,7 @@
 														</div>
 													</div>
 												</div>
-											</div>
+											</div> -->
 
 											<!-- ASIENTOS -->
 											<div class="row">
@@ -352,6 +320,8 @@
 															class="form-control"
 															rows="3"
 															placeholder="Por cierre transitorio de Cuentas de Balance."
+                              id="referenciaCierre"
+                              name="referenciaCierre"
 														></textarea>
 													</div>
 												</div>
@@ -367,6 +337,8 @@
 															class="form-control"
 															rows="3"
 															placeholder="Por reapertura de Cuentas de Balance."
+                              id="referenciaApertura"
+                              name="referenciaApertura"
 														></textarea>
 													</div>
 												</div>
@@ -384,6 +356,8 @@
 															class="form-control"
 															rows="3"
 															placeholder="Para cerrar transitoriamente cuentas de balance..."
+                              id="glosaCierre"
+                              name="glosaCierre"
 														></textarea>
 													</div>
 												</div>
@@ -398,6 +372,8 @@
 															class="form-control"
 															rows="3"
 															placeholder="Por reapertura de las Cuentas de Balance."
+                              id="glosaApertura"
+                              name="glosaApertura"
 														></textarea>
 													</div>
 												</div>
@@ -433,7 +409,7 @@
                   </div>
                   <div class="card-body p-0">
                     <div class="table-responsive">
-                      <table id="tablaBalanceGeneral" class="table table-striped table-hover" style="width: 100%;">
+                      <table id="tablaBalanceGeneralCierre" class="table table-striped table-hover" style="width: 100%;">
                           <thead class="bg-dark">
                           <tr>
                               <th style="color: white;">CÓDIGO</th>

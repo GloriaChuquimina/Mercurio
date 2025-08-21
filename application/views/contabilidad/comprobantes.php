@@ -41,7 +41,7 @@
             <div class="card" style="background-color: #f0f0ff; border-left: 4px solid #3c8dbc;">
               <div class="card-body p-3">
                 <div class="row align-items-center">
-                  <div class="col-md-8">
+                  <div class="col-md-6">
                     <div class="d-flex align-items-center">
                       <div>
                         <h5 class="mb-0">ENTIDAD:</h5>
@@ -50,17 +50,21 @@
                       </div>
                     </div>
                   </div>
-
-                  <!-- <div class="col-md-3 d-flex align-items-center justify-content-end">
-                    <br>
-                    <button class="btn btn-success" onclick="agregarComprobante()">
-                      <i class="fa fa-plus-circle"></i> Registro de Comprobante
-                    </button>
-                  </div> -->
-
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                       <div class="form-group">
                           <div class="d-flex align-items-end">
+                              <div style="flex-grow: 1; margin-right: 10px;">
+                                  <label for="gestion_comprobante">
+                                      <strong>GESTIÓN:</strong>
+                                  </label>
+                                  <select
+                                      class="form-control"
+                                      id="gestion_comprobante"
+                                      name="gestion_comprobante"
+                                      value="selectedEntity"
+                                  >
+                                  </select>
+                              </div>
                               <div style="flex-grow: 1; margin-right: 10px;">
                                   <label for="tipo_comprobante">
                                       <strong>TIPO COMPROBANTE:</strong>

@@ -1060,6 +1060,10 @@ function getIdCuenta($codigo)
     return $valor;
   }
 }
+function primerDiaDelAnio($fecha) {
+    $anio = date("Y", strtotime($fecha));
+    return $anio . "-01-01";
+}
 
 
 ?>

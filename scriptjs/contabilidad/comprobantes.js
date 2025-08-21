@@ -9,7 +9,8 @@ function baseurl(enlace) {
 }
 function cargarComboPrincipal()
 {
-     var enlace = base_url + "Comunes/Comunes/cargarEntidad";
+   
+    var enlace  = base_url + "Comunes/Comunes/cargarEntidad";
     $.ajax({
         type: "GET",
         url: enlace,
@@ -20,10 +21,11 @@ function cargarComboPrincipal()
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
                 
-                cargarTablaComprobantesEntidades(id_entidad,tipo_comprobante); 
+                cargarTablaComprobantesEntidades(id_entidad,tipo_comprobante,gestion); 
             }
         }
     });
+    
 }
 function cargarCombos()
 {
@@ -43,6 +45,7 @@ function cargarCombos()
         success: function(data) {
             $('#tipo_comprobante').html(data);
             $('#tipo_comprobante option[value="'+tipo_comprobante+'"]').prop('selected','selected');
+            $('#gestion_comprobante option[value="'+tipo_comprobante+'"]').prop('selected','selected');
         }
     });
     var enlace = base_url + "Comunes/Comunes/cargarTipoMovimiento";
@@ -51,6 +54,15 @@ function cargarCombos()
         url: enlace,
         success: function(data) {
             $('#txtTipoMovimiento').html(data);
+        }
+    });
+    var enlace = base_url + "Comunes/Comunes/cargarGestion";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#gestion_comprobante').html(data);
+            
         }
     });
 
@@ -111,20 +123,34 @@ $(function (){
                 }
 
         });
-
+        let hoy     = new Date();
+        var gestion = hoy.getFullYear();
         $('#entidades').change(function(){
             $('#cardEntidad').find('[data-card-widget="collapse"]').click();
             id_entidad = $(this).val();
             // alert(id_entidad);
+            
+            $('#gestion_comprobante option[value="'+gestion+'"]').prop('selected','selected');
             nombre_entidad = $('#entidades option:selected').text();
+            gestion        = $('#gestion_comprobante option:selected').val();
             $('#nombre_entidad').text(nombre_entidad);
-            cargarTablaComprobantesEntidades(id_entidad,-1);
+            cargarTablaComprobantesEntidades(id_entidad,-1,gestion);
+           
 
         });
          $('#tipo_comprobante').change(function(){
+            id_entidad                = $('#entidades').val();
+            var id_tipo_comprobante   =  $(this).val();
+            var gestion               = $('#gestion_comprobante option:selected').val();
+            cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante,gestion);
+
+        });
+         $('#gestion_comprobante').change(function(){
+            // alert("STEPH");
             id_entidad = $('#entidades').val();
-            var id_tipo_comprobante =  $(this).val();
-            cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante);
+            var gestion_comprobante    =  $(this).val();
+            id_tipo_comprobante        = $('#tipo_comprobante option:selected').val();
+            cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante,gestion_comprobante);
 
         });
         /* Valida  numeros en los textos */ 
@@ -201,7 +227,7 @@ function busquedaIDCuenta(id_cuenta,cuenta)
      cargarCuentasAuxiliaresLista(id_cuenta); 
 }
 
-function cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante)
+function cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante,gestion)
 {
     var enlace = base_url + "Contabilidad/Comprobante/cargarComprobantesByEntidad";
     $('#tablaComprobantesEntidades').DataTable({
@@ -213,7 +239,8 @@ function cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante)
             type: "POST",
             url: enlace,
             data: { id_entidad: id_entidad ,
-                    id_tipo_comprobante:id_tipo_comprobante
+                    id_tipo_comprobante:id_tipo_comprobante,
+                    gestion:gestion
             },
             
         
@@ -1188,7 +1215,7 @@ function eliminarComprobante(id_comprobante,tipo_comprobante,correlativo,entidad
                                 if(datos.resultado == 1)
                                 {
                                     swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
-                                    cargarTablaComprobantesEntidades(id_entidad);
+                                    cargarTablaComprobantesEntidades(id_entidad,tipo_comprobante,gestion);
                                 }
                                 else
                                 {

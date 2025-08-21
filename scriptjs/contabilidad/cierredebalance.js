@@ -32,6 +32,7 @@ $(function (){
                 $('#nombre_entidad').text(nombre_entidad);
                 $('#id_entidad').val(id_entidad);
                 $('#cardEntidad').find('[data-card-widget="collapse"]').click();
+                cargarTablaCierresDeBalance(id_entidad);
             });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
         alert('El modal se ha cerrado');
@@ -75,6 +76,14 @@ $(function (){
         if (this.value < 0) {
             this.value = 0; // Si es menor que 0, lo ajusta a 0
         }
+    });
+
+
+    /*CIERRE*/
+    $('#fechaCierreBalance').change(function(){
+        fecha = $(this).val();
+        id_entidad=$('#id_entidad_registro').val();
+        cargarDatosBalanceGeneral(id_entidad,fecha);
     });
    
 });
@@ -170,11 +179,11 @@ function cargarCuentas(marcar){
 }
 function cargarDatosBalanceGeneral(id_entidad,fecha){
     // alert("STEPH");  
-    var enlace = base_url + "Contabilidad/BalanceGeneral/cargarDatosBalanceGeneral";
-    $('#tablaBalanceGeneral').DataTable({
+    var enlace = base_url + "Contabilidad/CierreDeBalance/cargarDatosBalanceGeneral";
+    $('#tablaBalanceGeneralCierre').DataTable({
         destroy: true,
         "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
-        "iDisplayLength": 50,
+        "iDisplayLength": 10,
         "font-size":5,
         "ajax": {
             type: "POST",
@@ -204,9 +213,9 @@ function cargarDatosBalanceGeneral(id_entidad,fecha){
 // FUNCIONES PARA EL CIERRE DE BALANCE
 function procedimientoCierreCuentasDeBalance()
 {
-    $('#id_entidad_registro').val(id_entidad);
     $('#nombreEntidad').text(nombre_entidad);
-	 var id_entidad = $('#id_entidad').val();
+	var id_entidad = $('#id_entidad').val();
+    $('#id_entidad_registro').val(id_entidad);
 	const hoy = new Date();
 	const yyyy = hoy.getFullYear();
 	const mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
@@ -219,7 +228,7 @@ function procedimientoCierreCuentasDeBalance()
 }
 function cerrarCuentaDeBalance()
 {
-    alert("Steph");  
+    // alert("Steph");  
 
     mensaje = "¿Confirma que desea registrar el cierre de cuentas de balance? Tenga en cuenta que, una vez realizado, este proceso no podrá revertirse.";
     boton   = "Guardar";
@@ -264,6 +273,23 @@ function cerrarCuentaDeBalance()
                 }
             });
         }
+    });
+}
+
+function cargarTablaCierresDeBalance(id_entidad)
+{
+    var enlace = base_url + "Contabilidad/CierreDeBalance/cargarCierres";
+    $('#tablaCierresDeBalance').DataTable({
+        destroy: true,
+        "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
+        "iDisplayLength": 40,
+        "font-size":8,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            data: { id_entidad: id_entidad 
+            },         
+        },   
     });
 }
 

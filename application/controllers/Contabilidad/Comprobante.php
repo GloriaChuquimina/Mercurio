@@ -64,7 +64,7 @@ class Comprobante extends CI_Controller {
 		$dato['titulo'] = $titulo;
 		$dato['entidad'] = $entidad;
 		$dato['tipo_comprobante'] =$tipo_comprobante;
-
+		
 		$this->load->view('inicio/cabecera',$dato);
 		$this->load->view('inicio/menu',$dato);
 		$this->load->view('contabilidad/comprobantes',$dato);
@@ -738,23 +738,28 @@ class Comprobante extends CI_Controller {
 
 		$id_entidad  		  = $this->input->post('id_entidad');
 		$id_tipo_comprobante  = $this->input->post('id_tipo_comprobante');
+		$gestion 			  = $this->input->post('gestion');
 		if($id_tipo_comprobante == -1)
 		{
-			$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidad($id_entidad);
+			$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidad($id_entidad,$gestion);
 		}
 		else
 		{
-			$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidadTipoComprobante($id_entidad,$id_tipo_comprobante);
+			$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidadTipoComprobante($id_entidad,$id_tipo_comprobante,$gestion);
 		}
-		
+		// echo("<pre>");
+		// print_r($filas);
+		// echo("</pre>");
+		// die();
 		foreach ($filas as $fila)
 		{   
 			$boton      			   = "";
 			$tipo_comprobante_generado = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
 			$correlativo	 		   = $fila->correlativo;
 			$nombre_entidad 		   = descripcion_nombre_entidad($fila->id_entidad);
-			$tipo_comprobante = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
-			$nombre_entidad =descripcion_nombre_entidad($fila->id_entidad);
+			$tipo_comprobante 		   = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $fila->tipo_comprobante);
+			$nombre_entidad 		   = descripcion_nombre_entidad($fila->id_entidad);
+			$gestion				   = $fila->gestion;
 			if($fila->estado == 'ANU')
 			{
 				$estado ="<span class='badge badge-danger'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
@@ -762,7 +767,17 @@ class Comprobante extends CI_Controller {
 			else
 			{
 				$estado ="<span class='badge badge-success'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
-				$boton .= "
+				if($fila->estado == 'ACT' && ($fila->tipo_cierre == 'CIR' || $fila->tipo_cierre == 'CIB'))
+				{
+					$boton .= "
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Imprimir'>
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"generarReporteComprobanteRegistrado(". $fila->id . ")\"><i class='fas fa-print'></i></button>     
+                        </span>	
+                        ";	
+				}
+				else
+				{
+					$boton .= "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
                             <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     
                         </span>	
@@ -770,9 +785,11 @@ class Comprobante extends CI_Controller {
                             <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"generarReporteComprobanteRegistrado(". $fila->id . ")\"><i class='fas fa-print'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick=\"eliminarComprobante(". $fila->id .",'".$tipo_comprobante_generado."',".$correlativo.",'".$nombre_entidad."')\"><i class='fas fa-trash-alt'></i></button>     
+                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick=\"eliminarComprobante(". $fila->id .",'".$tipo_comprobante_generado."',".$correlativo.",'".$nombre_entidad."',".$gestion.")\"><i class='fas fa-trash-alt'></i></button>     
                         </span>	
                         ";	
+				}
+				
 			}
 			$data[] = array(
 				$boton,
