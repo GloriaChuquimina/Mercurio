@@ -447,19 +447,22 @@ class CierreDeResultados extends CI_Controller {
 			// 3. Preparación de datos de cierre
 			$id_entidad      		= $this->input->post('id_entidad_registro');
 			$fecha_actual        	= getFechaHoraActual();
-			$tipo_cambio         	= 6.96;
+			// $tipo_cambio         	= 6.96;
 			$tipo_cierre         	= 'CIR';
 			$estado_resultado    	= 'CNS';
 			$tipo_comprobante    	= 'TR';
 			$idCuentaCierre      	= 54;//PÉRDIDAS Y GANANCIAS(CUENTA CONTRA LA QUE SE EJECUTA EL ACIENTO DE CIERRE DE RESULTADOS)
 			$idCuentaSaldoCierre 	= $this->input->post('id_cuenta');//CUENTA DEL CIERRE DEL RESULTADO A LA QUE SE APROPIA EL SALDO DE LA GANANCIA O PERDIDA
 			$fecha_comprobante   	= $this->input->post('fechaCierreResultado');
+			$tipo_cambio         	=  number_format(getTipoCambio(formato_fecha_slash_invertido2($fecha_comprobante)),2,'.',',');
 			$gestion            	= date('Y', strtotime($fecha_comprobante));
 			$periodo             	= (int)date('m', strtotime($fecha_comprobante));
 			$referencia_ingreso  	= 'Cuentas de ingreso de la gestión';
 			$glosa_ingreso       	= 'Para registrar el cierre de las cuentas de ingreso apropiadas hasta el cierre del presente periodo.';
 			$referencia_gasto    	= 'Cuentas de gasto de la gestión';
-			$glosa_gasto         	= 'para registrar el cierre de cuentas de costo y gasto apropiadas hasta el cierre del presente periodo.';
+			$glosa_gasto         	= 'Para registrar el cierre de cuentas de costo y gasto apropiadas hasta el cierre del presente periodo.';
+			$referencia_cierre    	= 'Asiento del cierre de resultados';
+			$glosa_cierre         	= 'Para registro de perdida o ganancia del periodo';
 			$contador            	= 3; // NÚMERO DE COMPROBANTES A GENERAR
 
 			// 4. Parámetros para la consulta de resultados
@@ -528,35 +531,52 @@ class CierreDeResultados extends CI_Controller {
 					$gestion
 				));
 
-				$correlativo = $datosCorrelativo[0]->correlativo;
-				$idcorrelativoentidadgestion = $datosCorrelativo[0]->idcorrelativoentidadgestion;
+				// $correlativo = $datosCorrelativo[0]->correlativo;
+				// $idcorrelativoentidadgestion = $datosCorrelativo[0]->idcorrelativoentidadgestion;
 
-				$datosComprobante = [
-					'id_entidad'             => $id_entidad,
-					'tipo_comprobante'       => $tipo_comprobante,
-					'correlativo'            => $correlativo,
-					'periodo'                => $periodo,
-					'gestion'                => $gestion,
-					'referencia_comprobante' => $referencia_general,
-					'glosa_comprobante'      => $glosa_general,
-					'fecha_comprobante'      => $fecha_comprobante,
-					'tipo_cambio'            => $tipo_cambio,
-					'id_usuario_registro'    => $id_usuario,
-					'tipo_cierre'            => $tipo_cierre
-				];
+				// $datosComprobante = [
+				// 	'id_entidad'             => $id_entidad,
+				// 	'tipo_comprobante'       => $tipo_comprobante,
+				// 	'correlativo'            => $correlativo,
+				// 	'periodo'                => $periodo,
+				// 	'gestion'                => $gestion,
+				// 	'referencia_comprobante' => $referencia_general,
+				// 	'glosa_comprobante'      => $glosa_general,
+				// 	'fecha_comprobante'      => $fecha_comprobante,
+				// 	'tipo_cambio'            => $tipo_cambio,
+				// 	'id_usuario_registro'    => $id_usuario,
+				// 	'tipo_cierre'            => $tipo_cierre
+				// ];
 
-				$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
-				$comprobantes[] = $saveComprobante;
+				// $saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);			
+				// // Actualizar correlativo
+				// $this->Correlativos_model->updateCorrelativoEntidadGestion(
+				// 	$idcorrelativoentidadgestion,
+				// 	['correlativo' => $correlativo, 'fecha_modificacion' => $fecha_actual]
+				// );
 
-				// Actualizar correlativo
-				$this->Correlativos_model->updateCorrelativoEntidadGestion(
-					$idcorrelativoentidadgestion,
-					['correlativo' => $correlativo, 'fecha_modificacion' => $fecha_actual]
-				);
-
+				// $comprobantes[] = $saveComprobante;
+				$comprobantes = [];
+				$id_comprobante_cierre = 0;
 				// 8. Registro de detalles del comprobante
 				switch ($i) {
 					case 1:
+
+						$saveComprobante = $this->registrarComprobante(
+						    $id_entidad,
+							$tipo_comprobante,
+							$periodo,
+							$gestion,
+							$referencia_ingreso,
+							$glosa_ingreso,
+							$fecha_comprobante,
+							$tipo_cambio,
+							$id_usuario,
+							$tipo_cierre,
+							$id_dependencia,
+							$fecha_actual
+						);
+
 						$this->registrarDetalle(
 							$saveComprobante,
 							$ingresosData,
@@ -567,10 +587,26 @@ class CierreDeResultados extends CI_Controller {
 							'HB',
 							$idCuentaCierre,
 							$sumaIngreso,
-							$sumaIngresoUSD
+							$sumaIngresoUSD,
+							$tipo_cambio
 						);
 						break;
 					case 2:
+
+						$saveComprobante = $this->registrarComprobante(
+						    $id_entidad,
+							$tipo_comprobante,
+							$periodo,
+							$gestion,
+							$referencia_gasto,
+							$glosa_gasto,
+							$fecha_comprobante,
+							$tipo_cambio,
+							$id_usuario,
+							$tipo_cierre,
+							$id_dependencia,
+							$fecha_actual
+						);
 						$this->registrarDetalle(
 							$saveComprobante,
 							$egresosData,
@@ -581,10 +617,26 @@ class CierreDeResultados extends CI_Controller {
 							'DB',
 							$idCuentaCierre,
 							$sumaEgreso,
-							$sumaEgresoUSD
+							$sumaEgresoUSD,
+							$tipo_cambio
 						);
 						break;
 					case 3:
+						
+						$saveComprobante = $this->registrarComprobante(
+						    $id_entidad,
+							$tipo_comprobante,
+							$periodo,
+							$gestion,
+							$referencia_cierre,
+							$glosa_cierre,
+							$fecha_comprobante,
+							$tipo_cambio,
+							$id_usuario,
+							$tipo_cierre,
+							$id_dependencia,
+							$fecha_actual
+						);
 						$id_comprobante_cierre = $saveComprobante;
 						$this->registrarAsientoCierre(
 							$saveComprobante,
@@ -594,7 +646,8 @@ class CierreDeResultados extends CI_Controller {
 							$idCuentaCierre,
 							$idCuentaSaldoCierre,
 							$total_resultado,
-							$total_resultadousd
+							$total_resultadousd,
+							$tipo_cambio
 						);
 						break;
 				}
@@ -654,10 +707,64 @@ class CierreDeResultados extends CI_Controller {
 
 		echo json_encode([$response]);
 	}
+
+	/**
+	 * Registra un comprobante para de cierre de balance, cierre de cuentas de orden y apertura de gestion
+	 */
+	private function registrarComprobante(
+	$id_entidad, 
+	$tipo_comprobante, 
+	$periodo, 
+	$gestion, 
+	$referencia_general, 
+	$glosa_general, 
+	$fecha_comprobante, 
+	$tipo_cambio, 
+	$id_usuario, 
+	$tipo_cierre,
+	$id_dependencia,
+	$fecha_actual){
+
+
+		$datosCorrelativo = json_decode(obtenerCorrelativoComprobanteGestionEntidad(
+			$tipo_comprobante,
+			$id_entidad,
+			$id_dependencia,
+			$gestion
+		));
+
+		$correlativo = $datosCorrelativo[0]->correlativo;
+		$idcorrelativoentidadgestion = $datosCorrelativo[0]->idcorrelativoentidadgestion;
+
+		$datosComprobante = [
+			'id_entidad'             => $id_entidad,
+			'tipo_comprobante'       => $tipo_comprobante,
+			'correlativo'            => $correlativo,
+			'periodo'                => $periodo,
+			'gestion'                => $gestion,
+			'referencia_comprobante' => $referencia_general,
+			'glosa_comprobante'      => $glosa_general,
+			'fecha_comprobante'      => $fecha_comprobante,
+			'tipo_cambio'            => $tipo_cambio,
+			'id_usuario_registro'    => $id_usuario,
+			'tipo_cierre'            => $tipo_cierre
+		];	
+
+		$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
+		$comprobantes[] = $saveComprobante;
+
+		// Actualizar correlativo
+		$this->Correlativos_model->updateCorrelativoEntidadGestion(
+			$idcorrelativoentidadgestion,
+			['correlativo' => $correlativo, 'fecha_modificacion' => $fecha_actual]
+		);
+		return $saveComprobante;
+
+	}
 	/**
 	 * Registra los detalles de un comprobante para cuentas de ingresos o egresos.
 	 */
-	private function registrarDetalle($comprobanteId, $cuentas, $entidadId, $usuarioId, $estado, $tipoMovimientoPositivo, $tipoMovimientoNegativo, $idCuentaCierre, $sumaTotal, $sumaTotalUSD)
+	private function registrarDetalle($comprobanteId, $cuentas, $entidadId, $usuarioId, $estado, $tipoMovimientoPositivo, $tipoMovimientoNegativo, $idCuentaCierre, $sumaTotal, $sumaTotalUSD,$tipo_cambio)
 	{
 		foreach ($cuentas as $cuenta) {
 			$saldo     = $cuenta->saldo;
@@ -669,16 +776,16 @@ class CierreDeResultados extends CI_Controller {
 				$saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
 
 				$datosDetalle = [
-					'id_entidad'              => $entidadId,
-					'id_comprobante'          => $comprobanteId,
-					'id_cuenta'               => $cuenta->id,
-					'tipo_movimiento'         => $tipo_movimiento,
-					'tipo_cambio'             => 6.96,
-					'importe_moneda_nacional' => $saldo,
+					'id_entidad'                => $entidadId,
+					'id_comprobante'            => $comprobanteId,
+					'id_cuenta'                 => $cuenta->id,
+					'tipo_movimiento'           => $tipo_movimiento,
+					'tipo_cambio'               => $tipo_cambio,
+					'importe_moneda_nacional' 	=> $saldo,
 					'importe_moneda_extranjera' => $saldoUSD,
-					'glosa_cuenta'            => '',
-					'id_usuario_registro'     => $usuarioId,
-					'estado_resultado'        => $estado
+					'glosa_cuenta'              => '',
+					'id_usuario_registro'       => $usuarioId,
+					'estado_resultado'          => $estado
 				];
 				$this->Comprobantes_model->guardarDetalleComprobante($datosDetalle);
 			}
@@ -686,23 +793,24 @@ class CierreDeResultados extends CI_Controller {
 
 		// Registro del asiento contable de cierre
 		$datosDetalleCierre = [
-			'id_entidad'              => $entidadId,
-			'id_comprobante'          => $comprobanteId,
-			'id_cuenta'               => $idCuentaCierre,
-			'tipo_movimiento'         => $tipoMovimientoNegativo,
-			'tipo_cambio'             => 6.96,
-			'importe_moneda_nacional' => $sumaTotal,
+			'id_entidad'                => $entidadId,
+			'id_comprobante'            => $comprobanteId,
+			'id_cuenta'                 => $idCuentaCierre,
+			'tipo_movimiento'           => $tipoMovimientoNegativo,
+			// 'tipo_cambio'             => 6.96,
+			'tipo_cambio'               => $tipo_cambio,
+			'importe_moneda_nacional' 	=> $sumaTotal,
 			'importe_moneda_extranjera' => $sumaTotalUSD,
-			'glosa_cuenta'            => '',
-			'id_usuario_registro'     => $usuarioId,
-			'estado_resultado'        => $estado
+			'glosa_cuenta'              => '',
+			'id_usuario_registro'       => $usuarioId,
+			'estado_resultado'          => $estado
 		];
 		$this->Comprobantes_model->guardarDetalleComprobante($datosDetalleCierre);
 	}
 	/**
 	 * Registra el asiento de cierre final.
 	 */
-	private function registrarAsientoCierre($comprobanteId, $entidadId, $usuarioId, $estado, $idCuentaCierre, $idCuentaSaldoCierre, $total_resultado, $total_resultadousd)
+	private function registrarAsientoCierre($comprobanteId, $entidadId, $usuarioId, $estado, $idCuentaCierre, $idCuentaSaldoCierre, $total_resultado, $total_resultadousd,$tipo_cambio)
 	{
 		$importe    = abs($total_resultado);
 		$importeUSD = abs($total_resultadousd);
@@ -710,31 +818,32 @@ class CierreDeResultados extends CI_Controller {
 		// Movimiento para la cuenta de cierre
 		$tipo_movimiento_cierre = ($total_resultado < 0) ? 'HB' : 'DB';
 		$this->Comprobantes_model->guardarDetalleComprobante([
-			'id_entidad'              => $entidadId,
-			'id_comprobante'          => $comprobanteId,
-			'id_cuenta'               => $idCuentaCierre,
-			'tipo_movimiento'         => $tipo_movimiento_cierre,
-			'tipo_cambio'             => 6.96,
-			'importe_moneda_nacional' => $importe,
+			'id_entidad'                => $entidadId,
+			'id_comprobante'            => $comprobanteId,
+			'id_cuenta'                 => $idCuentaCierre,
+			'tipo_movimiento'           => $tipo_movimiento_cierre,
+			// 'tipo_cambio'             => 6.96,
+			'tipo_cambio'               => $tipo_cambio,
+			'importe_moneda_nacional'   => $importe,
 			'importe_moneda_extranjera' => $importeUSD,
-			'glosa_cuenta'            => '',
-			'id_usuario_registro'     => $usuarioId,
-			'estado_resultado'        => $estado
+			'glosa_cuenta'              => '',
+			'id_usuario_registro'       => $usuarioId,
+			'estado_resultado'          => $estado
 		]);
 
 		// Movimiento para la cuenta de saldo
 		$tipo_movimiento_saldo = ($total_resultado < 0) ? 'DB' : 'HB';
 		$this->Comprobantes_model->guardarDetalleComprobante([
-			'id_entidad'              => $entidadId,
-			'id_comprobante'          => $comprobanteId,
-			'id_cuenta'               => $idCuentaSaldoCierre,
-			'tipo_movimiento'         => $tipo_movimiento_saldo,
-			'tipo_cambio'             => 6.96,
-			'importe_moneda_nacional' => $importe,
+			'id_entidad'                => $entidadId,
+			'id_comprobante'            => $comprobanteId,
+			'id_cuenta'                 => $idCuentaSaldoCierre,
+			'tipo_movimiento'           => $tipo_movimiento_saldo,
+			'tipo_cambio'               => $tipo_cambio,
+			'importe_moneda_nacional'   => $importe,
 			'importe_moneda_extranjera' => $importeUSD,
-			'glosa_cuenta'            => '',
-			'id_usuario_registro'     => $usuarioId,
-			'estado_resultado'        => $estado
+			'glosa_cuenta'              => '',
+			'id_usuario_registro'       => $usuarioId,
+			'estado_resultado'          => $estado
 		]);
 	}
 

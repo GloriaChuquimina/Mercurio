@@ -139,7 +139,7 @@
         </div>
     </section>
 </div>
-<div class="row">
+<!-- <div class="row">
             <div class="col-md-3 col-sm-6 col-12">
               <div
                 class="info-box"
@@ -251,7 +251,6 @@
                     border-radius: 0.25rem;"
                 >
                 <span class="info-box-icon bg-danger">
-                    <!-- <i class="far-solid fa-xmark"> ❌</i> -->
                     <i class="far fa-file-alt"></i>
                 </span>
                   <div class="info-box-content" style=" padding:15px">
@@ -276,7 +275,7 @@
                   </div>
                 </div>
               </div>
-</div>
+</div> -->
 
 
 <script type="text/javascript">
@@ -285,6 +284,7 @@
       baseurl(enlace);
       id_entidad = <?= json_encode($entidad) ?>;
       tipo_comprobante = <?= json_encode($tipo_comprobante) ?>;
+      gestion = <?= json_encode($gestion) ?>;
       cargarComboPrincipal();
       cargarCombos();
     //   cargarTablaComprobantesEntidades();

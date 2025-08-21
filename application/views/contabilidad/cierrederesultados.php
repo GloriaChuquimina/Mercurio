@@ -228,9 +228,9 @@
                 </div>
             </div>
             <div class="modal-body">
-              <input type ="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
-              <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                <form id="formularioCierreResultados">
+              <form id="formularioCierreResultados">
+                  <input  type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+                  <input  type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
                   <div class="card card-outline card-primary">
                     <div class="card-header">
                       <h7 class="card-title">

@@ -284,6 +284,8 @@ function seleccionDeCuentas()
     });
 }
 function cargarDatosSumasySaldos(){
+
+    
     var id_entidad = $('#id_entidad').val();
     var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
     var fecha_desde = $('#fechaDesde').val();

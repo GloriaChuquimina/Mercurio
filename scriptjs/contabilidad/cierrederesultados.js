@@ -316,5 +316,5 @@ function busquedaIDCuenta(id_cuenta,cuenta)
     $('#txtAuxiliarCuenta').val('-');
     $('#id_cuenta_auxiliar').text('-');
     $('#txtAuxiliarCuenta').text('-');
-     cargarCuentasAuxiliaresLista(id_cuenta); 
+    //  cargarCuentasAuxiliaresLista(id_cuenta); 
 }

@@ -170,7 +170,7 @@ CREATE TABLE contabilidad.comprobante (
 	id_funcionario_update int4 NULL,
 	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
 	sec_log numeric(10) NULL,
-	tipo_cierre varchar(3) NULL,
+	tipo_cierre varchar(3) DEFAULT 'PEN'::character varying NULL,
 	CONSTRAINT comprobante_pkey PRIMARY KEY (id)
 );
 

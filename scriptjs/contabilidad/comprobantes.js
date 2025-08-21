@@ -4,6 +4,7 @@ var nombre_entidad;
 var accion;
 var id_comprobante;
 var tipo_comprobante;
+var gestion;
 function baseurl(enlace) {
    base_url = enlace;
 }
@@ -21,7 +22,7 @@ function cargarComboPrincipal()
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
                 
-                cargarTablaComprobantesEntidades(id_entidad,tipo_comprobante,gestion); 
+                cargarTablaComprobantesEntidades(id_entidad,tipo_comprobante,-1); 
             }
         }
     });
@@ -170,7 +171,25 @@ $(function (){
                     success: function(response) {
                         var resultado = JSON.parse(response);
                         // alert(resultado.tipo_cambio_fecha); 
-                        var tipo_cambio = resultado.tipo_cambio_fecha; 
+                        // var tipo_cambio = resultado.tipo_cambio_fecha; 
+
+                        var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+                        if (tipo_cambio <= 0) {
+                            // Si no existe tipo de cambio
+                            swal({
+                                title: "Atención",
+                                text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+                                icon: "warning",
+                                button: "OK",
+                                dangerMode: true,
+                            });
+                            $('#txtTipoCambio').val(tipo_cambio); // Limpia el campo
+                            $('#btnRecalcularTipoCambio').hide();
+                            return; // Sale para no seguir validando
+                        }
+
+
                         $('#txtTipoCambio').val(tipo_cambio);
                         var nuevo_tipocambio = tipo_cambio;
                         var comprobante_tipocambio = $('#tipo_cambio_comprobante').val();
@@ -274,13 +293,15 @@ function cargarTablaComprobantes()
 function agregarComprobante()
 {
     var entidad =$('#entidades').val();
+    var gestion =$('#gestion_comprobante option:selected').val();
     if(entidad == -1)
     {
          swal({title:"ALERTA",text:"Por favor, seleccione una entidad para continuar con el registro.",icon:"warning",button:"OK",dangerMode:true});
     }
     else
     {
-        window.location.href = base_url + "Contabilidad/Comprobante/registroComprobante/"+entidad;
+        var accion = 'nuevo';
+        window.location.href = base_url + "Contabilidad/Comprobante/registroComprobante/"+entidad+"/"+accion+"/"+gestion;
     }
 }
 function agregarRegistroComprobante()
@@ -339,11 +360,6 @@ function editarRegistroCuentaComprobante(id_registro_cuenta)
             });
             $('#modalRegistroMovimiento').modal('show');
         });
-
-
-
-
-
     }
 
 }
@@ -699,37 +715,42 @@ function guardarDatosComprobanteMasDetalle()
                     {
                         if(datos.resultado == 1)
                         {
-                            swal({title: "OK",text: datos.mensaje,icon: "success",button: "OK",});
-                            // generarPDFComprobante();
-                            // cargarComprobantesPrincipal();
-                            accion='editar';
-                            $('#txtAccionComprobante').val(accion);
-                            $('#id_comprobanteP').val(datos.idComprobante);
-                            $('#estado_comprobante')
-                            .removeClass('badge-warning') // Quita cualquier clase previa
-                            .addClass('badge-success') // Agrega la nueva
-                            .text('Registrado');  
-                            generarPDFComprobante();
-                            // generarPDFComprobante().then(() => {
-                                  
-                            // });
-                            // generarPDFComprobante();
-                            // $('#pdfModal').on('hidden.bs.modal', function () {
-                            //     swal({
-                            //     title: "¿Deseas volver a la pantalla principal?",
-                            //     text: "El comprobante ya fue generado.",
-                            //     icon: "warning",
-                            //     buttons: {
-                            //         cancel: "Cancelar",
-                            //         confirm: "Sí, volver"
-                            //     },
-                            //     dangerMode: true,
-                            //     }).then(respuesta => {
-                            //         if (respuesta) {
-                            //             cargarComprobantesPrincipal();
-                            //         }
-                            //     });
-                            // });
+                            swal({
+                                title: "OK",
+                                text: datos.mensaje,
+                                icon: "success",
+                                button: "OK",
+                            }).then(() => {
+                                accion = 'editar';
+                                $('#txtAccionComprobante').val(accion);
+                                $('#id_comprobanteP').val(datos.idComprobante);
+
+                                $('#estado_comprobante')
+                                    .removeClass('badge-warning')
+                                    .addClass('badge-success')
+                                    .text('Registrado');
+
+                                // Genera el PDF
+                                generarPDFComprobante();
+
+                                // Cuando se cierre el modal, preguntar si volver a la pantalla principal
+                                $('#pdfModal').one('hidden.bs.modal', function () {
+                                    swal({
+                                        title: "¿Deseas volver a la pantalla principal?",
+                                        text: "El comprobante ya fue generado.",
+                                        icon: "warning",
+                                        buttons: {
+                                            cancel: "Cancelar",
+                                            confirm: "Sí, volver"
+                                        },
+                                        dangerMode: true,
+                                    }).then(respuesta => {
+                                        if (respuesta) {
+                                            cargarComprobantesPrincipal();
+                                        }
+                                    });
+                                });
+                            });
                         }
                         else
                         {
@@ -753,8 +774,8 @@ function guardarDatosComprobanteMasDetalle()
 }
 function editarCabeceraComprobante()
 {
-    // var nro_cuentas_comprobante = $('#cant_cuentas').val();
-    var nro_cuentas_comprobante = 2;
+    var nro_cuentas_comprobante = $('#cant_cuentas').val();
+    // var nro_cuentas_comprobante = 2;
     var mensaje="";
     var icon="";
     if(nro_cuentas_comprobante>0)
@@ -829,7 +850,8 @@ function cargarComprobantesPrincipal()
 {
     var entidad =$('#id_entidad').val();
     var tipo_comprobante = $('#txtTipo').val();
-    window.location.href = base_url + "Contabilidad/Comprobante/principalComprobante/"+entidad+"/"+tipo_comprobante;
+    var gestion = $('#gestion_comprobante').val();
+    window.location.href = base_url + "Contabilidad/Comprobante/principalComprobante/"+entidad+"/"+tipo_comprobante+"/"+gestion;
 }
 function eliminarRegistroCuentaComprobante(id_registro_CuentaComprobante)
 {

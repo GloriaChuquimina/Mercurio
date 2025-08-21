@@ -47,7 +47,7 @@ class Comprobante extends CI_Controller {
 		$this->load->view('contabilidad/comprobantes',$dato);
 		$this->load->view('inicio/pie');
 	}
-	public function principalComprobante($entidad=-1,$tipo_comprobante=-1)
+	public function principalComprobante($entidad=-1,$tipo_comprobante=-1,$gestion=-1)
 	{
 
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
@@ -61,16 +61,17 @@ class Comprobante extends CI_Controller {
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
 
 		$titulo = "Gestión de Comprobantes";		
-		$dato['titulo'] = $titulo;
-		$dato['entidad'] = $entidad;
-		$dato['tipo_comprobante'] =$tipo_comprobante;
+		$dato['titulo'] 		  = $titulo;
+		$dato['entidad'] 		  = $entidad;
+		$dato['tipo_comprobante'] = $tipo_comprobante;
+		$dato['gestion'] 		  = $gestion;
 		
 		$this->load->view('inicio/cabecera',$dato);
 		$this->load->view('inicio/menu',$dato);
 		$this->load->view('contabilidad/comprobantes',$dato);
 		$this->load->view('inicio/pie');
 	}
-	public function registroComprobante($entidad,$accion='nuevo',$id_comprobante=0)
+	public function registroComprobante($entidad,$accion='nuevo',$id_comprobante=0,$gestion=-1)
 	{
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
 		$dato['nombre_sistema']  = "MERCURIO";
@@ -83,6 +84,7 @@ class Comprobante extends CI_Controller {
 		$dato['entidad']  = $entidad;
 		$dato['accion']  = $accion;
 		$dato['id_comprobante']  = $id_comprobante;
+		$dato['gestion']  = $gestion;
 
 		$titulo = "Comprobante Contable";		
 		$dato['titulo'] = $titulo;
@@ -609,7 +611,7 @@ class Comprobante extends CI_Controller {
 											'tipo_movimiento'           => $tipo_movimiento,
 											'tipo_cambio'               => $tipo_cambio,
 											'importe_moneda_nacional'   => $importeBase,
-											'importe_moneda_extranjera' => $importeUsBase,
+											'importe_moneda_extranjera' => $importeUs,
 											'glosa_cuenta'              => $glosa_cuenta,
 											'id_usuario_registro'       => $id_usuario									
 											);

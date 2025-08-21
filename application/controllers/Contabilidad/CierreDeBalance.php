@@ -566,7 +566,7 @@ class CierreDeBalance extends CI_Controller {
 
 			$id_entidad       				  = $this->input->post('id_entidad_registro');
 			$fecha_actual     				  = getFechaHoraActual();
-			$tipo_cambio      				  = 6.96;
+			// $tipo_cambio      				  = 6.96;
 			$tipo_cierre      			      = 'CIB';
 			$estado_balance   				  = 'CNS';
 			$tipo_comprobante 				  = 'TR';
@@ -579,7 +579,7 @@ class CierreDeBalance extends CI_Controller {
 			$periodo                          = (int)date('m', strtotime($fecha_comprobante));
 			$referencia_general_cierre        = $this->input->post('referenciaCierre');
 			$glosa_general_cierre             = $this->input->post('glosaCierre');
-
+			$tipo_cambio_cierre    	          =  number_format(getTipoCambio(formato_fecha_slash_invertido2($fecha_comprobante)),2,'.',',');
 
 			//3.1 Datos para la apertura de las cuentas
 
@@ -588,6 +588,8 @@ class CierreDeBalance extends CI_Controller {
 			$gestion_apertura				  = $gestion+1;
 			$periodo_apertura				  = 1;
 			$fecha_comprobante_apertura		  = $gestion_apertura.'-01-02';
+			// $tipo_cambio_apertura      		  = 6.96;
+			$tipo_cambio_apertura      		  = number_format(getTipoCambio(formato_fecha_slash_invertido2($fecha_comprobante)),2,'.',',');///OJO
 		
 			// 4. Parámetros para la consultas de balance
 
@@ -743,7 +745,7 @@ class CierreDeBalance extends CI_Controller {
 							$referencia_general_cierre,
 							$glosa_general_cierre,
 							$fecha_comprobante,
-							$tipo_cambio,
+							$tipo_cambio_cierre,
 							$id_usuario,
 							$tipo_cierre,
 							$id_dependencia,
@@ -774,7 +776,7 @@ class CierreDeBalance extends CI_Controller {
 							$referencia_general_cuentasorden,
 							$glosa_general__cuentasorden,
 							$fecha_comprobante,
-							$tipo_cambio,
+							$tipo_cambio_cierre,
 							$id_usuario,
 							$tipo_cierre,
 							$id_dependencia,
@@ -803,12 +805,13 @@ class CierreDeBalance extends CI_Controller {
 							$referencia_general_apertura,
 							$glosa_general_apertura,
 							$fecha_comprobante_apertura,
-							$tipo_cambio,//CONSULTAR
+							$tipo_cambio_apertura,//CONSULTAR
 							$id_usuario,
 							$tipo_cierre,//CONSULTAR
 							$id_dependencia,
 							$fecha_actual
 						);
+						// echo("stephany");
 						$comprobantes[] = $saveComprobante;
 						$cuentasPasivoPatrimonio = array_merge($cuentas_pasivo, $cuentas_patrimonio);
 						$this->registrarDetalleCierre(
