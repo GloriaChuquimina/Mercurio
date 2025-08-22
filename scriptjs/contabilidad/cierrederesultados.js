@@ -78,14 +78,82 @@ $(function (){
         }
     });
      /*CIERRE*/
-    $('#fechaCierreResultado').change(function(){
-        fecha = $(this).val();
-        id_entidad=$('#id_entidad_registro').val();
-        cargarEstadoDeResultados(id_entidad,fecha);
-    });
-   
-});
+    // $('#fechaCierreResultado').change(function(){
+    //     fecha = $(this).val();
+    //     id_entidad=$('#id_entidad_registro').val();
+    //     cargarEstadoDeResultados(id_entidad,fecha);
+    //     var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+    //     $.ajax({
+    //                 url: enlace,
+    //                 type: 'POST',
+    //                 data: { fecha: fecha },
+    //                 success: function(response) {
+    //                     var resultado = JSON.parse(response);
+    //                     // alert(resultado.tipo_cambio_fecha); 
+    //                     // var tipo_cambio = resultado.tipo_cambio_fecha; 
 
+    //                     var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+    //                     if (tipo_cambio <= 0) {
+    //                         // Si no existe tipo de cambio
+    //                         swal({
+    //                             title: "Atención",
+    //                             text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+    //                             icon: "warning",
+    //                             button: "OK",
+    //                             dangerMode: true,
+    //                         });
+    //                         $('#tipoCambio').val(tipo_cambio); // Limpia el campo
+    //                         return; // Sale para no seguir validando
+    //                     }                      
+    //                 }
+    //             });
+    // });
+    $('#fechaCierreResultado').change(function(){
+            fecha = $(this).val();
+            id_entidad=$('#id_entidad_registro').val();            
+            var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+            $.ajax({
+                     url: enlace,
+                    type: 'POST',
+                    data: { fecha: fecha },
+                    success: function(response) {
+                        var resultado = JSON.parse(response);
+                        // alert(resultado.tipo_cambio_fecha); 
+                        // var tipo_cambio = resultado.tipo_cambio_fecha; 
+
+                        var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+                        if (tipo_cambio <= 0) {
+                            // Si no existe tipo de cambio
+                            swal({
+                                title: "Atención",
+                                text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+                                icon: "warning",
+                                button: "OK",
+                                dangerMode: true,
+                            });
+                            $('#tipoCambio').text(''); // Limpia el campo
+                            $('#btnRecalcularTipoCambio').hide();
+                            return; // Sale para no seguir validando
+                        }
+                        else
+                        {
+                            // swal({
+                            //     title: "Atención",
+                            //     text: "tipo cambio",
+                            //     icon: "success",
+                            //     button: "OK",
+                            //     dangerMode: true,
+                            // });
+                             $('#tipoCambio').text(tipo_cambio);
+                        }
+                    }
+            });
+            cargarEstadoDeResultados(id_entidad,fecha);
+    });
+});     
+           
 function seleccionDeCuentas()
 {
 

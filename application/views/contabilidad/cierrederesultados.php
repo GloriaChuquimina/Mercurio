@@ -220,7 +220,7 @@
                         </h7>
                     </div>
                     <div class="col-md-4 text-right">
-                        <!-- <span class="badge badge-warning">Tipo Cambio:<label id="tipoCambio">...</label></span> -->
+                        <span class="badge badge-warning">Tipo Cambio:<label id="tipoCambio">...</label></span>
                         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                         <span>&times;</span>
                         </button>
