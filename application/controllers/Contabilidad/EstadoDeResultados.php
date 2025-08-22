@@ -305,10 +305,12 @@ class EstadoDeResultados extends CI_Controller {
 		$saldoCero  			 = $this->input->post('saldoCero');
 		$cuentasSeleccionadas    = $this->input->post('cuentasSeleccionadas');
 
-		$id_cuenta_ingreso   	   = 40;
+		
 		$codigo_cuenta_ingreso     = 4;
-		$id_cuenta_egreso   	   = 41;
 		$codigo_cuenta_egreso      = 5;
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+
 
 		if($nivel== 0)
 		{
@@ -406,10 +408,11 @@ class EstadoDeResultados extends CI_Controller {
 		$nivel				   = $this->input->post('nivel');
 		$saldoCero  			 = $this->input->post('saldoCero');
 		$cuentasSeleccionadas    = $this->input->post('cuentasSeleccionadas');
-		$id_cuenta_ingreso   	   = 40;
+		
 		$codigo_cuenta_ingreso     = 4;
-		$id_cuenta_egreso   	   = 41;
-		$codigo_cuenta_egreso     = 5;
+		$codigo_cuenta_egreso      = 5;
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
 
 		if($nivel== 0)
 		{
@@ -526,11 +529,12 @@ class EstadoDeResultados extends CI_Controller {
         $num = 0;
         $total=0;
 
-		$id_cuenta_ingreso   	   = 40;
 		$codigo_cuenta_ingreso     = 4;
-		$id_cuenta_egreso   	   = 41;
-		$codigo_cuenta_egreso     = 5;
+		$codigo_cuenta_egreso      = 5;
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
 
+		
 		// $estadoResultadoAcreedor = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);	
 		// $resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso);
 		// if (!empty($resultado) && isset($resultado[0]->total_estado_resultado)) {
