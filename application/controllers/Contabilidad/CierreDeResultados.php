@@ -682,7 +682,7 @@ class CierreDeResultados extends CI_Controller {
 				$this->Comprobantes_model->updateComprobante(
 					$cuenta->id_comprobante,
 					[
-						'estado'                => $estado_resultado,
+						// 'estado'                => $estado_resultado,
 						'tipo_cierre'           => $tipo_cierre,
 						'fecha_modificacion'    => $fecha_actual,
 						'id_funcionario_update' => $id_usuario

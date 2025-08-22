@@ -616,6 +616,11 @@ class CierreDeBalance extends CI_Controller {
 			$id_cuentas_deudoras   	   = getIdCuenta($codigo_cuentas_deudoras);
 			$id_cuentas_acreedoras 	   = getIdCuenta($codigo_cuentas_acreedoras);
 
+			$codigo_cuenta_ingreso  = 4;
+			$codigo_cuenta_egreso   = 5;
+			$id_cuenta_ingreso      = getIdCuenta($codigo_cuenta_ingreso);
+			$id_cuenta_egreso       = getIdCuenta($codigo_cuenta_egreso);
+
 			// die();
 
 			if($valorCheckCero === true){
@@ -809,7 +814,7 @@ class CierreDeBalance extends CI_Controller {
 							$fecha_comprobante_apertura,
 							$tipo_cambio_apertura,//CONSULTAR
 							$id_usuario,
-							$tipo_cierre,//CONSULTAR
+							'PEN',//$tipo_cierre,//CONSULTAR
 							$id_dependencia,
 							$fecha_actual
 						);
@@ -822,7 +827,7 @@ class CierreDeBalance extends CI_Controller {
 							$cuentas_activo,
 							$id_entidad,
 							$id_usuario,
-							$estado_balance,
+							'PEN',
 							'HB',
 							'DB',
 							$tipo_cambio_apertura,
@@ -840,6 +845,8 @@ class CierreDeBalance extends CI_Controller {
 				[$id_patrimonio, $codigo_patrimonio],
 				[$id_cuentas_deudoras, $codigo_cuentas_deudoras],
 				[$id_cuentas_acreedoras, $codigo_cuentas_acreedoras],
+				[$id_cuenta_ingreso, $codigo_cuenta_ingreso],
+				[$id_cuenta_egreso, $codigo_cuenta_egreso],
 			];
 
 			// ===============================
@@ -863,7 +870,8 @@ class CierreDeBalance extends CI_Controller {
 				$this->Comprobantes_model->updateComprobante(
 					$cuenta->id_comprobante,
 					[
-						'tipo_cierre'           => $estado_balance,
+						// 'estado'                => $estado_balance,
+						'tipo_cierre'           => $tipo_cierre,
 						'fecha_modificacion'    => $fecha_actual,
 						'id_funcionario_update' => $id_usuario
 					]
@@ -1024,7 +1032,7 @@ class CierreDeBalance extends CI_Controller {
 					'importe_moneda_extranjera' => $saldoUSD,
 					'glosa_cuenta'              => '',
 					'id_usuario_registro'       => $usuarioId,
-					'estado_resultado'          => $estado_balance
+					'estado_balance'            => $estado_balance
 				];
 				$this->Comprobantes_model->guardarDetalleComprobante($datosDetalle);
 			}
