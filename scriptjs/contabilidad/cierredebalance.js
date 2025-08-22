@@ -35,7 +35,7 @@ $(function (){
                 cargarTablaCierresDeBalance(id_entidad);
             });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
-        alert('El modal se ha cerrado');
+        // alert('El modal se ha cerrado');
         $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
         // Aquí puedes ejecutar cualquier función adicional
@@ -267,6 +267,50 @@ function procedimientoCierreCuentasDeBalance()
 	const dd = String(hoy.getDate()).padStart(2, '0');
 	const fechaActual = `${yyyy}-${mm}-${dd}`;
 	$('#fechaCierreBalance').val(fechaActual);
+
+    /*TIPO DE CAMBIO */
+
+    var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+    $.ajax({
+            url: enlace,
+            type: 'POST',
+            data: { fecha: fechaActual },
+            success: function(response) {
+                var resultado = JSON.parse(response);
+                // alert(resultado.tipo_cambio_fecha); 
+                // var tipo_cambio = resultado.tipo_cambio_fecha; 
+
+                var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+                if (tipo_cambio <= 0) {
+                    // Si no existe tipo de cambio
+                    swal({
+                        title: "Atención",
+                        text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+                        icon: "warning",
+                        button: "OK",
+                        dangerMode: true,
+                    });
+                    $('#tipoCambio').text(''); // Limpia el campo
+                    $('#btnRecalcularTipoCambio').hide();
+                    return; // Sale para no seguir validando
+                }
+                else
+                {
+                    // swal({
+                    //     title: "Atención",
+                    //     text: "tipo cambio",
+                    //     icon: "success",
+                    //     button: "OK",
+                    //     dangerMode: true,
+                    // });
+                        $('#tipoCambio').text(tipo_cambio);
+                }
+            }
+    });
+    /*TIPO DE CAMBIO */
+
+
     cargarDatosBalanceGeneral(id_entidad,fechaActual);
     $('#modalRegistroCierreDeBalance').modal({backdrop: 'static', keyboard: false})
     $('#modalRegistroCierreDeBalance').modal('show');  

@@ -561,7 +561,7 @@ class CierreDeResultados extends CI_Controller {
 				// 8. Registro de detalles del comprobante
 				switch ($i) {
 					case 1:
-
+						//registro de comprobante de resultado de ingreso
 						$saveComprobante = $this->registrarComprobante(
 						    $id_entidad,
 							$tipo_comprobante,
@@ -592,7 +592,7 @@ class CierreDeResultados extends CI_Controller {
 						);
 						break;
 					case 2:
-
+						//registro de comprobante de resultado de egreso
 						$saveComprobante = $this->registrarComprobante(
 						    $id_entidad,
 							$tipo_comprobante,
@@ -622,7 +622,7 @@ class CierreDeResultados extends CI_Controller {
 						);
 						break;
 					case 3:
-						
+						//registro de comprobante de resultado de ganancia o perdida
 						$saveComprobante = $this->registrarComprobante(
 						    $id_entidad,
 							$tipo_comprobante,
@@ -654,6 +654,48 @@ class CierreDeResultados extends CI_Controller {
 			}
 
 			// 9. Consolidar cuentas del cierre
+
+			$cuentasMayor = [
+
+				[$id_cuenta_ingreso, $codigo_cuenta_ingreso],
+				[$id_cuenta_egreso, $codigo_cuenta_egreso],
+			];
+
+			// ===============================
+			// 1) Procesar  COMPROBANTES
+			// ===============================
+			$cuentasConsolidadasComprobantes = [];
+			foreach ($cuentasMayor as [$id, $codigo]) {
+				$cuentasConsolidadasComprobantes = array_merge(
+					$cuentasConsolidadasComprobantes,
+					$this->CierresContables_model->getCuentasConMovimientoComprobanteByIdMayor(
+						$id_entidad,
+						$fecha_inicio,
+						$fecha_fin,
+						$id,
+						$codigo
+					)
+				);
+			}
+
+			foreach ($cuentasConsolidadasComprobantes as $cuenta) {
+				$this->Comprobantes_model->updateComprobante(
+					$cuenta->id_comprobante,
+					[
+						'estado'                => $estado_resultado,
+						'tipo_cierre'           => $tipo_cierre,
+						'fecha_modificacion'    => $fecha_actual,
+						'id_funcionario_update' => $id_usuario
+					]
+				);
+			}
+
+
+			// ===============================
+			// 2) Procesar DETALLE CUENTA
+			// ===============================
+
+
 			$cuentasConsolidadas = $this->CierresContables_model->getCuentasConMovimientoByIdMayor(
 				$id_entidad,
 				$fecha_inicio,
@@ -676,6 +718,7 @@ class CierreDeResultados extends CI_Controller {
 				$this->Comprobantes_model->updateDetalleComprobante(
 					$cuenta->id_detalle_cuenta,
 					[
+						
 						'estado_resultado'      => $estado_resultado,
 						'fecha_modificacion'    => $fecha_actual,
 						'id_funcionario_update' => $id_usuario
@@ -773,8 +816,8 @@ class CierreDeResultados extends CI_Controller {
 			if ($saldo != 0) {
 				$tipo_movimiento = ($saldo > 0) ? $tipoMovimientoPositivo : $tipoMovimientoNegativo;
 				$saldo           = ($saldo > 0) ? $saldo : $saldo * -1;
-				$saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
-
+				// $saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
+				$saldoUSD       = round($saldo/$tipo_cambio,2);
 				$datosDetalle = [
 					'id_entidad'                => $entidadId,
 					'id_comprobante'            => $comprobanteId,
@@ -792,6 +835,7 @@ class CierreDeResultados extends CI_Controller {
 		}
 
 		// Registro del asiento contable de cierre
+		$sumaTotalUSD       = round($sumaTotal/$tipo_cambio,2);
 		$datosDetalleCierre = [
 			'id_entidad'                => $entidadId,
 			'id_comprobante'            => $comprobanteId,
@@ -813,10 +857,13 @@ class CierreDeResultados extends CI_Controller {
 	private function registrarAsientoCierre($comprobanteId, $entidadId, $usuarioId, $estado, $idCuentaCierre, $idCuentaSaldoCierre, $total_resultado, $total_resultadousd,$tipo_cambio)
 	{
 		$importe    = abs($total_resultado);
-		$importeUSD = abs($total_resultadousd);
+		// $importeUSD = abs($total_resultadousd);
 
 		// Movimiento para la cuenta de cierre
 		$tipo_movimiento_cierre = ($total_resultado < 0) ? 'HB' : 'DB';
+
+		$importeUSD       = round($importe/$tipo_cambio,2);
+		
 		$this->Comprobantes_model->guardarDetalleComprobante([
 			'id_entidad'                => $entidadId,
 			'id_comprobante'            => $comprobanteId,

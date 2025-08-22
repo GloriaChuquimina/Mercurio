@@ -762,7 +762,8 @@ class CierreDeBalance extends CI_Controller {
 							$id_usuario,
 							$estado_balance,
 							'DB',
-							'HB'							
+							'HB',
+							$tipo_cambio_cierre,							
 						);
 						break;
 					case 2:
@@ -791,7 +792,8 @@ class CierreDeBalance extends CI_Controller {
 								$id_usuario,
 								$estado_balance,
 								'DB',
-								'HB'
+								'HB',
+								$tipo_cambio_cierre,
 							);
 						}
 						
@@ -822,7 +824,8 @@ class CierreDeBalance extends CI_Controller {
 							$id_usuario,
 							$estado_balance,
 							'HB',
-							'DB'
+							'DB',
+							$tipo_cambio_apertura,
 						);
 						break;
 				}
@@ -992,7 +995,8 @@ class CierreDeBalance extends CI_Controller {
 		$usuarioId, 
 		$estado_balance, 
 		$tipoMovimientoPositivo, 
-		$tipoMovimientoNegativo
+		$tipoMovimientoNegativo,
+		$tipo_cambio
 	){
 
 		// echo("<pre>");
@@ -1008,14 +1012,14 @@ class CierreDeBalance extends CI_Controller {
 				$tipo_movimiento = ($saldo > 0) ? $tipoMovimientoNegativo : $tipoMovimientoPositivo;
 				// $tipo_movimiento = ($saldo > 0) ? 'HB' : 'DB';
 				$saldo           = ($saldo > 0) ? $saldo : $saldo * -1;
-				$saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
-
+				// $saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
+				$saldoUSD        = round($saldo/$tipo_cambio,2);
 				$datosDetalle = [
 					'id_entidad'                => $entidadId,
 					'id_comprobante'            => $comprobanteId,
 					'id_cuenta'                 => $cuenta->id,
 					'tipo_movimiento'           => $tipo_movimiento,
-					'tipo_cambio'               => 6.96,
+					'tipo_cambio'               => $tipo_cambio,
 					'importe_moneda_nacional'   => $saldo,
 					'importe_moneda_extranjera' => $saldoUSD,
 					'glosa_cuenta'              => '',
@@ -1028,14 +1032,14 @@ class CierreDeBalance extends CI_Controller {
 		//PASIVO
 		foreach ($cuentasCierre1 as $cuenta) {
 			$saldo     = $cuenta->saldo_cuenta;
-			$saldoUSD  = $cuenta->saldo_cuenta_usd;
-
+			// $saldoUSD  = $cuenta->saldo_cuenta_usd;
+			$saldoUSD  = round($saldo/$tipo_cambio,2);
 			if ($saldo != 0) {
 				$tipo_movimiento = ($saldo > 0) ? $tipoMovimientoPositivo : $tipoMovimientoNegativo;
 				// $tipo_movimiento = ($saldo > 0) ? 'DB' : 'HB';
 				$saldo           = ($saldo > 0) ? $saldo : $saldo * -1;
-				$saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
-
+				// $saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
+				$saldoUSD        = round($saldo/$tipo_cambio,2);
 				// echo("TIPO MOVIMIENTO==>".$tipo_movimiento);
 
 				$datosDetalle = [
@@ -1043,7 +1047,7 @@ class CierreDeBalance extends CI_Controller {
 					'id_comprobante'            => $comprobanteId,
 					'id_cuenta'                 => $cuenta->id,
 					'tipo_movimiento'           => $tipo_movimiento,
-					'tipo_cambio'               => 6.96,
+					'tipo_cambio'               => $tipo_cambio,
 					'importe_moneda_nacional'   => $saldo,
 					'importe_moneda_extranjera' => $saldoUSD,
 					'glosa_cuenta'              => '',
