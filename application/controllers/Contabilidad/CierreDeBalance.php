@@ -500,7 +500,7 @@ class CierreDeBalance extends CI_Controller {
 				$nivel,
 				$tipo1
 			);
-			echo("<pre>");
+	echo("<pre>");
 			print_r($cuentasActivoOrdenadas);
 			echo("</pre>");
 			echo("SumaActivo=>".$sumaActivo."<br>");
@@ -553,7 +553,7 @@ class CierreDeBalance extends CI_Controller {
 			echo("</pre>");
 			echo("Acreedoras=>".$sumaAcreedor."<br>");
 			echo("AcreedorasUSD=>".$sumaAcreedorUSD."<br>");
-			die();
+			//die();
 			$totalAcreedor=count($cuentasAcreedorasOrdenadas);
 
 			$max_filas  = $totalActivo+$totalPasivo+$totalPatrimonio+$totalDeudor+$totalAcreedor;
