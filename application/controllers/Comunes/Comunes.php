@@ -175,6 +175,16 @@ class Comunes extends CI_Controller
 	    }
    		 echo $option;
 	}
+	function cargarGestion()
+	{
+	    $filas = $this->Comunes_model->getGestion();
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->gestion."'>".$fila->gestion."</option>";
+	    }
+   		 echo $option;
+	}
 	
 }
 

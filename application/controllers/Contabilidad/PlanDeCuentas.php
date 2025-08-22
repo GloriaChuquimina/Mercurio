@@ -99,7 +99,7 @@ class PlanDeCuentas extends CI_Controller {
 		$length  = intval($this->input->get("length"));	
 		$data    = array();
 		$num     = 1;
-
+		$mayores = "";
 		foreach ($ordenadas as $fila)
 		{   
 			if($fila['estado']==='ACT')
@@ -108,9 +108,6 @@ class PlanDeCuentas extends CI_Controller {
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
                             <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-edit'></i></button>     
                         </span>	
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-                            <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'><i class='fas fa-trash-alt'></i></button>     
-                        </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
                             <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."')\"><i class='fas fa-plus-circle'></i></button>     
                         </span>				
@@ -118,6 +115,25 @@ class PlanDeCuentas extends CI_Controller {
                             <button type='button' class='btn btn-block btn-success btn-sm' onclick=\"agregarCuentasAuxiliares(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-list-alt'></i></button>     
                         </span>				
                         ";	
+
+				// Códigos que NO deben poder eliminarse
+				$protegidos = [1,2,3,4,5,6,7,8,9];
+					
+
+				if ( !in_array($fila['codigo'], $protegidos) ) {
+					$mayores = "
+						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
+							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'>
+								<i class='fas fa-trash-alt'></i>
+							</button>     
+						</span>";
+				}
+				else
+				{
+					$mayores ="";
+					// echo($fila['codigo']);		
+				}
+				
 			}
 			else
 			{
@@ -174,7 +190,7 @@ class PlanDeCuentas extends CI_Controller {
 			}
 			
 			$data[] = array(
-				$boton,
+				$boton.$mayores,
 				$num++,
 				// $indentacion."<span class='badge badge-secondary'>".$codigo."</span>",
 				"<span class='badge badge-secondary'>".$codigo."</span>",

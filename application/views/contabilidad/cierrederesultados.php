@@ -37,6 +37,7 @@
             </div>
             <!-- SECCION ENTIDAD SELECCIONADA -->
             <div class="card" style="background-color: #aecaf0ff; border-left: 4px solid #0d56c4ff;" id="entidadSeleccionada" style="display: none">
+                <input type ="hidden" class="form-control" id="id_entidad" name="id_entidad">
                 <div class="card-body p-3">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -65,13 +66,17 @@
                             </div>
                         </div>
                         <div class="col-md-4 text-right">
-                        <span class="badge badge-primary">XXX cuentas disponibles</span>
+                        <!-- <span class="badge badge-primary">XXX cuentas disponibles</span> -->
+                          <button class = "btn btn-primary mr-2"
+                                onClick = "procedimientoCierreCuentasDeResultados()">
+                            <i class="mr-1">⏳</i> Procesar Cierre de Resultados
+                          </button>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- FILTROS Y OPCIONES -->
-            <div class="card card-primary card-outline">
+            <!-- <div class="card card-primary card-outline">
                 <div class="card-header">
                   <h3 class="card-title">
                     <i class="mr-2">🔍</i>
@@ -90,7 +95,6 @@
                   <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
 
                   <div class="row align-items-center">
-                    <!-- Radio "Al" -->
                     <div class="col-sm-3 col-md-auto">
                         <div class="form-group">
                           <label>
@@ -123,7 +127,6 @@
                                   name="txtCuenta"
                               />
                               <datalist id='listaCuentas'></datalist>
-                              <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
                               <div class="input-group-append">
                                   <button
                                   type="button"
@@ -150,55 +153,35 @@
                               onClick = "procedimientoCierreCuentasDeResultados()">
                           <i class="mr-1">⏳</i> Procesar Cierre de Resultados
                         </button>
-                        <!-- <button class="btn btn-success mr-2"
-                                onClick="generarReporteLibroMayor()">
-                          <i class="mr-1">📄</i> Exportar PDF
-                        </button> -->
                     </div>  
 
                   </div>
-
-                  <!-- Botones -->
-
-                   
-
-                  <!-- <div class="row mt-4">
-                    <div class="col-12 text-center text-md-right">
-                      <button class="btn btn-primary btn-sm mr-1" onClick="cargarDatosBalanceGeneral()">
-                        🔍 Generar Balance
-                      </button>
-                      <button class="btn btn-success btn-sm mr-1" onClick="ReporteBalanceGeneralPDF1()">
-                        📄 Reporte 1
-                      </button>
-                      <button class="btn btn-warning btn-sm" onClick="ReporteBalanceGeneralPDF2()">
-                        📄 Reporte 2
-                      </button>
-                    </div>
-                  </div> -->
                 </div>                
-            </div>
+            </div> -->
+            <!-- TABLA CIERRE DE RESULTADOS -->
             <div class="card">
                 <div class="card-header bg-gradient-secondary">
                   <h3 class="card-title text-white">
-                    <i class="mr-2">⚖️</i>
-                    CIERRES DE ESTADOS DE RESULTADOS
+                    <i class="mr-2">📉 - 📈</i>
+                    CIERRES DE RESULTADOS
                   </h3>
                   <div class="card-tools">
-                    <span class="badge badge-light">
+                    <!-- <span class="badge badge-light">
                       Período: {dateFrom} al {dateTo}
-                    </span>
+                    </span> -->
                   </div>
                 </div>
                 <div class="card-body p-0">
                   <div class="table-responsive">
-                    <table id="tablaBalanceGeneral" class="table table-striped table-hover" style="width: 100%;">
+                    <table id="tablaCierreResultados" class="table table-striped table-hover" style="width: 100%;">
                         <thead class="bg-dark">
                         <tr>
-                            <th style="color: white;">CÓDIGO</th>
-                            <th style="color: white;">DESCRIPCIÓN</th>
-                            <th style="color: white; text-align: right;">-</th>
-                            <th style="color: white; text-align: right;">-</th>
-                            <th style="color: white; text-align: right;">IMPORTE</th>
+                            <th style="color: white;">NÚMERO</th>
+                            <th style="color: white;">ENTIDAD</th>
+                            <th style="color: white;">FECHA CIERRE</th>
+                            <th style="color: white;">DESCRIPCION</th>
+                            <th style="color: white;">USUARIO</th>
+                            <th style="color: white;">ESTADO</th>
                         </tr>
                         </thead>
                     </table>
@@ -208,13 +191,13 @@
                   <div class="row">
                     <div class="col-md-6">
                       <p class="text-muted">
-                        Empresa: • Período:  al  • 
-                        cuentas mostradas
+                        Empresa •  • 
+                        cuentas de Ingreso y Gasto
                       </p>
                     </div>
                     <div class="col-md-6 text-right">
                       <small class="text-muted">
-                        Estado: Balanceado : Desbalanceado • Generado:
+                        Estado Generado
                       </small>
                     </div>
                   </div>
@@ -237,7 +220,7 @@
                         </h7>
                     </div>
                     <div class="col-md-4 text-right">
-                        <!-- <span class="badge badge-warning">Tipo Cambio:<label id="tipoCambio">...</label></span> -->
+                        <span class="badge badge-warning">Tipo Cambio:<label id="tipoCambio">...</label></span>
                         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
                         <span>&times;</span>
                         </button>
@@ -245,7 +228,9 @@
                 </div>
             </div>
             <div class="modal-body">
-                <form id="formularioCierreResultados">
+              <form id="formularioCierreResultados">
+                  <input  type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+                  <input  type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
                   <div class="card card-outline card-primary">
                     <div class="card-header">
                       <h7 class="card-title">
@@ -254,52 +239,67 @@
                       </h7>
                     </div>
                     <div class="card-body">
-                      <div class="row">
-                          <div class="col-sm-3 col-md-auto">
-                              <div class="form-group">
-                                <label>
-                                  <i class="text-danger">*</i>
-                                  <strong>Fecha hasta la que se considera la gestión:</strong>
-                                </label>
-                                <input
-                                  id="fechaCierreResultado"
-                                  name="fechaCierreResultado"
-                                  placeHolder="Fecha Cierre"
-                                  type="date"
-                                  class="form-control"
-                                />
-                              </div> 
+                      <div class="row align-items-end">
+                        <!-- Fecha -->
+                        <div class="col-md-3 col-sm-6">
+                          <div class="form-group mb-0">
+                            <label>
+                              <i class="text-danger">*</i>
+                              <strong>Fecha hasta la que se considera la gestión:</strong>
+                            </label>
+                            <input
+                              id="fechaCierreResultado"
+                              name="fechaCierreResultado"
+                              placeHolder="Fecha Cierre"
+                              type="date"
+                              class="form-control"
+                            />
                           </div>
-                          <div class="col-sm-12 col-md-auto">
-                              <div class="form-group">
-                                  <label>
-                                  <i class="text-danger">*</i>
-                                  <strong>  Cuenta contable que se considera para resgistrar los Resultados de la Gestión:</strong>
-                                  </label>
-                                  <div class="input-group">
-                                      <input
-                                          type="text"
-                                          class="form-control"
-                                          placeholder="Buscar cuenta..."
-                                          list="listaCuentas"
-                                          id="txtCuenta" 
-                                          name="txtCuenta"
-                                      />
-                                      <datalist id='listaCuentas'></datalist>
-                                      <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
-                                      <div class="input-group-append">
-                                          <button
-                                          type="button"
-                                          class="btn btn-warning"
-                                          onclick="listaCuentasBusqueda();"
-                                          >
-                                          <i>🔍</i>
-                                          </button>
-                                      </div>
-                                  </div>
+                        </div>
+
+                        <!-- Cuenta contable -->
+                        <div class="col-md-6 col-sm-12">
+                          <div class="form-group mb-0">
+                            <label>
+                              <i class="text-danger">*</i>
+                              <strong>Cuenta contable que se considera para registrar los Resultados de la Gestión:</strong>
+                            </label>
+                            <div class="input-group">
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Buscar cuenta..."
+                                list="listaCuentas"
+                                id="txtCuenta"
+                                name="txtCuenta"
+                              />
+                              <datalist id="listaCuentas"></datalist>
+                              <input type="hidden" name="idCuenta" id="idCuenta" />
+                              <div class="input-group-append">
+                                <button
+                                  type="button"
+                                  class="btn btn-warning"
+                                  onclick="listaCuentasBusqueda();"
+                                >
+                                  <i>🔍</i>
+                                </button>
                               </div>
-                          </div>                          
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Botón -->
+                        <div class="col-md-3 col-sm-6 text-center">
+                          <button
+                            type="button"
+                            class="btn btn-warning mt-4"
+                            onclick="cerrarCuentaDeResultados();"
+                          >
+                            <i>⏳</i> Procesar Cierre
+                          </button>
+                        </div>
                       </div>
+
                       <div class="row" id="auxiliares_cuenta" style="display:none;">
                           <div class="col-md-12">
                               <div class="form-group">
@@ -331,7 +331,7 @@
                               </div>
                           </div>
                       </div>
-                      <div class="row">
+                      <!-- <div class="row">
                           <div class="col-md-9">
                               <div class="form-group">
                                   <label>
@@ -361,7 +361,7 @@
                                   </button>
                               </div>
                           </div>                          
-                      </div>
+                      </div> -->
                     </div>  
                   </div>
                   <!-- TABLA ESTADO DE CUENTA-->
@@ -470,10 +470,10 @@
                   <i class="mr-1">❌</i>
                   Cerrar
               </button>
-              <button type="button" class="btn btn-info" onclick="guardarRegistroCuenta();">
+              <!-- <button type="button" class="btn btn-info" onclick="guardarRegistroCuenta();">
                   <i class="mr-1">💾</i>
                   Guardar Registro
-              </button>
+              </button> -->
             </div>
       </div>
   </div>
@@ -496,9 +496,8 @@
                     <table class="table table-striped table-hover" id="tbl_CuentasContables" style="width: 100%;">
                       <thead class="bg-dark">
                         <tr>
-                          <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th>
-                          <!-- <th style="color: white; text-align: center;">SELECCIONAR</th> -->
-                          <th style="color: white; text-align: center;">OPCIONES</th>
+                          <!-- <th><input type='checkbox' value='0' name = 'opcionSeleccionar' id='opcionSeleccionar'> &nbsp;</th> -->
+                          <th style="color: white; text-align: center;">SELECCIONAR</th>
                           <th style="color: white;">CÓDIGO</th>
                           <th style="color: white;">DESCRIPCIÓN</th>
                           <th style="color: white;">NIVEL</th>

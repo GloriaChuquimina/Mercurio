@@ -32,9 +32,10 @@ $(function (){
                 $('#nombre_entidad').text(nombre_entidad);
                 $('#id_entidad').val(id_entidad);
                 $('#cardEntidad').find('[data-card-widget="collapse"]').click();
+                cargarTablaCierresDeBalance(id_entidad);
             });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
-        alert('El modal se ha cerrado');
+        // alert('El modal se ha cerrado');
         $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
         // Aquí puedes ejecutar cualquier función adicional
@@ -76,6 +77,59 @@ $(function (){
             this.value = 0; // Si es menor que 0, lo ajusta a 0
         }
     });
+
+
+    /*CIERRE*/
+    // $('#fechaCierreBalance').change(function(){
+    //     fecha = $(this).val();
+    //     id_entidad=$('#id_entidad_registro').val();
+    //     cargarDatosBalanceGeneral(id_entidad,fecha);
+    // });
+
+     $('#fechaCierreBalance').change(function(){
+            fecha = $(this).val();
+            id_entidad=$('#id_entidad_registro').val();            
+            var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+            $.ajax({
+                     url: enlace,
+                    type: 'POST',
+                    data: { fecha: fecha },
+                    success: function(response) {
+                        var resultado = JSON.parse(response);
+                        // alert(resultado.tipo_cambio_fecha); 
+                        // var tipo_cambio = resultado.tipo_cambio_fecha; 
+
+                        var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+                        if (tipo_cambio <= 0) {
+                            // Si no existe tipo de cambio
+                            swal({
+                                title: "Atención",
+                                text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+                                icon: "warning",
+                                button: "OK",
+                                dangerMode: true,
+                            });
+                            $('#tipoCambio').text(''); // Limpia el campo
+                            $('#btnRecalcularTipoCambio').hide();
+                            return; // Sale para no seguir validando
+                        }
+                        else
+                        {
+                            // swal({
+                            //     title: "Atención",
+                            //     text: "tipo cambio",
+                            //     icon: "success",
+                            //     button: "OK",
+                            //     dangerMode: true,
+                            // });
+                             $('#tipoCambio').text(tipo_cambio);
+                        }
+                    }
+            });
+            cargarDatosBalanceGeneral(id_entidad,fecha);
+    });
+
    
 });
 
@@ -168,40 +222,20 @@ function cargarCuentas(marcar){
         },
     });
 }
-function cargarDatosBalanceGeneral(){
-    // alert("STEPH");
-    var id_entidad = $('#id_entidad').val();
-    var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
-    var fecha_desde = $('#fechaDesde').val();
-    var fecha_hasta = $('#fechaHasta').val();
-    var fecha_al     = $('#fechaAl').val();  
-    var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
-    var valorCheckCero    = $('input[name="saldoCero"]').is(':checked');
-    var moneda         = $('#tipo_moneda').val();
-    var nivel          = $('#nivel').val();
-    if(nivel == null || nivel.length === 0 || nivel <= 0)
-    {
-        nivel= 0;
-    }
-    var enlace = base_url + "Contabilidad/BalanceGeneral/cargarDatosBalanceGeneral";
-    $('#tablaBalanceGeneral').DataTable({
+function cargarDatosBalanceGeneral(id_entidad,fecha){
+    // alert("STEPH");  
+    var enlace = base_url + "Contabilidad/CierreDeBalance/cargarDatosBalanceGeneral";
+    $('#tablaBalanceGeneralCierre').DataTable({
         destroy: true,
         "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
-        "iDisplayLength": 50,
+        "iDisplayLength": 10,
         "font-size":5,
         "ajax": {
             type: "POST",
             url: enlace,
             data:{          
                 id_entidad:id_entidad,
-                cuentasSeleccionadas:cuentasSeleccionadas,
-                fecha_desde:fecha_desde,
-                fecha_hasta:fecha_hasta,
-                fecha_al:fecha_al,
-                idSeleccionado:idSeleccionado,
-                valorCheckCero:valorCheckCero,
-                moneda:moneda,
-                nivel:nivel
+                fecha_cierre:fecha
             },
             dataSrc: function(json) {
                 $('.txtTotalImporteActivo').text(json.totalimporteActivo);
@@ -220,196 +254,70 @@ function cargarDatosBalanceGeneral(){
          ]
     });
 }
-// function ReporteBalanceGeneralPDF1()
-// {
-//     var id_entidad   = $('#id_entidad').val();
-//     var cuentas      = $('#id_cuenta_seleccionadas').val();
-//     if (cuentas == null || cuentas.length === 0) {
-// 		cuentas = '0'; // o algún valor por defecto
-// 	} 
-//     var fecha_al     = $('#fechaAl').val();  
-//     var fecha_inicio = $('#fechaDesde').val();
-//     var fecha_fin    = $('#fechaHasta').val();
-
-//     // var alactivo     = $('input[name="radioAl"]:checked').val();
-//     // var rangoactivo  = $('input[name="radioEntre"]:checked').val();
-
-//     var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
-//     // var valorCheckCero = $('input[name="saldoCero"]:checked').val();
-//     var valorCheckCero    = $('input[name="saldoCero"]').is(':checked');
-//     var moneda         = $('#tipo_moneda').val();
-//     var nivel          = $('#nivel').val();
-    
-//     var mensaje      ="";
-//     var sw=0;
-//     // alert(id_entidad);
-
-//     if(nivel == null || nivel.length === 0 || nivel <= 0)
-//     {
-//         nivel= 0;
-//     }
-    
-//     if(id_entidad == null || id_entidad.length === 0){
-//         // alert("SELECCIONE UNA ENTIDAD POR FAVOR");
-//         var mensaje ="SELECCIONE UNA ENTIDAD POR FAVOR";
-//         swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
-//         return;
-//     }
-//     else
-//     {
-//         sw=0;
-//         if(idSeleccionado == 'radioAl')
-//         {
-//             if(fecha_al == null || fecha_al.length === 0){
-//                fecha_inicio='01/01/1900';
-//                 fecha_fin='01/01/1900';
-//                 mensaje = "SELECCIONE UNA FECHA VÁLIDA POR FAVOR";
-//                 sw=1;
-//             }
-//             else
-//             {
-//                 fecha_inicio=fecha_al;
-//                 fecha_fin=fecha_al;
-//             }
-//         }
-//         else if(idSeleccionado == 'radioEntre')
-//         {
-//             if((fecha_inicio=='' && fecha_fin =='')|| (fecha_inicio.length === 0 && fecha_fin.length === 0)){
-                
-//                 mensaje = "SELECCIONE UN RANGO DE FECHA VÁLIDO POR FAVOR";
-//                 sw=1;
-//             }
-//             else
-//             {
-//                 fecha_al=fecha_inicio;
-//             }
-//         }
-//         if(sw==0)
-//         {
-//             $('#divPDF').html('');
-//             var iframe = document.createElement("iframe");
-//                 iframe.width = '100%';
-//                 iframe.height = '700px';
-//                 iframe.src = base_url+'Contabilidad/BalanceGeneral/ReporteBalanceGeneralPDF_1/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+valorCheckCero+"/"+idSeleccionado+"/"+fecha_al+"/"+nivel+"/"+moneda;
-
-//                 $('#divPDF').append(iframe);
-//             $('#divCapa').addClass('overlay');    
-//             $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
-//             $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
-//             $('#pdfModal').show();   
-            
-//         }
-//         else
-//         {
-//             // alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
-//             // var mensaje ="SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR";
-//             swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
-//             return;
-//         }
-//     }
-    
-// }
-// function ReporteBalanceGeneralPDF2()
-// {
-//     var id_entidad   = $('#id_entidad').val();
-//     var cuentas      = $('#id_cuenta_seleccionadas').val();
-//     if (cuentas == null || cuentas.length === 0) {
-// 		cuentas = '0'; // o algún valor por defecto
-// 	} 
-//     var fecha_al     = $('#fechaAl').val();  
-//     var fecha_inicio = $('#fechaDesde').val();
-//     var fecha_fin    = $('#fechaHasta').val();
-
-//     // var alactivo     = $('input[name="radioAl"]:checked').val();
-//     // var rangoactivo  = $('input[name="radioEntre"]:checked').val();
-
-//     var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
-//     // var valorCheckCero = $('input[name="saldoCero"]:checked').val();
-//     var valorCheckCero    = $('input[name="saldoCero"]').is(':checked');
-//     var moneda         = $('#tipo_moneda').val();
-//     var nivel          = $('#nivel').val();
-    
-//     var mensaje      ="";
-//     var sw=0;
-//     // alert(id_entidad);
-
-//     if(nivel == null || nivel.length === 0 || nivel <= 0)
-//     {
-//         nivel= 0;
-//     }
-    
-//     if(id_entidad == null || id_entidad.length === 0){
-//         // alert("SELECCIONE UNA ENTIDAD POR FAVOR");
-//         var mensaje ="SELECCIONE UNA ENTIDAD POR FAVOR";
-//         swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
-//         return;
-//     }
-//     else
-//     {
-//         sw=0;
-//         if(idSeleccionado == 'radioAl')
-//         {
-//             if(fecha_al == null || fecha_al.length === 0){
-//                fecha_inicio='01/01/1900';
-//                 fecha_fin='01/01/1900';
-//                 mensaje = "SELECCIONE UNA FECHA VÁLIDA POR FAVOR";
-//                 sw=1;
-//             }
-//             else
-//             {
-//                 fecha_inicio=fecha_al;
-//                 fecha_fin=fecha_al;
-//             }
-//         }
-//         else if(idSeleccionado == 'radioEntre')
-//         {
-//             if((fecha_inicio=='' && fecha_fin =='')|| (fecha_inicio.length === 0 && fecha_fin.length === 0)){
-                
-//                 mensaje = "SELECCIONE UN RANGO DE FECHA VÁLIDO POR FAVOR";
-//                 sw=1;
-//             }
-//             else
-//             {
-//                 fecha_al=fecha_inicio;
-//             }
-//         }
-//         if(sw==0)
-//         {
-//             $('#divPDF').html('');
-//             var iframe = document.createElement("iframe");
-//                 iframe.width = '100%';
-//                 iframe.height = '700px';
-//                 iframe.src = base_url+'Contabilidad/BalanceGeneral/ReporteBalanceGeneralPDF_2/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+valorCheckCero+"/"+idSeleccionado+"/"+fecha_al+"/"+nivel+"/"+moneda;
-
-//                 $('#divPDF').append(iframe);
-//             $('#divCapa').addClass('overlay');    
-//             $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
-//             $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
-//             $('#pdfModal').show();   
-            
-//         }
-//         else
-//         {
-//             // alert("SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR");
-//             // var mensaje ="SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR";
-//             swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
-//             return;
-//         }
-//     }
-    
-// }
 
 // FUNCIONES PARA EL CIERRE DE BALANCE
 function procedimientoCierreCuentasDeBalance()
 {
-    
-    // cargarDatosBalanceGeneral();
+    $('#nombreEntidad').text(nombre_entidad);
+	var id_entidad = $('#id_entidad').val();
+    $('#id_entidad_registro').val(id_entidad);
+	const hoy = new Date();
+	const yyyy = hoy.getFullYear();
+	const mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
+	const dd = String(hoy.getDate()).padStart(2, '0');
+	const fechaActual = `${yyyy}-${mm}-${dd}`;
+	$('#fechaCierreBalance').val(fechaActual);
+
+    /*TIPO DE CAMBIO */
+
+    var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+    $.ajax({
+            url: enlace,
+            type: 'POST',
+            data: { fecha: fechaActual },
+            success: function(response) {
+                var resultado = JSON.parse(response);
+                // alert(resultado.tipo_cambio_fecha); 
+                // var tipo_cambio = resultado.tipo_cambio_fecha; 
+
+                var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+                if (tipo_cambio <= 0) {
+                    // Si no existe tipo de cambio
+                    swal({
+                        title: "Atención",
+                        text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+                        icon: "warning",
+                        button: "OK",
+                        dangerMode: true,
+                    });
+                    $('#tipoCambio').text(''); // Limpia el campo
+                    $('#btnRecalcularTipoCambio').hide();
+                    return; // Sale para no seguir validando
+                }
+                else
+                {
+                    // swal({
+                    //     title: "Atención",
+                    //     text: "tipo cambio",
+                    //     icon: "success",
+                    //     button: "OK",
+                    //     dangerMode: true,
+                    // });
+                        $('#tipoCambio').text(tipo_cambio);
+                }
+            }
+    });
+    /*TIPO DE CAMBIO */
+
+
+    cargarDatosBalanceGeneral(id_entidad,fechaActual);
     $('#modalRegistroCierreDeBalance').modal({backdrop: 'static', keyboard: false})
     $('#modalRegistroCierreDeBalance').modal('show');  
 }
 function cerrarCuentaDeBalance()
 {
-    alert("Steph");  
+    // alert("Steph");  
 
     mensaje = "¿Confirma que desea registrar el cierre de cuentas de balance? Tenga en cuenta que, una vez realizado, este proceso no podrá revertirse.";
     boton   = "Guardar";
@@ -454,6 +362,23 @@ function cerrarCuentaDeBalance()
                 }
             });
         }
+    });
+}
+
+function cargarTablaCierresDeBalance(id_entidad)
+{
+    var enlace = base_url + "Contabilidad/CierreDeBalance/cargarCierres";
+    $('#tablaCierresDeBalance').DataTable({
+        destroy: true,
+        "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
+        "iDisplayLength": 40,
+        "font-size":8,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            data: { id_entidad: id_entidad 
+            },         
+        },   
     });
 }
 

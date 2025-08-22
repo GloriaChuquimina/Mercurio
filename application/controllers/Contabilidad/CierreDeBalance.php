@@ -49,51 +49,248 @@ class CierreDeBalance extends CI_Controller {
 		$this->load->view('contabilidad/cierredebalance',$dato);
 		$this->load->view('inicio/pie');
 	}
-	public function principalComprobante($entidad=-1,$tipo_comprobante=-1)
+	public function cargarCierres()
 	{
-
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "MERCURIO";
-		$dato['tipo_sistema']  = "Sistema Contable";
+		$id_usuario  = $this->session->userdata('id_usuario');
+		$tipo_cierre = "CIB";
+		$id_entidad  = $this->input->post('id_entidad');
+		$filas       = $this->CierresContables_model->getCierres($tipo_cierre,$id_entidad);
 		
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+
+		foreach ($filas as $fila)
+		{   
+			// $boton   = "
+            //             <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
+            //                 <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarEntidad(". $fila->id . ",'".$fila->sigla."','".$fila->nombre."')\"><i class='fas fa-edit'></i></button>     
+            //             </span>	
+            //             <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
+            //                 <button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaEntidad(". $fila->id . ")'><i class='fas fa-trash-alt'></i></button>     
+            //             </span>	
+            //             ";	
+			$entidad      = descripcion_nombre_entidad($fila->id_entidad);	
+			$gestion      = $fila->gestion;
+			$fecha_cierre = formato_fecha($fila->fecha_cierre);
+			$descripcion  = $fila->descripcion;
+			$usuario      = datos_persona_nombre2($fila->id_usuario_registro);
+			$estado       = getValor2Configuraciones("ESTADO REGISTRO", $fila->estado);
+
+
+			$data[] = array(
+				// $boton,
+				$num++,
+				$entidad,
+				$fecha_cierre,
+				$descripcion,
+				$usuario,
+				$estado
+			);
+		}
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($filas),
+			"recordsFiltered" => count($filas),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
+	}
+	public function cargarDatosBalanceGeneral()
+    {
+		$id_entidad            = $this->input->post('id_entidad');
+		$fecha_cierre          = $this->input->post('fecha_cierre');
+		$fecha_fin             = $this->input->post('fecha_cierre');
+		$fecha_inicio  		   = primerDiaDelAnio($fecha_cierre);
+		// $idSeleccionado        = $this->input->post('idSeleccionado');
+		$idSeleccionado		   = 'radioAl';	
+		$fecha_al     		   = $this->input->post('fecha_cierre');
+		$valorCheckCero        = true;
+		$moneda                = 'BOB';
+		$nivel				   = 0;
+		$saldoCero             = true;//para excluir los saldos cuentas en cero de cuentas de orden 
+
+		/*CUENTAS PARA EL REPORTE*/
+
+		$codigo_activo			   = 1;
+		$codigo_pasivo			   = 2;
+		$codigo_patrimonio	   	   = 3;
+		$codigo_cuentas_deudoras   = 6;
+		$codigo_cuentas_acreedoras = 7;
+		$id_activo                 = getIdCuenta($codigo_activo);
+		$id_pasivo                 = getIdCuenta($codigo_pasivo);
+		$id_patrimonio             = getIdCuenta($codigo_patrimonio);		
+		$id_cuentas_deudoras   	   = getIdCuenta($codigo_cuentas_deudoras);
+		$id_cuentas_acreedoras 	   = getIdCuenta($codigo_cuentas_acreedoras);
+
+
+		if($valorCheckCero === true){
+			$excluirCuentasEnCero= false;
+		}
+		else{
+			$excluirCuentasEnCero= true;
+		}
+
+		if($nivel== 0)
+		{
+			$nivel=getNivelMaximo();
+		}
+
+		$whereFecha = "";
+		if($idSeleccionado == 'radioAl'){
+			$whereFecha = " AND fecha_comprobante <='$fecha_al' ";
+		}
+		elseif($idSeleccionado == 'radioEntre'){
+			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_inicio' AND '$fecha_fin' ";
+		}
+
+		$tipo_cuenta_deudor="deudor";
+		$tipo_cuenta_acreedor="acreedor";
+
+		$tipo_cuenta_balance="balance";
+		$tipo_cuenta_orden="orden";
+
+		if($moneda === 'BOB'){
+			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor);
+			// echo("<pre>");
+			// echo("CUENTAS DE ORDEN DEUDORAS <br>");
+			// print_r($cuentas_acreedoras);
+			// echo("</pre>");
+			// die();
+		}
+		elseif ($moneda === 'USD') {
+
+			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha,$tipo_cuenta_acreedor);
+			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor);
+			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor);
+		}
 		
-		$id_usuario = $this->session->userdata('id_usuario');
-		$dato['rolescero'] = $this->session->userdata('rolescero');
-		$dato['roles']  = $this->session->userdata('roles');
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
+		/*ORDENANDO CUENTAS*/
+		// $cuentas_activo1 		= json_decode(json_encode($cuentas_activo), true);		
+		list($cuentasOrdenadasActivo, $sumaTotalGlobalActivo, $sumaTotalGlobalActivoUSD) = $this->ordenarCuentas(
+				$cuentas_activo,
+				$saldoCero,
+				$nivel,
+				$tipo_cuenta_balance
+			);
 
-		$titulo = "Gestión de Comprobantes";		
-		$dato['titulo'] = $titulo;
-		$dato['entidad'] = $entidad;
-		$dato['tipo_comprobante'] =$tipo_comprobante;
+		$total_activo			= count($cuentasOrdenadasActivo);
+		/*CUENTAS PASIVO*/
 
-		$this->load->view('inicio/cabecera',$dato);
-		$this->load->view('inicio/menu',$dato);
-		$this->load->view('contabilidad/cierredebalance',$dato);
-		$this->load->view('inicio/pie');
-	}
-	public function registroComprobante($entidad,$accion='nuevo',$id_comprobante=0)
-	{
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_usuario');		
-		$dato['nombre_sistema']  = "MERCURIO";
-		$dato['tipo_sistema']  = "Sistema Contable";
-		$id_usuario = $this->session->userdata('id_usuario');
-		$dato['rolescero'] = $this->session->userdata('rolescero');
-		$dato['roles']  = $this->session->userdata('roles');
-		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
-		$dato['nombre_entidad']  = descripcion_nombre_entidad($entidad);
-		$dato['entidad']  = $entidad;
-		$dato['accion']  = $accion;
-		$dato['id_comprobante']  = $id_comprobante;
+		list($cuentasOrdenadasPasivo, $sumaTotalGlobalPasivo, $sumaTotalGlobalPasivoUSD) = $this->ordenarCuentas(
+				$cuentas_pasivo,
+				$saldoCero,
+				$nivel,
+				$tipo_cuenta_balance
+			);
+		$total_pasivo  		    = count($cuentasOrdenadasPasivo);
 
-		$titulo = "Comprobante Contable";		
-		$dato['titulo'] = $titulo;
+		/*CUENTAS PATRIMONIO*/
+		list($cuentasOrdenadasPatrimonio, $sumaTotalGlobalPatrimonio, $sumaTotalGlobalPatrimonioUSD) = $this->ordenarCuentas(
+				$cuentas_patrimonio,
+				$saldoCero,
+				$nivel,
+				$tipo_cuenta_balance
+			);
+		$total_patrimonio			   = count($cuentasOrdenadasPatrimonio);
+		$sumaTotalGlobalPasivo 		   = $sumaTotalGlobalPasivo + $sumaTotalGlobalPatrimonio;
+		$total_pasivopatrimonio 	   = $total_pasivo+$total_patrimonio; 
+		/*CUENTAS DE ORDEN DEUDORAS*/
+		list($cuentasOrdenadasDeudoras, $sumaTotalGlobalDeudoras, $sumaTotalGlobalDeudorasUSD) = $this->ordenarCuentas(
+				$cuentas_deudoras,
+				$saldoCero,
+				$nivel,
+				// 2,
+				$tipo_cuenta_orden
+			);
+		$total_deudoras			     = count($cuentasOrdenadasDeudoras);
+		/*CUENTAS DE ORDEN ACREEDORAS*/		
+		list($cuentasOrdenadasAcreedoras, $sumaTotalGlobalAcreedoras, $sumaTotalGlobalAcreedorasUSD) = $this->ordenarCuentas(
+				$cuentas_acreedoras,
+				$saldoCero,
+				$nivel,
+				$tipo_cuenta_orden
+			);
+		$total_acreedoras             = count($cuentasOrdenadasAcreedoras);
+		$max_filas				       = $total_activo+$total_pasivopatrimonio+$total_deudoras+$total_acreedoras;
 
-		$this->load->view('inicio/cabecera',$dato);
-		$this->load->view('inicio/menu',$dato);		
-		$this->load->view('contabilidad/registro_comprobante',$dato); //cuerpo
-		$this->load->view('inicio/pie');
-	}
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		// $num     = 1;
+
+		$cuentasUnidas = array_merge($cuentasOrdenadasActivo,$cuentasOrdenadasPasivo, $cuentasOrdenadasPatrimonio,$cuentasOrdenadasDeudoras,$cuentasOrdenadasAcreedoras);
+
+		foreach ($cuentasUnidas as $cuenta) {
+			$valor_cero='';
+			$valor1=0;
+			$valor2=0;
+			$valor3=0;
+			$nivel							= $cuenta['nivel'];
+			$indentacion_invertida          = $cuenta['indentacion_invertida'];
+			$codigo            			    = $cuenta['codigo'];
+			$descripcion 					= $cuenta['descripcion'];
+			$saldo_cuenta     	    		= $cuenta['saldo_cuenta'] ? number_format($cuenta['saldo_cuenta'], 2, '.', ',') : '';
+			$total_cuenta    	    		= $cuenta['importe_total'] ? number_format($cuenta['importe_total'], 2, '.', ',') : '0';
+			$indentacion 					= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $cuenta['indentacion']);
+			$indentacion_invertida 			= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $cuenta['indentacion_invertida']);
+			if ($nivel== 1) {
+				$codigo 	   = "<span class='badge badge-primary'><strong><u>{$codigo}</u></strong></span>";
+				$descripcion   = "<strong><u>{$descripcion}</u></strong>";
+				$valor1    	   = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$valor_cero."</u></div>";
+				$valor2        = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$saldo_cuenta."</u></div>";
+				$valor3        = "<div style='text-align: right; color: #28a745; font-weight: bold;'><u>".$total_cuenta."</u></div>";
+			}
+			elseif ($nivel== 2) {
+				$codigo 	   = "<span class='badge badge-info'><strong><u>{$codigo}</u></strong></span>";
+				$descripcion   = "<strong><u>{$descripcion}</u></strong>";
+				$valor1    	   = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$valor_cero."</u></div>";
+				$valor2        = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$total_cuenta."</u></div>";
+				$valor3        = "<div style='text-align: right; color: black; font-weight: bold;'><u>".$valor_cero."</u></div>";
+
+			}else{
+				$codigo 	   =  "<span class='badge badge-secondary'><strong><u>{$codigo}</u></strong></span>";
+				$valor1    	   = "<div style='text-align: right; color: black;'>".$saldo_cuenta."</div>";
+				$valor2        = "<div style='text-align: right; color: black;'>".$valor_cero."</div>";
+				$valor3        = "<div style='text-align: right; color: black;'>".$valor_cero."</div>";
+			}
+
+			$data[] = array(
+				$codigo,
+				$indentacion.$descripcion,
+				$valor1,
+				$valor2,
+				$valor3
+			);
+
+			
+		}
+
+		// $sumaTotalGlobalPasivoPatrimonio = $sumaTotalGlobalPasivo + $sumaTotalGlobalPatrimonio;
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($cuentasUnidas),
+			"recordsFiltered" => count($cuentasUnidas),
+			"totalimporteActivo" => number_format($sumaTotalGlobalActivo,2,'.',','),
+            "totalimportePasivoPatrimonio" => number_format($sumaTotalGlobalPasivo,2,'.',','),
+            "totalimporteCuentasOrdenDeudoras" => number_format($sumaTotalGlobalDeudoras,2,'.',','),
+            "totalimporteCuentasOrdenAcreedoras" => number_format($sumaTotalGlobalAcreedoras,2,'.',','),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
+    }
+
 	/*FUNCIONES PARA EL CIERRE DE BALANCE */
 	private function ordenarJerarquicamente(
     array $cuentas, 
@@ -251,22 +448,23 @@ class CierreDeBalance extends CI_Controller {
 
 				// Si el nivel máximo está definido y la cuenta está en ese nivel máximo, sumamos saldo hijos
 				// if ($nivelMaximo !== null && isset($cuenta['nivel']) && $cuenta['nivel'] == $nivelMaximo) {
-				// if ($nivelMaximo !== null && isset($cuenta['nivel']) && $cuenta['nivel']>= $nivelMaximo) {
-				// 	$saldoConHijos    = $importePropio + $sumaHijos;
-				// 	$saldoConHijosUSD = $importePropioUSD + $sumaHijosUSD; 
-				// } else {
-				// 	// No sumamos hijos, solo saldo propio
-				// 	$saldoConHijos 	  = $importePropio;
-				// 	$saldoConHijosUSD = $importePropioUSD;
-				// }
+				if ($nivelMaximo !== null && isset($cuenta['nivel']) && $cuenta['nivel']>= $nivelMaximo) {
+					$saldoConHijos    = $importePropio + $sumaHijos;
+					$saldoConHijosUSD = $importePropioUSD + $sumaHijosUSD; 
+				} else {
+					// No sumamos hijos, solo saldo propio
+					$saldoConHijos 	  = $importePropio;
+					$saldoConHijosUSD = $importePropioUSD;
+				}
 
-				$saldoConHijos    = $importePropio + $sumaHijos;
-				$saldoConHijosUSD = $importePropioUSD + $sumaHijosUSD; 
+				// $saldoConHijos    = $importePropio + $sumaHijos;
+				// $saldoConHijosUSD = $importePropioUSD + $sumaHijosUSD;
+				// $importeTotal = $importeTotal + $importePropio; 
 
 				$cuenta['saldo_cuenta']      = $saldoConHijos;
-				$cuenta['importe_total']     = $importePropio+$saldoConHijos;
+				$cuenta['importe_total']     = $importePropio+ $sumaHijos;
 				$cuenta['saldo_cuenta_USD']  = $saldoConHijosUSD;
-				$cuenta['importe_total_USD'] = $importePropioUSD + $sumaHijosUSD;
+				$cuenta['importe_total_USD'] = $importePropioUSD;
 				// $cuenta['importe_total']    = $importePropio + $sumaHijos;			
 				// --- Campos extra --------------------------------------------------
 				$cuenta['indentacion']      = $indentacion;
@@ -303,7 +501,8 @@ class CierreDeBalance extends CI_Controller {
 					$ordenadas = array_merge($ordenadas, $hijosOrdenados);
 				}
 
-				$totalImporte += $cuenta['importe_total'];
+				// $totalImporte 	  +=  $cuenta['importe_total'];
+				$totalImporte 	 += $cuenta['importe_total'] ;
 				$totalImporteUSD += $cuenta['importe_total_USD'];
 			}
 		}
@@ -362,63 +561,67 @@ class CierreDeBalance extends CI_Controller {
 			$id_usuario       = $this->session->userdata('id_usuario');
 			$id_funcionario   = $this->session->userdata('id_funcionario');
 			$id_dependencia   = $this->session->userdata('id_dependencia_principal');
-			$id_entidad       = 1;
-			$fecha_actual     = getFechaHoraActual();
-			$tipo_cambio      = 6.96;
-			$tipo_cierre      = 'CIB';
-			$estado_balance   = 'CNS';
-			$tipo_comprobante = 'TR';
-
+			
 			// 3. Preparación de datos de cierre
-			// $idCuentaCierre      		  = 54;
-			// $idCuentaSaldoCierre 	      = 33;
-			$fecha_comprobante   		      = '2025-01-01';
-			$gestion             		      = date('Y', strtotime($fecha_comprobante));
-			$periodo                          = (int)date('m', strtotime($fecha_comprobante));
-			$referencia_general_cierre        = 'Cierre de Cuentas de Balance';
-			$glosa_general_cierre             = 'Cierre de Cuentas de Balance';
+
+			$id_entidad       				  = $this->input->post('id_entidad_registro');
+			$fecha_actual     				  = getFechaHoraActual();
+			// $tipo_cambio      				  = 6.96;
+			$tipo_cierre      			      = 'CIB';
+			$estado_balance   				  = 'CNS';
+			$tipo_comprobante 				  = 'TR';
+			$fecha_comprobante   		      = $this->input->post('fechaCierreBalance');
+			$referencia_cierre  		      = $this->input->post('referenciaCierre');
+			$glosa_cierre  		              = $this->input->post('glosaCierre');
 			$referencia_general_cuentasorden  = 'Cierre de Cuentas de Orden';
 			$glosa_general__cuentasorden      = 'Para cerrar transitoriamente cuentas de orden apropiadas hasta el cierre del presente periodo.';
-			$referencia_general_apertura      = 'Por reinicio de actividades';
-			$glosa_general_apertura           = 'Por reinicio de actividades';
+			$gestion             		      = date('Y', strtotime($fecha_comprobante));
+			$periodo                          = (int)date('m', strtotime($fecha_comprobante));
+			$referencia_general_cierre        = $this->input->post('referenciaCierre');
+			$glosa_general_cierre             = $this->input->post('glosaCierre');
+			$tipo_cambio_cierre    	          =  number_format(getTipoCambio(formato_fecha_slash_invertido2($fecha_comprobante)),2,'.',',');
+
+			//3.1 Datos para la apertura de las cuentas
+
+			$referencia_general_apertura      = $this->input->post("referenciaApertura");
+			$glosa_general_apertura           = $this->input->post("glosaApertura");
 			$gestion_apertura				  = $gestion+1;
 			$periodo_apertura				  = 1;
-			$fecha_comprobante_apertura		  = '2026-01-02';
-			$contador            		      = 3; // NÚMERO DE COMPROBANTES A GENERAR
+			$fecha_comprobante_apertura		  = $gestion_apertura.'-01-02';
+			// $tipo_cambio_apertura      		  = 6.96;
+			$tipo_cambio_apertura      		  = number_format(getTipoCambio(formato_fecha_slash_invertido2($fecha_comprobante)),2,'.',',');///OJO
+		
+			// 4. Parámetros para la consultas de balance
+
+			$contador            		      = 3; // Número de comprobantes a generar para el cierre de balance(cierre de cuentas de balance , cierre de cuentas de orden , apertura de cuentas)
 			$idSeleccionado					  = 'radioAl';
-			$valorCheckCero 				  = true;
+			$valorCheckCero 				  = false; // para excluir cuenta en cero de las cuentas activo, pasivp, patrimonio
+			$nivel        			          = getNivelMaximo();
+			$saldoCero                        = true;//para excluir los saldos cuentas en cero de cuentas de orden 
+			$fecha_fin    					  = $this->input->post('fechaCierreBalance');
+			$fecha_inicio 				      = primerDiaDelAnio($fecha_fin);
+			$fecha_al     					  = $this->input->post('fechaCierreBalance');
+			$moneda       					  = 'BOB';
 
-			// 4. Parámetros para la consulta de resultados
-			$codigo_cuenta_ingreso = 4;
-			$id_cuenta_ingreso     = getIdCuenta($codigo_cuenta_ingreso);
-			$codigo_cuenta_egreso  = 5;
-			$id_cuenta_egreso      = getIdCuenta($codigo_cuenta_egreso);
-
-			$nivel        = getNivelMaximo();
-			$saldoCero    = false;
-			$fecha_inicio = '2025-01-01';
-			$fecha_fin    = '2025-08-18';
-			$fecha_al     = '2025-08-18';
-			$moneda       = 'BOB';
-
-			//datos balance general
-			// $id_activo=1;
-			// $id_pasivo=2;
-			// $id_patrimonio=3;
-			$codigo_activo     = 1;
-			$codigo_pasivo     = 2;
-			$codigo_patrimonio = 3;
-			$id_activo		   = getIdCuenta($codigo_activo);
-			$id_pasivo		   = getIdCuenta($codigo_pasivo);
-			$id_patrimonio	   = getIdCuenta($codigo_patrimonio);
-
-			// $id_cuentas_deudoras   	   = 28;
-			// $id_cuentas_acreedoras 	   = 29;
+			//4.-CUENTAS MAYORES DEL CIERRE
+			
+			$codigo_activo     		   = 1;
+			$codigo_pasivo     		   = 2;
+			$codigo_patrimonio 		   = 3;
 			$codigo_cuentas_deudoras   = 6;
 			$codigo_cuentas_acreedoras = 7;
+			$id_activo		   		   = getIdCuenta($codigo_activo);
+			$id_pasivo		   		   = getIdCuenta($codigo_pasivo);
+			$id_patrimonio	   		   = getIdCuenta($codigo_patrimonio);
 			$id_cuentas_deudoras   	   = getIdCuenta($codigo_cuentas_deudoras);
 			$id_cuentas_acreedoras 	   = getIdCuenta($codigo_cuentas_acreedoras);
 
+			$codigo_cuenta_ingreso  = 4;
+			$codigo_cuenta_egreso   = 5;
+			$id_cuenta_ingreso      = getIdCuenta($codigo_cuenta_ingreso);
+			$id_cuenta_egreso       = getIdCuenta($codigo_cuenta_egreso);
+
+			// die();
 
 			if($valorCheckCero === true){
 				$excluirCuentasEnCero= false;
@@ -452,12 +655,6 @@ class CierreDeBalance extends CI_Controller {
 					$id_activo,
 					$whereFecha,
 					$tipo_cuenta_deudor	);
-
-
-			// echo("<pre>");
-			// print_r($cuentas_activo);
-			// echo("</pre>");
-			// die();
 			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getBalanceGeneralPorMayor(
 					$id_entidad,
 					$fecha_inicio,
@@ -492,89 +689,69 @@ class CierreDeBalance extends CI_Controller {
 					$tipo_cuenta_acreedor);
 
 			// 6. Ordenar y calcular totales
-			$tipo1="balance";
-			$tipo2="orden";
+			$tipo_cuenta_balance="balance";
+			$tipo_cuenta_orden="orden";
 			list($cuentasActivoOrdenadas, $sumaActivo, $sumaActivoUSD) = $this->ordenarCuentas(
 				$cuentas_activo,
 				$saldoCero,
 				$nivel,
-				$tipo1
+				$tipo_cuenta_balance
 			);
+<<<<<<< HEAD
 	echo("<pre>");
 			print_r($cuentasActivoOrdenadas);
 			echo("</pre>");
 			echo("SumaActivo=>".$sumaActivo."<br>");
 			echo("SumaActivoUSD=>".$sumaActivoUSD."<br>");
+=======
+			// echo("<pre>");
+			// print_r($cuentasActivoOrdenadas);
+			// echo("</pre>");
+			// echo("SumaActivo=>".$sumaActivo."<br>");
+			// echo("SumaActivoUSD=>".$sumaActivoUSD."<br>");
+>>>>>>> d851657cadc930de529893060c981f031cfb3058
 			$totalActivo=count($cuentasActivoOrdenadas);
 			list($cuentasPasivoOrdenadas, $sumaPasivo, $sumaPasivoUSD) = $this->ordenarCuentas(
 				$cuentas_pasivo,
 				$saldoCero,
 				$nivel,
-				$tipo1
+				$tipo_cuenta_balance
 			);
-			echo("<pre>");
-			print_r($cuentasPasivoOrdenadas);
-			echo("</pre>");
-			echo("Pasivo=>".$sumaPasivo."<br>");
-			echo("PasivoUSD=>".$sumaPasivoUSD."<br>");
 			$totalPasivo=count($cuentasPasivoOrdenadas);
 			list($cuentasPatrimonioOrdenadas, $sumaPatrimonio, $sumaPatrimonioUSD) = $this->ordenarCuentas(
 				$cuentas_patrimonio,
 				$saldoCero,
 				$nivel,
-				$tipo1
+				$tipo_cuenta_balance
 			);
-			echo("<pre>");
-			print_r($cuentasPatrimonioOrdenadas);
-			echo("</pre>");
-			echo("Patrimonio=>".$sumaPatrimonio."<br>");
-			echo("PatrimonioUSD=>".$sumaPatrimonioUSD."<br>");
 			$totalPatrimonio=count($cuentasPatrimonioOrdenadas);
 			list($cuentasDeudorasOrdenadas, $sumaDeudor, $sumaDeudorasUSD) = $this->ordenarCuentas(
 				$cuentas_deudoras,
 				$saldoCero,
 				$nivel,
-				$tipo2
+				$tipo_cuenta_orden
 			);
-			echo("<pre>");
-			print_r($cuentasDeudorasOrdenadas);
-			echo("</pre>");
-			echo("Acreedoras=>".$sumaDeudor."<br>");
-			echo("AcreedorasUSD=>".$sumaDeudorasUSD."<br>");
 			$totalDeudor=count($cuentasDeudorasOrdenadas);
 			list($cuentasAcreedorasOrdenadas, $sumaAcreedor, $sumaAcreedorUSD) = $this->ordenarCuentas(
 				$cuentas_acreedoras,
 				$saldoCero,
 				$nivel,
-				$tipo2
+				$tipo_cuenta_orden
 			);
+<<<<<<< HEAD
 			echo("<pre>");
 			print_r($cuentasAcreedorasOrdenadas);
 			echo("</pre>");
 			echo("Acreedoras=>".$sumaAcreedor."<br>");
 			echo("AcreedorasUSD=>".$sumaAcreedorUSD."<br>");
 			//die();
+=======
+>>>>>>> d851657cadc930de529893060c981f031cfb3058
 			$totalAcreedor=count($cuentasAcreedorasOrdenadas);
 
 			$max_filas  = $totalActivo+$totalPasivo+$totalPatrimonio+$totalDeudor+$totalAcreedor;
 			$cuentasUnidas = array_merge($cuentasActivoOrdenadas,$cuentasPasivoOrdenadas, $cuentasPatrimonioOrdenadas,$cuentasDeudorasOrdenadas,$cuentasAcreedorasOrdenadas);
-
-
-			// $resultado = $this->EstadoDeResultado_model->getMontoResultado(
-			// 	$id_entidad,
-			// 	$fecha_inicio,
-			// 	$fecha_fin,
-			// 	$id_cuenta_ingreso,
-			// 	$codigo_cuenta_ingreso,
-			// 	$id_cuenta_egreso,
-			// 	$codigo_cuenta_egreso
-			// );
-
-			// $total_resultado    = $resultado[0]->total_estado_resultado ?? 0;
-			// $total_resultadousd = $resultado[0]->total_estado_resultadousd ?? 0;
-
-			// 7. Generación de los comprobantes
-			// 8. Registro de detalles del comprobante
+			// 7 y 8  Generación de los comprobantes y Registro de detalles del comprobante
 			$comprobantes = [];
 			$id_comprobante_cierre = 0;
 
@@ -590,7 +767,7 @@ class CierreDeBalance extends CI_Controller {
 							$referencia_general_cierre,
 							$glosa_general_cierre,
 							$fecha_comprobante,
-							$tipo_cambio,
+							$tipo_cambio_cierre,
 							$id_usuario,
 							$tipo_cierre,
 							$id_dependencia,
@@ -607,7 +784,8 @@ class CierreDeBalance extends CI_Controller {
 							$id_usuario,
 							$estado_balance,
 							'DB',
-							'HB'							
+							'HB',
+							$tipo_cambio_cierre,							
 						);
 						break;
 					case 2:
@@ -621,7 +799,7 @@ class CierreDeBalance extends CI_Controller {
 							$referencia_general_cuentasorden,
 							$glosa_general__cuentasorden,
 							$fecha_comprobante,
-							$tipo_cambio,
+							$tipo_cambio_cierre,
 							$id_usuario,
 							$tipo_cierre,
 							$id_dependencia,
@@ -636,7 +814,8 @@ class CierreDeBalance extends CI_Controller {
 								$id_usuario,
 								$estado_balance,
 								'DB',
-								'HB'
+								'HB',
+								$tipo_cambio_cierre,
 							);
 						}
 						
@@ -650,12 +829,13 @@ class CierreDeBalance extends CI_Controller {
 							$referencia_general_apertura,
 							$glosa_general_apertura,
 							$fecha_comprobante_apertura,
-							$tipo_cambio,//CONSULTAR
+							$tipo_cambio_apertura,//CONSULTAR
 							$id_usuario,
-							$tipo_cierre,//CONSULTAR
+							'PEN',//$tipo_cierre,//CONSULTAR
 							$id_dependencia,
 							$fecha_actual
 						);
+						// echo("stephany");
 						$comprobantes[] = $saveComprobante;
 						$cuentasPasivoPatrimonio = array_merge($cuentas_pasivo, $cuentas_patrimonio);
 						$this->registrarDetalleCierre(
@@ -664,53 +844,73 @@ class CierreDeBalance extends CI_Controller {
 							$cuentas_activo,
 							$id_entidad,
 							$id_usuario,
-							$estado_balance,
+							'PEN',
 							'HB',
-							'DB'
+							'DB',
+							$tipo_cambio_apertura,
 						);
 						break;
 				}
 			}
 
-			// 9. Consolidar cuentas del cierre
-			$cuentasConsolidadas = $this->CierresContables_model->getCuentasConMovimientoByIdMayor(
-				$id_entidad,
-				$fecha_inicio,
-				$fecha_fin,
-				$id_activo,
-				$codigo_activo
-			);
-			$cuentasConsolidadas = array_merge(
-				$cuentasConsolidadas,
-				$this->CierresContables_model->getCuentasConMovimientoByIdMayor(
-					$id_entidad,
-					$fecha_inicio,
-					$fecha_fin,
-					$id_pasivo,
-					$codigo_pasivo
-				),
-				$this->CierresContables_model->getCuentasConMovimientoByIdMayor(
-					$id_entidad,
-					$fecha_inicio,
-					$fecha_fin,
-					$id_patrimonio,
-					$codigo_patrimonio
-				),
-				$this->CierresContables_model->getCuentasConMovimientoByIdMayor(
-					$id_entidad,
-					$fecha_inicio,
-					$fecha_fin,
-					$id_cuentas_deudoras,
-					$codigo_cuentas_deudoras
-				),
-				$this->CierresContables_model->getCuentasConMovimientoByIdMayor(
-					$id_entidad,
-					$fecha_inicio,
-					$fecha_fin,
-					$id_cuentas_acreedoras,
-					$codigo_cuentas_acreedoras
-				)
-			);
+			// 9. Consolidar cuentas del cierre(comprobante y detalle)
+			
+			// Definimos los pares de cuentas a procesar
+			$cuentasMayor = [
+				[$id_activo, $codigo_activo],
+				[$id_pasivo, $codigo_pasivo],
+				[$id_patrimonio, $codigo_patrimonio],
+				[$id_cuentas_deudoras, $codigo_cuentas_deudoras],
+				[$id_cuentas_acreedoras, $codigo_cuentas_acreedoras],
+				[$id_cuenta_ingreso, $codigo_cuenta_ingreso],
+				[$id_cuenta_egreso, $codigo_cuenta_egreso],
+			];
+
+			// ===============================
+			// 1) Procesar CUENTAS DE COMPROBANTES
+			// ===============================
+			$cuentasConsolidadasComprobantes = [];
+			foreach ($cuentasMayor as [$id, $codigo]) {
+				$cuentasConsolidadasComprobantes = array_merge(
+					$cuentasConsolidadasComprobantes,
+					$this->CierresContables_model->getCuentasConMovimientoComprobanteByIdMayor(
+						$id_entidad,
+						$fecha_inicio,
+						$fecha_fin,
+						$id,
+						$codigo
+					)
+				);
+			}
+
+			foreach ($cuentasConsolidadasComprobantes as $cuenta) {
+				$this->Comprobantes_model->updateComprobante(
+					$cuenta->id_comprobante,
+					[
+						// 'estado'                => $estado_balance,
+						'tipo_cierre'           => $tipo_cierre,
+						'fecha_modificacion'    => $fecha_actual,
+						'id_funcionario_update' => $id_usuario
+					]
+				);
+			}
+
+			// ===============================
+			// 2) Procesar CUENTAS GENERALES
+			// ===============================
+			$cuentasConsolidadas = [];
+			foreach ($cuentasMayor as [$id, $codigo]) {
+				$cuentasConsolidadas = array_merge(
+					$cuentasConsolidadas,
+					$this->CierresContables_model->getCuentasConMovimientoByIdMayor(
+						$id_entidad,
+						$fecha_inicio,
+						$fecha_fin,
+						$id,
+						$codigo
+					)
+				);
+			}
 
 			foreach ($cuentasConsolidadas as $cuenta) {
 				$this->Comprobantes_model->updateDetalleComprobante(
@@ -820,7 +1020,8 @@ class CierreDeBalance extends CI_Controller {
 		$usuarioId, 
 		$estado_balance, 
 		$tipoMovimientoPositivo, 
-		$tipoMovimientoNegativo
+		$tipoMovimientoNegativo,
+		$tipo_cambio
 	){
 
 		// echo("<pre>");
@@ -836,19 +1037,19 @@ class CierreDeBalance extends CI_Controller {
 				$tipo_movimiento = ($saldo > 0) ? $tipoMovimientoNegativo : $tipoMovimientoPositivo;
 				// $tipo_movimiento = ($saldo > 0) ? 'HB' : 'DB';
 				$saldo           = ($saldo > 0) ? $saldo : $saldo * -1;
-				$saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
-
+				// $saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
+				$saldoUSD        = round($saldo/$tipo_cambio,2);
 				$datosDetalle = [
 					'id_entidad'                => $entidadId,
 					'id_comprobante'            => $comprobanteId,
 					'id_cuenta'                 => $cuenta->id,
 					'tipo_movimiento'           => $tipo_movimiento,
-					'tipo_cambio'               => 6.96,
+					'tipo_cambio'               => $tipo_cambio,
 					'importe_moneda_nacional'   => $saldo,
 					'importe_moneda_extranjera' => $saldoUSD,
 					'glosa_cuenta'              => '',
 					'id_usuario_registro'       => $usuarioId,
-					'estado_resultado'          => $estado_balance
+					'estado_balance'            => $estado_balance
 				];
 				$this->Comprobantes_model->guardarDetalleComprobante($datosDetalle);
 			}
@@ -856,14 +1057,14 @@ class CierreDeBalance extends CI_Controller {
 		//PASIVO
 		foreach ($cuentasCierre1 as $cuenta) {
 			$saldo     = $cuenta->saldo_cuenta;
-			$saldoUSD  = $cuenta->saldo_cuenta_usd;
-
+			// $saldoUSD  = $cuenta->saldo_cuenta_usd;
+			$saldoUSD  = round($saldo/$tipo_cambio,2);
 			if ($saldo != 0) {
 				$tipo_movimiento = ($saldo > 0) ? $tipoMovimientoPositivo : $tipoMovimientoNegativo;
 				// $tipo_movimiento = ($saldo > 0) ? 'DB' : 'HB';
 				$saldo           = ($saldo > 0) ? $saldo : $saldo * -1;
-				$saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
-
+				// $saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
+				$saldoUSD        = round($saldo/$tipo_cambio,2);
 				// echo("TIPO MOVIMIENTO==>".$tipo_movimiento);
 
 				$datosDetalle = [
@@ -871,7 +1072,7 @@ class CierreDeBalance extends CI_Controller {
 					'id_comprobante'            => $comprobanteId,
 					'id_cuenta'                 => $cuenta->id,
 					'tipo_movimiento'           => $tipo_movimiento,
-					'tipo_cambio'               => 6.96,
+					'tipo_cambio'               => $tipo_cambio,
 					'importe_moneda_nacional'   => $saldo,
 					'importe_moneda_extranjera' => $saldoUSD,
 					'glosa_cuenta'              => '',

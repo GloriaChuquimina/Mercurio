@@ -32,12 +32,13 @@ $(function (){
                 $('#nombre_entidad').text(nombre_entidad);
                 $('#id_entidad').val(id_entidad);
                 $('#cardEntidad').find('[data-card-widget="collapse"]').click();
+                cargarTablaCierresDeResultados(id_entidad);
             });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
-        alert('El modal se ha cerrado');
+        // alert('El modal se ha cerrado');
         $('#cuentaSeleccionada').show();
-        seleccionDeCuentas();
         // Aquí puedes ejecutar cualquier función adicional
+        // seleccionDeCuentas();
     });
     $('#opcionSeleccionar').click (function ()
     {
@@ -76,9 +77,83 @@ $(function (){
             this.value = 0; // Si es menor que 0, lo ajusta a 0
         }
     });
-   
-});
+     /*CIERRE*/
+    // $('#fechaCierreResultado').change(function(){
+    //     fecha = $(this).val();
+    //     id_entidad=$('#id_entidad_registro').val();
+    //     cargarEstadoDeResultados(id_entidad,fecha);
+    //     var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+    //     $.ajax({
+    //                 url: enlace,
+    //                 type: 'POST',
+    //                 data: { fecha: fecha },
+    //                 success: function(response) {
+    //                     var resultado = JSON.parse(response);
+    //                     // alert(resultado.tipo_cambio_fecha); 
+    //                     // var tipo_cambio = resultado.tipo_cambio_fecha; 
 
+    //                     var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+    //                     if (tipo_cambio <= 0) {
+    //                         // Si no existe tipo de cambio
+    //                         swal({
+    //                             title: "Atención",
+    //                             text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+    //                             icon: "warning",
+    //                             button: "OK",
+    //                             dangerMode: true,
+    //                         });
+    //                         $('#tipoCambio').val(tipo_cambio); // Limpia el campo
+    //                         return; // Sale para no seguir validando
+    //                     }                      
+    //                 }
+    //             });
+    // });
+    $('#fechaCierreResultado').change(function(){
+            fecha = $(this).val();
+            id_entidad=$('#id_entidad_registro').val();            
+            var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+            $.ajax({
+                     url: enlace,
+                    type: 'POST',
+                    data: { fecha: fecha },
+                    success: function(response) {
+                        var resultado = JSON.parse(response);
+                        // alert(resultado.tipo_cambio_fecha); 
+                        // var tipo_cambio = resultado.tipo_cambio_fecha; 
+
+                        var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+                        if (tipo_cambio <= 0) {
+                            // Si no existe tipo de cambio
+                            swal({
+                                title: "Atención",
+                                text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+                                icon: "warning",
+                                button: "OK",
+                                dangerMode: true,
+                            });
+                            $('#tipoCambio').text(''); // Limpia el campo
+                            $('#btnRecalcularTipoCambio').hide();
+                            return; // Sale para no seguir validando
+                        }
+                        else
+                        {
+                            // swal({
+                            //     title: "Atención",
+                            //     text: "tipo cambio",
+                            //     icon: "success",
+                            //     button: "OK",
+                            //     dangerMode: true,
+                            // });
+                             $('#tipoCambio').text(tipo_cambio);
+                        }
+                    }
+            });
+            cargarEstadoDeResultados(id_entidad,fecha);
+    });
+});     
+           
 function seleccionDeCuentas()
 {
 
@@ -143,16 +218,16 @@ function seleccionDeCuentas()
 }
 function listaCuentasBusqueda()
 {
-    alert("STEPH");
+    // alert("STEPH");
     var cuentasSeleccionadas=$('#id_cuenta_seleccionadas').text();
     $('#opcionSeleccionar').checked = false;
     cargarCuentas(0,cuentasSeleccionadas);
     $('#modalListaCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalListaCuentas').modal('show');  
 }
-function cargarCuentas(marcar){
+function cargarCuentas(){
     var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
-    var enlace = base_url + "Contabilidad/LibroMayor/listarPlanDeCuentasBusqueda";
+    var enlace = base_url + "Contabilidad/Comprobante/listarPlanDeCuentasBusquedaComprobante";
     $('#tbl_CuentasContables').DataTable({
         destroy: true,
         "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
@@ -160,43 +235,28 @@ function cargarCuentas(marcar){
         "font-size":5,
         "ajax": {
             type: "POST",
-            url: enlace,
-            data:{          
-                marcareg:marcar,
-                cuentasSeleccionadas:cuentasSeleccionadas
-            }
+            url: enlace
         },
     });
 }
 
 function procedimientoCierreCuentasDeResultados()
 {
-    // eliminaMensajeError();
-    // eliminaMensajeErrorCombos();
-    // limpiarModalRegistro();
-    // if($('#txtAccionComprobante').val()=== 'editar')
-    // {
-    //     $('#txtAccionComprobanteCuenta').val('editar');
-    //     $('#txtAccionMovimiento').val('nuevo');
-    //     id_comprobante = $('#id_comprobanteP').val();
-    //     $('#id_comprobante').val(id_comprobante);
-    // }
-    // else
-    // {
-    //     $('#txtAccionComprobanteCuenta').val('nuevo');
-    //     $('#txtAccionMovimiento').val('nuevo');
-    // }
-    // // alert (id_entidad);
-    // $('#id_entidad_registro').val(id_entidad);
-    // $('#nombreEntidad').text(nombre_entidad);
-    // var tipo_cambio=$('#txtTipoCambio').val();
-    // $('#tipoCambio').text(tipo_cambio);
-    // $('#tipo_cambio_movimiento').val(tipo_cambio);
-    cargarEstadoDeResultados();
+    
+    $('#nombreEntidad').text(nombre_entidad);
+	var id_entidad = $('#id_entidad').val();
+    $('#id_entidad_registro').val(id_entidad);
+	const hoy = new Date();
+	const yyyy = hoy.getFullYear();
+	const mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
+	const dd = String(hoy.getDate()).padStart(2, '0');
+	const fechaActual = `${yyyy}-${mm}-${dd}`;
+	$('#fechaCierreResultado').val(fechaActual);
+    cargarEstadoDeResultados(id_entidad,fechaActual);
     $('#modalRegistroCierreDeResultados').modal({backdrop: 'static', keyboard: false})
     $('#modalRegistroCierreDeResultados').modal('show');  
 }
-function cargarEstadoDeResultados()
+function cargarEstadoDeResultados(id_entidad,fecha)
 {
     var enlace = base_url + "Contabilidad/CierreDeResultados/cargarDatosEstadoDeResultadosIngreso";
   $('#tablaDatosCuentasIngreso').DataTable({
@@ -208,14 +268,9 @@ function cargarEstadoDeResultados()
         "ajax": {
             type: "POST",
             url: enlace,
-        //     data: { id_entidad: id_entidad,
-        //           fecha_inicio: fecha_inicio,
-        //              fecha_fin: fecha_fin,
-        //                 moneda: moneda,
-        //                  nivel: nivel,
-        //              saldoCero: saldoCero,
-        //   cuentasSeleccionadas: cuentasSeleccionadas
-        //           },
+            data: { id_entidad: id_entidad,
+                  fecha_cierre: fecha
+                  },
 
             dataSrc: function(json) {
 
@@ -238,14 +293,9 @@ function cargarEstadoDeResultados()
         "ajax": {
             type: "POST",
             url: enlace,
-            // data: { id_entidad: id_entidad,
-            //         fecha_inicio: fecha_inicio,
-            //             fecha_fin: fecha_fin,
-            //             moneda: moneda,
-            //                 nivel: nivel,
-            //             saldoCero: saldoCero,
-            // cuentasSeleccionadas: cuentasSeleccionadas 
-            //     },
+             data: { id_entidad: id_entidad,
+                  fecha_cierre: fecha
+                  },
 
             dataSrc: function(json) {
 
@@ -261,7 +311,7 @@ function cargarEstadoDeResultados()
 }
 function cerrarCuentaDeResultados()
 {
-    alert("Steph");  
+    // alert("Steph");  
 
     mensaje = "¿Confirma que desea registrar el cierre de cuentas de resultados? Tenga en cuenta que, una vez realizado, este proceso no podrá revertirse.";
     boton   = "Guardar";
@@ -307,4 +357,32 @@ function cerrarCuentaDeResultados()
             });
         }
     });
+}
+function cargarTablaCierresDeResultados(id_entidad)
+{
+    var enlace = base_url + "Contabilidad/CierreDeResultados/cargarCierreDeResultados";
+    $('#tablaCierreResultados').DataTable({
+        destroy: true,
+        "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
+        "iDisplayLength": 40,
+        "font-size":8,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            data: { id_entidad: id_entidad 
+            },         
+        },   
+    });
+}
+function busquedaIDCuenta(id_cuenta,cuenta)
+{
+
+    $('#id_cuenta').val( id_cuenta) ;
+    $('#txtCuenta').val( cuenta) ;
+    $('#modalListaCuentas').modal('hide'); 
+    $('#id_cuenta_auxiliar').val('-');
+    $('#txtAuxiliarCuenta').val('-');
+    $('#id_cuenta_auxiliar').text('-');
+    $('#txtAuxiliarCuenta').text('-');
+    //  cargarCuentasAuxiliaresLista(id_cuenta); 
 }

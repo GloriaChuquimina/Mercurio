@@ -23,4 +23,12 @@ class Comunes_model extends CI_Model
 											 order by d.orden asc");
         return $query->result();  
 	}
+    function getGestion()
+	{
+		$query = $this->db_mercurio->query(" select *
+											   from configuraciones.gestion
+											  where 1 = 1
+											    and estado = 'ACT'");
+        return $query->result();  
+	}
 }

@@ -22,11 +22,12 @@ class Comprobantes_model extends CI_Model
 										  );
 		return $query->result();
 	}
-	function getComprobanteByIdEntidad($id_entidad)
+	function getComprobanteByIdEntidad($id_entidad,$gestion)
 	{
 		$query = $this->db_mercurio->query("select *
 											  from contabilidad.comprobante
 											 where id_entidad = ".$id_entidad."
+											   and gestion =".$gestion."
 											-- and estado='ACT'
 										  order by tipo_comprobante,correlativo desc
 											  ;
@@ -34,12 +35,13 @@ class Comprobantes_model extends CI_Model
 										  );
 		return $query->result();
 	}
-	function getComprobanteByIdEntidadTipoComprobante($id_entidad,$tipo_comprobante)
+	function getComprobanteByIdEntidadTipoComprobante($id_entidad,$tipo_comprobante,$gestion)
 	{
 		$query = $this->db_mercurio->query("select *
 											  from contabilidad.comprobante
 											 where id_entidad = ".$id_entidad."
 											   and tipo_comprobante='".$tipo_comprobante."'
+											   and gestion='".$gestion."'
 											 -- and estado='ACT'
 										   order by correlativo desc
 											  ;

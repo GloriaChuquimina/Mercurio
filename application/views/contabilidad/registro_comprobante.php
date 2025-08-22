@@ -464,6 +464,7 @@
        nombre_entidad = <?= json_encode($nombre_entidad) ?>;
        accion = <?= json_encode($accion) ?>;
        id_comprobante = <?= json_encode($id_comprobante) ?>;
+       gestion = <?= json_encode($gestion) ?>;
        $('#id_entidad').val(id_entidad);
        $('#id_comprobanteP').val(id_comprobante);
        $('#txtAccionComprobante').val(accion);
