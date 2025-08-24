@@ -199,7 +199,7 @@ class PlanDeCuentas extends CI_Controller {
                 $fila['nivel'],
                 $fila['sigla'],
 				$estado,
-				"<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
+				// "<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
 			);
 		}
 

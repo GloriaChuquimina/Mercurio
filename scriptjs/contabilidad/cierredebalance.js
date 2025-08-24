@@ -197,7 +197,7 @@ function seleccionDeCuentas()
 }
 function listaCuentasBusqueda()
 {
-    alert("STEPH");
+    // alert("STEPH");
     var cuentasSeleccionadas=$('#id_cuenta_seleccionadas').text();
     $('#opcionSeleccionar').checked = false;
     cargarCuentas(0,cuentasSeleccionadas);

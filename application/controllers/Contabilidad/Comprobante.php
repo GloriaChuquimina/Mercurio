@@ -106,6 +106,7 @@ class Comprobante extends CI_Controller {
 			return true;	
 		}
 	}
+	
 	function verificarValorCuentaBusqueda()
 	{
 
@@ -517,6 +518,70 @@ class Comprobante extends CI_Controller {
 					}]';
 
 		return $resultado; 		
+
+	}
+
+	function validarDatosReporte()
+	{
+
+		$datos = $this->input->post('datos');  
+ 		
+		// $idEntidad  = $data['id_entidad'];
+		// $fecha      = $data['txtFecha'];
+
+		// $verifica =$this->verificarEntidad($idEntidad);
+		// $verifica_fecha = $this->fecha_valida($fecha);
+		// echo $verifica;	
+		// echo $verifica_fecha;	
+		// die();
+
+		$data = [];
+        parse_str($datos, $data);
+		$txtAccion 	= $data['txtAccionComprobante'];
+ 		$this->form_validation->set_data($data);
+ 		$resul = 1;
+		$mensaje = "OK";
+
+		// echo json_encode($data);
+
+		if($txtAccion == 'nuevo')
+		{	
+			if($this->form_validation->run('validar_registro_comprobante'))
+			{
+				$resul = 1;
+				$mensaje = "OK";
+			}
+			else
+			{
+				// $filas = explode("|", $detalleComprobante);
+				$resul = 0;
+				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
+				$mensaje = formaterarValidacion($mensaje);
+
+			}
+			// echo("TEPHANY".$resul."<br>");
+			// echo("TEPHANY".$mensaje."<br>");
+		}
+		else
+		{
+			if($this->form_validation->run('validar_registro_comprobante_editar'))
+			{
+				$resul = 1;
+				$mensaje = "OK";
+			}
+			else
+			{
+				$resul = 0;
+				$mensaje = json_encode($this->form_validation->get_errores_arreglo());
+				$mensaje = formaterarValidacion($mensaje);
+			}
+		}
+
+		$resultado ='[{								
+					"resultado":"'.$resul.'",
+					"mensaje":"'.$mensaje.'"
+					}]';
+		echo $resultado; 		
 
 	}
 	public function guardarComprobante()
@@ -1208,6 +1273,10 @@ class Comprobante extends CI_Controller {
 		// // echo("<br>");
 		// // print_r($detalle_json);
 		// // echo("</pre>");
+
+		// parse_str($this->input->post('datos'), $data);
+		// $detalleComprobante  = $this->input->post('detalleComprobante');
+	
 		$orden = array("\r\n", "\n", "\r" ,'"') ;
 		$pdf=new exFPDFCartaContable('P','mm','Letter');
 		$pdf->SetFont('Arial','',14);
@@ -1230,6 +1299,7 @@ class Comprobante extends CI_Controller {
 			$paginador 					    = 'Pág.' . $pdf->PageNo();
 			$fecha_comprobante  			= formato_fecha_slash($datos1['txtFecha']);
 			$tipo_cambio					= number_format($datos1['txtTipoCambio'],2,'.',',');
+			// $tipo_cambio					= 6.96;
 			$tipo_comprobante				= "COMPROBANTE DE ".getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $datos1['txtTipo']);
 			
 			$mes							= date("n", strtotime($fecha_comprobante));
@@ -1928,5 +1998,6 @@ class Comprobante extends CI_Controller {
 		echo json_encode($output);
 		exit();
     }
+	
 	
 }

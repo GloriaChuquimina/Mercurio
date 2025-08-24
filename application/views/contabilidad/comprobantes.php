@@ -1,5 +1,6 @@
 <script src="<?php echo  base_url() ?>scriptjs/jquery.js"></script>
 <script src="<?php echo  base_url() ?>scriptjs/contabilidad/comprobantes.js"></script>
+<script src="<?php echo  base_url() ?>scriptjs/validacion.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>resources/css/global.css">
 
 

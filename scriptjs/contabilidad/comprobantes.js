@@ -30,6 +30,10 @@ function cargarComboPrincipal()
 }
 function cargarCombos()
 {
+	const hoy = new Date();
+	const yyyy = hoy.getFullYear();
+	const mm   = hoy.getMonth() + 1; // Meses van de 0 a 11
+	const dd = String(hoy.getDate()).padStart(2, '0');
    
     var enlace = base_url + "Comunes/Comunes/cargarTipoComprobante";
     $.ajax({
@@ -46,7 +50,7 @@ function cargarCombos()
         success: function(data) {
             $('#tipo_comprobante').html(data);
             $('#tipo_comprobante option[value="'+tipo_comprobante+'"]').prop('selected','selected');
-            $('#gestion_comprobante option[value="'+tipo_comprobante+'"]').prop('selected','selected');
+            $('#gestion_comprobante option[value="'+yyyy+'"]').prop('selected','selected');
         }
     });
     var enlace = base_url + "Comunes/Comunes/cargarTipoMovimiento";
@@ -63,7 +67,11 @@ function cargarCombos()
         url: enlace,
         success: function(data) {
             $('#gestion_comprobante').html(data);
-            
+			$('#gestion_comprobante option[value="'+yyyy+'"]').prop('selected','selected');
+            //  id_entidad               = $('#entidades').val();
+            var id_tipo_comprobante   = $('#tipo_comprobante option:selected').val();
+            var gestion               = yyyy
+            cargarTablaComprobantesEntidades(id_entidad,id_tipo_comprobante,gestion);
         }
     });
 
@@ -293,16 +301,18 @@ function cargarTablaComprobantes()
 function agregarComprobante()
 {
     var entidad =$('#entidades').val();
-    var gestion =$('#gestion_comprobante option:selected').val();
-    if(entidad == -1)
-    {
-         swal({title:"ALERTA",text:"Por favor, seleccione una entidad para continuar con el registro.",icon:"warning",button:"OK",dangerMode:true});
-    }
-    else
-    {
-        var accion = 'nuevo';
-        window.location.href = base_url + "Contabilidad/Comprobante/registroComprobante/"+entidad+"/"+accion+"/"+gestion;
-    }
+    var gestion =$('#gestion_comprobante option:selected').val(); 
+
+	if(entidad == -1)
+	{
+		swal({title:"ALERTA",text:"Por favor, seleccione una entidad valida para continuar con el registro.",icon:"warning",button:"OK",dangerMode:true});
+	}
+	else
+	{
+		var accion = 'nuevo';
+		window.location.href = base_url + "Contabilidad/Comprobante/registroComprobante/"+entidad+"/"+accion+"/"+gestion;
+	}
+
 }
 function agregarRegistroComprobante()
 {
@@ -848,10 +858,29 @@ function editarCabeceraComprobante()
 }
 function cargarComprobantesPrincipal()
 {
-    var entidad =$('#id_entidad').val();
-    var tipo_comprobante = $('#txtTipo').val();
-    var gestion = $('#gestion_comprobante').val();
-    window.location.href = base_url + "Contabilidad/Comprobante/principalComprobante/"+entidad+"/"+tipo_comprobante+"/"+gestion;
+
+	 swal({
+        title: 'ATENCIÓN',
+        text: "¿Desea volver a la pantalla principal? Si no guarda el comprobante, los registros ingresados se perderán.",
+        icon: 'warning',
+        dangerMode: true,
+        buttons: {
+            cancel: "Cancelar",
+            verificar: {
+                text: "Continuar",
+                value: "continuar",
+            }
+        },
+    })
+    .then(respuesta => {
+        if (respuesta)
+        {
+			var entidad =$('#id_entidad').val();
+			var tipo_comprobante = $('#txtTipo').val();
+			var gestion = $('#gestion_comprobante').val();
+			window.location.href = base_url + "Contabilidad/Comprobante/principalComprobante/"+entidad+"/"+tipo_comprobante+"/"+gestion;
+        }
+    });
 }
 function eliminarRegistroCuentaComprobante(id_registro_CuentaComprobante)
 {
@@ -968,80 +997,102 @@ function generarReporteComprobanteRegistrado(id_comprobante)
 }
 function generarPDFComprobante()
 {
-     var accion_comprobante = $('#txtAccionComprobante').val();
-     return new Promise((resolve) => {
-         if(accion_comprobante=='editar')
-        {
-            var id_comprobante = $('#id_comprobanteP').val();
-            generarReporteComprobanteRegistrado(id_comprobante);
-            resolve();
-        }
-        else
-        {
+	var detalleComprobante = $('#registroCuentaT').val();
+	var datos = $('#formregistrocontablePrincipal').serialize();
+	var enlace = base_url + "Contabilidad/Comprobante/validarDatosReporte";
+	//alert (datos);
+	$.ajax({
+		type: "POST",
+		url: enlace,
+		data: {datos:datos,
+			detalleComprobante:detalleComprobante
+		},
+		success: function(data)
+		{
+			var result = JSON.parse(data);
+			$.each(result, function(i, datos)
+			{
+				if(datos.resultado == 0)
+				{
+					visualizarValidaciones(datos.mensaje);
+					swal({title:"ALERTA",text:"Existen Observaciones.",icon:"warning",button:"OK",dangerMode:true});
+					
+				}
+				else
+				{
+					
+						var accion_comprobante = $('#txtAccionComprobante').val();
+						return new Promise((resolve) => {
+							if(accion_comprobante=='editar')
+							{
+								var id_comprobante = $('#id_comprobanteP').val();
+								generarReporteComprobanteRegistrado(id_comprobante);
+								resolve();
+							}
+							else
+							{
 
-            $('#txtAccionComprobante').val(accion);
+								$('#txtAccionComprobante').val(accion);
 
-            // Obtener datos del formulario principal
-            var datos = $('#formregistrocontablePrincipal').serialize();
-            var detalleComprobante = $('#registroCuentaT').val();
+								// Obtener datos del formulario principal
+								var datos = $('#formregistrocontablePrincipal').serialize();
+								var detalleComprobante = $('#registroCuentaT').val();
 
-            // Crear el formulario oculto
-            let form = document.createElement("form");
-            form.setAttribute("target", "iframePDF");
-            form.setAttribute("method", "POST");
-            form.setAttribute("action", base_url + "Contabilidad/Comprobante/ReporteComprobanteTemporalPDF");
-            form.style.display = "none";
+								// Crear el formulario oculto
+								let form = document.createElement("form");
+								form.setAttribute("target", "iframePDF");
+								form.setAttribute("method", "POST");
+								form.setAttribute("action", base_url + "Contabilidad/Comprobante/ReporteComprobanteTemporalPDF");
+								form.style.display = "none";
 
-            // Input para los datos generales
-            let inputDatos = document.createElement("input");
-            inputDatos.setAttribute("type", "hidden");
-            inputDatos.setAttribute("name", "datos");
-            inputDatos.setAttribute("value", datos);
-            form.appendChild(inputDatos);
+								// Input para los datos generales
+								let inputDatos = document.createElement("input");
+								inputDatos.setAttribute("type", "hidden");
+								inputDatos.setAttribute("name", "datos");
+								inputDatos.setAttribute("value", datos);
+								form.appendChild(inputDatos);
 
-            // Input para el detalle contable
-            let inputDetalle = document.createElement("input");
-            inputDetalle.setAttribute("type", "hidden");
-            inputDetalle.setAttribute("name", "detalleComprobante");
-            inputDetalle.setAttribute("value", detalleComprobante);
-            form.appendChild(inputDetalle);
+								// Input para el detalle contable
+								let inputDetalle = document.createElement("input");
+								inputDetalle.setAttribute("type", "hidden");
+								inputDetalle.setAttribute("name", "detalleComprobante");
+								inputDetalle.setAttribute("value", detalleComprobante);
+								form.appendChild(inputDetalle);
 
-            // Crear iframe si no existe
-            let iframe = document.getElementById("iframePDF");
-            if (!iframe) {
-                iframe = document.createElement("iframe");
-                iframe.setAttribute("name", "iframePDF");
-                iframe.setAttribute("id", "iframePDF");
-                iframe.style.width = "100%";
-                iframe.style.height = "700px";
-                document.getElementById('divPDF').appendChild(iframe);
-            }
+								// Crear iframe si no existe
+								let iframe = document.getElementById("iframePDF");
+								if (!iframe) {
+									iframe = document.createElement("iframe");
+									iframe.setAttribute("name", "iframePDF");
+									iframe.setAttribute("id", "iframePDF");
+									iframe.style.width = "100%";
+									iframe.style.height = "700px";
+									document.getElementById('divPDF').appendChild(iframe);
+								}
 
-            // Agregar el form al DOM, enviarlo y limpiar
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form); // opcional, limpia el DOM
+								// Agregar el form al DOM, enviarlo y limpiar
+								document.body.appendChild(form);
+								form.submit();
+								document.body.removeChild(form); // opcional, limpia el DOM
 
-            // Mostrar el modal
-            $('#divCapa').addClass('overlay');
-            $('#pdfModal > .modal-dialog').parent().css('z-index', 1999);
-            $('#pdfModal > .modal-dialog').css("max-width", "85%");
-            $('#pdfModal').show();
+								// Mostrar el modal
+								$('#divCapa').addClass('overlay');
+								$('#pdfModal > .modal-dialog').parent().css('z-index', 1999);
+								$('#pdfModal > .modal-dialog').css("max-width", "85%");
+								$('#pdfModal').show();
 
-            $('#pdfModal').on('hidden.bs.modal', function (e) {
-                console.log("Modal PDF cerrado. La promesa de generarPDFComprobante se resuelve.");
-                resolve();
-                // Opcional: Remover el event listener para evitar múltiples llamadas si el modal se abre y cierra varias veces.
-                $(this).off('hidden.bs.modal');
-            });
-
-        }
-        // setTimeout(() => {
-        //     console.log("PDF listo");
-        //     resolve();
-        // }, 1500); // Simula proceso
-        
-    });
+								$('#pdfModal').on('hidden.bs.modal', function (e) {
+									console.log("Modal PDF cerrado. La promesa de generarPDFComprobante se resuelve.");
+									resolve();
+									// Opcional: Remover el event listener para evitar múltiples llamadas si el modal se abre y cierra varias veces.
+									$(this).off('hidden.bs.modal');
+								});
+							}        
+						});					
+				}
+			});
+		}
+	});     
 }
 function editarComprobante(id_comprobante)
 {

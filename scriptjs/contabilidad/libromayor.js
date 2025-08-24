@@ -37,6 +37,20 @@ function valoresIniciales(){
         $("#tablaLibroMayor").hide();
     }
     else{
+
+		// Obtener la fecha actual en formato YYYY-MM-DD
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+
+		// Primer día del año (01-01-YYYY)
+		const primerDia = `${yyyy}-01-01`;
+
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const fechaActual = `${yyyy}-${mm}-${dd}`;
+		$('#fechaDesde').val(primerDia);
+        $('#fechaHasta').val(fechaActual);
+
         $('#entidadSeleccionada').show();
         $('#totales').show();
         $('#filtrosConsulta').show();
@@ -246,67 +260,77 @@ function seleccionDeCuentas()
 }
 function consultar()
 {
-     $('#cuentaSeleccionada').show();
-     $('#tablaLibroMayor').show();
-     $("#mensajeSeleccion").hide();
-    var id_entidad =$('#id_entidad').val();
-    var cuentas =$('#id_cuenta_seleccionadas').val();
-    var fecha_inicio = $('#fechaDesde').val();
-    var fecha_fin = $('#fechaHasta').val();
-    /*CARGAR TABLA BUSQUEDA LIBRO MAYOR */
-     var enlace = base_url + "Contabilidad/LibroMayor/listarBusquedaLibroMayor";
-    $.ajax({
-        url: enlace,
-        method: "POST",
-        data: { id_entidad : id_entidad,
-                cuentas:cuentas,
-                fecha_inicio: fecha_inicio,
-                fecha_fin: fecha_fin
-               }, 
-        dataType:'JSON',
-        success: function (data) 
-        {
-            if(data.resultado == '1')
-            {   
 
-                // console.log(data); 
-                if ($.fn.DataTable.isDataTable('#tablaDatosLibroMayor')) {
-                $('#tablaDatosLibroMayor').DataTable().clear().destroy();
-                }
+    var entidad =$('#entidades').val();
+	if(entidad == -1)
+	{
+		swal({title:"ALERTA",text:"Por favor, seleccione una entidad valida para continuar con el registro.",icon:"warning",button:"OK",dangerMode:true});
+	}
+	else
+	{
 
-                $("#tbodyLibroMayor").html(data.tabla);
+		$('#cuentaSeleccionada').show();
+		$('#tablaLibroMayor').show();
+		$("#mensajeSeleccion").hide();
+		var id_entidad =$('#id_entidad').val();
+		var cuentas =$('#id_cuenta_seleccionadas').val();
+		var fecha_inicio = $('#fechaDesde').val();
+		var fecha_fin = $('#fechaHasta').val();
+		/*CARGAR TABLA BUSQUEDA LIBRO MAYOR */
+		var enlace = base_url + "Contabilidad/LibroMayor/listarBusquedaLibroMayor";
+		$.ajax({
+			url: enlace,
+			method: "POST",
+			data: { id_entidad : id_entidad,
+					cuentas:cuentas,
+					fecha_inicio: fecha_inicio,
+					fecha_fin: fecha_fin
+				}, 
+			dataType:'JSON',
+			success: function (data) 
+			{
+				if(data.resultado == '1')
+				{   
 
-                // Actualizar totales
-                $('.txtTotalImporteDebe').text(data.totalimporteDebe ?? '0.00');
-                $('.txtTotalImporteHaber').text(data.totalimporteHaber ?? '0.00');
-                $('.txtTotalImporteDeudor').text(data.totalimporteDeudor ?? '0.00');
-                $('.txtTotalImporteAcreedor').text(data.totalimporteAcreedor ?? '0.00');
+					// console.log(data); 
+					if ($.fn.DataTable.isDataTable('#tablaDatosLibroMayor')) {
+					$('#tablaDatosLibroMayor').DataTable().clear().destroy();
+					}
 
-                $('#tablaDatosLibroMayor').DataTable({
-                    //   scrollY: true,
-                    scrollY: '600px',   // Altura del contenedor visible
-                    scrollCollapse: true,
-                    responsive: true,
-                    paging: true,
-                    searching: true,
-                    ordering: false,
-                    "aLengthMenu": [[10,30, 50,  -1], [10,30, 50,  "Todos"]],
-                    "iDisplayLength": 10,
-                 });
-                
-            }
-            else
-            {
-                swal({
-                    title: "ERROR",
-                    text: "No se encontraron datos.",
-                    icon: "error",
-                    button: "OK",
-                    dangerMode: true,
-                });
-            }
-        }
-    });
+					$("#tbodyLibroMayor").html(data.tabla);
+
+					// Actualizar totales
+					$('.txtTotalImporteDebe').text(data.totalimporteDebe ?? '0.00');
+					$('.txtTotalImporteHaber').text(data.totalimporteHaber ?? '0.00');
+					$('.txtTotalImporteDeudor').text(data.totalimporteDeudor ?? '0.00');
+					$('.txtTotalImporteAcreedor').text(data.totalimporteAcreedor ?? '0.00');
+
+					$('#tablaDatosLibroMayor').DataTable({
+						//   scrollY: true,
+						scrollY: '600px',   // Altura del contenedor visible
+						scrollCollapse: true,
+						responsive: true,
+						paging: true,
+						searching: true,
+						ordering: false,
+						"aLengthMenu": [[10,30, 50,  -1], [10,30, 50,  "Todos"]],
+						"iDisplayLength": 10,
+					});
+					
+				}
+				else
+				{
+					swal({
+						title: "ERROR",
+						text: "No se encontraron datos.",
+						icon: "error",
+						button: "OK",
+						dangerMode: true,
+					});
+				}
+			}
+		});
+    }
 }
 function generarReporteLibroMayor()
 {

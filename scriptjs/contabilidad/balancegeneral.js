@@ -24,6 +24,43 @@ function cargarCombos()
         }
     });
 }
+
+function valoresIniciales(){
+    var entidad = $('#entidades').val();    
+    if(entidad == -1){
+        $("#mensajeSeleccion").show();
+        $("#entidadSeleccionada").hide();
+        $("#totales").hide();
+        $("#filtrosConsulta").hide();
+        $("#cuentaSeleccionada").hide();
+        $("#cardBalanceGeneral").hide();
+    }
+    else{
+        $('#entidadSeleccionada').show();
+        $('#totales').show();
+        $('#filtrosConsulta').show();
+        $("#mensajeSeleccion").show();
+        $('#cuentaSeleccionada').show();
+        $('#cardBalanceGeneral').show();
+
+
+        // Obtener la fecha actual en formato YYYY-MM-DD
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+
+		// Primer día del año (01-01-YYYY)
+		const primerDia = `${yyyy}-01-01`;
+
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const fechaActual = `${yyyy}-${mm}-${dd}`;
+        $('#fechaDesde').val(primerDia);
+        $('#fechaHasta').val(fechaActual);
+        $('#fechaAl').val(fechaActual);
+
+    }
+}
+
 $(function (){
 
     $('#entidades').change(function(){
@@ -32,7 +69,10 @@ $(function (){
                 $('#nombre_entidad').text(nombre_entidad);
                 $('#id_entidad').val(id_entidad);
                 $('#cardEntidad').find('[data-card-widget="collapse"]').click();
+				 valoresIniciales();
             });
+
+	
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
         alert('El modal se ha cerrado');
         $('#cuentaSeleccionada').show();
@@ -143,7 +183,7 @@ function seleccionDeCuentas()
 }
 function listaCuentasBusqueda()
 {
-    alert("STEPH");
+    // alert("STEPH");
     var cuentasSeleccionadas=$('#id_cuenta_seleccionadas').text();
     $('#opcionSeleccionar').checked = false;
     cargarCuentas(0,cuentasSeleccionadas);

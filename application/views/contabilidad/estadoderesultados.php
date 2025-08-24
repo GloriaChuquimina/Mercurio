@@ -65,13 +65,13 @@
                             </div>
                         </div>
                         <div class="col-md-4 text-right">
-                        <span class="badge badge-warning">XXX cuentas disponibles</span>
+                        <!-- <span class="badge badge-warning">XXX cuentas disponibles</span> -->
                         </div>
                     </div>
                 </div>
             </div>
              <!-- FILTROS Y OPCIONES -->
-            <div class="card card-primary card-outline">
+            <div class="card card-primary card-outline " id ="filtrosConsulta" style="display: none">
                 <div class="card-header">
                   <h3 class="card-title">
                     <i class="mr-2">🔍</i>

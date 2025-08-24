@@ -43,7 +43,7 @@
                         <th style="color: white;">NIVEL</th>
                         <th style="color: white;">SIGLA</th>
                         <th style="color: white;">ESTADO</th>
-                        <th style="color: white;">CODIGO_CUENTA</th>
+                        <!-- <th style="color: white;">CODIGO_CUENTA</th> -->
                       </tr>
                     </thead>
                   </table>

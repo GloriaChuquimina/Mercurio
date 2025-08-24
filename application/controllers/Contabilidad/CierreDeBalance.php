@@ -697,20 +697,7 @@ class CierreDeBalance extends CI_Controller {
 				$nivel,
 				$tipo_cuenta_balance
 			);
-<<<<<<< HEAD
-	echo("<pre>");
-			print_r($cuentasActivoOrdenadas);
-			echo("</pre>");
-			echo("SumaActivo=>".$sumaActivo."<br>");
-			echo("SumaActivoUSD=>".$sumaActivoUSD."<br>");
-=======
-			// echo("<pre>");
-			// print_r($cuentasActivoOrdenadas);
-			// echo("</pre>");
-			// echo("SumaActivo=>".$sumaActivo."<br>");
-			// echo("SumaActivoUSD=>".$sumaActivoUSD."<br>");
->>>>>>> d851657cadc930de529893060c981f031cfb3058
-			$totalActivo=count($cuentasActivoOrdenadas);
+		    $totalActivo=count($cuentasActivoOrdenadas);
 			list($cuentasPasivoOrdenadas, $sumaPasivo, $sumaPasivoUSD) = $this->ordenarCuentas(
 				$cuentas_pasivo,
 				$saldoCero,
@@ -738,15 +725,6 @@ class CierreDeBalance extends CI_Controller {
 				$nivel,
 				$tipo_cuenta_orden
 			);
-<<<<<<< HEAD
-			echo("<pre>");
-			print_r($cuentasAcreedorasOrdenadas);
-			echo("</pre>");
-			echo("Acreedoras=>".$sumaAcreedor."<br>");
-			echo("AcreedorasUSD=>".$sumaAcreedorUSD."<br>");
-			//die();
-=======
->>>>>>> d851657cadc930de529893060c981f031cfb3058
 			$totalAcreedor=count($cuentasAcreedorasOrdenadas);
 
 			$max_filas  = $totalActivo+$totalPasivo+$totalPatrimonio+$totalDeudor+$totalAcreedor;
