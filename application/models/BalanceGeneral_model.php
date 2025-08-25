@@ -174,7 +174,7 @@ class BalanceGeneral_model extends CI_Model
 	// 	    							                    ");
 	// 	    return $query->result();
     // }
-    function getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$cuenta_mayor,$id_cuenta_mayor,$whereFecha,$tipo_cuenta)
+    function getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$cuenta_mayor,$id_cuenta_mayor,$whereFecha,$tipo_cuenta,$whereCierre)
 	  {
         $query = $this->db_mercurio->query("
                                   SELECT 
@@ -223,6 +223,7 @@ class BalanceGeneral_model extends CI_Model
                                                  AND e.id = ".$id_entidad."
                                                  AND ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
                                                  ".$whereFecha."
+                                                 ".$whereCierre."
                                             GROUP BY 
                                                      pc.id, pc.codigo, pc.descripcion, pc.nivel, pc.padre, pc.ruta, e.nombre, e.id
                                             ORDER BY nivel ASC,
@@ -233,7 +234,7 @@ class BalanceGeneral_model extends CI_Model
 		    							                    ");
 		    return $query->result();
     }
-    function getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$cuenta_mayor,$id_cuenta_mayor,$whereFecha,$tipo_cuenta)
+    function getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$cuenta_mayor,$id_cuenta_mayor,$whereFecha,$tipo_cuenta,$whereCierre)
 	  {
         $query = $this->db_mercurio->query("
                                   SELECT 
@@ -282,6 +283,7 @@ class BalanceGeneral_model extends CI_Model
                                                  AND e.id = ".$id_entidad."
                                                  AND ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
                                                  ".$whereFecha."
+                                                 ".$whereCierre."
                                             GROUP BY 
                                                      pc.id, pc.codigo, pc.descripcion, pc.nivel, pc.padre, pc.ruta, e.nombre, e.id
                                             ORDER BY nivel ASC,

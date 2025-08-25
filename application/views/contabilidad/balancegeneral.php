@@ -145,6 +145,9 @@
                   <!-- Botones -->
                   <div class="row mt-2">
                     <div class="col-12 text-center text-md-right">
+                      <button class="btn btn-info btn-sm mr-1" onClick="cargarDatosBalanceGeneralAntesCierre()" id ="botonCierre" style="display: none">
+                        🔐 Generar Balance Saldos Cierre
+                      </button>
                       <button class="btn btn-primary btn-sm mr-1" onClick="cargarDatosBalanceGeneral()">
                         🔍 Generar Balance
                       </button>
