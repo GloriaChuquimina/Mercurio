@@ -312,7 +312,8 @@ class BalanceGeneral extends CI_Controller {
 		if($cierre == 'false'){
 
 			$anio_cierre  = date("Y", strtotime($fecha_al));
-			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre);
+			$tipo_cierre ="CIB";
+			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
 			$comprobantes_cierre = $filas[0]->comprobante;
 			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
 			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
@@ -588,7 +589,8 @@ class BalanceGeneral extends CI_Controller {
 		if($cierre == 'false'){
 
 			$anio_cierre  = date("Y", strtotime($fecha_al));
-			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre);
+			$tipo_cierre ="CIB";
+			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
 			$comprobantes_cierre = $filas[0]->comprobante;
 			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
 			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
@@ -1281,7 +1283,8 @@ class BalanceGeneral extends CI_Controller {
 		if($cierre == 'false'){
 
 			$anio_cierre  = date("Y", strtotime($fecha_al));
-			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre);
+			$tipo_cierre ="CIB";
+			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
 			$comprobantes_cierre = $filas[0]->comprobante;
 			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
 			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";

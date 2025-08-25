@@ -185,10 +185,13 @@ class Comunes extends CI_Controller
 	    }
    		 echo $option;
 	}
-	function getFechaCierreGestion($gestion)
+	function getFechaCierreGestion($gestion,$tipo_cierre)
 	{
 
-	    $filas = $this->Comunes_model->getFechaCierreGestion($gestion);
+	    $filas = $this->Comunes_model->getFechaCierreGestion($gestion,$tipo_cierre);
+
+		// echo json_encode($filas);
+		// die();
 	    $fecha_cierre = $filas[0]->fecha_cierre;
    		echo $fecha_cierre;
 	}

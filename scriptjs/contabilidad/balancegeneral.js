@@ -59,15 +59,18 @@ function valoresIniciales(){
         $('#fechaAl').val(fechaActual);
 
 
-        var enlace = base_url + "Comunes/Comunes/getFechaCierreGestion/"+yyyy;
+        var enlace = base_url + "Comunes/Comunes/getFechaCierreGestion/"+yyyy+"/"+"CIB";
         $.ajax({
             type: "GET",
             url: enlace,
             success: function(data) {
 
-                var fecha_cierre= data.fecha_cierre;
-                if(fecha_cierre = fechaActual)
-                {
+
+                var fecha_cierre = data;
+                // alert(data);
+                if (fecha_cierre.trim() === fechaActual.trim()) {
+                    // alert("STEPH");
+                
                       $('#botonCierre').show();
                 }
             }

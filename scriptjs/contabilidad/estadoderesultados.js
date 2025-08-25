@@ -55,6 +55,23 @@ function valoresIniciales(){
         $('#fechaDesde').val(primerDia);
         $('#fechaHasta').val(fechaActual);
 
+        var enlace = base_url + "Comunes/Comunes/getFechaCierreGestion/"+yyyy+"/CIR";
+        $.ajax({
+            type: "GET",
+            url: enlace,
+            success: function(data) {
+
+
+                var fecha_cierre = data;
+                // alert(data);
+                if (fecha_cierre.trim() === fechaActual.trim()) {
+                    // alert("STEPH");
+                
+                      $('#botonCierreResultados').show();
+                }
+            }
+        });
+
     }
 }
 function cargarCuentasEntidad(){
@@ -258,7 +275,7 @@ function seleccionDeCuentas()
     });
 }
 
-function consultar() {
+function consultarCierre() {
 	//   alert("steph");
 
 
@@ -285,6 +302,7 @@ function consultar() {
 		mensaje = "SELECCIONE UNA MONEDA POR FAVOR";
 		sw=1;
 	}
+    var cierre =false;
 
     if(sw==0)
 	{
@@ -303,8 +321,9 @@ function consultar() {
 							fecha_fin: fecha_fin,
 								moneda: moneda,
 								nivel: nivel,
-							saldoCero: saldoCero,
-				cuentasSeleccionadas: cuentasSeleccionadas
+						   saldoCero: saldoCero,
+				cuentasSeleccionadas: cuentasSeleccionadas,
+				              cierre: cierre
 						},
 
 					dataSrc: function(json) {
@@ -334,7 +353,110 @@ function consultar() {
 									moneda: moneda,
 									nivel: nivel,
 								saldoCero: saldoCero,
-					cuentasSeleccionadas: cuentasSeleccionadas 
+					cuentasSeleccionadas: cuentasSeleccionadas ,
+                                  cierre: cierre
+							},
+
+						dataSrc: function(json) {
+
+								
+									$('.txtTotalImporteEgreso').text(json.totalSaldoDeudor);
+									$('.txtTotalImporteResultado2').text(json.totalResultado);
+									$('#cant_cuentas').val(json.nro_registros);
+									return json.data;
+								
+							}
+					},
+				});
+	}
+	else
+	{
+		swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
+		return;
+	}
+
+  
+}
+function consultar() {
+	//   alert("steph");
+
+
+	$('#tablaEstadoDeResultados').show();
+	$("#mensajeSeleccion").hide();
+	var id_entidad             = $('#id_entidad').val();
+	var fecha_inicio           = $('#fechaDesde').val();
+	var fecha_fin              = $('#fechaHasta').val();
+	//   var id_cuenta    = $('#id_cuenta').val();
+	var saldoCero = $('#saldoCero').prop('checked');
+	var moneda                 = $('#tipo_moneda').val();
+	var cuentasSeleccionadas   = $('#id_cuenta_seleccionadas').val();
+	sw=0;
+	if (cuentasSeleccionadas == null || cuentasSeleccionadas.length === 0) {
+			cuentasSeleccionadas = '0'; // o algún valor por defecto
+		} 
+	var nivel                  = $('#nivel').val();
+	if(nivel == null || nivel.length === 0 || nivel <= 0)
+	{
+		nivel= 0;
+	}
+	if(moneda == -1)
+	{
+		mensaje = "SELECCIONE UNA MONEDA POR FAVOR";
+		sw=1;
+	}
+
+    var cierre =true;
+    if(sw==0)
+	{
+		var enlace = base_url + "Contabilidad/EstadoDeResultados/cargarDatosEstadoDeResultadosIngreso";
+		$('#tablaDatosCuentasIngreso').DataTable({
+				destroy: true,
+				searching: false,
+				paging: false,
+				"aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+				"iDisplayLength": 5,
+				"ajax": {
+					type: "POST",
+					url: enlace,
+					data: { id_entidad: id_entidad,
+						fecha_inicio: fecha_inicio,
+						   fecha_fin: fecha_fin,
+							  moneda: moneda,
+							   nivel: nivel,
+						   saldoCero: saldoCero,
+				cuentasSeleccionadas: cuentasSeleccionadas,
+				              cierre: cierre
+						},
+
+					dataSrc: function(json) {
+
+							
+								$('.txtTotalImporteIngreso').text(json.totalSaldoAcreedor);
+								$('.txtTotalImporteResultado1').text(json.totalResultado);
+								$('#cant_cuentas').val(json.nro_registros);
+								return json.data;
+							
+						}
+				},
+			});
+			var enlace = base_url + "Contabilidad/EstadoDeResultados/cargarDatosEstadoDeResultadosEgreso";
+			$('#tablaDatosCuentasEgreso').DataTable({
+					destroy: true,
+					searching: false,
+					paging: false,
+					"aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+					"iDisplayLength": 5,
+					"ajax": {
+						type: "POST",
+						url: enlace,
+						data: { id_entidad: id_entidad,
+							fecha_inicio: fecha_inicio,
+								fecha_fin: fecha_fin,
+									moneda: moneda,
+									nivel: nivel,
+								saldoCero: saldoCero,
+					cuentasSeleccionadas: cuentasSeleccionadas,
+                                  cierre: cierre
 							},
 
 						dataSrc: function(json) {
@@ -359,39 +481,62 @@ function consultar() {
 }
 function generarReporteEstadoDeResultados()
 {
-    var id_entidad   = $('#id_entidad').val();
-    var fecha_inicio = $('#fechaDesde').val();
-    var fecha_fin    = $('#fechaHasta').val();
-    // var id_cuenta    = $('#id_cuenta').val();
-    var saldoCero = $('#saldoCero').prop('checked');
-    var moneda                 = $('#tipo_moneda').val();
-    var cuentasSeleccionadas   = $('#id_cuenta_seleccionadas').val();
-    if (cuentasSeleccionadas == null || cuentasSeleccionadas.length === 0) {
-        cuentasSeleccionadas = '0'; // o algún valor por defecto
-	} 
-    var nivel                  = $('#nivel').val();
-    if(nivel == null || nivel.length === 0 || nivel <= 0)
-    {
-        nivel= 0;
-    }
 
-    if(fecha_inicio!='' && fecha_fin !='')
-    {
-        $('#divPDF').html('');
-        var iframe = document.createElement("iframe");
-            iframe.width = '100%';
-            iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/EstadoDeResultados/ReporteEstadoDeResultadosPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin+"/"+moneda+"/"+nivel+"/"+saldoCero+"/"+cuentasSeleccionadas; 
-            $('#divPDF').append(iframe);
-        $('#divCapa').addClass('overlay');    
-        $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
-        $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
-        $('#pdfModal').show();           
-    }
-    else
-    {
-        var mensaje ="SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR";
-		swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
-            return;
-    }
+
+    swal({
+        title: "Seleccion Reporte Balance General",
+        text: "¿Qué tipo de documento desea generar?",
+        icon: "info",
+        buttons: {
+            docA: {
+                text: "📑Saldo Resultados",
+                value: "false",
+            },
+            docB: {
+                text: "📑Resultado finitivo",
+                value: "true",
+            },
+            cancel: "Cancelar"
+        }
+    }).then((opcion) => {
+
+            if (!opcion) return; // si cancela, no hace nada
+
+            var id_entidad   = $('#id_entidad').val();
+            var fecha_inicio = $('#fechaDesde').val();
+            var fecha_fin    = $('#fechaHasta').val();
+            // var id_cuenta    = $('#id_cuenta').val();
+            var saldoCero = $('#saldoCero').prop('checked');
+            var moneda                 = $('#tipo_moneda').val();
+            var cuentasSeleccionadas   = $('#id_cuenta_seleccionadas').val();
+            if (cuentasSeleccionadas == null || cuentasSeleccionadas.length === 0) {
+                cuentasSeleccionadas = '0'; // o algún valor por defecto
+            } 
+            var nivel                  = $('#nivel').val();
+            if(nivel == null || nivel.length === 0 || nivel <= 0)
+            {
+                nivel= 0;
+            }
+             var cierre            = opcion;
+
+            if(fecha_inicio!='' && fecha_fin !='')
+            {
+                $('#divPDF').html('');
+                var iframe = document.createElement("iframe");
+                    iframe.width = '100%';
+                    iframe.height = '700px';
+                    iframe.src = base_url+'Contabilidad/EstadoDeResultados/ReporteEstadoDeResultadosPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin+"/"+moneda+"/"+nivel+"/"+saldoCero+"/"+cuentasSeleccionadas+"/"+cierre; 
+                    $('#divPDF').append(iframe);
+                $('#divCapa').addClass('overlay');    
+                $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
+                $('#pdfModal > .modal-dialog ').css("max-width","75%"); 
+                $('#pdfModal').show();           
+            }
+            else
+            {
+                var mensaje ="SELECCIONE UN RANGO DE FECHA VÁLIDA POR FAVOR";
+                swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
+                    return;
+        }
+    });
 }

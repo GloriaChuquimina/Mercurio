@@ -201,6 +201,9 @@
                       <div class="col-md-12">
                         <br>
                          <div class="col-md-12 text-right">
+                          <button class="btn btn-info btn-sm mr-1" onClick="consultarCierre()" id ="botonCierreResultados" style="display: none">
+                            🔐 Estado De Resultados Reconocido
+                          </button>
                           <button class="btn btn-primary mr-2"
                               onClick = "consultar()">
                             <i class="mr-1">🔍</i> Consultar 

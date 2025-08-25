@@ -41,13 +41,13 @@ class Comunes_model extends CI_Model
 		$this->db_mercurio->where('gestion',$gestion);
 		return $this->db_mercurio->update('configuraciones.gestion',$data);
 	}
-	function getFechaCierreGestion($gestion)
+	function getFechaCierreGestion($gestion,$tipo_cierre)
 	{
 		$query = $this->db_mercurio->query(" select *
 											   from contabilidad.cierres_contables
 											  where 1 = 1
 											    and gestion =".$gestion."
-											    and tipo_cierre='CIB'
+											    and tipo_cierre='".$tipo_cierre."'
 											    and estado IN ('ACT')");
         return $query->result();  
 	}
