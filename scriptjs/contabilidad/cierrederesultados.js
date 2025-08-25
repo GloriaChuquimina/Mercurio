@@ -351,6 +351,7 @@ function cerrarCuentaDeResultados()
                             swal({title:"!Excelente¡",text:datos.mensaje,icon:"success",button:"OK"});
                             // cargarTablaEntidades();
                             $("#modalRegistroCierreDeResultados").modal('hide'); 
+							cargarTablaCierresDeResultados(datos.id_entidad);
                         }
                     });
                 }

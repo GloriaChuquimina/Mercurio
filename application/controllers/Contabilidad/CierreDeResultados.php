@@ -438,6 +438,8 @@ class CierreDeResultados extends CI_Controller {
 		$this->db->trans_begin();
 
 		try {
+
+
 			// 2. Definición de constantes y datos de la sesión
 			$id_usuario      = $this->session->userdata('id_usuario');
 			$id_funcionario  = $this->session->userdata('id_funcionario');
@@ -466,10 +468,12 @@ class CierreDeResultados extends CI_Controller {
 			$contador            	= 3; // NÚMERO DE COMPROBANTES A GENERAR
 
 			// 4. Parámetros para la consulta de resultados
-			$codigo_cuenta_ingreso  = 4;
-			$codigo_cuenta_egreso   = 5;
+			$codigo_cuenta_ingreso     = 4;
+			$codigo_cuenta_egreso      = 5;
+			$codigo_cuenta_resultado   = 9;//OTRAS CUENTAS DE RESULTADOS
 			$id_cuenta_ingreso      = getIdCuenta($codigo_cuenta_ingreso);
 			$id_cuenta_egreso       = getIdCuenta($codigo_cuenta_egreso);
+			$id_cuenta_resultado    = getIdCuenta($codigo_cuenta_resultado);
 			$nivel        			= getNivelMaximo();
 			$saldoCero    			= true;
 			$fecha_fin    			= $this->input->post('fechaCierreResultado');
@@ -556,7 +560,7 @@ class CierreDeResultados extends CI_Controller {
 				// );
 
 				// $comprobantes[] = $saveComprobante;
-				$comprobantes = [];
+				// $comprobantes = [];
 				$id_comprobante_cierre = 0;
 				// 8. Registro de detalles del comprobante
 				switch ($i) {
@@ -576,7 +580,7 @@ class CierreDeResultados extends CI_Controller {
 							$id_dependencia,
 							$fecha_actual
 						);
-
+						$comprobantes[] = $saveComprobante;
 						$this->registrarDetalle(
 							$saveComprobante,
 							$ingresosData,
@@ -607,6 +611,7 @@ class CierreDeResultados extends CI_Controller {
 							$id_dependencia,
 							$fecha_actual
 						);
+						$comprobantes[] = $saveComprobante;
 						$this->registrarDetalle(
 							$saveComprobante,
 							$egresosData,
@@ -637,6 +642,7 @@ class CierreDeResultados extends CI_Controller {
 							$id_dependencia,
 							$fecha_actual
 						);
+						$comprobantes[] = $saveComprobante;
 						$id_comprobante_cierre = $saveComprobante;
 						$this->registrarAsientoCierre(
 							$saveComprobante,
@@ -659,6 +665,7 @@ class CierreDeResultados extends CI_Controller {
 
 				[$id_cuenta_ingreso, $codigo_cuenta_ingreso],
 				[$id_cuenta_egreso, $codigo_cuenta_egreso],
+				[$id_cuenta_resultado, $codigo_cuenta_resultado],
 			];
 
 			// ===============================
@@ -742,10 +749,16 @@ class CierreDeResultados extends CI_Controller {
 			$this->CierresContables_model->guardarCierre($datosCierre);
 
 			$this->db->trans_commit();
-			$response = ['resultado' => 1, 'mensaje' => 'SE REGISTRÓ EL CIERRE DE RESULTADOS CORRECTAMENTE.'];
+			$response = ['resultado' => 1, 
+			             'mensaje' => 'SE REGISTRÓ EL CIERRE DE RESULTADOS CORRECTAMENTE.',
+			             'id_entidad' => $id_entidad
+						];
 		} catch (\Exception $e) {
 			$this->db->trans_rollback();
-			$response = ['resultado' => 0, 'mensaje' => 'ERROR EN EL PROCESO: ' . $e->getMessage()];
+			$response = ['resultado' => 0, 
+			               'mensaje' => 'ERROR EN EL PROCESO: ' . $e->getMessage(),
+						   'id_entidad' => $id_entidad
+						];
 		}
 
 		echo json_encode([$response]);
