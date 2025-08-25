@@ -280,9 +280,9 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-md-6">
-                        <p class="text-muted">
+                        <!-- <p class="text-muted">
                             Empresa: • Período:• Movimientos:
-                        </p>
+                        </p> -->
                         </div>
                         <div class="col-md-6 text-right">
                         <small class="text-muted">Última actualización:</small>

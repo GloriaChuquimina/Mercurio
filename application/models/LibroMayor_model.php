@@ -31,7 +31,7 @@ class LibroMayor_model extends CI_Model
                                        left join contabilidad.detalle_comprobante dc on pc.id = dc.id_cuenta
                                  left outer join contabilidad.comprobante c on dc.id_comprobante = c.id
                                  left outer join administracion.entidad e  on c.id_entidad = e.id 
-                                           where pc.estado ='ACT'
+                                           where pc.estado in ('ACT') 
                                              and e.id=".$id_entidad."
                                              and pc.id=".$id_cuenta."
                                         group by pc.id
@@ -72,9 +72,9 @@ class LibroMayor_model extends CI_Model
                                        left join contabilidad.detalle_comprobante dc on pc.id = dc.id_cuenta
                                  left outer join contabilidad.comprobante c on dc.id_comprobante = c.id
                                  left outer join administracion.entidad e  on c.id_entidad = e.id 
-                                           where pc.estado in('ACT')
-                                             and c.estado in ('ACT')
-                                             and dc.estado in('ACT')
+                                           where pc.estado in ('ACT') 
+                                             and c.estado in ('ACT','HI') 
+                                             and dc.estado in ('ACT','HI') 
                                              and e.id=".$id_entidad."
                                              and pc.id=".$id_cuenta."
                                              and c.fecha_comprobante between '".$fecha_inicio."' and '".$fecha_fin."'

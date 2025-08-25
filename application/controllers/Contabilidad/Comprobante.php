@@ -833,17 +833,19 @@ class Comprobante extends CI_Controller {
 			}
 			else
 			{
-				$estado ="<span class='badge badge-success'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
-				if($fila->estado == 'ACT' && ($fila->tipo_cierre == 'CIR' || $fila->tipo_cierre == 'CIB'))
+				
+				if($fila->estado == 'HI')
 				{
 					$boton .= "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Imprimir'>
                             <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"generarReporteComprobanteRegistrado(". $fila->id . ")\"><i class='fas fa-print'></i></button>     
                         </span>	
                         ";	
+					$estado ="<span class='badge badge-warning'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
 				}
 				else
 				{
+					$estado ="<span class='badge badge-success'>".getValor2Configuraciones("ESTADO REGISTRO", $fila->estado)."</span>";
 					$boton .= "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
                             <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"editarComprobante(". $fila->id . ")\"><i class='fas fa-edit'></i></button>     

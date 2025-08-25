@@ -66,6 +66,10 @@ class LibroDiario extends CI_Controller {
 		if($tipo_comprobante == -1)
 		{
 			$libroDiarioComprobante = $this->LibroDiario_model->getLibroDiarioComprobantesPorRango($id_entidad,$fecha_desde,$fecha_hasta);
+			// echo("<pre>");
+			// print_r($libroDiarioComprobante);
+			// echo("</pre>");
+			// die();
 		}
 		else
 		{

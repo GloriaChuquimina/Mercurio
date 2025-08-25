@@ -98,9 +98,9 @@ class BalanceGeneral_model extends CI_Model
                                                     LEFT JOIN contabilidad.detalle_comprobante dc ON pc.id = dc.id_cuenta
                                                     LEFT JOIN contabilidad.comprobante c ON dc.id_comprobante = c.id
                                                     LEFT JOIN administracion.entidad e ON c.id_entidad = e.id 
-                                                        WHERE pc.estado IN ('ACT')
-                                                          AND c.estado IN ('ACT')
-                                                          AND dc.estado IN ('ACT')
+                                                        WHERE pc.estado in ('ACT')
+                                                          AND c.estado in ('ACT','HI')
+                                                          AND dc.estado in ('ACT','HI')
                                                           AND e.id = ".$id_entidad."
                                                           AND c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                                     GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre,e.id
@@ -218,8 +218,8 @@ class BalanceGeneral_model extends CI_Model
                                            LEFT JOIN contabilidad.comprobante c ON dc.id_comprobante = c.id
                                            LEFT JOIN administracion.entidad e ON c.id_entidad = e.id 
                                                WHERE pc.estado = 'ACT'
-                                                 AND c.estado = 'ACT'
-                                                 AND dc.estado = 'ACT'
+                                                 AND c.estado in ('ACT','HI')
+                                                 AND dc.estado in ('ACT','HI')
                                                  AND e.id = ".$id_entidad."
                                                  AND ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
                                                  ".$whereFecha."
@@ -277,8 +277,8 @@ class BalanceGeneral_model extends CI_Model
                                            LEFT JOIN contabilidad.comprobante c ON dc.id_comprobante = c.id
                                            LEFT JOIN administracion.entidad e ON c.id_entidad = e.id 
                                                WHERE pc.estado = 'ACT'
-                                                 AND c.estado = 'ACT'
-                                                 AND dc.estado = 'ACT'
+                                                 AND c.estado in ('ACT','HI')
+                                                 AND dc.estado in ('ACT','HI')
                                                  AND e.id = ".$id_entidad."
                                                  AND ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
                                                  ".$whereFecha."
@@ -352,8 +352,8 @@ class BalanceGeneral_model extends CI_Model
                                            LEFT JOIN contabilidad.comprobante c ON dc.id_comprobante = c.id
                                            LEFT JOIN administracion.entidad e ON c.id_entidad = e.id 
                                                WHERE pc.estado = 'ACT'
-                                                 AND c.estado = 'ACT'
-                                                 AND dc.estado = 'ACT'
+                                                 AND c.estado in ('ACT','HI')
+                                                 AND dc.estado in ('ACT','HI')
                                                  AND e.id = ".$id_entidad."
                                                  AND ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
                                                  ".$whereFecha."

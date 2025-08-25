@@ -75,8 +75,8 @@ class EstadoDeResultado_model extends CI_Model
                                                 left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
                                                 left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
                                                         where e.id=".$id_entidad."
-                                                            and c.estado in ('ACT')
-                                                            and dc.estado in('ACT')
+                                                            and c.estado in ('ACT','HI') 
+                                                            and dc.estado in ('ACT','HI') 
                                                             and ('".$id_cuenta_mayor_ingreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_ingreso."') 
                                                             and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                                     group by pc.codigo,pc.descripcion,pc.id
@@ -144,8 +144,8 @@ class EstadoDeResultado_model extends CI_Model
                                                         left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
                                                         left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
                                                                 where e.id=".$id_entidad."
-                                                                    and c.estado in ('ACT')
-                                                                    and dc.estado in('ACT')
+                                                                    and c.estado in ('ACT','HI') 
+                                                                    and dc.estado in ('ACT','HI') 
 																	and ('".$id_cuenta_mayor_egreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_egreso."') 
                                                                     and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                                             group by pc.codigo,pc.descripcion,pc.id
@@ -242,8 +242,8 @@ class EstadoDeResultado_model extends CI_Model
                                                         left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
                                                         left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
                                                                   where e.id=".$id_entidad."
-                                                                    and c.estado in ('ACT')
-                                                                    and dc.estado in('ACT')
+                                                                    and c.estado in ('ACT','HI') 
+                                                                    and dc.estado in ('ACT','HI') 
 																	and (('".$id_cuenta_mayor_egreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_egreso."') or
 																		 ('".$id_cuenta_mayor_ingreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_ingreso."') )
                                                                     and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'

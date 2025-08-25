@@ -357,6 +357,7 @@ function cerrarCuentaDeBalance()
                             swal({title:"!Excelente¡",text:datos.mensaje,icon:"success",button:"OK"});
                             // cargarTablaEntidades();
                             $("#modalRegistroCierreDeBalance").modal('hide'); 
+                            cargarDatosBalanceGeneral(datos.id_entidad,datos.fecha);
                         }
                     });
                 }

@@ -77,8 +77,8 @@ class EstadoDeCuenta_model extends CI_Model
 								left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
 								left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
 										where e.id=".$id_entidad."
-											and c.estado in ('ACT')
-											and dc.estado in('ACT')
+											and c.estado in ('ACT','HI') 
+											and dc.estado in ('ACT','HI') 
 											and pc.id =".$id_cuenta."
 											and c.fecha_comprobante between '".$fecha_inicio."' and '".$fecha_fin."'
 									GROUP BY 

@@ -10,7 +10,7 @@ class CierresContables_model extends CI_Model
 		parent::__construct();	
 		$this->db_mercurio = $this->load->database('db_mercurio', TRUE);
 	}
-    function getCuentasConMovimientoByIdMayor($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta,$codigo_cuenta)
+    function getCuentasConMovimientoByIdMayor($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta,$codigo_cuenta,$filtro)
 	{
 		
 		$query = $this->db_mercurio->query(" 
@@ -27,15 +27,16 @@ class CierresContables_model extends CI_Model
                                     left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
                                     left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
                                               where e.id=".$id_entidad."
-                                                and c.estado in ('ACT')
-                                                and dc.estado in('ACT')
+                                                and c.estado in ('ACT','HI') 
+                                                ".$filtro."
+                                                and dc.estado in ('ACT') 
                                                 and ('".$id_cuenta."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$codigo_cuenta."') 
                                                 and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                              
                                              ");
         return $query->result();  
 	}
-    function getCuentasConMovimientoComprobanteByIdMayor($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta,$codigo_cuenta)
+    function getCuentasConMovimientoComprobanteByIdMayor($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta,$codigo_cuenta,$filtro)
 	{
 		
 		$query = $this->db_mercurio->query(" 
@@ -48,7 +49,9 @@ class CierresContables_model extends CI_Model
                                     left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
                                               where e.id=".$id_entidad."
                                                 and c.estado in ('ACT')
-                                                and dc.estado in('ACT')
+                                                --and c.tipo_cierre not in ('CIR','CIB')
+                                                ".$filtro."
+                                                and dc.estado in ('ACT')
                                                 and ('".$id_cuenta."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$codigo_cuenta."') 
                                                 and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                              
@@ -64,7 +67,8 @@ class CierresContables_model extends CI_Model
 	{
 		$query = $this->db_mercurio->query("select *
 											  from contabilidad.cierres_contables
-											 where estado='ACT' and tipo_cierre = '".$tipo_cierre."'
+											 where estado='ACT' 
+                                               and tipo_cierre = '".$tipo_cierre."'
                                                and id_entidad = ".$id_entidad."
 										  order by fecha_cierre ASC;
 											");

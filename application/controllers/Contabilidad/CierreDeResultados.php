@@ -453,7 +453,7 @@ class CierreDeResultados extends CI_Controller {
 			$tipo_cierre         	= 'CIR';
 			$estado_resultado    	= 'CNS';
 			$tipo_comprobante    	= 'TR';
-			$idCuentaCierre      	= 54;//PÉRDIDAS Y GANANCIAS(CUENTA CONTRA LA QUE SE EJECUTA EL ACIENTO DE CIERRE DE RESULTADOS)
+			$idCuentaCierre      	= 37;//PÉRDIDAS Y GANANCIAS(CUENTA CONTRA LA QUE SE EJECUTA EL ACIENTO DE CIERRE DE RESULTADOS)
 			$idCuentaSaldoCierre 	= $this->input->post('id_cuenta');//CUENTA DEL CIERRE DEL RESULTADO A LA QUE SE APROPIA EL SALDO DE LA GANANCIA O PERDIDA
 			$fecha_comprobante   	= $this->input->post('fechaCierreResultado');
 			$tipo_cambio         	=  number_format(getTipoCambio(formato_fecha_slash_invertido2($fecha_comprobante)),2,'.',',');
@@ -503,12 +503,22 @@ class CierreDeResultados extends CI_Controller {
 				$nivel
 			);
 
+			// echo("<pre>");
+			// echo("INGRESOS<br>");
+			// print_r($ingresosData);
+			// echo("</pre>");
 			
 			list($cuentasEgresoOrdenadas, $sumaEgreso, $sumaEgresoUSD) = $this->ordenarCuentas(
 				$egresosData,
 				$saldoCero,
 				$nivel
 			);
+
+			// echo("<pre>");
+			// 	echo("egreso<br>");
+			// print_r($egresosData);
+			// echo("</pre>");
+			// die();
 
 			$resultado = $this->EstadoDeResultado_model->getMontoResultado(
 				$id_entidad,
@@ -671,6 +681,7 @@ class CierreDeResultados extends CI_Controller {
 			// ===============================
 			// 1) Procesar  COMPROBANTES
 			// ===============================
+			$filtro_comprobante ="and c.tipo_cierre not in ('CIR','CIB')";
 			$cuentasConsolidadasComprobantes = [];
 			foreach ($cuentasMayor as [$id, $codigo]) {
 				$cuentasConsolidadasComprobantes = array_merge(
@@ -680,7 +691,8 @@ class CierreDeResultados extends CI_Controller {
 						$fecha_inicio,
 						$fecha_fin,
 						$id,
-						$codigo
+						$codigo,
+						$filtro_comprobante
 					)
 				);
 			}
@@ -702,13 +714,14 @@ class CierreDeResultados extends CI_Controller {
 			// 2) Procesar DETALLE CUENTA
 			// ===============================
 
-
+			$filtro= "and dc.estado_resultado not in ('CNS')";
 			$cuentasConsolidadas = $this->CierresContables_model->getCuentasConMovimientoByIdMayor(
 				$id_entidad,
 				$fecha_inicio,
 				$fecha_fin,
 				$id_cuenta_ingreso,
-				$codigo_cuenta_ingreso
+				$codigo_cuenta_ingreso,
+				$filtro
 			);
 			$cuentasConsolidadas = array_merge(
 				$cuentasConsolidadas,
@@ -717,7 +730,8 @@ class CierreDeResultados extends CI_Controller {
 					$fecha_inicio,
 					$fecha_fin,
 					$id_cuenta_egreso,
-					$codigo_cuenta_egreso
+					$codigo_cuenta_egreso,
+					$filtro
 				)
 			);
 
@@ -824,11 +838,13 @@ class CierreDeResultados extends CI_Controller {
 	{
 		foreach ($cuentas as $cuenta) {
 			$saldo     = $cuenta->saldo;
+			// echo($saldo."<br>");
 			$saldoUSD  = $cuenta->saldousd;
 			//SOLO SE REGISTRAN CUENTAS CON SALDO DIFERENTE DE CERO
 			if ($saldo != 0) {
 				$tipo_movimiento = ($saldo > 0) ? $tipoMovimientoPositivo : $tipoMovimientoNegativo;
 				$saldo           = ($saldo > 0) ? $saldo : $saldo * -1;
+				// echo("Saldo Despues=>".$saldo."<br>");
 				// $saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
 				$saldoUSD       = round($saldo/$tipo_cambio,2);
 				$datosDetalle = [
@@ -848,6 +864,7 @@ class CierreDeResultados extends CI_Controller {
 		}
 
 		// Registro del asiento contable de cierre
+		$sumaTotal          = ($sumaTotal > 0) ? $sumaTotal : $sumaTotal * -1;
 		$sumaTotalUSD       = round($sumaTotal/$tipo_cambio,2);
 		$datosDetalleCierre = [
 			'id_entidad'                => $entidadId,

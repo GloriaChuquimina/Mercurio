@@ -15,7 +15,7 @@ class Comprobantes_model extends CI_Model
 	{
 		$query = $this->db_mercurio->query("select *
 											  from contabilidad.comprobante
-											 where estado='AC'
+											 where estado in ('AC','HI')
 										  order by nivel ASC,
   												  codigo ASC;
 											" 
@@ -68,7 +68,7 @@ class Comprobantes_model extends CI_Model
 								 left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante 
 								 left outer join contabilidad.plancuentas_auxiliares p on dc.id_cuenta_auxiliar =p.id and p.estado ='ACT'
 										   where c.id=".$id_comprobante."
-										     and dc.estado ='ACT'   
+										     and dc.estado in ('AC','HI')   
 										   ;
 											"
 										  );
@@ -119,7 +119,7 @@ class Comprobantes_model extends CI_Model
 		$query = $this->db_mercurio->query("select *
 											  from contabilidad.detalle_comprobante
 											 where id_comprobante= ".$id_comprobante."
-											   and estado = 'ACT';
+											   and estado in ('ACT','HI');
 											"
 										  );
 		return $query->result();

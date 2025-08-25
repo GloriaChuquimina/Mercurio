@@ -64,18 +64,18 @@
         <div class="row">
          <!-- calendario -->
           <div class="col-md-6">
-            <div class="card">
+            <!-- <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Calendario de actividades</h3>
               </div>
               <div class="card-body">
                 <div id="calendar"></div>
               </div>
-            </div>
+            </div> -->
 
           </div>
           <div class="col-md-6">
-            <div class="card">
+            <!-- <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Area Chart</h3>
                 <div class="card-tools">
@@ -92,7 +92,7 @@
                   <canvas id="areaChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 50%; display: block; width: 369px;" width="369" height="250" class="chartjs-render-monitor"></canvas>
                 </div>
               </div>
-            </div>
+            </div> -->
 
           </div>
          
