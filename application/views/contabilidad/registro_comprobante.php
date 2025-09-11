@@ -316,7 +316,7 @@
                         </div>
                     </div>
 
-                    <div class="row" id="auxiliares_cuenta" style="display:none;">
+                    <div class="row" id="auxiliares_cuenta" >
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>

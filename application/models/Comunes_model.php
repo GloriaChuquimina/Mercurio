@@ -28,7 +28,8 @@ class Comunes_model extends CI_Model
 		$query = $this->db_mercurio->query(" select *
 											   from configuraciones.gestion
 											  where 1 = 1
-											    and estado IN ('ACT','HI')");
+											    and estado IN ('ACT','HI')
+										   order by gestion desc");
         return $query->result();  
 	}
     function addGestion($data)

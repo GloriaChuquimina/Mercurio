@@ -169,55 +169,58 @@ $(function (){
                     event.preventDefault();
             }
         });
-        $('#txtFecha').change(function(){
-            fecha = $(this).val();
-            var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
-            $.ajax({
-                     url: enlace,
-                    type: 'POST',
-                    data: { fecha: fecha },
-                    success: function(response) {
-                        var resultado = JSON.parse(response);
-                        // alert(resultado.tipo_cambio_fecha); 
-                        // var tipo_cambio = resultado.tipo_cambio_fecha; 
-
-                        var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
-
-                        if (tipo_cambio <= 0) {
-                            // Si no existe tipo de cambio
-                            swal({
-                                title: "Atención",
-                                text: "No existe tipo de cambio registrado para la fecha seleccionada.",
-                                icon: "warning",
-                                button: "OK",
-                                dangerMode: true,
-                            });
-                            $('#txtTipoCambio').val(tipo_cambio); // Limpia el campo
-                            $('#btnRecalcularTipoCambio').hide();
-                            return; // Sale para no seguir validando
-                        }
-
-
-                        $('#txtTipoCambio').val(tipo_cambio);
-                        var nuevo_tipocambio = tipo_cambio;
-                        var comprobante_tipocambio = $('#tipo_cambio_comprobante').val();
-                        var id_comprobante = $('#id_comprobanteP').val();
-                        if(accion == "editar")
-                        {
-                            if(nuevo_tipocambio !== comprobante_tipocambio)
-                            {
-                                var mensaje="Atención: El tipo de cambio ha sido modificado. Para garantizar la exactitud de los datos, actualizar los montos en moneda extranjera según el tipo de cambio introducido.";
-                               swal({title:"ALERTA",text:mensaje,icon:"warning",button:"OK",dangerMode:true});
-                               $('#btnRecalcularTipoCambio').show();
-                            }
-                            else
-                            {
-                                $('#btnRecalcularTipoCambio').hide();
-                            }
-                        }
-                    }
-                });
+        $('#txtFecha').on('blur', function(){
+            validarFecha($(this).val());
         });
+        // $('#txtFecha').change(function(){
+        //     fecha = $(this).val();
+        //     var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+        //     $.ajax({
+        //              url: enlace,
+        //             type: 'POST',
+        //             data: { fecha: fecha },
+        //             success: function(response) {
+        //                 var resultado = JSON.parse(response);
+        //                 // alert(resultado.tipo_cambio_fecha); 
+        //                 // var tipo_cambio = resultado.tipo_cambio_fecha; 
+
+        //                 var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+        //                 if (tipo_cambio <= 0) {
+        //                     // Si no existe tipo de cambio
+        //                     swal({
+        //                         title: "Atención",
+        //                         text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+        //                         icon: "warning",
+        //                         button: "OK",
+        //                         dangerMode: true,
+        //                     });
+        //                     $('#txtTipoCambio').val(tipo_cambio); // Limpia el campo
+        //                     $('#btnRecalcularTipoCambio').hide();
+        //                     return; // Sale para no seguir validando
+        //                 }
+
+
+        //                 $('#txtTipoCambio').val(tipo_cambio);
+        //                 var nuevo_tipocambio = tipo_cambio;
+        //                 var comprobante_tipocambio = $('#tipo_cambio_comprobante').val();
+        //                 var id_comprobante = $('#id_comprobanteP').val();
+        //                 if(accion == "editar")
+        //                 {
+        //                     if(nuevo_tipocambio !== comprobante_tipocambio)
+        //                     {
+        //                         var mensaje="Atención: El tipo de cambio ha sido modificado. Para garantizar la exactitud de los datos, actualizar los montos en moneda extranjera según el tipo de cambio introducido.";
+        //                        swal({title:"ALERTA",text:mensaje,icon:"warning",button:"OK",dangerMode:true});
+        //                        $('#btnRecalcularTipoCambio').show();
+        //                     }
+        //                     else
+        //                     {
+        //                         $('#btnRecalcularTipoCambio').hide();
+        //                     }
+        //                 }
+        //             }
+        //         });
+        // });
         /**CIERRA EL MODAL */
         $('#pdfModal').on('hidden.bs.modal', function (e) {
             // alert("MOLDAL PDF STEPH");
@@ -238,6 +241,53 @@ $(function (){
         });
 
 });
+
+function validarFecha(fecha) {
+    var enlace = base_url + 'Contabilidad/Comprobante/getTipoCambio';
+    $.ajax({
+        url: enlace,
+        type: 'POST',
+        data: { fecha: fecha },
+        success: function(response) {
+            var resultado = JSON.parse(response);
+            var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+            if (tipo_cambio <= 0) {
+                swal({
+                    title: "Atención",
+                    text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+                    icon: "warning",
+                    button: "OK",
+                    dangerMode: true,
+                });
+                $('#txtTipoCambio').val(tipo_cambio);
+                $('#btnRecalcularTipoCambio').hide();
+                return;
+            }
+
+            $('#txtTipoCambio').val(tipo_cambio);
+            var nuevo_tipocambio = tipo_cambio;
+            var comprobante_tipocambio = $('#tipo_cambio_comprobante').val();
+            var id_comprobante = $('#id_comprobanteP').val();
+
+            if (accion == "editar") {
+                if (nuevo_tipocambio !== comprobante_tipocambio) {
+                    swal({
+                        title:"ALERTA",
+                        text:"Atención: El tipo de cambio ha sido modificado. Para garantizar la exactitud de los datos, actualizar los montos en moneda extranjera según el tipo de cambio introducido.",
+                        icon:"warning",
+                        button:"OK",
+                        dangerMode:true
+                    });
+                    $('#btnRecalcularTipoCambio').show();
+                } else {
+                    $('#btnRecalcularTipoCambio').hide();
+                }
+            }
+        }
+    });
+}
+
 
 
 
@@ -1316,13 +1366,13 @@ function cargarCuentasAuxiliaresLista(id_cuenta)
                     {
                         if(datos.resultado == 1)
                         {
-                            swal({title: "OK",text: datos.mensaje,icon: "info",button: "OK",});
-                            $("#auxiliares_cuenta").show();
+                            // // swal({title: "OK",text: datos.mensaje,icon: "info",button: "OK",});
+                            // $("#auxiliares_cuenta").show();
                             $("#listaAuxiliaresDeCuenta").load(base_url +  "Contabilidad/Comprobante/listCuentasAuxiliares/"+id_cuenta );
                         }
                         else
                         {
-                            $("#auxiliares_cuenta").hide();
+                            // $("#auxiliares_cuenta").hide();
                         }
                         
                     });                            
