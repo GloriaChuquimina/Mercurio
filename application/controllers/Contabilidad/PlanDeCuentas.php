@@ -736,8 +736,6 @@ class PlanDeCuentas extends CI_Controller {
 					 }]';
 
 		echo $resultado;
-
-
 		$resultado ='[{
 						"resultado":"'.$resul.'",
 						"mensaje":"'.$mensaje.'"
