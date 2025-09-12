@@ -126,6 +126,7 @@
                               id="txtSiglaCuenta"
                               name="txtSiglaCuenta"
                               placeholder="Ej: ACT"
+                              maxlength="3"
                             />
                           </div>
                         </div>
@@ -230,6 +231,7 @@
                               id="txtSigla"
                               name="txtSigla"
                               placeholder="Ej: ACT-CTE"
+                              maxlength="3"
                             />
                           </div>
                         </div>
