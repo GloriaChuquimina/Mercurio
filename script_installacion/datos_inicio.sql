@@ -58,7 +58,7 @@ INSERT INTO administracion.dominios (concepto,descripcion,valor1,valor2,orden) V
 
 
 INSERT INTO administracion.entidad_dependencia (id_entidad,id_dependencia) VALUES
-	 (1,2);
+	 (1,6);
 
 
 INSERT INTO configuraciones.gestion (gestion,fecha_inicio,fecha_fin) VALUES

@@ -700,7 +700,8 @@ class CierreDeBalance extends CI_Controller {
 				$nivel,
 				$tipo_cuenta_balance
 			);
-		    $totalActivo=count($cuentasActivoOrdenadas);
+			$totalActivo=count($cuentasActivoOrdenadas);
+
 			list($cuentasPasivoOrdenadas, $sumaPasivo, $sumaPasivoUSD) = $this->ordenarCuentas(
 				$cuentas_pasivo,
 				$saldoCero,
