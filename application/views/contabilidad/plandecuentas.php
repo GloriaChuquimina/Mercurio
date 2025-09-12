@@ -84,12 +84,9 @@
             </div>
             <div class="modal-body">
                 <form id="formularioPlanDeCuentas">
-
                   <input type="hidden" class="form-control" id="txtAccion" name="txtAccion" />
                   <input type="hidden" class="form-control" id="idCuenta" name="idCuenta" />
-                  <input type="hidden" class="form-control" id="nivel" name="nivel" />
-                
-
+                  <input type="hidden" class="form-control" id="nivel" name="nivel" />               
                   <div class="card card-outline card-success">
                     <div class="card-header">
                       <h3 class="card-title">
@@ -140,7 +137,6 @@
                           </div>
                         </div> -->
                       </div>
-
                       <div class="row">
                         <div class="col-md-12">
                           <div class="form-group">
@@ -172,7 +168,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade show" id="modalPlanDeSubCuentas"  style="display: backgroundColor: rgba(0,0,0,0.4)">
     <div class="modal-dialog modal-xl" style="max-width: 1200px;">
         <div class="modal-content">
