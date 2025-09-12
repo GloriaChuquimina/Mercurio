@@ -65,13 +65,13 @@
                             </div>
                         </div>
                         <div class="col-md-4 text-right">
-                        <span class="badge badge-warning">XXX cuentas disponibles</span>
+                        <!-- <span class="badge badge-warning">XXX cuentas disponibles</span> -->
                         </div>
                     </div>
                 </div>
             </div>
             <!-- FILTROS Y OPCIONES -->
-            <div class="card card-primary card-outline">
+            <div class="card card-primary card-outline" id ="filtrosConsulta" style="display: none">
                 <div class="card-header">
                   <h3 class="card-title">
                     <i class="mr-2">🔍</i>
@@ -84,163 +84,102 @@
                   </div>
                 </div>
 
-                  <div class="card-body">
-                    <input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
-                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
-                    <div class="row">
-                      <!-- <div class="col-md-2">
-                        <div class="form-group">
-                          <label>
-                            <strong>FECHA DESDE:</strong>
-                          </label>
-                          <input
-                            id="fechaDesde"
-                            name="fechaDesde"
-                            placeHolder="Fecha Desde"
-                            type="date"
-                            class="form-control"
-                          />
-                        </div>
-                      </div> -->
-                      <!-- Radio "Al" -->
-                    <div class="col-sm-12 col-md-auto">
-                      <div class="custom-control custom-radio d-flex align-items-center">
-                        <input class="custom-control-input custom-control-input-danger" 
-                              type="radio" id="radioAl" name="customRadio2" checked>
-                        <label for="radioAl" class="custom-control-label mb-0 mr-1">Al</label>
-                        <input id="fechaAl" name="fechaAl" type="date" 
-                              class="form-control" style="max-width: 140px;">
-                      </div>
-                    </div>
-                      <!-- Radio "Entre el" -->
-                      <div class="col-sm-12 col-md-auto">
-                        <div class="custom-control custom-radio d-flex align-items-center">
-                          <input class="custom-control-input custom-control-input-danger" 
-                                type="radio" id="radioEntre" name="customRadio2">
-                          <label for="radioEntre" class="custom-control-label mb-0 mr-1">Entre el:</label>
-                          <input id="fechaDesde" name="fechaDesde" type="date" 
-                                class="form-control mr-1" style="max-width: 140px;">
-                          <input id="fechaHasta" name="fechaHasta" type="date" 
-                                class="form-control" style="max-width: 140px;">
-                        </div>
-                      </div>
-                      <!-- <div class="col-md-2">
-                        <div class="form-group">
-                          <label>
-                            <strong>FECHA HASTA:</strong>
-                          </label>
-                          <input
-                            id="fechaHasta"
-                            name="fechaHasta"
-                            placeHolder="Fecha Hasta"
-                            type="date"
-                            class="form-control"
-                          />
-                        </div>
-                      </div> -->
-                      <div class="col-sm-12 col-md-auto">
-                        <div class="d-flex align-items-center">
-                          <label for="tipo_moneda" class="mr-1"><strong>Moneda:</strong></label>
-                          <select class="form-control" id="tipo_moneda" name="tipo_moneda" style="max-width: 100px;"></select>    
-                        </div>                                            
-                      </div>
+                <div class="card-body">
+									<input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
+									<input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+									<input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+
+									<div class="row align-items-end">
+										<!-- Radio "Al" -->
+										<div class="col-auto">
+											<div class="form-group mb-0">
+												<div class="custom-control custom-radio d-flex align-items-center">
+													<input class="custom-control-input custom-control-input-danger" 
+																type="radio" id="radioAl" name="customRadio2" checked>
+													<label for="radioAl" class="custom-control-label mr-2">Al:</label>
+													<input id="fechaAl" name="fechaAl" type="date" 
+																class="form-control form-control-sm" style="max-width: 150px;">
+												</div>
+											</div>
+										</div>
+
+										<!-- Moneda -->
+										<div class="col-auto">
+											<div class="form-group mb-0">
+												<label for="tipo_moneda"><strong>Moneda:</strong></label>
+												<select class="form-control form-control-sm" id="tipo_moneda" name="tipo_moneda" style="max-width: 120px;"></select>    
+											</div>                                            
+										</div>
+
+										<!-- Nivel -->
+										<div class="col-auto">
+											<div class="form-group mb-0">
+												<label for="nivel">Nivel:</label>
+												<input type="number" class="form-control form-control-sm is-warning" 
+															name="nivel" id="nivel" placeholder="Ej: 1" style="max-width: 80px;">
+											</div>
+										</div> 
+
+										<!-- Cuentas -->
+										<div class="col-md-4">
+											<div class="form-group mb-0">
+												<label><strong>Cuentas:</strong></label>
+												<div class="input-group input-group-sm">
+													<input type="text" class="form-control" placeholder="Buscar cuenta..." 
+																list="listaCuentas" id="txtCuenta" name="txtCuenta"/>
+													<datalist id='listaCuentas'></datalist>
+													<div class="input-group-append">
+														<button type="button" class="btn btn-success btn-sm" id="btnAddCuenta" onclick="añadirCuenta();">
+															➕
+														</button>
+														<button type="button" class="btn btn-warning btn-sm" id="btnlistaCuentasBusqueda" onclick="listaCuentasBusqueda();">
+															🔍
+														</button>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- Opciones -->
+										<div class="col-auto">
+											<div class="form-check mt-4">
+												<input class="form-check-input" type="checkbox" id="soloConMovimientos"/>
+												<label class="form-check-label" for="soloConMovimientos">
+													Solo cuentas con movimientos
+												</label>
+											</div>
+										</div>
+									</div>
+
+									<hr>
+
+									<div class="row align-items-end">
+										<!-- Radio "Entre el" -->
+										<div class="col-md-6">
+											<div class="custom-control custom-radio d-flex align-items-center">
+												<input class="custom-control-input custom-control-input-danger" 
+															type="radio" id="radioEntre" name="customRadio2">
+												<label for="radioEntre" class="custom-control-label mr-2">Entre el:</label>
+												<input id="fechaDesde" name="fechaDesde" type="date" 
+															class="form-control form-control-sm mr-2" style="max-width: 150px;">
+												<input id="fechaHasta" name="fechaHasta" type="date" 
+															class="form-control form-control-sm" style="max-width: 150px;">
+											</div>
+										</div>
+
+										<!-- Botones -->
+										<div class="col-md-6 text-right">
+											<button class="btn btn-primary btn-sm mr-2" onClick="cargarDatosSumasySaldos()">
+												🔍 Generar Balance
+											</button>
+											<button class="btn btn-success btn-sm mr-2" onClick="ReporteSumasySaldosPDF()">
+												📄 Exportar PDF
+											</button>
+										</div>
+									</div>
+								</div>
 
 
-                      <!-- <div class="col-md-1">
-                          <div class="form-group">
-                              <label>Nivel:</label>
-                              <input type="number"  class="form-control is-warning" name="numero_inicio" id="numero_inicio" class="form-control" placeholder="Ej: 1">
-                          </div>
-                      </div> -->
-                      <!-- Nivel -->
-                      <div class="col-sm-12 col-md-auto">
-                        <div class="d-flex align-items-center">
-                          <label for="nivel" class="mr-1">Nivel:</label>
-                          <input type="number" class="form-control is-warning" name="nivel" id="nivel" 
-                                placeholder="Ej: 1" style="max-width: 80px;">
-                        </div>
-                      </div>                     
-                    </div>
-                    <br>
-                    <div class="row">
-                       <div class="col-md-4">
-                        <div class="form-group">
-                          <label>
-                            <strong>CUENTAS:</strong>
-                          </label>
-                          <!-- <select
-                            class="form-control"
-                          >
-                          </select> -->
-                          <div class="input-group">
-                              <input
-                                  type="text"
-                                  class="form-control"
-                                  placeholder="Buscar cuenta..."
-                                  list="listaCuentas"
-                                  id="txtCuenta" 
-                                  name="txtCuenta"
-                              />
-                              <datalist id='listaCuentas'></datalist>
-                              <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
-                              <div class="input-group-append">
-                                  <button
-                                  type="button"
-                                  class="btn btn-success"
-                                  onclick="añadirCuenta();"
-																	id="btnAddCuenta"
-                                  >
-                                  <i>➕</i>
-                                  </button>
-                                  <button
-                                  type="button"
-                                  class="btn btn-warning"
-                                  onclick="listaCuentasBusqueda();"
-																	id="btnlistaCuentasBusqueda"
-                                  >
-                                  <i>🔍</i>
-                                  </button>
-                              </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-4">
-                        <div class="form-group">
-                          <label>
-                            <strong>OPCIONES:</strong>
-                          </label>
-                          <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="soloConMovimientos"                              
-                            />
-                            <label class="form-check-label" htmlFor="soloConMovimientos">
-                              Solo cuentas con movimientos
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-4 text-right">
-                        <br>
-                        <button class="btn btn-primary mr-2"
-                             onClick = "cargarDatosSumasySaldos()" >
-                          <i class="mr-1">🔍</i> Generar Balance
-                        </button>
-                        <button class="btn btn-success mr-2"
-                              onClick="ReporteSumasySaldosPDF()" >
-                          <i class="mr-1">📄</i> Exportar PDF
-                        </button>
-                        <!-- <button class="btn btn-info mr-2">
-                          <i class="mr-1">📊</i> Exportar Excel
-                        </button>
-                        <button class="btn btn-warning">
-                          <i class="mr-1">🖨️</i> Imprimir
-                        </button> -->
-                      </div>
-                    </div>
-                  </div>
               
             </div>
             <!-- CUENTA SELECCIONADA -->
@@ -291,7 +230,7 @@
                 </div>
             </div> -->
            <!-- TABLA DE BALANCE DE SUMAS Y SALDOS -->
-            <div class="card">
+            <div class="card" id="cardSumasySaldos" style="display: none">
                 <div class="card-header bg-gradient-secondary">
                   <h3 class="card-title text-white">
                     <i class="mr-2">⚖️</i>
@@ -367,15 +306,15 @@
                 <div class="card-footer">
                   <div class="row">
                     <div class="col-md-6">
-                      <p class="text-muted">
+                      <!-- <p class="text-muted">
                         Empresa: • Período:  al  • 
                         cuentas mostradas
-                      </p>
+                      </p> -->
                     </div>
                     <div class="col-md-6 text-right">
-                      <small class="text-muted">
+                      <!-- <small class="text-muted">
                         Estado: Balanceado : Desbalanceado • Generado:
-                      </small>
+                      </small> -->
                     </div>
                   </div>
                 </div>

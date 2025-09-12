@@ -194,15 +194,15 @@
                 <div class="card-footer">
                   <div class="row">
                     <div class="col-md-6">
-                      <p class="text-muted">
+                      <!-- <p class="text-muted">
                         Empresa •   • 
                         Cierres
-                      </p>
+                      </p> -->
                     </div>
                     <div class="col-md-6 text-right">
-                      <small class="text-muted">
+                      <!-- <small class="text-muted">
                         Balance:  Generado:
-                      </small>
+                      </small> -->
                     </div>
                   </div>
                 </div>

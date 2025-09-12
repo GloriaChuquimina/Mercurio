@@ -26,8 +26,8 @@ class SumasSaldos_model extends CI_Model
                                        LEFT JOIN contabilidad.comprobante c ON dc.id_comprobante = c.id
                                        LEFT JOIN administracion.entidad e ON c.id_entidad = e.id 
                                            WHERE pc.estado IN ('ACT')
-                                             AND c.estado IN ('ACT')
-                                             AND dc.estado IN ('ACT')
+                                             AND c.estado in ('ACT','HI') 
+                                             AND dc.estado in ('ACT','HI') 
                                              AND e.id = ".$id_entidad."
                                           -- AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
 																					       ".$whereFecha."
@@ -54,8 +54,8 @@ class SumasSaldos_model extends CI_Model
                                        LEFT JOIN contabilidad.comprobante c ON dc.id_comprobante = c.id
                                        LEFT JOIN administracion.entidad e ON c.id_entidad = e.id 
                                            WHERE pc.estado IN ('ACT')
-                                             AND c.estado IN ('ACT')
-                                             AND dc.estado IN ('ACT')
+                                             AND c.estado in ('ACT','HI') 
+                                             AND dc.estado in ('ACT','HI') 
                                              AND e.id = ".$id_entidad."
                                              AND pc.id in(".$cuentas.")                                          
                                          --  AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
@@ -98,8 +98,8 @@ class SumasSaldos_model extends CI_Model
                                                     LEFT JOIN contabilidad.comprobante c ON dc.id_comprobante = c.id
                                                     LEFT JOIN administracion.entidad e ON c.id_entidad = e.id 
                                                         WHERE pc.estado IN ('ACT')
-                                                          AND c.estado IN ('ACT')
-                                                          AND dc.estado IN ('ACT')
+                                                          AND c.estado in ('ACT','HI') 
+                                                          AND dc.estado in ('ACT','HI') 
                                                           AND e.id = ".$id_entidad."
                                                           AND pc.id in(".$cuentas.")    
                                                        -- AND c.fecha_comprobante BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'

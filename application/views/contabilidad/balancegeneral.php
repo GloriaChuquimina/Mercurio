@@ -65,13 +65,13 @@
                             </div>
                         </div>
                         <div class="col-md-4 text-right">
-                        <span class="badge badge-warning">XXX cuentas disponibles</span>
+                        <!-- <span class="badge badge-warning">XXX cuentas disponibles</span> -->
                         </div>
                     </div>
                 </div>
             </div>
             <!-- FILTROS Y OPCIONES -->
-            <div class="card card-primary card-outline">
+            <div class="card card-primary card-outline" id ="filtrosConsulta" style="display: none">
                 <div class="card-header">
                   <h3 class="card-title">
                     <i class="mr-2">🔍</i>
@@ -145,6 +145,9 @@
                   <!-- Botones -->
                   <div class="row mt-2">
                     <div class="col-12 text-center text-md-right">
+                      <button class="btn btn-info btn-sm mr-1" onClick="cargarDatosBalanceGeneralAntesCierre()" id ="botonCierre" style="display: none">
+                        🔐 Generar Balance Saldos Cierre
+                      </button>
                       <button class="btn btn-primary btn-sm mr-1" onClick="cargarDatosBalanceGeneral()">
                         🔍 Generar Balance
                       </button>
@@ -158,16 +161,16 @@
                   </div>
                 </div>                
             </div>
-            <div class="card">
+            <div class="card" id="cardBalanceGeneral" style="display: none">
                 <div class="card-header bg-gradient-secondary">
                   <h3 class="card-title text-white">
                     <i class="mr-2">⚖️</i>
                     BALANCE GENERAL
                   </h3>
                   <div class="card-tools">
-                    <span class="badge badge-light">
+                    <!-- <span class="badge badge-light">
                       Período: {dateFrom} al {dateTo}
-                    </span>
+                    </span> -->
                   </div>
                 </div>
                 <div class="card-body p-0">
@@ -218,15 +221,15 @@
                 <div class="card-footer">
                   <div class="row">
                     <div class="col-md-6">
-                      <p class="text-muted">
+                      <!-- <p class="text-muted">
                         Empresa: • Período:  al  • 
                         cuentas mostradas
-                      </p>
+                      </p> -->
                     </div>
                     <div class="col-md-6 text-right">
-                      <small class="text-muted">
+                      <!-- <small class="text-muted">
                         Estado: Balanceado : Desbalanceado • Generado:
-                      </small>
+                      </small> -->
                     </div>
                   </div>
                 </div>

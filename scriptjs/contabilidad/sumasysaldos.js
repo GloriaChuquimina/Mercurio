@@ -33,15 +33,31 @@ function valoresIniciales(){
         $("#totales").hide();
         $("#filtrosConsulta").hide();
         $("#cuentaSeleccionada").hide();
-        $("#tablaLibroMayor").hide();
+        $("#cardSumasySaldos").hide();
     }
     else{
         $('#entidadSeleccionada').show();
         $('#totales').show();
         $('#filtrosConsulta').show();
         $("#mensajeSeleccion").show();
-        // $('#cuentaSeleccionada').show();
-        // $('#tablaLibroMayor').show();
+        $('#cuentaSeleccionada').show();
+        $('#cardSumasySaldos').show();
+
+
+        // Obtener la fecha actual en formato YYYY-MM-DD
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+
+		// Primer día del año (01-01-YYYY)
+		const primerDia = `${yyyy}-01-01`;
+
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const fechaActual = `${yyyy}-${mm}-${dd}`;
+        $('#fechaDesde').val(primerDia);
+        $('#fechaHasta').val(fechaActual);
+        $('#fechaAl').val(fechaActual);
+
     }
 }
 function cargarCuentasLista()
@@ -293,40 +309,99 @@ function cargarDatosSumasySaldos(){
 	var cuentas_con_movimiento = $('#soloConMovimientos').prop('checked');
 
     var fecha_al       = $('#fechaAl').val();  
-    var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
+    // var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
     var moneda         = $('#tipo_moneda').val();
     var nivel          = $('#nivel').val();
+	var radio		   = $('input[name="customRadio2"]:checked').attr('id');
+	var mensaje      ="";
+    var sw=0;
+	
 
-    var enlace = base_url + "Contabilidad/SumasYSaldos/cargarDatosSumasySaldos";
-    $('#tablaSumasySaldos').DataTable({
-        destroy: true,
-        "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
-        "iDisplayLength": 10,
-        "font-size":5,
-        "ajax": {
-            type: "POST",
-            url: enlace,
-            data:{          
-                id_entidad:id_entidad,
-                cuentasSeleccionadas:cuentasSeleccionadas,
-                fecha_desde:fecha_desde,
-                fecha_hasta:fecha_hasta,
-				cuentas_con_movimiento:cuentas_con_movimiento,
-                fecha_al:fecha_al,
-                idSeleccionado:idSeleccionado,
-                moneda:moneda,
-                nivel:nivel
-            },
-            dataSrc: function(json) {listaCuentas
-                    $('.txtTotalImporteDebe').text(json.totalimporteDebe);
-                    $('.txtTotalImporteHaber').text(json.totalimporteHaber);
-                    $('.txtTotalImporteDeudor').text(json.totalimporteDeudor);
-                    $('.txtTotalImporteAcreedor').text(json.totalimporteAcreedor);
-                    $('#cant_cuentas').val(json.nro_registros);
-                    return json.data;
-                }
-        },
-    });
+	if(id_entidad == null || id_entidad.length === 0){
+        // alert("SELECCIONE UNA ENTIDAD POR FAVOR");
+        var mensaje ="SELECCIONE UNA ENTIDAD POR FAVOR";
+        swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
+        return;
+    }
+    else
+    {
+		sw=0;
+		if(radio == 'radioAl')
+		{
+			if(fecha_al == null || fecha_al.length === 0){
+
+				mensaje = "SELECCIONE UNA FECHA VÁLIDA POR FAVOR";
+				sw=1;
+			}		
+		}
+		else if(radio == 'radioEntre')
+		{
+			if((fecha_inicio=='' && fecha_fin =='')|| (fecha_inicio.length === 0 && fecha_fin.length === 0)){
+				
+				mensaje = "SELECCIONE UN RANGO DE FECHA VÁLIDO POR FAVOR";
+				sw=1;
+			}
+
+		}
+		if(moneda == -1)
+		{
+			mensaje = "SELECCIONE UNA MONEDA POR FAVOR";
+			sw=1;
+		}
+
+		if(cuentas_con_movimiento == false)
+		{
+			if(cuentasSeleccionadas == "")
+			{
+				mensaje = "SELECCIONE UNA O MAS CUENTAS POR FAVOR";
+			    sw=1;
+			}
+
+		}
+
+
+		if(sw==0)
+		{
+			var enlace = base_url + "Contabilidad/SumasYSaldos/cargarDatosSumasySaldos";
+			$('#tablaSumasySaldos').DataTable({
+				destroy: true,
+				"aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
+				"iDisplayLength": 10,
+				"font-size":5,
+				"ajax": {
+					type: "POST",
+					url: enlace,
+					data:{          
+						id_entidad:id_entidad,
+						cuentasSeleccionadas:cuentasSeleccionadas,
+						fecha_desde:fecha_desde,
+						fecha_hasta:fecha_hasta,
+						cuentas_con_movimiento:cuentas_con_movimiento,
+						fecha_al:fecha_al,
+						idSeleccionado:radio,
+						moneda:moneda,
+						nivel:nivel
+					},
+					dataSrc: function(json) {listaCuentas
+							$('.txtTotalImporteDebe').text(json.totalimporteDebe);
+							$('.txtTotalImporteHaber').text(json.totalimporteHaber);
+							$('.txtTotalImporteDeudor').text(json.totalimporteDeudor);
+							$('.txtTotalImporteAcreedor').text(json.totalimporteAcreedor);
+							$('#cant_cuentas').val(json.nro_registros);
+							return json.data;
+						}
+				},
+			});
+		}
+		else
+        {
+            swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
+            return;
+        }
+	}
+	
+
+    
 }
 function ReporteSumasySaldosPDF()
 {

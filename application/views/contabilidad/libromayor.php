@@ -77,7 +77,7 @@
                             </div>
                         </div>
                         <div class="col-md-4 text-right">
-                        <span class="badge badge-warning">XXX cuentas disponibles</span>
+                        <!-- <span class="badge badge-warning">XXX cuentas disponibles</span> -->
                         </div>
                     </div>
                 </div>
@@ -95,148 +95,79 @@
                     </button>
                   </div>
                 </div>
+
+
                 <div class="card-body">
-                    <input type ="hidden" class="form-control" id="id_entidad" name="id_entidad">
-                    <input type ="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input type ="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
-                    <div class="row">                      
-                      <div class="col-md-2">
-                        <div class="form-group">
-                          <label>
-                            <strong>FECHA DESDE:</strong>
-                          </label>
-                          <input
-                            id="fechaDesde"
-                            name="fechaDesde"
-                            placeHolder="Fecha Desde"
-                            type="date"
-                            class="form-control"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-md-2">
-                        <div class="form-group">
-                          <label>
-                            <strong>FECHA HASTA:</strong>
-                          </label>
-                          <input
-                            id="fechaHasta"
-                            name="fechaHasta"
-                            placeHolder="Fecha Hasta"
-                            type="date"
-                            class="form-control"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="d-flex align-items-end">
-                                <div style="flex-grow: 1; margin-right: 10px;">
-                                    <label for="tipo_moneda">
-                                        <strong>MONEDA:</strong>
-                                    </label>
-                                    <select
-                                        class="form-control"
-                                        id="tipo_moneda"
-                                        name="tipo_moneda"
-                                        value="selectedEntity"
-                                    >
-                                    </select>
-                                </div>
-                            </div>
-                        </div>                        
-                      </div>
-                      <!-- <div class="col-md-2">
-                        <div class="form-group">
-                            <div class="d-flex align-items-end">
-                                <div style="flex-grow: 1; margin-right: 10px;">
-                                    <label for="tipo_comprobante">
-                                        <strong>MODO DE IMPRESIÓN:</strong>
-                                    </label>
-                                    <select
-                                        class="form-control"
-                                        id="tipo_comprobante"
-                                        name="tipo_comprobante"
-                                        value="selectedEntity"
-                                    >
-                                    </select>
-                                </div>
-                            </div>
-                        </div>                        
-                      </div> -->
-                      <div class="col-md-2">
-                      </div>
-                      <div class="col-md-2">
-                      </div>
-                    </div>
-                    <div class="row">
-                       <div class="col-md-2">
-                        <div class="form-check m-0"">
-                          <label>
-                            <strong>OPCIONES:</strong>
-                          </label>
-                          <div class="form-check">
-                            <input
-                              class="form-check-input"
-                              type="checkbox"
-                              id="soloConMovimientos"  
-                              name="soloConMovimientos"                            
-                            />
-                            <label class="form-check-label" htmlFor="soloConMovimientos">
-                              Solo cuentas con movimientos
-                            </label>
-                          </div>
-                        </div>
-                      </div> 
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label>
-                            <i class="text-danger">*</i>
-                            <strong> CUENTA CONTABLE:</strong>
-                          </label>
-                          <div class="input-group">
-                              <input
-                                  type="text"
-                                  class="form-control"
-                                  placeholder="Buscar cuenta..."
-                                  list="listaCuentas"
-                                  id="txtCuenta" 
-                                  name="txtCuenta"
-                              />
-                              <datalist id='listaCuentas'></datalist>
-                              <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
-                              <div class="input-group-append">
-                                  <button
-                                  type="button"
-                                  class="btn btn-success"
-                                  onclick="añadirCuenta();"
-                                  >
-                                  <i>➕</i>
-                                  </button>
-                                  <button
-                                  type="button"
-                                  class="btn btn-warning"
-                                  onclick="listaCuentasBusqueda();"
-                                  >
-                                  <i>🔍</i>
-                                  </button>
-                              </div>
-                          </div>
-                        </div>
-                      </div>                    
-                      <div class="col-md-4 text-right">
-                        <br>
-                        <button class = "btn btn-primary mr-2"
-                              onClick = "consultar()">
-                          <i class="mr-1">🔍</i> Consultar
-                        </button>
-                        <button class="btn btn-success mr-2"
-                                onClick="generarReporteLibroMayor()">
-                          <i class="mr-1">📄</i> Exportar PDF
-                        </button>
-                      </div>                      
-                    </div>
-                </div>                
+									<input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
+									<input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+									<input type="hidden" class="form-control" id="id_cuenta_seleccionadas" name="id_cuenta_seleccionadas">
+									
+									<!-- FILTROS -->
+									<div class="row">                      
+										<div class="col-md-2">
+											<div class="form-group">
+												<label><strong>FECHA DESDE:</strong></label>
+												<input id="fechaDesde" name="fechaDesde" type="date" class="form-control"/>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group">
+												<label><strong>FECHA HASTA:</strong></label>
+												<input id="fechaHasta" name="fechaHasta" type="date" class="form-control"/>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group">
+												<label for="tipo_moneda"><strong>MONEDA:</strong></label>
+												<select class="form-control" id="tipo_moneda" name="tipo_moneda"></select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label><i class="text-danger">*</i><strong> CUENTA CONTABLE:</strong></label>
+												<div class="input-group">
+													<input type="text" class="form-control" placeholder="Buscar cuenta..." list="listaCuentas" id="txtCuenta" name="txtCuenta"/>
+													<datalist id='listaCuentas'></datalist>
+													<div class="input-group-append">
+														<button type="button" class="btn btn-success" onclick="añadirCuenta();">➕</button>
+														<button type="button" class="btn btn-warning" onclick="listaCuentasBusqueda();">🔍</button>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-check m-0">
+												<label><strong>OPCIONES:</strong></label>
+												<div class="form-check">
+													<input class="form-check-input" type="checkbox" id="soloConMovimientos" name="soloConMovimientos"/>
+													<label class="form-check-label" for="soloConMovimientos">
+														Solo cuentas con movimientos
+													</label>
+												</div>
+											</div>
+										</div> 
+									</div>
+
+									<!-- OPCIONES Y CUENTA -->
+									<!-- <div class="row">
+									</div> -->
+
+									<!-- BOTONES EN FILA SEPARADA -->
+									<div class="row mt-3">
+										<div class="col-md-12 text-right">
+											<button class="btn btn-primary mr-2" onClick="consultar()">
+												🔍 Consultar
+											</button>
+											<button class="btn btn-success mr-2" onClick="generarReporteLibroMayor()">
+												📄 Exportar PDF
+											</button>
+										</div>
+									</div>
+								</div>
+
+								
+								
+
             </div>
             <!-- CUENTA SELECCIONADA -->
             <div class="card" style="background-color: #f0f8ff; border-left: 4px solid #007bff" id="cuentaSeleccionada" style="display: none">
@@ -349,9 +280,9 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-md-6">
-                        <p class="text-muted">
+                        <!-- <p class="text-muted">
                             Empresa: • Período:• Movimientos:
-                        </p>
+                        </p> -->
                         </div>
                         <div class="col-md-6 text-right">
                         <small class="text-muted">Última actualización:</small>

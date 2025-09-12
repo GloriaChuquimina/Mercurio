@@ -21,7 +21,7 @@ class LibroDiario_model extends CI_Model
                                             from contabilidad.comprobante c 
                                  left outer join administracion.entidad e on c.id_entidad =e.id
                                            where e.id=".$id_entidad."
-                                             and c.estado in ('ACT')
+                                             and c.estado in ('ACT','HI')
                                              and c.fecha_comprobante between '".$fecha_inicio."' and '".$fecha_fin."'
                                         order by c.correlativo,c.tipo_comprobante asc
 		    							                ");
@@ -39,7 +39,7 @@ class LibroDiario_model extends CI_Model
                                  left outer join administracion.entidad e on c.id_entidad =e.id
                                            where e.id=".$id_entidad."
                                              and c.tipo_comprobante =('".$tipo_comprobante."')
-                                             and c.estado in ('ACT')
+                                             and c.estado in ('ACT','HI')
                                              and c.fecha_comprobante between '".$fecha_inicio."' and '".$fecha_fin."'
                                         order by c.correlativo,c.tipo_comprobante asc
 		    							                ");
@@ -57,7 +57,7 @@ class LibroDiario_model extends CI_Model
                                  left outer join administracion.entidad e on c.id_entidad =e.id
                                            where e.id=".$id_entidad."
                                              and c.tipo_comprobante =('".$tipo_comprobante."')
-                                             and c.estado in ('ACT')
+                                             and c.estado in ('ACT','HI')
                                              and c.fecha_comprobante between '".$fecha_inicio."' and '".$fecha_fin."'
                                              and c.correlativo between ".$numero_inicio." and ".$numero_fin."
                                         order by c.correlativo,c.tipo_comprobante asc

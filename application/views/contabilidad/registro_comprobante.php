@@ -175,42 +175,42 @@
                                     DETALLE DEL COMPROBANTE
                                     </h3>
                                     <div class="card-tools">
-                                    <button type="button" class="btn btn-info btn-sm" onClick="agregarRegistroComprobante()">
-                                        <i class="mr-1">+</i>
-                                        Agregar Registro
-                                    </button>
+                                        <button type="button" class="btn btn-info btn-sm" onClick="agregarRegistroComprobante()">
+                                            <i class="mr-1">+</i>
+                                            Agregar Registro
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="table-responsive">
-                                    <table class="table table-striped table-hover" id="tablaRegistroCuenta" style="width: 100%;">
-                                    <!-- <table class="table table-head-fixed text-nowrap" id="tablaRegistroCuenta" style="width: 100%;"> -->
-                                        <thead class="bg-dark">
-                                        <tr>
-                                            <th style="color: white">Código</th>
-                                            <th style="color: white" >DESCRIPCIÓN</th>
-                                            <th style="color: white; text-align: right">DEBE Bs.</th>
-                                            <th style="color: white; text-align: right">HABER Bs.</th>
-                                            <th style="color: white; text-align: right">DEBE Us.</th>
-                                            <th style="color: white; text-align: right">HABER Us.</th>
-                                            <th style="color: white; text-align: center">OPCIONES</th>
-                                        </tr>
-                                        </thead>
-                                        <tfoot>
-                                            <tr class="bg-primary">
-                                                <td colSpan="2" style="color: white; font-weight: bold;">
-                                                TOTALES
-                                                </td>
-                                                    <!-- <td style="text-align: right; color: white; font-weight: bold;" id="txtTotalImporteDebe">0.00</td> -->
-                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe" >0.00</td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber" >0.00</td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebeUs" >0.00</td>
-                                                    <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaberUs" >0.00</td>
-                                                    <td></td>
-                                                </td>
+                                        <table class="table table-striped table-hover" id="tablaRegistroCuenta" style="width: 100%;">
+                                        <!-- <table class="table table-head-fixed text-nowrap" id="tablaRegistroCuenta" style="width: 100%;"> -->
+                                            <thead class="bg-dark">
+                                            <tr>
+                                                <th style="color: white">Código</th>
+                                                <th style="color: white" >DESCRIPCIÓN</th>
+                                                <th style="color: white; text-align: right">DEBE Bs.</th>
+                                                <th style="color: white; text-align: right">HABER Bs.</th>
+                                                <th style="color: white; text-align: right">DEBE Us.</th>
+                                                <th style="color: white; text-align: right">HABER Us.</th>
+                                                <th style="color: white; text-align: center">OPCIONES</th>
                                             </tr>
-                                        </tfoot>
-                                    </table>
+                                            </thead>
+                                            <tfoot>
+                                                <tr class="bg-primary">
+                                                    <td colSpan="2" style="color: white; font-weight: bold;">
+                                                    TOTALES
+                                                    </td>
+                                                        <!-- <td style="text-align: right; color: white; font-weight: bold;" id="txtTotalImporteDebe">0.00</td> -->
+                                                        <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebe" >0.00</td>
+                                                        <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber" >0.00</td>
+                                                        <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDebeUs" >0.00</td>
+                                                        <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaberUs" >0.00</td>
+                                                        <td></td>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -244,139 +244,139 @@
              </div>
             <div class="modal-body">
                 <form id="formularioRegistroCuenta">
-                <!-- CAMPOS OCULTOS -->
-                <input type="hidden" class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
-                <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
-                <input type="hidden" class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
-                <input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
-                <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
-                <input type="hidden" class="form-control" id="registroCuentaT" name="registroCuentaT">
-                <input type="hidden" class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
-                <input type="hidden" class="form-control" id="id_registroCuentaComprobante" name="id_registroCuentaComprobante">
-                <input type="hidden" class="form-control" id="mensaje" name="mensaje">
-                <input type="hidden" class="form-control" id="id_cuenta_auxiliar" name="id_cuenta_auxiliar">
-                <div class="card card-outline card-info">
-                    <div class="card-header">
-                    <h7 class="card-title">
-                        <i class="mr-2">✏️</i>
-                        REGISTRO DE CUENTA
-                    </h7>
-                    </div>
-                    <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="form-group">
-                                <label>
-                                <i class="text-danger">*</i>
-                                <strong> DESCRIPCIÓN CUENTA:</strong>
-                                </label>
-                                <div class="input-group">
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        placeholder="Buscar cuenta..."
-                                        list="listaCuentas"
-                                        id="txtCuenta" 
-                                        name="txtCuenta"
-                                    />
-                                    <datalist id='listaCuentas'></datalist>
-                                    <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
-                                    <div class="input-group-append">
-                                        <button
-                                        type="button"
-                                        class="btn btn-warning"
-                                        onclick="listaCuentasBusqueda();"
-                                        >
-                                        <i>🔍</i>
-                                        </button>
+                    <!-- CAMPOS OCULTOS -->
+                    <input type="hidden" class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
+                    <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
+                    <input type="hidden" class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
+                    <input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input type="hidden" class="form-control" id="registroCuentaT" name="registroCuentaT">
+                    <input type="hidden" class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
+                    <input type="hidden" class="form-control" id="id_registroCuentaComprobante" name="id_registroCuentaComprobante">
+                    <input type="hidden" class="form-control" id="mensaje" name="mensaje">
+                    <input type="hidden" class="form-control" id="id_cuenta_auxiliar" name="id_cuenta_auxiliar">
+                    <div class="card card-outline card-info">
+                        <div class="card-header">
+                        <h7 class="card-title">
+                            <i class="mr-2">✏️</i>
+                            REGISTRO DE CUENTA
+                        </h7>
+                        </div>
+                        <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>
+                                    <i class="text-danger">*</i>
+                                    <strong> DESCRIPCIÓN CUENTA:</strong>
+                                    </label>
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="Buscar cuenta..."
+                                            list="listaCuentas"
+                                            id="txtCuenta" 
+                                            name="txtCuenta"
+                                        />
+                                        <datalist id='listaCuentas'></datalist>
+                                        <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
+                                        <div class="input-group-append">
+                                            <button
+                                            type="button"
+                                            class="btn btn-warning"
+                                            onclick="listaCuentasBusqueda();"
+                                            >
+                                            <i>🔍</i>
+                                            </button>
+                                        </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>
+                                    <i class="text-danger">*</i>
+                                    <strong> TIPO:</strong>
+                                    </label>
+                                    <select class="form-control" id="txtTipoMovimiento" name="txtTipoMovimiento">
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>
+                                    <i class="text-danger">*</i>
+                                    <strong> IMPORTE:</strong>
+                                    </label>
+                                    <input type="text" id="txtImporte" name="txtImporte" class="form-control text-right" placeholder="0.00" />
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>
-                                <i class="text-danger">*</i>
-                                <strong> TIPO:</strong>
-                                </label>
-                                <select class="form-control" id="txtTipoMovimiento" name="txtTipoMovimiento">
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>
-                                <i class="text-danger">*</i>
-                                <strong> IMPORTE:</strong>
-                                </label>
-                                <input type="text" id="txtImporte" name="txtImporte" class="form-control text-right" placeholder="0.00" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row" id="auxiliares_cuenta" style="display:none;">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>
-                                <i class="text-danger">*</i>
-                                <strong> AUXILIARES DE LA CUENTA:</strong>
-                                </label>
-                                <div class="input-group">
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        placeholder="Buscar auxiliar de la cuenta..."
-                                        list="listaAuxiliaresDeCuenta"
-                                        id="txtAuxiliarCuenta" 
-                                        name="txtAuxiliarCuenta"
-                                    />
-                                    <datalist id='listaAuxiliaresDeCuenta'></datalist>
-                                    <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
-                                    <div class="input-group-append">
-                                        <button
-                                        type="button"
-                                        class="btn btn-info"
-                                        onclick="listaCuentasAuxiliaresBusqueda();"
-                                        >
-                                        <i>🕵️</i>
-                                        </button>
+                        <div class="row" id="auxiliares_cuenta" >
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>
+                                    <i class="text-danger">*</i>
+                                    <strong> AUXILIARES DE LA CUENTA:</strong>
+                                    </label>
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="Buscar auxiliar de la cuenta..."
+                                            list="listaAuxiliaresDeCuenta"
+                                            id="txtAuxiliarCuenta" 
+                                            name="txtAuxiliarCuenta"
+                                        />
+                                        <datalist id='listaAuxiliaresDeCuenta'></datalist>
+                                        <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
+                                        <div class="input-group-append">
+                                            <button
+                                            type="button"
+                                            class="btn btn-info"
+                                            onclick="listaCuentasAuxiliaresBusqueda();"
+                                            >
+                                            <i>🕵️</i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>
-                                <i class="text-danger">*</i>
-                                <strong> GLOSA:</strong>
-                                </label>
-                                <textarea 
-                                id="txtGlosaCuenta" 
-                                name="txtGlosaCuenta"
-                                class="form-control"
-                                rows="3"
-                                placeholder="Descripción del movimiento..."
-                                ></textarea>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>
+                                    <i class="text-danger">*</i>
+                                    <strong> GLOSA:</strong>
+                                    </label>
+                                    <textarea 
+                                    id="txtGlosaCuenta" 
+                                    name="txtGlosaCuenta"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Descripción del movimiento..."
+                                    ></textarea>
+                                </div>
                             </div>
                         </div>
+                        
                     </div>
-                    
-                </div>
                 </form>
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal" >
-                <i class="mr-1">❌</i>
-                Cerrar
-            </button>
-            <button type="button" class="btn btn-info" onclick="guardarRegistroCuenta();">
-                <i class="mr-1">💾</i>
-                Guardar Registro
-            </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >
+                    <i class="mr-1">❌</i>
+                    Cerrar
+                </button>
+                <button type="button" class="btn btn-info" onclick="guardarRegistroCuenta();">
+                    <i class="mr-1">💾</i>
+                    Guardar Registro
+                </button>
             </div>
         </div>
     </div>
@@ -441,14 +441,14 @@
                         </thead>
                     </table>
                 </div>
-              </div>
+            </div>
 
-              <div class="modal-footer">
+            <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal" >
                       <i class="mr-1">❌</i>
                       Cerrar
                   </button>
-              </div>
+            </div>
 
             </div>
         </div>

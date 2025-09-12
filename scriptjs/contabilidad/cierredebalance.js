@@ -197,7 +197,7 @@ function seleccionDeCuentas()
 }
 function listaCuentasBusqueda()
 {
-    alert("STEPH");
+    // alert("STEPH");
     var cuentasSeleccionadas=$('#id_cuenta_seleccionadas').text();
     $('#opcionSeleccionar').checked = false;
     cargarCuentas(0,cuentasSeleccionadas);
@@ -357,6 +357,7 @@ function cerrarCuentaDeBalance()
                             swal({title:"!Excelente¡",text:datos.mensaje,icon:"success",button:"OK"});
                             // cargarTablaEntidades();
                             $("#modalRegistroCierreDeBalance").modal('hide'); 
+                            cargarDatosBalanceGeneral(datos.id_entidad,datos.fecha);
                         }
                     });
                 }

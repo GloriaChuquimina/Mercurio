@@ -65,13 +65,13 @@
                             </div>
                         </div>
                         <div class="col-md-4 text-right">
-                        <span class="badge badge-warning">XXX cuentas disponibles</span>
+                        <!-- <span class="badge badge-warning">XXX cuentas disponibles</span> -->
                         </div>
                     </div>
                 </div>
             </div>
              <!-- FILTROS Y OPCIONES -->
-            <div class="card card-primary card-outline">
+            <div class="card card-primary card-outline " id ="filtrosConsulta" style="display: none">
                 <div class="card-header">
                   <h3 class="card-title">
                     <i class="mr-2">🔍</i>
@@ -201,6 +201,9 @@
                       <div class="col-md-12">
                         <br>
                          <div class="col-md-12 text-right">
+                          <button class="btn btn-info btn-sm mr-1" onClick="consultarCierre()" id ="botonCierreResultados" style="display: none">
+                            🔐 Estado De Resultados Reconocido
+                          </button>
                           <button class="btn btn-primary mr-2"
                               onClick = "consultar()">
                             <i class="mr-1">🔍</i> Consultar 

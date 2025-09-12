@@ -41,7 +41,7 @@ $config = array(
 			  'rules' => 'trim|required|callback_fecha_valida'),
 
 		array ('field' => 'txtTipoCambio',
-			   'label' => 'IMPORTE',
+			   'label' => 'TIPO CAMBIO',
 			   'rules' => 'trim|required'),
 
 		array ('field' => 'txtGlosaGeneral',
@@ -61,7 +61,7 @@ $config = array(
 			  'rules' => 'trim|required|callback_fecha_valida'),
 
 		array ('field' => 'txtTipoCambio',
-			   'label' => 'IMPORTE',
+			   'label' => 'TIPO CAMBIO',
 			   'rules' => 'trim|required'),
 
 		array ('field' => 'txtGlosaGeneral',
@@ -69,7 +69,6 @@ $config = array(
 		  	   'rules' => 'trim|required|min_length[3]|max_length[500]')
 		
 		),
-
 		
 		
 	);

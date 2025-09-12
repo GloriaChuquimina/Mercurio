@@ -14,6 +14,7 @@ class CierreDeBalance extends CI_Controller {
         $this->load->model('PlanDeCuentas_model');
         $this->load->model('BalanceGeneral_model');
         $this->load->model('CierresContables_model');
+        $this->load->model('Comunes_model');
 		$this->load->helper('configuraciones_helper');
 		$this->load->helper('funcionarios_helper');
 		$this->load->helper('correlativos_helper');
@@ -616,10 +617,12 @@ class CierreDeBalance extends CI_Controller {
 			$id_cuentas_deudoras   	   = getIdCuenta($codigo_cuentas_deudoras);
 			$id_cuentas_acreedoras 	   = getIdCuenta($codigo_cuentas_acreedoras);
 
-			$codigo_cuenta_ingreso  = 4;
-			$codigo_cuenta_egreso   = 5;
-			$id_cuenta_ingreso      = getIdCuenta($codigo_cuenta_ingreso);
-			$id_cuenta_egreso       = getIdCuenta($codigo_cuenta_egreso);
+			$codigo_cuenta_ingreso     = 4;
+			$codigo_cuenta_egreso      = 5;
+			$codigo_perdidas_ganancias = 9;
+			$id_cuenta_ingreso         = getIdCuenta($codigo_cuenta_ingreso);
+			$id_cuenta_egreso          = getIdCuenta($codigo_cuenta_egreso);
+			$id_perdidas_ganancias     = getIdCuenta($codigo_perdidas_ganancias);
 
 			// die();
 
@@ -697,8 +700,8 @@ class CierreDeBalance extends CI_Controller {
 				$nivel,
 				$tipo_cuenta_balance
 			);
-
 			$totalActivo=count($cuentasActivoOrdenadas);
+
 			list($cuentasPasivoOrdenadas, $sumaPasivo, $sumaPasivoUSD) = $this->ordenarCuentas(
 				$cuentas_pasivo,
 				$saldoCero,
@@ -726,7 +729,10 @@ class CierreDeBalance extends CI_Controller {
 				$nivel,
 				$tipo_cuenta_orden
 			);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7e8f72fa2ab89ae8a71be7402ba4cf846a48aebc
 			$totalAcreedor=count($cuentasAcreedorasOrdenadas);
 
 			$max_filas  = $totalActivo+$totalPasivo+$totalPatrimonio+$totalDeudor+$totalAcreedor;
@@ -751,7 +757,8 @@ class CierreDeBalance extends CI_Controller {
 							$id_usuario,
 							$tipo_cierre,
 							$id_dependencia,
-							$fecha_actual
+							$fecha_actual,
+							'ACT'
 						);
 						$id_comprobante_cierre = $saveComprobante;
 						$comprobantes[] = $saveComprobante;
@@ -765,7 +772,8 @@ class CierreDeBalance extends CI_Controller {
 							$estado_balance,
 							'DB',
 							'HB',
-							$tipo_cambio_cierre,							
+							$tipo_cambio_cierre,	
+							'ACT'					
 						);
 						break;
 					case 2:
@@ -783,7 +791,8 @@ class CierreDeBalance extends CI_Controller {
 							$id_usuario,
 							$tipo_cierre,
 							$id_dependencia,
-							$fecha_actual
+							$fecha_actual,
+							'ACT'
 							);
 							$comprobantes[] = $saveComprobante;
 							$this->registrarDetalleCierre(
@@ -796,11 +805,34 @@ class CierreDeBalance extends CI_Controller {
 								'DB',
 								'HB',
 								$tipo_cambio_cierre,
+								'ACT'
 							);
 						}
 						
 						break;
 					case 3:
+					
+						// Primer día del año (1 de enero)
+						$fecha_inicio_gestion = $gestion_apertura . "-01-01";
+
+						// Último día del año (31 de diciembre)
+						$fecha_fin_gestion = $gestion_apertura . "-12-31";
+
+						$datosGestion = [
+
+							'gestion'            => $gestion_apertura,
+							'fecha_inicio'       => $fecha_inicio_gestion,
+							'fecha_fin'          => $fecha_fin_gestion,
+							
+						];
+						$this->Comunes_model->addGestion($datosGestion);
+						$updateGestion = [
+							'fecha_modificacion' => $fecha_actual,
+							'estado'          => 'HI',
+							
+						];
+						$this->Comunes_model->updateGestion($gestion,$updateGestion);
+
 						$saveComprobante = $this->registrarComprobante(
 						    $id_entidad,
 							$tipo_comprobante,
@@ -811,9 +843,10 @@ class CierreDeBalance extends CI_Controller {
 							$fecha_comprobante_apertura,
 							$tipo_cambio_apertura,//CONSULTAR
 							$id_usuario,
-							'PEN',//$tipo_cierre,//CONSULTAR
+							'',
 							$id_dependencia,
-							$fecha_actual
+							$fecha_actual,
+							'HI'
 						);
 						// echo("stephany");
 						$comprobantes[] = $saveComprobante;
@@ -828,6 +861,7 @@ class CierreDeBalance extends CI_Controller {
 							'HB',
 							'DB',
 							$tipo_cambio_apertura,
+							'HI'
 						);
 						break;
 				}
@@ -844,11 +878,16 @@ class CierreDeBalance extends CI_Controller {
 				[$id_cuentas_acreedoras, $codigo_cuentas_acreedoras],
 				[$id_cuenta_ingreso, $codigo_cuenta_ingreso],
 				[$id_cuenta_egreso, $codigo_cuenta_egreso],
+				[$id_perdidas_ganancias, $codigo_perdidas_ganancias]
 			];
 
+			// echo("<pre>");
+			// print_r($cuentasMayor);
+			// echo("</pre>");
 			// ===============================
 			// 1) Procesar CUENTAS DE COMPROBANTES
 			// ===============================
+			$filtro_comprobante ="";
 			$cuentasConsolidadasComprobantes = [];
 			foreach ($cuentasMayor as [$id, $codigo]) {
 				$cuentasConsolidadasComprobantes = array_merge(
@@ -858,16 +897,21 @@ class CierreDeBalance extends CI_Controller {
 						$fecha_inicio,
 						$fecha_fin,
 						$id,
-						$codigo
+						$codigo,
+						$filtro_comprobante
 					)
 				);
 			}
 
+			// echo("<pre>");
+			// print_r($cuentasConsolidadasComprobantes);
+			// echo("</pre>");
+			
 			foreach ($cuentasConsolidadasComprobantes as $cuenta) {
 				$this->Comprobantes_model->updateComprobante(
 					$cuenta->id_comprobante,
 					[
-						// 'estado'                => $estado_balance,
+						'estado'                => 'HI',
 						'tipo_cierre'           => $tipo_cierre,
 						'fecha_modificacion'    => $fecha_actual,
 						'id_funcionario_update' => $id_usuario
@@ -878,6 +922,7 @@ class CierreDeBalance extends CI_Controller {
 			// ===============================
 			// 2) Procesar CUENTAS GENERALES
 			// ===============================
+			$filtro= "";
 			$cuentasConsolidadas = [];
 			foreach ($cuentasMayor as [$id, $codigo]) {
 				$cuentasConsolidadas = array_merge(
@@ -887,15 +932,21 @@ class CierreDeBalance extends CI_Controller {
 						$fecha_inicio,
 						$fecha_fin,
 						$id,
-						$codigo
+						$codigo,
+						$filtro
 					)
 				);
 			}
 
+			// echo("<pre>");
+			// print_r($cuentasConsolidadas);
+			// echo("</pre>");
+			
 			foreach ($cuentasConsolidadas as $cuenta) {
 				$this->Comprobantes_model->updateDetalleComprobante(
 					$cuenta->id_detalle_cuenta,
 					[
+						'estado'                => 'HI',
 						'estado_balance'        => $estado_balance,
 						'fecha_modificacion'    => $fecha_actual,
 						'id_funcionario_update' => $id_usuario
@@ -928,7 +979,11 @@ class CierreDeBalance extends CI_Controller {
 			$this->CierresContables_model->guardarCierre($datosCierre);
 
 			$this->db->trans_commit();
-			$response = ['resultado' => 1, 'mensaje' => 'SE REGISTRÓ EL CIERRE DE RESULTADOS CORRECTAMENTE.'];
+			$response = ['resultado' => 1, 
+			             'mensaje' => 'SE REGISTRÓ EL CIERRE DE BALANCE CORRECTAMENTE.',
+						'id_entidad' => $id_entidad,
+						'fecha' => $fecha_actual,
+						];
 		} catch (\Exception $e) {
 			$this->db->trans_rollback();
 			$response = ['resultado' => 0, 'mensaje' => 'ERROR EN EL PROCESO: ' . $e->getMessage()];
@@ -951,7 +1006,8 @@ class CierreDeBalance extends CI_Controller {
 	$id_usuario, 
 	$tipo_cierre,
 	$id_dependencia,
-	$fecha_actual){
+	$fecha_actual,
+	$estado){
 
 
 		$datosCorrelativo = json_decode(obtenerCorrelativoComprobanteGestionEntidad(
@@ -975,7 +1031,8 @@ class CierreDeBalance extends CI_Controller {
 			'fecha_comprobante'      => $fecha_comprobante,
 			'tipo_cambio'            => $tipo_cambio,
 			'id_usuario_registro'    => $id_usuario,
-			'tipo_cierre'            => $tipo_cierre
+			'tipo_cierre'            => $tipo_cierre,
+			'estado'			     => $estado
 		];	
 
 		$saveComprobante = $this->Comprobantes_model->guardarComprobante($datosComprobante);
@@ -1001,7 +1058,8 @@ class CierreDeBalance extends CI_Controller {
 		$estado_balance, 
 		$tipoMovimientoPositivo, 
 		$tipoMovimientoNegativo,
-		$tipo_cambio
+		$tipo_cambio,
+		$estado
 	){
 
 		// echo("<pre>");
@@ -1029,7 +1087,8 @@ class CierreDeBalance extends CI_Controller {
 					'importe_moneda_extranjera' => $saldoUSD,
 					'glosa_cuenta'              => '',
 					'id_usuario_registro'       => $usuarioId,
-					'estado_balance'            => $estado_balance
+					'estado_balance'            => $estado_balance,
+					'estado'					=> $estado
 				];
 				$this->Comprobantes_model->guardarDetalleComprobante($datosDetalle);
 			}
@@ -1057,7 +1116,9 @@ class CierreDeBalance extends CI_Controller {
 					'importe_moneda_extranjera' => $saldoUSD,
 					'glosa_cuenta'              => '',
 					'id_usuario_registro'       => $usuarioId,
-					'estado_resultado'          => $estado_balance
+					'estado_balance'            => $estado_balance,
+					'estado'					=> $estado
+
 				];
 				$this->Comprobantes_model->guardarDetalleComprobante($datosDetalle);
 			}
