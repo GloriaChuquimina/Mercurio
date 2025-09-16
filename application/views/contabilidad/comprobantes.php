@@ -277,8 +277,6 @@
                 </div>
               </div>
 </div> -->
-
-
 <script type="text/javascript">
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    

@@ -1031,7 +1031,6 @@ function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,t
 function generarReporteComprobanteRegistrado(id_comprobante)
 {
     // $('#txtAccionComprobante').val('editar');
-    // var accion= $('#txt
     $('#divPDF').html('');   
     var accion= 'editar';
     var iframe = document.createElement("iframe");

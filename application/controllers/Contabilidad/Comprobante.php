@@ -997,7 +997,6 @@ class Comprobante extends CI_Controller {
     }
 	function ReporteComprobanteRegistradoPDF($id_comprobante,$accion)
 	{
-
 		$id_dependencia      = $this->session->userdata('id_dependencia_principal');
 		// $datos_json = json_decode($this->input->post('datos'));
 		// $detalle_json =json_decode($this->input->post('detalleComprobante'));

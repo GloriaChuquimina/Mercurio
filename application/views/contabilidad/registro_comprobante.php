@@ -2,7 +2,6 @@
 <script src="<?php echo  base_url() ?>scriptjs/validacion.js"></script>
 <script src="<?php echo  base_url() ?>scriptjs/contabilidad/comprobantes.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>resources/css/global.css">
-
 <div class="wrapper">
     <div class="content-wrapper" style="margin-left: 0;">
         <form id="formregistrocontablePrincipal">
