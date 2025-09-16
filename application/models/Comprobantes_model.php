@@ -68,7 +68,7 @@ class Comprobantes_model extends CI_Model
 								 left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante 
 								 left outer join contabilidad.plancuentas_auxiliares p on dc.id_cuenta_auxiliar =p.id and p.estado ='ACT'
 										   where c.id=".$id_comprobante."
-										     and dc.estado in ('AC','HI')   
+										     and dc.estado in ('ACT','HI')   
 										   ;
 											"
 										  );
