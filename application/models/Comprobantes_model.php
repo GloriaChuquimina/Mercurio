@@ -69,8 +69,7 @@ class Comprobantes_model extends CI_Model
 								 left outer join contabilidad.plancuentas_auxiliares p on dc.id_cuenta_auxiliar =p.id and p.estado ='ACT'
 										   where c.id=".$id_comprobante."
 										     and dc.estado in ('ACT','HI')  
-										order by c.fecha_registro asc
-										   ;
+										order by c.fecha_registro asc;
 											"
 										  );
 		return $query->result();
