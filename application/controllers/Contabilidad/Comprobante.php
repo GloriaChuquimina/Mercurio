@@ -1108,7 +1108,7 @@ class Comprobante extends CI_Controller {
 			// $detalleComprobante=$detalle_json;		
 			// $filas = explode("|", $detalleComprobante);
 			$detalleComprobante    = $this->Comprobantes_model->getDetalleComprobanteById($id_comprobante);
-			// echo json_encode($detalleComprobante);
+			echo json_encode($detalleComprobante);
 			$importeDebe=0;
 			$importeHaber=0;
 			$importeDebeUs=0;

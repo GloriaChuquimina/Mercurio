@@ -130,7 +130,7 @@ $(function (){
                     $("#tablaLibroMayor").hide();
                 }
                 else{
-                    $('#cuentaSeleccionada').show();
+                    // $('#cuentaSeleccionada').show();
                     $('#tablaLibroMayor').show();
                     $("#mensajeSeleccion").hide();
                 }
@@ -156,7 +156,7 @@ $(function (){
      
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
         // alert('El modal se ha cerrado');
-        $('#cuentaSeleccionada').show();
+        // $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
     });
 
@@ -184,10 +184,10 @@ function añadirCuenta()
         var cuentaLiteral =$('#txtCuenta').val()+"|";
         var cuentasLiteral = $('#cuentas').text()+ cuentaLiteral;
         $('#cuentas').text(cuentasLiteral);
-        $('#cuentaSeleccionada').show();
+        // $('#cuentaSeleccionada').show();
          
     }
-    $('#cuentaSeleccionada').show();
+    // $('#cuentaSeleccionada').show();
 }
 function seleccionDeCuentas()
 {
@@ -269,13 +269,14 @@ function consultar()
 	else
 	{
 
-		$('#cuentaSeleccionada').show();
+		// $('#cuentaSeleccionada').show();
 		$('#tablaLibroMayor').show();
 		$("#mensajeSeleccion").hide();
 		var id_entidad =$('#id_entidad').val();
 		var cuentas =$('#id_cuenta_seleccionadas').val();
 		var fecha_inicio = $('#fechaDesde').val();
 		var fecha_fin = $('#fechaHasta').val();
+        var valorCheckConMovimiento    = $('input[name="soloConMovimientos"]').is(':checked');
 		/*CARGAR TABLA BUSQUEDA LIBRO MAYOR */
 		var enlace = base_url + "Contabilidad/LibroMayor/listarBusquedaLibroMayor";
 		$.ajax({
@@ -284,7 +285,8 @@ function consultar()
 			data: { id_entidad : id_entidad,
 					cuentas:cuentas,
 					fecha_inicio: fecha_inicio,
-					fecha_fin: fecha_fin
+					fecha_fin: fecha_fin,
+                    valorCheckConMovimiento:valorCheckConMovimiento
 				}, 
 			dataType:'JSON',
 			success: function (data) 

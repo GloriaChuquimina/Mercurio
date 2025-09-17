@@ -40,7 +40,7 @@ function valoresIniciales(){
         $('#totales').show();
         $('#filtrosConsulta').show();
         $("#mensajeSeleccion").show();
-        $('#cuentaSeleccionada').show();
+        // $('#cuentaSeleccionada').show();
         $('#cardSumasySaldos').show();
 
 
@@ -95,7 +95,7 @@ $(function (){
                     $("#tablaLibroMayor").hide();
                 }
                 else{
-                    $('#cuentaSeleccionada').show();
+                    // $('#cuentaSeleccionada').show();
                     $('#tablaLibroMayor').show();
                     $("#mensajeSeleccion").hide();
                 }
@@ -106,7 +106,7 @@ $(function (){
             });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
         // alert('El modal se ha cerrado');
-        $('#cuentaSeleccionada').show();
+        // $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
         // Aquí puedes ejecutar cualquier función adicional
     });
@@ -219,10 +219,10 @@ function añadirCuenta()
         var cuentaLiteral =$('#txtCuenta').val()+"|";
         var cuentasLiteral = $('#cuentas').text()+ cuentaLiteral;
         $('#cuentas').text(cuentasLiteral);
-        $('#cuentaSeleccionada').show();
+        // $('#cuentaSeleccionada').show();
          
     }
-    $('#cuentaSeleccionada').show();
+    // $('#cuentaSeleccionada').show();
 }
 function seleccionDeCuentas()
 {
@@ -336,7 +336,7 @@ function cargarDatosSumasySaldos(){
 		}
 		else if(radio == 'radioEntre')
 		{
-			if((fecha_inicio=='' && fecha_fin =='')|| (fecha_inicio.length === 0 && fecha_fin.length === 0)){
+			if((fecha_desde=='' && fecha_fin =='')|| (fecha_desde.length === 0 && fecha_hasta.length === 0)){
 				
 				mensaje = "SELECCIONE UN RANGO DE FECHA VÁLIDO POR FAVOR";
 				sw=1;

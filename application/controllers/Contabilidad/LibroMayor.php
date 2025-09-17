@@ -51,6 +51,7 @@ class LibroMayor extends CI_Controller {
 		$cuentas		 = $this->input->post('cuentas');
 		$fecha_inicio    = $this->input->post('fecha_inicio');
 		$fecha_fin       = $this->input->post('fecha_fin');
+		$valorCheckConMovimiento   = $this->input->post('valorCheckConMovimiento');
 
 		// 1. Reemplazar guiones por comas
 		$cadena = str_replace('-', ',', $cuentas);
@@ -167,26 +168,29 @@ class LibroMayor extends CI_Controller {
 			$totalImporteAcreedor =0;
 			if(count($cuentasLibroMayor)==0)
 			{
-				$detalle_movimiento ="SIN MOVIMIENTO";
-				$tr.="<tr>
-						<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
-						".$detalle_movimiento."
-						</td>
-						<td>
-						</td>
-						<td>
-						</td>
-						<td>
-						</td>
-						<td>
-						</td>
-						<td>
-						</td>
-						<td>
-						</td>
-						<td>
-						</td>
-					  </tr>";
+				if($valorCheckConMovimiento === 'false'){
+					$detalle_movimiento ="SIN MOVIMIENTO";
+					$tr.="<tr>
+							<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
+							".$detalle_movimiento."
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+						</tr>";
+				}
+				
 			}
 			else
 			{
