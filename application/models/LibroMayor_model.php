@@ -62,16 +62,20 @@ class LibroMayor_model extends CI_Model
                                                 ,c.tipo_comprobante
                                                 ,c.fecha_comprobante
                                                 ,c.glosa_comprobante 
+                                                ,dc.id_cuenta_auxiliar 
                                                 ,dc.tipo_movimiento
                                                 ,dc.fecha_registro
                                                 ,dc.glosa_cuenta
                                                 ,dc.importe_moneda_nacional
                                                 ,dc.importe_moneda_extranjera
                                                 ,e.nombre 
+                                                ,pa.codigo as codigo_auxiliar
+                                                ,pa.descripcion as descripcion_auxiliar
                                             from contabilidad.plancuentas pc
                                        left join contabilidad.detalle_comprobante dc on pc.id = dc.id_cuenta
                                  left outer join contabilidad.comprobante c on dc.id_comprobante = c.id
                                  left outer join administracion.entidad e  on c.id_entidad = e.id 
+                                 left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id 
                                            where pc.estado in ('ACT') 
                                              and c.estado in ('ACT','HI') 
                                              and dc.estado in ('ACT','HI') 
@@ -89,6 +93,9 @@ class LibroMayor_model extends CI_Model
                                                  ,dc.importe_moneda_nacional
                                                  ,dc.importe_moneda_extranjera
                                                  ,e.nombre
+                                                 ,dc.id_cuenta_auxiliar 
+                                                 ,pa.codigo 
+                                                 ,pa.descripcion 
                                         order by pc.id asc
 		    							   " 
 										  );

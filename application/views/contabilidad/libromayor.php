@@ -139,9 +139,9 @@
 											<div class="form-check m-0">
 												<label><strong>OPCIONES:</strong></label>
 												<div class="form-check">
-													<input class="form-check-input" type="checkbox" id="soloConMovimientos" name="soloConMovimientos"/>
-													<label class="form-check-label" for="soloConMovimientos">
-														Solo cuentas con movimientos
+													<input class="form-check-input" type="checkbox" id="sinMovimientos" name="sinMovimientos"/>
+													<label class="form-check-label" for="sinMovimientos">
+														Incluir cuentas sin movimiento
 													</label>
 												</div>
 											</div>

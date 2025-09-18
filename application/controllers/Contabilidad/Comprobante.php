@@ -213,6 +213,10 @@ class Comprobante extends CI_Controller {
 		$importe   		           		= $datos_registro_cuenta['txtImporte'];
 		$glosa_cuenta   		   		= $datos_registro_cuenta['txtGlosaCuenta'];
 		$id_cuenta_auxiliar 		   	= $datos_registro_cuenta['id_cuenta_auxiliar'];
+		if($id_cuenta_auxiliar == '-')
+		{
+			$id_cuenta_auxiliar = null;
+		}
 		$cuenta_auxiliar  		   	    = $datos_registro_cuenta['txtAuxiliarCuenta'];
 		// $cadRegistroCuenta				   = $datos_registro_cuenta['registroCuentaT'];
 		$cadRegistroCuenta		   		= $cuentas;
@@ -350,7 +354,8 @@ class Comprobante extends CI_Controller {
 						'importe_moneda_extranjera' => $importeUs,
 						'glosa_cuenta'              => $glosa_cuenta,
 						'fecha_modificacion'        => $fechaActual,					
-						'id_funcionario_update'     => $id_funcionario					
+						'id_funcionario_update'     => $id_funcionario,					
+						'id_cuenta_auxiliar'        => $id_cuenta_auxiliar						
 						);
 						$update_count_record = $this->Comprobantes_model->updateDetalleComprobante($id_registroCuentaComprobante,$datosComprobanteDetalle);
 						if($update_count_record){
