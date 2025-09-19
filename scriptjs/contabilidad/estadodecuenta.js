@@ -36,8 +36,6 @@ function valoresIniciales(){
     }
 }
 function cargarCuentasEntidad(){
-
-
     var enlace = base_url + "Comunes/Comunes/cargarCuentaContableEntidad";
     $.ajax({
         type: "GET",
@@ -287,8 +285,6 @@ function consultar() {
                   },
 
             dataSrc: function(json) {
-
-                    
                         $('.txtTotalImporteDebe').text(json.totalDebe);
                         $('.txtTotalImporteHaber').text(json.totalHaber);
                         $('.txtTotalImporteDeudor').text(json.totalDeudor);
