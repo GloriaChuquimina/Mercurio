@@ -41,7 +41,7 @@
                         <th style="color: white;">DESCRIPCIÓN</th>
                         <th style="color: white;">TIPO</th>
                         <th style="color: white;">NIVEL</th>
-                        <th style="color: white;">SIGLA</th>
+                        <!-- <th style="color: white;">SIGLA</th> -->
                         <th style="color: white;">ESTADO</th>
                         <!-- <th style="color: white;">CODIGO_CUENTA</th> -->
                       </tr>

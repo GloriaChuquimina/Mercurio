@@ -166,7 +166,7 @@ class EstadoDeCuenta extends CI_Controller {
 
 			$row = array(
 				$codigo_aux,
-				$descripcion_aux,
+				utf8_decode($descripcion_aux),
 				number_format($importeDebe,2,'.',','),
 				number_format($importeHaber,2,'.',','),
 				number_format($importeDeudor,2,'.',','),
