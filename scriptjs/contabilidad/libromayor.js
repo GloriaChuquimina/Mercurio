@@ -277,6 +277,7 @@ function consultar()
 		var fecha_inicio = $('#fechaDesde').val();
 		var fecha_fin = $('#fechaHasta').val();
         var valorCheckSinMovimiento    = $('input[name="sinMovimientos"]').is(':checked');
+        var moneda         = $('#tipo_moneda').val();
 		/*CARGAR TABLA BUSQUEDA LIBRO MAYOR */
 		var enlace = base_url + "Contabilidad/LibroMayor/listarBusquedaLibroMayor";
 		$.ajax({
@@ -286,7 +287,8 @@ function consultar()
 					cuentas:cuentas,
 					fecha_inicio: fecha_inicio,
 					fecha_fin: fecha_fin,
-                    valorCheckSinMovimiento:valorCheckSinMovimiento
+                    valorCheckSinMovimiento:valorCheckSinMovimiento,
+                    moneda:moneda
 				}, 
 			dataType:'JSON',
 			success: function (data) 

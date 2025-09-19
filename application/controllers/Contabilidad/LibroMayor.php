@@ -52,6 +52,8 @@ class LibroMayor extends CI_Controller {
 		$fecha_inicio    = $this->input->post('fecha_inicio');
 		$fecha_fin       = $this->input->post('fecha_fin');
 		$valorCheckSinMovimiento   = $this->input->post('valorCheckSinMovimiento');
+		$moneda         = $this->input->post('moneda');
+		
 
 		// 1. Reemplazar guiones por comas
 		$cadena = str_replace('-', ',', $cuentas);
@@ -298,6 +300,12 @@ class LibroMayor extends CI_Controller {
 										<td>
 										</td>
 									</tr>";
+
+
+								$importeDeudor   = 0;
+								$importeAcreedor = 0;				
+								$saldoAcumulado  = 0;
+								
 								$bandera_cabecera = true;
 							}
 
@@ -310,7 +318,12 @@ class LibroMayor extends CI_Controller {
 							
 							if($registro->tipo_movimiento == "DB")
 							{
-								$importeDebe      = $registro->importe_moneda_nacional;
+								// $importeDebe      = $registro->importe_moneda_nacional;
+								if($moneda === 'BOB'){
+									$importeDebe      = $registro->importe_moneda_nacional;
+								}elseif ($moneda === 'USD') {
+									$importeDebe      = $registro->importe_moneda_extranjera;
+								}
 								$saldoAcumulado   = $importeDebe + $saldoAcumulado;
 								if($saldoAcumulado >0)
 								{
@@ -327,7 +340,12 @@ class LibroMayor extends CI_Controller {
 							}
 							else
 							{
-								$importeHaber     = $registro->importe_moneda_nacional;
+								// $importeHaber     = $registro->importe_moneda_nacional;
+								if($moneda === 'BOB'){
+									$importeHaber     = $registro->importe_moneda_nacional;
+								}elseif ($moneda === 'USD') {
+									$importeHaber     = $registro->importe_moneda_extranjera;
+								}
 								$saldoAcumulado   = $saldoAcumulado-$importeHaber; 
 
 								if($saldoAcumulado>0)
