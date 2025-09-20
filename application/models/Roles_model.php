@@ -48,7 +48,7 @@ class Roles_model extends CI_Model
 
 	function check_opciones($opcion,$usuario)
 	{
-		$query = $this->db_entorno->query("select 1 
+		$query = $this->db_entorno->query("select  *
 			                         	     from seguridad.usuarios_opciones
 										    where id_usuario =". $usuario."
 										      and id_opcion =".$opcion."
@@ -142,6 +142,86 @@ class Roles_model extends CI_Model
 											where ro.estado='AC' AND r.id = ".$id_rol);
 		return $query->result();
 	}
+	/* ABD septiembre 2025*/
+	/*USUARIOS ADMINISTRADORES */
+	function getusuariosSistema()
+	{
+		$query = $this->db_rrhh->query("select vdatos_fun.* 
+										  from personal.vista_datos_puesto_cargo_funcionario vdatos_fun
+										 where vdatos_fun.id_dependencia != 3
+										   and vdatos_fun.estado = 'AC'
+										   and vdatos_fun.estado_puesto='AC'
+									  order by vdatos_fun.id_dependencia , vdatos_fun.nombres asc ");
+        return $query->result();
+	}
+
+	/*LISTADO PARA DAR PERMISOS EN THOR ADMIN*/
+	function getPermisosCero($aplicacion)
+	{
+		$query = $this->db_entorno->query(" select distinct o.id, 
+														    o.codigo_opciones,
+															o.opcion,o.link,
+															o.icono,
+															o.nivel,
+															o.orden,
+															o.id_aplicacion 
+									          from seguridad.usuarios_opciones u, aplicaciones.opciones o
+									         where 1 = 1
+									           and u.id_opcion = o.codigo_opciones 	
+									           and o.id_aplicacion = ".$aplicacion."
+									           and o.nivel = 0
+									           and u.estado = 'AC'
+									           and o.estado = 'AC'
+									      order by o.orden asc" );	
+        return $query->result();	
+	}
+	function getPermisos($aplicacion)
+	{
+		
+
+
+
+        $query = $this->db_entorno->query(" select o.id, 
+			                               o.codigo_opciones,
+			                               o.opcion,
+			                               o.link,
+			                               o.icono,
+			                               o.nivel,
+			                               o.orden,
+			                               id_aplicacion
+									  from aplicaciones.opciones o
+									 where 1 = 1									   
+									   and o.nivel > 0
+									   and o.id_aplicacion = ".$aplicacion."									   
+									   and o.estado = 'AC'									   
+									 order by o.codigo_opciones,o.nivel,o.orden asc" ); 
+        return $query->result();	
+	}
+
+
+	/*DAR DE BAJA A EL USUARIO*/
+	function eliminarUsuarioSistema($id,$data)
+	{
+		$this->db_entorno->where('id',$id);        
+		return $this->db_entorno->update('seguridad.usuarios_opciones',$data);  
+	}
+
+	function verificarRolUsuario($idUsuario,$idOpcion)
+    {
+        $query = $this->db_entorno->query(" select 1
+                                      from seguridad.usuarios_opciones u
+                                     where u.id_opcion = ".$idOpcion."
+                                       and u.id_usuario = ".$idUsuario."        
+                                       and u.estado = 'AC'" ); 
+        return $query->result();
+    }
+
+	function updateRolesUsuario($id,$data)
+    {       
+        $this->db_entorno->where('id',$id);        
+        return $this->db_entorno->update('seguridad.usuarios_opciones',$data);  
+    }
+
 
 }
 ?>
