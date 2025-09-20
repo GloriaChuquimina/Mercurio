@@ -197,7 +197,7 @@ class PlanDeCuentas extends CI_Controller {
 				$indentacion.$descripcion,	
 				$tipo,
                 $fila['nivel'],
-                $fila['sigla'],
+                // $fila['sigla'],
 				$estado,
 				// "<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
 			);

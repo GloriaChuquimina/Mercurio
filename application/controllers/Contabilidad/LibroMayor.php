@@ -51,7 +51,9 @@ class LibroMayor extends CI_Controller {
 		$cuentas		 = $this->input->post('cuentas');
 		$fecha_inicio    = $this->input->post('fecha_inicio');
 		$fecha_fin       = $this->input->post('fecha_fin');
-		$valorCheckConMovimiento   = $this->input->post('valorCheckConMovimiento');
+		$valorCheckSinMovimiento   = $this->input->post('valorCheckSinMovimiento');
+		$moneda         = $this->input->post('moneda');
+		
 
 		// 1. Reemplazar guiones por comas
 		$cadena = str_replace('-', ',', $cuentas);
@@ -70,105 +72,96 @@ class LibroMayor extends CI_Controller {
 
 
 		$tr=""; 
-		// $tr= "<table class='table table-striped table-hover' id='tbl_libroMayor' name ='tbl_libroMayor'>
-		//       <thead class='bg-dark'>
-		// 			<tr>
-		// 			  <th rowspan='2' style='color: white; width:100px '>FECHA</th>
-		// 			  <th rowspan='2' style='color: white; width:120px '>COMPROBANTE</th>
-		// 			  <th rowspan='2' style='color: white; width:100px '>TIPO</th>
-		// 			  <th rowspan='2' style='color: white;'>DESCRIPCIÓN(GLOSA)</th>                
-		// 			  <th colspan='2' style='color: white; width:120px;text-align: right' >MOVIMIENTOS</th>
-		// 			  <th colspan='2' style='color: white; width:120px;text-align: right'>SALDOS</th>
-		// 			</tr>
-		// 			<tr>
-		// 			  <th style='color: white; width:120px;text-align: right' >DEBE</th>
-		// 			  <th style='color: white; width:120px;text-align: right'>HABER</th>
-		// 			  <th style='color: white; width:120px;text-align: right'>DEUDOR</th>
-		// 			  <th style='color: white; width:120px;text-align: right'>ACREEDOR</th>
-		// 			</tr>
-		// 	  </thead>";
-		// 	  $tr .= "<tbody>";
+
 		$totalGeneralImporteDebe  = 0;
 		$totalGeneralImporteHaber = 0;
 		$totalGeneralImporteDeudor  = 0;
 		$totalGeneralImporteAcreedor = 0;
+
+		$sumaTotalImporteDebe =0;
+		$sumaTotalImporteHaber =0;
+		$sumaTotalImporteDeudor=0;
+		$sumaTotalImporteAcreedor =0;	
 		// $tr="<body>";
 		foreach ($plandecuentas as $cuenta)
 		{   
-			$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;			   
-			$cabercera2_cuenta="";
-			
-			if($cuenta->ruta == 0)
-			{
-				$cabercera2_cuenta="<b>".$cuenta->descripcion."</b>";
-			}
-			else
-			{
-				$cuentas_ruta      = explode("-", $cuenta->ruta);
-				$nro_ruta =1;
-				foreach($cuentas_ruta as $ruta)
-				{
-					if(count($cuentas_ruta) === $nro_ruta)
-					{
-						$cabercera2_cuenta .="<b>".getCuenta($ruta)." ➝ " .$cuenta->descripcion."</b>";
-					}
-					else
-					{
-						if($ruta != 0)
-						{
-							$cabercera2_cuenta .="<b>".getCuenta($ruta)." ➝ </b>";
-						}
-					}					
-					$nro_ruta++;
-					
-				}
-			}			
-			$tr.="<tr>
-					<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
-					".$cabercera1_cuenta."
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					</tr>";
-			$tr.="<tr>
-					<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
-					".$cabercera2_cuenta."
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-					<td>
-					</td>
-				  </tr>";
 			$cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda2($id_entidad,$cuenta->id,$fecha_inicio,$fecha_fin);
 			$totalImporteDebe =0;
 			$totalImporteHaber =0;
 			$totalImporteDeudor=0;
 			$totalImporteAcreedor =0;
+			
 			if(count($cuentasLibroMayor)==0)
 			{
-				if($valorCheckConMovimiento === 'false'){
+				if($valorCheckSinMovimiento === 'true')
+				{
+					$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;			   
+					$cabercera2_cuenta = "";
+					
+					if($cuenta->ruta == 0)
+					{
+						$cabercera2_cuenta="<b>".$cuenta->descripcion."</b>";
+					}
+					else
+					{
+						$cuentas_ruta      = explode("-", $cuenta->ruta);
+						$nro_ruta =1;
+						foreach($cuentas_ruta as $ruta)
+						{
+							if(count($cuentas_ruta) === $nro_ruta)
+							{
+								$cabercera2_cuenta .="<b>".getCuenta($ruta)." ➝ " .$cuenta->descripcion."</b>";
+							}
+							else
+							{
+								if($ruta != 0)
+								{
+									$cabercera2_cuenta .="<b>".getCuenta($ruta)." ➝ </b>";
+								}
+							}					
+							$nro_ruta++;
+							
+						}
+					}
+
+					$tr.="<tr>
+							<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
+							".$cabercera1_cuenta."
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							</tr>";
+					$tr.="<tr>
+							<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
+							".$cabercera2_cuenta."
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+						</tr>";
 					$detalle_movimiento ="SIN MOVIMIENTO";
 					$tr.="<tr>
 							<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
@@ -190,122 +183,262 @@ class LibroMayor extends CI_Controller {
 							</td>
 						</tr>";
 				}
-				
 			}
 			else
 			{
+
 				$importeDeudor   = 0;
 				$importeAcreedor = 0;				
 				$saldoAcumulado  = 0;
-				foreach($cuentasLibroMayor as $registro)
+
+				$cuentasLibroMayorAux = $cuentasLibroMayor;		
+				$sumaTotalImporteDebe =0;
+				$sumaTotalImporteHaber =0;
+				$sumaTotalImporteDeudor=0;
+				$sumaTotalImporteAcreedor =0;	
+
+				foreach($cuentasLibroMayor as $fila)
 				{
-					$fecha_comprobante  = formato_fecha($registro->fecha_comprobante);
-					$tipo_comprobante   = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $registro->tipo_comprobante);
-					$numero_correlativo = $registro->correlativo;
-					$glosa_cuenta       = $registro->glosa_cuenta;
-					$importeDebe   = 0;
-					$importeHaber  = 0;
+					$idCuentaAuxiliar = $fila->id_cuenta_auxiliar;		
+					$totalImporteDebe =0;
+					$totalImporteHaber =0;
+					$totalImporteDeudor=0;
+					$totalImporteAcreedor =0;
 					
-					if($registro->tipo_movimiento == "DB")
+					/**********************/
+					/*DETALLE DE LA CUENTA*/
+					/**********************/
+					$bandera_cabecera = false;
+					$contador_registros=0;
+					foreach($cuentasLibroMayorAux  as  $idx => $registro)
 					{
-						$importeDebe      = $registro->importe_moneda_nacional;
-						$saldoAcumulado   = $importeDebe + $saldoAcumulado;
-						if($saldoAcumulado >0)
+						if($idCuentaAuxiliar == $registro->id_cuenta_auxiliar)
 						{
-							$importeDeudor    = $saldoAcumulado;
-							$importeAcreedor  = 0;
+							$contador_registros++;
+							if($bandera_cabecera==false)
+							{
+								/************************/
+								/*CABECERA DE LA CUENTA */
+								/************************/
+								if($idCuentaAuxiliar != null)
+								{
+									$cabercera1_cuenta = "Cuenta:".$registro->codigo_auxiliar;		   
+								}
+								else
+								{
+									$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;		
+								}
 
-						}
-						else
-						{
-							$importeAcreedor  = $saldoAcumulado * -1;
-							$importeDeudor	  = 0;
-						}
-
-					}
-					else
-					{
-						$importeHaber     = $registro->importe_moneda_nacional;
-						$saldoAcumulado   = $saldoAcumulado-$importeHaber; 
-
-						if($saldoAcumulado>0)
-						{
-							$importeDeudor = $saldoAcumulado;
-							$importeAcreedor = 0;
-						}
-						else
-						{
-							$importeAcreedor = $saldoAcumulado * -1;
-							$importeDeudor	 = 0;
-						}
-					}
+								$cabercera2_cuenta="";
+								
+								if($cuenta->ruta == 0)
+								{
+									$cabercera2_cuenta=$cuenta->descripcion;
+								}
+								else
+								{
+									$cuentas_ruta      = explode("-", $cuenta->ruta);
+									$nro_ruta =1;
+									foreach($cuentas_ruta as $ruta)
+									{
+										if(count($cuentas_ruta) === $nro_ruta)
+										{
+											$cabercera2_cuenta .=getCuenta($ruta)." ➝ ".$cuenta->descripcion;
+											
+										}
+										else
+										{
+											if($ruta != 0)
+											{
+												$cabercera2_cuenta .=getCuenta($ruta)." ➝ " ;
+											}
+										}					
+										$nro_ruta++;
 										
-					$tr.="<tr>
-							<td>
-							".$fecha_comprobante."
-							</td>
-							<td>
-							".$tipo_comprobante."
-							</td>
-							<td>
-							".$numero_correlativo."
-							</td>
-							<td>
-							".$glosa_cuenta."
-							</td>
-							<td style='text-align: right'>
-							".$importeDebe."
-							</td>
-							<td style='text-align: right'>
-							".$importeHaber."
-							</td>
-							<td style='text-align: right'>
-							".$importeDeudor."
-							</td>
-							<td style='text-align: right'>
-							".$importeAcreedor."
-							</td>
-					  	  </tr>";		
-						  
-					$totalImporteDebe     = $totalImporteDebe+$importeDebe;
-					$totalImporteHaber    = $totalImporteHaber+$importeHaber;
-					$totalImporteDeudor   = $totalImporteDeudor+$importeDeudor;
-					$totalImporteAcreedor = $totalImporteAcreedor+$importeAcreedor;
-					
-				}
-				
-				$tr.="<tr style='background-color:rgb(248, 232, 228); font-weight: bold;'>
-						<td  style='text-align: right'>
-						
-						</td>
-						<td  style='text-align: right'>
-						
-						</td>
-						<td  style='text-align: right'>
-						
-						</td>
-						<td style='text-align: right'>
-						TOTALES:
-						</td>
-						<td style='text-align: right'>
-						".number_format($totalImporteDebe,2,'.',',')."
-						</td>
-						<td style='text-align: right'>
-						".number_format($totalImporteHaber,2,'.',',')."
-						</td>
-						<td style='text-align: right'>
-						".number_format($totalImporteDeudor,2,'.',',')."
-						</td>
-						<td style='text-align: right'>
-						".number_format($totalImporteAcreedor,2,'.',',')."
-						</td>
-					  </tr>";
-			}
+									}
+									if($registro->id_cuenta_auxiliar != null)
+									{
+										$cabercera2_cuenta = strtoupper($registro->descripcion_auxiliar)." --> ".($cabercera2_cuenta);
+									}
+								}	
+								
+								$tr.="<tr>
+										<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
+										".$cabercera1_cuenta."
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+									</tr>";
+								$tr.="<tr>
+										<td style='min-width:300px; max-width:300px; word-wrap:break-word;'>
+										".$cabercera2_cuenta."
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										</td>
+									</tr>";
 
-			$totalGeneralImporteDebe     = $totalGeneralImporteDebe+$totalImporteDebe;
-			$totalGeneralImporteHaber    = $totalGeneralImporteHaber+$totalImporteHaber;	
-			$totalGeneralImporteDeudor   = $totalGeneralImporteDeudor+$totalImporteDeudor;
-			$totalGeneralImporteAcreedor = $totalGeneralImporteAcreedor+$totalImporteAcreedor;	
+
+								$importeDeudor   = 0;
+								$importeAcreedor = 0;				
+								$saldoAcumulado  = 0;
+								
+								$bandera_cabecera = true;
+							}
+
+							$fecha_comprobante  = formato_fecha($registro->fecha_comprobante);
+							$tipo_comprobante   = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $registro->tipo_comprobante);
+							$numero_correlativo = $registro->correlativo;
+							$glosa_cuenta       = $registro->glosa_cuenta;
+							$importeDebe   = 0;
+							$importeHaber  = 0;
+							
+							if($registro->tipo_movimiento == "DB")
+							{
+								// $importeDebe      = $registro->importe_moneda_nacional;
+								if($moneda === 'BOB'){
+									$importeDebe      = $registro->importe_moneda_nacional;
+								}elseif ($moneda === 'USD') {
+									$importeDebe      = $registro->importe_moneda_extranjera;
+								}
+								$saldoAcumulado   = $importeDebe + $saldoAcumulado;
+								if($saldoAcumulado >0)
+								{
+									$importeDeudor    = $saldoAcumulado;
+									$importeAcreedor  = 0;
+
+								}
+								else
+								{
+									$importeAcreedor  = $saldoAcumulado * -1;
+									$importeDeudor	  = 0;
+								}
+
+							}
+							else
+							{
+								// $importeHaber     = $registro->importe_moneda_nacional;
+								if($moneda === 'BOB'){
+									$importeHaber     = $registro->importe_moneda_nacional;
+								}elseif ($moneda === 'USD') {
+									$importeHaber     = $registro->importe_moneda_extranjera;
+								}
+								$saldoAcumulado   = $saldoAcumulado-$importeHaber; 
+
+								if($saldoAcumulado>0)
+								{
+									$importeDeudor = $saldoAcumulado;
+									$importeAcreedor = 0;
+								}
+								else
+								{
+									$importeAcreedor = $saldoAcumulado * -1;
+									$importeDeudor	 = 0;
+								}
+							}
+
+							/***************************************/
+							/***************DETALLE*****************/
+							/***************************************/
+							$tr.="<tr>
+									<td>
+									".$fecha_comprobante."
+									</td>
+									<td>
+									".$tipo_comprobante."
+									</td>
+									<td>
+									".$numero_correlativo."
+									</td>
+									<td>
+									".$glosa_cuenta."
+									</td>
+									<td style='text-align: right'>
+									".number_format($importeDebe,2,'.',',')."
+									</td>
+									<td style='text-align: right'>
+									".number_format($importeHaber,2,'.',',')."
+									</td>
+									<td style='text-align: right'>
+									".number_format($importeDeudor,2,'.',',')."
+									</td>
+									<td style='text-align: right'>
+									".number_format($importeAcreedor,2,'.',',')."
+									</td>
+								</tr>";		
+								
+							$totalImporteDebe     = $totalImporteDebe+$importeDebe;
+							$totalImporteHaber    = $totalImporteHaber+$importeHaber;
+							$totalImporteDeudor   = $totalImporteDeudor+$importeDeudor;
+							$totalImporteAcreedor = $totalImporteAcreedor+$importeAcreedor;
+
+							unset($cuentasLibroMayorAux[$idx]);
+							
+						}
+					}
+
+					if($contador_registros>0)
+					{
+						$tr.="<tr style='background-color:rgb(248, 232, 228); font-weight: bold;'>
+							<td  style='text-align: right'>
+							
+							</td>
+							<td  style='text-align: right'>
+							
+							</td>
+							<td  style='text-align: right'>
+							
+							</td>
+							<td style='text-align: right'>
+							SUBTOTALES:
+							</td>
+							<td style='text-align: right'>
+							".number_format($totalImporteDebe,2,'.',',')."
+							</td>
+							<td style='text-align: right'>
+							".number_format($totalImporteHaber,2,'.',',')."
+							</td>
+							<td style='text-align: right'>
+							".number_format($totalImporteDeudor,2,'.',',')."
+							</td>
+							<td style='text-align: right'>
+							".number_format($totalImporteAcreedor,2,'.',',')."
+							</td>
+						</tr>";
+					}
+					$sumaTotalImporteDebe     = $sumaTotalImporteDebe+$totalImporteDebe;
+					$sumaTotalImporteHaber    = $sumaTotalImporteHaber+$totalImporteHaber;
+					$sumaTotalImporteDeudor   = $sumaTotalImporteDeudor+$totalImporteDeudor;
+					$sumaTotalImporteAcreedor = $sumaTotalImporteAcreedor+$totalImporteAcreedor;
+				}
+			}
+			$totalGeneralImporteDebe     = $totalGeneralImporteDebe+$sumaTotalImporteDebe;
+			$totalGeneralImporteHaber    = $totalGeneralImporteHaber+$sumaTotalImporteHaber;	
+			$totalGeneralImporteDeudor   = $totalGeneralImporteDeudor+$sumaTotalImporteDeudor;
+			$totalGeneralImporteAcreedor = $totalGeneralImporteAcreedor+$sumaTotalImporteAcreedor;	
 		}
 		// $tr .= "</tbody>";
 		// $tr .= "</tbody></table>";
@@ -324,7 +457,7 @@ class LibroMayor extends CI_Controller {
 		echo json_encode($output, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 		exit();
     }
-	function ReporteLibroMayorPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin,$valorCheckConMovimiento,$moneda )
+	function ReporteLibroMayorPDF($id_entidad,$cuentas,$fecha_inicio,$fecha_fin,$valorCheckSinMovimiento,$moneda )
 	{			
 		// $id_entidad      = $this->input->post('id_entidad');		
 		/****************************/
@@ -369,12 +502,21 @@ class LibroMayor extends CI_Controller {
 		$totalGeneralImporteHaber =0;
 		$totalGeneralImporteDeudor=0;
 		$totalGeneralImporteAcreedor =0;
+
+		$sumaTotalImporteDebe =0;
+		$sumaTotalImporteHaber =0;
+		$sumaTotalImporteDeudor=0;
+		$sumaTotalImporteAcreedor =0;
+
 		$pdf->setY(54);  
         foreach ($plandecuentas as $cuenta)
 		{   
 			
 			// $cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda1($id_entidad,$cuenta->id);
 			$cuentasLibroMayor   = $this->LibroMayor_model->getLibroMayorBusqueda2($id_entidad,$cuenta->id,$fecha_inicio,$fecha_fin);
+			// echo("<pre>");
+			// print_r($cuentasLibroMayor);
+			// echo("</pre>");
 
 			$totalImporteDebe =0;
 			$totalImporteHaber =0;
@@ -385,7 +527,7 @@ class LibroMayor extends CI_Controller {
 			{
 				// echo("Valor check con movimiento==>".$valorCheckConMovimiento);
 				// die();
-				if($valorCheckConMovimiento === 'false'){
+				if($valorCheckSinMovimiento === 'true'){
 
 					// echo("INGRESA=>".$valorCheckConMovimiento);
 					// $excluirCuentasEnCero= true;
@@ -473,183 +615,228 @@ class LibroMayor extends CI_Controller {
 			}
 			else
 			{
-				/*CABECERA DE LA CUENTA */
-				$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;			   
-				$cabercera2_cuenta="";
-				
-				if($cuenta->ruta == 0)
+				$cuentasLibroMayorAux = $cuentasLibroMayor;		
+				$sumaTotalImporteDebe =0;
+				$sumaTotalImporteHaber =0;
+				$sumaTotalImporteDeudor=0;
+				$sumaTotalImporteAcreedor =0;		
+				foreach($cuentasLibroMayor as $fila)
 				{
-					$cabercera2_cuenta=$cuenta->descripcion;
-				}
-				else
-				{
-					$cuentas_ruta      = explode("-", $cuenta->ruta);
-					$nro_ruta =1;
-					foreach($cuentas_ruta as $ruta)
+					$idCuentaAuxiliar = $fila->id_cuenta_auxiliar;		
+					$totalImporteDebe =0;
+					$totalImporteHaber =0;
+					$totalImporteDeudor=0;
+					$totalImporteAcreedor =0;
+					
+					/**********************/
+					/*DETALLE DE LA CUENTA*/
+					/**********************/
+					$bandera_cabecera = false;
+					$contador_registros=0;
+					foreach($cuentasLibroMayorAux  as  $idx => $registro)
 					{
-						if(count($cuentas_ruta) === $nro_ruta)
+						if($idCuentaAuxiliar == $registro->id_cuenta_auxiliar)
 						{
-							$cabercera2_cuenta .=getCuenta($ruta)." --> ".$cuenta->descripcion;
-							
-						}
-						else
-						{
-							if($ruta != 0)
+							$contador_registros++;
+							if($bandera_cabecera==false)
 							{
-								$cabercera2_cuenta .=getCuenta($ruta)." --> " ;
-							}
-						}					
-						$nro_ruta++;
-						
-					}
-				}	
-				// $pdf->Ln();
-				$pdf->SetFillColor(245, 245, 240);
-				$pdf->SetFont('Arial', 'B', 7);
-				$pdf->setX($x);     
-				$pdf->Cell(200,6,utf8_decode($cabercera1_cuenta),0,0,'L',1);			
-				$y=$pdf->GetY();
-				$pdf->SetXY($x,$y);
-				$pdf->Cell(200,6,utf8_decode($cabercera2_cuenta),0,0,'L',1);
-				$pdf->Ln();
-				
-				
-				
-				/*CABECERA DE LA CUENTA */
-				$pdf->SetFillColor(255,255,255);
-				$pdf->SetFont('Arial', '', 8);
-				$pdf->setX($x); 
-				// $pdf->SetWidths([20, 15, 20, 85, 15, 15, 15, 15]);
-				$pdf->SetWidths([20, 10, 10, 80, 20, 20, 20, 20]);
-				$pdf->SetAligns(['C','C','C','L','R','R','R','R']);
-				$importeDeudor   = 0;
-				$importeAcreedor = 0;				
-				$saldoAcumulado  = 0;
+								/************************/
+								/*CABECERA DE LA CUENTA */
+								/************************/
+								if($idCuentaAuxiliar != null)
+								{
+									$cabercera1_cuenta = "Cuenta:".$registro->codigo_auxiliar;		   
+								}
+								else
+								{
+									$cabercera1_cuenta = "Cuenta:".$cuenta->codigo;		
+								}
 
-				foreach($cuentasLibroMayor as $registro)
-				{
-					
-					$fecha_comprobante  = formato_fecha_slash($registro->fecha_comprobante);
-					// $tipo_comprobante   = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $registro->tipo_comprobante);
-					$tipo_comprobante   = $registro->tipo_comprobante;
-					$numero_correlativo = $registro->correlativo;
-					$glosa_cuenta       = $registro->glosa_cuenta;
-					$importeDebe   = 0;
-					$importeHaber  = 0;
-
-					
-					
-					if($registro->tipo_movimiento == "DB")
-					{
-
-
-						if($moneda === 'BOB'){
-							$importeDebe      = $registro->importe_moneda_nacional;
-						}elseif ($moneda === 'USD') {
-							$importeDebe      = $registro->importe_moneda_extranjera;
-						}
-
-						// $importeDebe      = $registro->importe_moneda_nacional;
-						$saldoAcumulado   = $importeDebe + $saldoAcumulado;
-						if($saldoAcumulado >0)
-						{
-							$importeDeudor    = $saldoAcumulado;
-							$importeAcreedor  = 0;
-
-						}
-						else
-						{
-							$importeAcreedor  = $saldoAcumulado * -1;
-							$importeDeudor	  = 0;
-						}
-
-					}
-					else
-					{
-
-						if($moneda === 'BOB'){
-							$importeHaber     = $registro->importe_moneda_nacional;
-						}elseif ($moneda === 'USD') {
-							$importeHaber     = $registro->importe_moneda_extranjera;
-						}
-						// $importeHaber     = $registro->importe_moneda_nacional;
-						$saldoAcumulado   = $saldoAcumulado-$importeHaber; 
-
-						if($saldoAcumulado>0)
-						{
-							$importeDeudor = $saldoAcumulado;
-							$importeAcreedor = 0;
-						}
-						else
-						{
-							$importeAcreedor = $saldoAcumulado * -1;
-							$importeDeudor	 = 0;
-						}
-					}
+								// echo("Valor cabecera1=>".$cabercera1_cuenta);
+								$cabercera2_cuenta="";
+								
+								if($cuenta->ruta == 0)
+								{
+									$cabercera2_cuenta=$cuenta->descripcion;
+								}
+								else
+								{
+									$cuentas_ruta      = explode("-", $cuenta->ruta);
+									$nro_ruta =1;
+									foreach($cuentas_ruta as $ruta)
+									{
+										if(count($cuentas_ruta) === $nro_ruta)
+										{
+											$cabercera2_cuenta .=getCuenta($ruta)." --> ".$cuenta->descripcion;
+											
+										}
+										else
+										{
+											if($ruta != 0)
+											{
+												$cabercera2_cuenta .=getCuenta($ruta)." --> " ;
+											}
+										}					
+										$nro_ruta++;
 										
-					$fila = array(
-							$fecha_comprobante,
-							$tipo_comprobante,
-							$numero_correlativo,
-							$glosa_cuenta,
-							number_format($importeDebe,2,'.',',') ,
-							number_format($importeHaber,2,'.',',') ,
-							number_format($importeDeudor,2,'.',',') ,
-							number_format($importeAcreedor,2,'.',',') 
-						);	
-					// $pdf->setX($x); 
-					$pdf->SetFont('Arial', '', 7);
-					$pdf->Row_Reportes_LM($fila,true, '', 4);	
-					
-						  
-					$totalImporteDebe     = $totalImporteDebe+$importeDebe;
-					$totalImporteHaber    = $totalImporteHaber+$importeHaber;
-					$totalImporteDeudor   = $totalImporteDeudor+$importeDeudor;
-					$totalImporteAcreedor = $totalImporteAcreedor+$importeAcreedor;
-					
-				}
-				$pdf->Ln();
-				$pdf->SetFillColor(255,255,255);
-				$y=$pdf->GetY();
-				$pdf->SetXY($x,$y);
-				$pdf->setX($x);     
-				// $pdf->SetAligns(['R','R','R','C','C']);
-				$pdf->Cell(140,2,"",0,0,'R',1);
-				// $pdf->SetXY();
-				$x_line2=$pdf->GetX();
-				$y_line2=$pdf->GetY();
-				$pdf->Line($x_line2, $y_line2, $x_line2 + 60, $y_line2);
-				$pdf->Cell(60,2,"",0,0,'R',1);
-				$pdf->Ln();
+									}
+									if($registro->id_cuenta_auxiliar != null)
+									{
+										$cabercera2_cuenta = strtoupper($registro->descripcion_auxiliar)." --> ".($cabercera2_cuenta);
+									}
+								
+								}	
+								// $pdf->Ln();
+								$pdf->SetFillColor(245, 245, 240);
+								$pdf->SetFont('Arial', 'B', 7);
+								$y=$pdf->GetY();
+								$pdf->setXY(10,$y);     
+								$pdf->Cell(200,6,utf8_decode($cabercera1_cuenta),0,0,'L',1);			
+								// $y=$pdf->GetY();
+								// $x=$pdf->GetX();
+								// $pdf->SetXY($x,$y);
+								$pdf->Ln();
+								// $pdf->Ln();
+								$pdf->setXY(10,$y+5);	
+								$pdf->Cell(200,6,utf8_decode($cabercera2_cuenta),0,0,'L',1);
+								
+								
+								$pdf->Ln();		
+								/*CABECERA DE LA CUENTA */
+								$pdf->SetFillColor(255,255,255);
+								$pdf->SetFont('Arial', '', 8);
+								$pdf->setX($x); 
+								$pdf->SetWidths([20, 10, 10, 80, 20, 20, 20, 20]);
+								$pdf->SetAligns(['C','C','C','L','R','R','R','R']);
+								$importeDeudor   = 0;
+								$importeAcreedor = 0;				
+								$saldoAcumulado  = 0;
 
-				
-				$TOTALES="SUBTOTALES";
-				// $y=$pdf->GetY();
-				// $pdf->SetXY($x,$y);    
-				// $pdf->Cell(140,8,utf8_decode($TOTALES),0,0,'R',1);
-				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteDebe,2,'.',',')),0,0,'R',1);
-				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteHaber,2,'.',',')),0,0,'R',1);
-				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteDeudor,2,'.',',')),0,0,'R',1);
-				// $pdf->Cell(15,8,utf8_decode(number_format($totalImporteAcreedor,2,'.',',')),0,0,'R',1);
-				$pdf->SetWidths([120, 20, 20, 20, 20]);
-				$pdf->SetAligns(['R','R','R','R','R']);
-				$fila_subtotales = array(
-									$TOTALES,
-									number_format($totalImporteDebe,2,'.',',') ,
-									number_format($totalImporteHaber,2,'.',',') ,
-									number_format($totalImporteDeudor,2,'.',',') ,
-									number_format($totalImporteAcreedor,2,'.',',') 
+								$bandera_cabecera = true;
+
+							}
+
+							$fecha_comprobante  = formato_fecha_slash($registro->fecha_comprobante);
+							// $tipo_comprobante   = getValor2Configuraciones("TIPO COMPROBANTES CONTABLE", $registro->tipo_comprobante);
+							$tipo_comprobante   = $registro->tipo_comprobante;
+							$numero_correlativo = $registro->correlativo;
+							$glosa_cuenta       = $registro->glosa_cuenta;
+							$importeDebe   = 0;
+							$importeHaber  = 0;
+											
+							if($registro->tipo_movimiento == "DB")
+							{
+
+
+								if($moneda === 'BOB'){
+									$importeDebe      = $registro->importe_moneda_nacional;
+								}elseif ($moneda === 'USD') {
+									$importeDebe      = $registro->importe_moneda_extranjera;
+								}
+
+								// $importeDebe      = $registro->importe_moneda_nacional;
+								$saldoAcumulado   = $importeDebe + $saldoAcumulado;
+								if($saldoAcumulado >0)
+								{
+									$importeDeudor    = $saldoAcumulado;
+									$importeAcreedor  = 0;
+
+								}
+								else
+								{
+									$importeAcreedor  = $saldoAcumulado * -1;
+									$importeDeudor	  = 0;
+								}
+
+							}
+							else
+							{
+
+								if($moneda === 'BOB'){
+									$importeHaber     = $registro->importe_moneda_nacional;
+								}elseif ($moneda === 'USD') {
+									$importeHaber     = $registro->importe_moneda_extranjera;
+								}
+								// $importeHaber     = $registro->importe_moneda_nacional;
+								$saldoAcumulado   = $saldoAcumulado-$importeHaber; 
+
+								if($saldoAcumulado>0)
+								{
+									$importeDeudor = $saldoAcumulado;
+									$importeAcreedor = 0;
+								}
+								else
+								{
+									$importeAcreedor = $saldoAcumulado * -1;
+									$importeDeudor	 = 0;
+								}
+							}
+												
+							$fila = array(
+									$fecha_comprobante,
+									$tipo_comprobante,
+									$numero_correlativo,
+									utf8_decode($glosa_cuenta),
+									number_format($importeDebe,2,'.',',') ,
+									number_format($importeHaber,2,'.',',') ,
+									number_format($importeDeudor,2,'.',',') ,
+									number_format($importeAcreedor,2,'.',',') 
 								);	
 							// $pdf->setX($x); 
-				$pdf->SetFont('Arial', 'B', 7);
-				$pdf->Row_Reportes_LM($fila_subtotales,true, '', 4);
+							$pdf->SetFont('Arial', '', 7);
+							$pdf->Row_Reportes_LM($fila,true, '', 4);	
+							
+								
+							$totalImporteDebe     = $totalImporteDebe+$importeDebe;
+							$totalImporteHaber    = $totalImporteHaber+$importeHaber;
+							$totalImporteDeudor   = $totalImporteDeudor+$importeDeudor;
+							$totalImporteAcreedor = $totalImporteAcreedor+$importeAcreedor;
+
+							unset($cuentasLibroMayorAux[$idx]);
+						}
+							
+						// $cuentasLibroMayor = array_values($cuentasLibroMayorAux);
+					}
+					if($contador_registros>0)
+					{
+						$pdf->Ln();
+						$pdf->SetFillColor(255,255,255);
+						$y=$pdf->GetY();
+						$pdf->SetXY($x,$y);
+						$pdf->setX($x);     
+						$pdf->Cell(140,2,"",0,0,'R',1);
+						$x_line2=$pdf->GetX();
+						$y_line2=$pdf->GetY();
+						$pdf->Line($x_line2, $y_line2, $x_line2 + 60, $y_line2);
+						$pdf->Cell(60,2,"",0,0,'R',1);
+						$pdf->Ln();		
+						$TOTALES="SUBTOTALES";
+						$pdf->SetWidths([120, 20, 20, 20, 20]);
+						$pdf->SetAligns(['R','R','R','R','R']);
+						$fila_subtotales = array(
+											$TOTALES,
+											number_format($totalImporteDebe,2,'.',',') ,
+											number_format($totalImporteHaber,2,'.',',') ,
+											number_format($totalImporteDeudor,2,'.',',') ,
+											number_format($totalImporteAcreedor,2,'.',',') 
+										);	
+						$pdf->SetFont('Arial', 'B', 7);
+						$pdf->Row_Reportes_LM($fila_subtotales,true, '', 4);
+						/*******FIN*******/
+					}
+					$sumaTotalImporteDebe     = $sumaTotalImporteDebe+$totalImporteDebe;
+					$sumaTotalImporteHaber    = $sumaTotalImporteHaber+$totalImporteHaber;
+					$sumaTotalImporteDeudor   = $sumaTotalImporteDeudor+$totalImporteDeudor;
+					$sumaTotalImporteAcreedor = $sumaTotalImporteAcreedor+$totalImporteAcreedor;
+				}
+				
 
 			}
 			
-			$totalGeneralImporteDebe =$totalGeneralImporteDebe+$totalImporteDebe;
-			$totalGeneralImporteHaber =$totalGeneralImporteHaber+$totalImporteHaber;
-			$totalGeneralImporteDeudor=$totalGeneralImporteDeudor+$totalImporteDeudor;
-			$totalGeneralImporteAcreedor =$totalGeneralImporteAcreedor+$totalImporteAcreedor;		
+			$totalGeneralImporteDebe =$totalGeneralImporteDebe+$sumaTotalImporteDebe;
+			$totalGeneralImporteHaber =$totalGeneralImporteHaber+$sumaTotalImporteHaber;
+			$totalGeneralImporteDeudor=$totalGeneralImporteDeudor+$sumaTotalImporteDeudor;
+			$totalGeneralImporteAcreedor =$totalGeneralImporteAcreedor+$sumaTotalImporteAcreedor;		
 		
 			// $pdf->Ln();
 	    }      

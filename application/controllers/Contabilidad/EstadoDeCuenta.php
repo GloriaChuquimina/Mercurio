@@ -67,38 +67,49 @@ class EstadoDeCuenta extends CI_Controller {
 		$importeHaber=0;
 		$importeDeudor=0;
 		$importeAcreedor=0;
-		foreach ($estadoCuenta as $fila)
-		{   
-			$codigo_aux 		 = $fila->codigo_aux;
-			$descripcion_aux	 = $fila->descripcion_aux;
-			$importeDebe	 	 = $fila->debe;
-			$importeHaber	 	 = $fila->haber;
-			$importeDeudor	 	 = $fila->saldo_deudor;
-			$importeAcreedor	 = $fila->saldo_acreedor;
 
-			$data[] = array(
-				"<span class='badge badge-warning'>".$codigo_aux."</span>",
-				$descripcion_aux,	
-				"<div style='text-align: right; color: #28a745; font-weight: bold;'>
-				".number_format($importeDebe,2,'.',',').
-				"</div>",
-				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>
-				".number_format($importeHaber,2,'.',',').
-				"</div>",
-				"<div style='text-align: right; color: #28a745; font-weight: bold;'>
-				".number_format($importeDeudor,2,'.',',').
-				"</div>",
-				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>
-				".number_format($importeAcreedor,2,'.',',').
-				"</div>",
-				
-			);
-			$totalDebe+=$importeDebe;
-			$totalHaber+=$importeHaber;
-			$totalDeudor+=$importeDeudor;
-			$totalAcreedor+=$importeAcreedor;
-							
-		}		
+
+		$validacomprobante   = json_decode($this->validarDatos($data));	
+		$resultado   = $validacomprobante[0]->resultado;
+		$mensaje     = $validacomprobante[0]->mensaje;
+
+		if($resultado == 1)
+		{
+			foreach ($estadoCuenta as $fila)
+			{   
+				$codigo_aux 		 = $fila->codigo_aux;
+				$descripcion_aux	 = $fila->descripcion_aux;
+				$importeDebe	 	 = $fila->debe;
+				$importeHaber	 	 = $fila->haber;
+				$importeDeudor	 	 = $fila->saldo_deudor;
+				$importeAcreedor	 = $fila->saldo_acreedor;
+
+				$data[] = array(
+					"<span class='badge badge-warning'>".$codigo_aux."</span>",
+					$descripcion_aux,	
+					"<div style='text-align: right; color: #28a745; font-weight: bold;'>
+					".number_format($importeDebe,2,'.',',').
+					"</div>",
+					"<div style='text-align: right; color: #dc3545; font-weight: bold;'>
+					".number_format($importeHaber,2,'.',',').
+					"</div>",
+					"<div style='text-align: right; color: #28a745; font-weight: bold;'>
+					".number_format($importeDeudor,2,'.',',').
+					"</div>",
+					"<div style='text-align: right; color: #dc3545; font-weight: bold;'>
+					".number_format($importeAcreedor,2,'.',',').
+					"</div>",
+					
+				);
+				$totalDebe+=$importeDebe;
+				$totalHaber+=$importeHaber;
+				$totalDeudor+=$importeDeudor;
+				$totalAcreedor+=$importeAcreedor;
+								
+			}	
+
+		}
+			
 		$output =( array(
 			             "     resultado" => 1, 
 		                  "nro_registros" => count($estadoCuenta) , 
@@ -166,7 +177,7 @@ class EstadoDeCuenta extends CI_Controller {
 
 			$row = array(
 				$codigo_aux,
-				$descripcion_aux,
+				utf8_decode($descripcion_aux),
 				number_format($importeDebe,2,'.',','),
 				number_format($importeHaber,2,'.',','),
 				number_format($importeDeudor,2,'.',','),
@@ -208,4 +219,46 @@ class EstadoDeCuenta extends CI_Controller {
 		$pdf->Footer();
 		$pdf->Output('I',utf8_decode('ReporteEstadoDeCuenta.pdf')); 
 	}
+
+	function validarDatos($data)
+	{
+
+ 		// $txtAccion 	= $data['txtAccionComprobante'];
+		// $idEntidad  = $data['id_entidad'];
+		// $fecha      = $data['txtFecha'];
+
+		// $verifica =$this->verificarEntidad($idEntidad);
+		// $verifica_fecha = $this->fecha_valida($fecha);
+
+ 		$this->form_validation->set_data($data);
+ 		$resul = 1;
+		$mensaje = "OK";
+
+		// echo json_encode($data);
+
+		if($this->form_validation->run('validar_estado_cuenta'))
+		{
+			$resul = 1;
+			$mensaje = "OK";
+		}
+		else
+		{
+			// $filas = explode("|", $detalleComprobante);
+			$resul = 0;
+			$mensaje = json_encode($this->form_validation->get_errores_arreglo());
+			$mensaje = formaterarValidacion($mensaje);
+		}
+
+		
+		$resultado ='[{								
+					"resultado":"'.$resul.'",
+					"mensaje":"'.$mensaje.'"
+					}]';
+
+		return $resultado; 		
+
+	}
+
+
+
 }

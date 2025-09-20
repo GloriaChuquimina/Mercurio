@@ -13,6 +13,7 @@ class CierreDeResultados extends CI_Controller {
         $this->load->model('Comprobantes_model');
         $this->load->model('PlanDeCuentas_model');
         $this->load->model('EstadoDeResultado_model');
+		$this->load->model('Comunes_model');
         $this->load->model('CierresContables_model');
 		$this->load->helper('configuraciones_helper');
 		$this->load->helper('funcionarios_helper');
@@ -243,7 +244,7 @@ class CierreDeResultados extends CI_Controller {
 		$saldoCero    			   = true;
 		$fecha_fin    			   = $this->input->post('fecha_cierre');
 		$fecha_inicio 			   = primerDiaDelAnio($fecha_fin);	
-
+		$cierre                    = $this->input->post('cierre');
 		if($nivel== 0)
 		{
 			$nivel=getNivelMaximo();
@@ -259,12 +260,30 @@ class CierreDeResultados extends CI_Controller {
 			$excluirCuentasEnCero      = true;
 		}
 		
-		$estadoResultadoIngreso    = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);
+		$whereCierre="";
+		if($cierre == 'false'){
+
+			$anio_cierre  = date("Y", strtotime($fecha_fin));
+			$tipo_cierre ="CIR";
+			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
+			$comprobantes_cierre = $filas[0]->comprobante;
+			// echo("COMPROBANTES=>".$comprobantes_cierre);
+			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
+			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+		}
+		elseif($cierre == 'true'){
+			$whereCierre = "";
+		}
+		$estadoResultadoIngreso    = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$whereCierre);
+		// echo("<pre>");
+		// print_r($estadoResultadoIngreso);
+		// echo("</pre>");
+		// die();
 		$cuentasIngreso  	       = json_decode(json_encode($estadoResultadoIngreso), true);		
 		$ordenadas_cuentas_ingreso = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasIngreso ,0,0,$excluirCuentasEnCero,$nivel);
 		$cuentasOrdenadasIngreso   = $ordenadas_cuentas_ingreso[0];
 
-		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso);
+		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso,$whereCierre);
 		if($moneda === 'BOB'){
 				$sumaTotalGlobalIngreso    = $ordenadas_cuentas_ingreso[1];
 				if (!empty($resultado) && isset($resultado[0]->total_estado_resultado) ) {
@@ -341,7 +360,7 @@ class CierreDeResultados extends CI_Controller {
 		$saldoCero    			   = true;
 		$fecha_fin    			   = $this->input->post('fecha_cierre');
 		$fecha_inicio 			   = primerDiaDelAnio($fecha_fin);	
-
+		$cierre                    = $this->input->post('cierre');
 
 		if($nivel== 0)
 		{
@@ -358,13 +377,28 @@ class CierreDeResultados extends CI_Controller {
 			$excluirCuentasEnCero      = true;
 		}
 
-		$estadoResultadoEgreso     = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso );
-		$cuentasDeEgreso		   = json_decode(json_encode($estadoResultadoEgreso), true);		
+		$whereCierre="";
+		if($cierre == 'false'){
+
+			$anio_cierre  = date("Y", strtotime($fecha_fin));
+			$tipo_cierre ="CIR";
+			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
+			$comprobantes_cierre = $filas[0]->comprobante;
+			// echo("COMPROBANTES=>".$comprobantes_cierre);
+			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
+			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+		}
+		elseif($cierre == 'true'){
+			$whereCierre = "";
+		}
+		
+		$estadoResultadoEgreso     = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_egreso,$codigo_cuenta_egreso,$whereCierre);
+		$cuentasDeEgreso		   = json_decode(json_encode($estadoResultadoEgreso), true);
 		$ordenadas_cuentas_egreso  = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasDeEgreso ,0,0,$excluirCuentasEnCero,$nivel);
 		$cuentasOrdenadasEgreso    = $ordenadas_cuentas_egreso[0];
 		
 		
-		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso);
+		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso,$whereCierre);
 
 		if($moneda === 'BOB'){
 			$sumaTotalGlobalEgreso     = $ordenadas_cuentas_egreso[1];

@@ -109,50 +109,111 @@ $(function (){
     //                 }
     //             });
     // });
-    $('#fechaCierreResultado').change(function(){
-            fecha = $(this).val();
-            id_entidad=$('#id_entidad_registro').val();            
-            var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
-            $.ajax({
-                     url: enlace,
-                    type: 'POST',
-                    data: { fecha: fecha },
-                    success: function(response) {
-                        var resultado = JSON.parse(response);
-                        // alert(resultado.tipo_cambio_fecha); 
-                        // var tipo_cambio = resultado.tipo_cambio_fecha; 
+    // // $('#fechaCierreResultado').change(function(){
+    // //         fecha = $(this).val();
+    // //         id_entidad=$('#id_entidad_registro').val();            
+    // //         var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+    // //         $.ajax({
+    // //                  url: enlace,
+    // //                 type: 'POST',
+    // //                 data: { fecha: fecha },
+    // //                 success: function(response) {
+    // //                     var resultado = JSON.parse(response);
+    // //                     // alert(resultado.tipo_cambio_fecha); 
+    // //                     // var tipo_cambio = resultado.tipo_cambio_fecha; 
 
-                        var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+    // //                     var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
 
-                        if (tipo_cambio <= 0) {
-                            // Si no existe tipo de cambio
-                            swal({
-                                title: "Atención",
-                                text: "No existe tipo de cambio registrado para la fecha seleccionada.",
-                                icon: "warning",
-                                button: "OK",
-                                dangerMode: true,
-                            });
-                            $('#tipoCambio').text(''); // Limpia el campo
-                            $('#btnRecalcularTipoCambio').hide();
-                            return; // Sale para no seguir validando
-                        }
-                        else
-                        {
-                            // swal({
-                            //     title: "Atención",
-                            //     text: "tipo cambio",
-                            //     icon: "success",
-                            //     button: "OK",
-                            //     dangerMode: true,
-                            // });
-                             $('#tipoCambio').text(tipo_cambio);
-                        }
-                    }
+    // //                     if (tipo_cambio <= 0) {
+    // //                         // Si no existe tipo de cambio
+    // //                         swal({
+    // //                             title: "Atención",
+    // //                             text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+    // //                             icon: "warning",
+    // //                             button: "OK",
+    // //                             dangerMode: true,
+    // //                         });
+    // //                         $('#tipoCambio').text(''); // Limpia el campo
+    // //                         $('#btnRecalcularTipoCambio').hide();
+    // //                         return; // Sale para no seguir validando
+    // //                     }
+    // //                     else
+    // //                     {
+    // //                         // swal({
+    // //                         //     title: "Atención",
+    // //                         //     text: "tipo cambio",
+    // //                         //     icon: "success",
+    // //                         //     button: "OK",
+    // //                         //     dangerMode: true,
+    // //                         // });
+    // //                          $('#tipoCambio').text(tipo_cambio);
+    // //                     }
+    // //                 }
+    // //         });
+    // //         cargarEstadoDeResultados(id_entidad,fecha);
+    // // });
+
+    // // $('#fechaCierreBalance').on('blur', function(){
+        
+    // //         validarFecha($(this).val());
+    // // });
+    $(document).on('focusout', '#fechaCierreResultado', function () {
+        let fecha = $(this).val();
+
+        if (!fecha) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Debe ingresar una fecha antes de continuar',
             });
-            cargarEstadoDeResultados(id_entidad,fecha);
+        } else {
+            validarFecha(fecha);
+        }
     });
 });     
+function validarFecha(fecha){
+        // fecha = $(this).val();
+        id_entidad=$('#id_entidad_registro').val();            
+        var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
+        $.ajax({
+                url: enlace,
+                type: 'POST',
+                data: { fecha: fecha },
+                success: function(response) {
+                    var resultado = JSON.parse(response);
+                    // alert(resultado.tipo_cambio_fecha); 
+                    // var tipo_cambio = resultado.tipo_cambio_fecha; 
+
+                    var tipo_cambio = parseFloat(resultado.tipo_cambio_fecha) || 0;
+
+                    if (tipo_cambio <= 0) {
+                        // Si no existe tipo de cambio
+                        swal({
+                            title: "Atención",
+                            text: "No existe tipo de cambio registrado para la fecha seleccionada.",
+                            icon: "warning",
+                            button: "OK",
+                            dangerMode: true,
+                        });
+                        $('#tipoCambio').text(''); // Limpia el campo
+                        $('#btnRecalcularTipoCambio').hide();
+                        return; // Sale para no seguir validando
+                    }
+                    else
+                    {
+                        // swal({
+                        //     title: "Atención",
+                        //     text: "tipo cambio",
+                        //     icon: "success",
+                        //     button: "OK",
+                        //     dangerMode: true,
+                        // });
+                            $('#tipoCambio').text(tipo_cambio);
+                    }
+                }
+        });
+        cargarEstadoDeResultados(id_entidad,fecha);
+}
            
 function seleccionDeCuentas()
 {
@@ -294,14 +355,15 @@ function procedimientoCierreCuentasDeResultados()
             }
     });
     /*TIPO DE CAMBIO */
-
-    cargarEstadoDeResultados(id_entidad,fechaActual);
+    var cierre =true;
+    cargarEstadoDeResultados(id_entidad,fechaActual,cierre);
     $('#modalRegistroCierreDeResultados').modal({backdrop: 'static', keyboard: false})
     $('#modalRegistroCierreDeResultados').modal('show');  
 }
-function cargarEstadoDeResultados(id_entidad,fecha)
+function cargarEstadoDeResultados(id_entidad,fecha,cierre)
 {
-    var enlace = base_url + "Contabilidad/CierreDeResultados/cargarDatosEstadoDeResultadosIngreso";
+//   var cierre =false;
+  var enlace = base_url + "Contabilidad/CierreDeResultados/cargarDatosEstadoDeResultadosIngreso";
   $('#tablaDatosCuentasIngreso').DataTable({
         destroy: true,
         searching: false,
@@ -312,7 +374,8 @@ function cargarEstadoDeResultados(id_entidad,fecha)
             type: "POST",
             url: enlace,
             data: { id_entidad: id_entidad,
-                  fecha_cierre: fecha
+                    fecha_cierre: fecha,
+                    cierre: cierre
                   },
 
             dataSrc: function(json) {
@@ -337,7 +400,8 @@ function cargarEstadoDeResultados(id_entidad,fecha)
             type: "POST",
             url: enlace,
              data: { id_entidad: id_entidad,
-                  fecha_cierre: fecha
+                     fecha_cierre: fecha,
+                     cierre: cierre
                   },
 
             dataSrc: function(json) {

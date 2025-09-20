@@ -69,6 +69,21 @@ $config = array(
 		  	   'rules' => 'trim|required|min_length[3]|max_length[500]')
 		
 		),
+		'validar_estado_cuenta'=> array
+		(
+			array ('field' => 'txtCuenta',
+				   'label' => 'CUENTA',
+				   'rules' => 'trim|required'),
+
+			array ('field' => 'fechaDesde',
+				   'label' => 'FECHA DESDE',
+				   'rules' => 'trim|required|callback_fecha_valida'),
+
+			array(
+				'field' => 'fechaHasta',
+				'label' => 'FECHA HASTA',
+				'rules' => 'trim|required|callback_fecha_valida')
+		),
 		
 		
 	);

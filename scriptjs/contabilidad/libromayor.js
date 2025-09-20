@@ -276,7 +276,8 @@ function consultar()
 		var cuentas =$('#id_cuenta_seleccionadas').val();
 		var fecha_inicio = $('#fechaDesde').val();
 		var fecha_fin = $('#fechaHasta').val();
-        var valorCheckConMovimiento    = $('input[name="soloConMovimientos"]').is(':checked');
+        var valorCheckSinMovimiento    = $('input[name="sinMovimientos"]').is(':checked');
+        var moneda         = $('#tipo_moneda').val();
 		/*CARGAR TABLA BUSQUEDA LIBRO MAYOR */
 		var enlace = base_url + "Contabilidad/LibroMayor/listarBusquedaLibroMayor";
 		$.ajax({
@@ -286,7 +287,8 @@ function consultar()
 					cuentas:cuentas,
 					fecha_inicio: fecha_inicio,
 					fecha_fin: fecha_fin,
-                    valorCheckConMovimiento:valorCheckConMovimiento
+                    valorCheckSinMovimiento:valorCheckSinMovimiento,
+                    moneda:moneda
 				}, 
 			dataType:'JSON',
 			success: function (data) 
@@ -343,7 +345,7 @@ function generarReporteLibroMayor()
 	} 
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
-    var valorCheckConMovimiento    = $('input[name="soloConMovimientos"]').is(':checked');
+    var valorCheckSinMovimiento    = $('input[name="sinMovimientos"]').is(':checked');
     var moneda         = $('#tipo_moneda').val();
     if(fecha_inicio!='' && fecha_fin !='')
     {
@@ -351,7 +353,7 @@ function generarReporteLibroMayor()
         var iframe = document.createElement("iframe");
             iframe.width = '100%';
             iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/LibroMayor/ReporteLibroMayorPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+valorCheckConMovimiento+"/"+moneda; 
+            iframe.src = base_url+'Contabilidad/LibroMayor/ReporteLibroMayorPDF/'+id_entidad+"/"+cuentas+"/"+fecha_inicio+"/"+fecha_fin+"/"+valorCheckSinMovimiento+"/"+moneda; 
             $('#divPDF').append(iframe);
         $('#divCapa').addClass('overlay');    
         $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);
