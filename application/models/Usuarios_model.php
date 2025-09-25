@@ -196,5 +196,20 @@ class Usuarios_model extends CI_Model
 											where login='".$username."'");
 		return $query->result();
 	}
+
+	/* SEPT 2025 FUNCION PARA VERIFICAR NOVEL SUPERIOR*/
+	function verificarNivelSuperior($idUsuario,$opcion)
+    {
+    	$query = $this->db_entorno->query(" select *
+											  from seguridad.usuarios_opciones u
+											  where u.id_usuario = ".$idUsuario."
+											    and u.estado = 'AC'
+												and u.id_opcion in (select id
+																	from aplicaciones.opciones o
+																	where o.codigo_opciones = ".$opcion."
+																	and o.estado = 'AC'
+																	)" ); 
+        return $query->result();
+    }
 }
 ?>

@@ -560,6 +560,14 @@ class Funcionarios_model extends CI_Model
 									     order by id asc");
         return $query->result(); 
 	}
+	/* ABD Rol Administracion Usuarios */
+	function datosPersonalesDependencia($id_persona)
+	{
+		$query = $this->db_rrhh->query("select *
+									      from personal.vista_datos_puesto_cargo_funcionario 
+									     where id= ".$id_persona);
+        return $query->result();   
+	}
 }
 
 ?>
