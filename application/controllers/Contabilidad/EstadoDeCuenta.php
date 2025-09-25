@@ -6,6 +6,7 @@ class EstadoDeCuenta extends CI_Controller {
 	function __construct(){
 		parent::__construct();
 		$this->_is_logued_in();
+		$this->load->library('form_validation');
         $this->load->model('Comprobantes_model');
         $this->load->model('EstadoDeCuenta_model');
 		$this->load->helper('configuraciones_helper');
