@@ -58,8 +58,13 @@ class EstadoDeCuenta extends CI_Controller {
 		$fecha_desde  		   = $this->input->post('fecha_inicio');
 		$fecha_hasta           = $this->input->post('fecha_fin');
 		$id_cuenta             = $this->input->post('id_cuenta');
+		// $data    	           = $this->input->post('datos_cuenta');
 
 		$estadoCuenta = $this->EstadoDeCuenta_model->getEstadoDeCuenta($id_entidad,$fecha_desde,$fecha_hasta,$id_cuenta);
+		// echo("<pre>");
+		// print_r($estadoCuenta);
+		// echo("</pre>");
+		// die();
 		$totalDebe =0;
 		$totalHaber =0;
 		$totalDeudor =0;
@@ -70,10 +75,16 @@ class EstadoDeCuenta extends CI_Controller {
 		$importeAcreedor=0;
 
 
-		$validacomprobante   = json_decode($this->validarDatos($data));	
-		$resultado   = $validacomprobante[0]->resultado;
-		$mensaje     = $validacomprobante[0]->mensaje;
-
+		// $data = array(
+		// 	'id_entidad'   => $id_entidad,
+		// 	'fecha_inicio' => $fecha_desde,
+		// 	'fecha_fin'    => $fecha_hasta,
+		// 	'id_cuenta'    => $id_cuenta
+		// );
+		// $validacomprobante = json_decode($this->validarDatos($data));
+		// $resultado   = $validacomprobante[0]->resultado;
+		// $mensaje     = $validacomprobante[0]->mensaje;
+		$resultado = 1; //--- IGNORE ---
 		if($resultado == 1)
 		{
 			foreach ($estadoCuenta as $fila)
@@ -109,6 +120,10 @@ class EstadoDeCuenta extends CI_Controller {
 								
 			}	
 
+		}
+		else
+		{
+			echo("Error en la validacion de datos");
 		}
 			
 		$output =( array(
@@ -231,11 +246,11 @@ class EstadoDeCuenta extends CI_Controller {
 		// $verifica =$this->verificarEntidad($idEntidad);
 		// $verifica_fecha = $this->fecha_valida($fecha);
 
+		echo json_encode($data);
  		$this->form_validation->set_data($data);
  		$resul = 1;
-		$mensaje = "OK";
+		$mensaje = "OK";	
 
-		// echo json_encode($data);
 
 		if($this->form_validation->run('validar_estado_cuenta'))
 		{

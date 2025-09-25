@@ -269,32 +269,46 @@ function consultar() {
   var fecha_fin    = $('#fechaHasta').val();
   var id_cuenta    = $('#id_cuenta').val();
   var enlace = base_url + "Contabilidad/EstadoDeCuenta/cargarDatosEstadoDeCuenta";
-  $('#tablaDatosEstadoDeCuenta').DataTable({
-        destroy: true,
-        searching: false,
-        paging: false,
-        "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
-        "iDisplayLength": 5,
-        "ajax": {
-            type: "POST",
-            url: enlace,
-            data: { id_entidad: id_entidad,
-                  fecha_inicio: fecha_inicio,
-                     fecha_fin: fecha_fin,
-                     id_cuenta: id_cuenta
-                  },
+  if(id_cuenta != '')
+  {
+    if(fecha_inicio!='' && fecha_fin !='')
+    {
+        $('#tablaDatosEstadoDeCuenta').DataTable({
+                destroy: true,
+                searching: false,
+                paging: false,
+                "aLengthMenu": [[5,10, 15,  -1], [7,10, 15,  "Todos"]],
+                "iDisplayLength": 5,
+                "ajax": {
+                    type: "POST",
+                    url: enlace,
+                    data: { id_entidad: id_entidad,
+                        fecha_inicio: fecha_inicio,
+                            fecha_fin: fecha_fin,
+                            id_cuenta: id_cuenta
+                        },
 
-            dataSrc: function(json) {
-                        $('.txtTotalImporteDebe').text(json.totalDebe);
-                        $('.txtTotalImporteHaber').text(json.totalHaber);
-                        $('.txtTotalImporteDeudor').text(json.totalDeudor);
-                        $('.txtTotalImporteAcreedor').text(json.totalAcreedor);
-                        $('#cant_cuentas').val(json.nro_registros);
-                        return json.data;
-                    
-                }
-        },
-    });
+                    dataSrc: function(json) {
+                                $('.txtTotalImporteDebe').text(json.totalDebe);
+                                $('.txtTotalImporteHaber').text(json.totalHaber);
+                                $('.txtTotalImporteDeudor').text(json.totalDeudor);
+                                $('.txtTotalImporteAcreedor').text(json.totalAcreedor);
+                                $('#cant_cuentas').val(json.nro_registros);
+                                return json.data;
+                            
+                        }
+                },
+            });
+    }
+    else{
+
+        swal({title: "ERROR",text: "SELECCIONE UN RANGO DE FECHA VÁLIDA, POR FAVOR.",icon: "error",button: "OK",dangerMode:true,});
+    }
+  }
+  else{
+    swal({title: "ERROR",text: "AÑADA LA CUENTA, POR FAVOR.",icon: "error",button: "OK",dangerMode:true,});
+  }
+    
 }
 function generarReporteEstadoCuenta()
 {

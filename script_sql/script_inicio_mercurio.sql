@@ -288,9 +288,9 @@ COMMENT ON COLUMN correlativos.correlativos.estado IS 'Estado del detalle (AC = 
 
 CREATE TABLE correlativos.correlativos_entidad_gestion (
 	id serial4 NOT NULL,
-	id_correlativo serial4 not null,
-	id_entidad serial4 not null,
-	id_dependencia serial4 not null,
+	id_correlativo int4 not null,
+	id_entidad int4 not null,
+	id_dependencia int4 not null,
 	gestion int4 NULL,
 	correlativo int4 DEFAULT 0 NULL,
 	id_usuario_registro int4 NULL,
