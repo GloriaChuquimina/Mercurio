@@ -16,6 +16,14 @@ class Correlativos_model extends CI_Model{
 											");
 		return $query->result();
 	}
+    function getCorrelativos()
+	{
+		$query = $this->db_mercurio->query("select *
+											  from correlativos.correlativos
+											 where estado='ACT';
+											");
+		return $query->result();
+	}
     function getCorrelativoEntidadGestion($id_correlativo,$id_entidad,$id_dependencia,$gestion)
 	{
 		$query = $this->db_mercurio->query("select *
@@ -45,6 +53,19 @@ class Correlativos_model extends CI_Model{
     function updateCorrelativoEntidadGestion($id_correlativoentidadgestion,$data)
 	{
 		$this->db_mercurio->where('id',$id_correlativoentidadgestion);
+		return $this->db_mercurio->update('correlativos.correlativos_entidad_gestion',$data);
+	}
+	function guardarCorrelativoEntidadGestion($data)
+    {
+        $this->db_mercurio->insert('correlativos.correlativos_entidad_gestion',$data);
+        return $this->db_mercurio->insert_id();
+    }
+	 function anularCorrelativoEntidadGestion($id_correlativo,$id_entidad,$id_dependencia,$gestion,$data)
+	{
+		$this->db_mercurio->where('id_correlativo', $id_correlativo);
+		$this->db_mercurio->where('id_entidad', $id_entidad);
+		$this->db_mercurio->where('id_dependencia', $id_dependencia);
+		$this->db_mercurio->where('gestion',$gestion);
 		return $this->db_mercurio->update('correlativos.correlativos_entidad_gestion',$data);
 	}
 

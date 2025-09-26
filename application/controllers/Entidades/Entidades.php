@@ -7,6 +7,8 @@ class Entidades extends CI_Controller {
 		parent::__construct();
 		$this->_is_logued_in();
         $this->load->model('Entidades_model');
+        $this->load->model('Comunes_model');
+        $this->load->model('Correlativos_model');
 		$this->load->helper('configuraciones_helper');
 	}
 	function _is_logued_in()
@@ -133,7 +135,17 @@ class Entidades extends CI_Controller {
                     echo json_encode([["resultado" => "0", "mensaje" => "ERROR EN EL REGISTRO DE DEPENDENCIA."]]);
                     return;
                 }
-                $mensaje = "SE REGISTRO CORRECTAMENTE.";
+				else
+				{
+					$correlativo_registrado = $this->registrarCorrelativosEntidad($entidad, $id_dependencia);
+					if (!$correlativo_registrado) {
+						$this->db->trans_rollback();
+						echo json_encode([["resultado" => "0", "mensaje" => "ERROR EN EL REGISTRO DE CORRELATIVOS."]]);
+						return;
+					}
+					$resul = 1;
+					$mensaje = "SE REGISTRO CORRECTAMENTE.";
+				}
 				
 			}
 			else
@@ -212,6 +224,7 @@ class Entidades extends CI_Controller {
 
 		$entidad = $this->Entidades_model->updateEntidad($id_entidad, $updateEntidad);
 		if ($entidad) {
+			$anularcorrelativo = $this->anularCorrelativosEntidad($id_entidad, $this->session->userdata('id_dependencia_principal'));
 			$resul = 1;
 			$mensaje = "SE REGISTRO LA BAJA DE LA ENTIDAD CORRECTAMENTE.";
 		} else {
@@ -226,4 +239,82 @@ class Entidades extends CI_Controller {
 
 		echo $resultado;
 	}
+	function registrarCorrelativosEntidad($id_entidad,$id_dependencia)
+	{
+		$fila =& get_instance();
+		// $fila->load->model('Comunes_model');
+		// $fila->load->model('Correlativos_model');
+		$fila->db->trans_begin();
+		$datosCorrelativos = $fila->Correlativos_model->getCorrelativos();
+		$datosGestiones = $fila->Comunes_model->getGestion();
+		foreach ($datosGestiones as $datoGestion) 
+		{
+			$gestion= $datoGestion->gestion;
+			foreach ($datosCorrelativos as $dato) 
+			{
+				$id_correlativo = $dato->id;
+				$datosCorrelativoEntidadGestion = $fila->Correlativos_model->getCorrelativoEntidadGestion($id_correlativo,$id_entidad,$id_dependencia,$gestion);
+				if(!$datosCorrelativoEntidadGestion)
+				{
+					$datos = array(
+						'id_correlativo'   	  => $id_correlativo,
+						'id_entidad'      	  => $id_entidad,
+						'id_dependencia'  	  => $id_dependencia,
+						'gestion'         	  => $gestion,
+						'correlativo'     	  => 0,
+						'id_usuario_registro' => $this->session->userdata('id_usuario')
+					);
+					$guardar = $fila->Correlativos_model->guardarCorrelativoEntidadGestion($datos);
+					if (!$guardar) {
+						$fila->db->trans_rollback();
+						return false;
+					}
+				}
+			}
+		}
+		if ($fila->db->trans_status() === FALSE) {
+			$fila->db->trans_rollback();
+			return false;
+		} else {
+			$fila->db->trans_commit();
+			return true;
+		}
+	}
+	function anularCorrelativosEntidad($id_entidad,$id_dependencia)
+	{
+		$fila =& get_instance();
+		// $fila->load->model('Comunes_model');
+		// $fila->load->model('Correlativos_model');
+		$fila->db->trans_begin();
+		$datosCorrelativos = $fila->Correlativos_model->getCorrelativos();
+		$datosGestiones = $fila->Comunes_model->getGestion();
+		foreach ($datosGestiones as $datoGestion) 
+		{
+			$gestion= $datoGestion->gestion;
+			foreach ($datosCorrelativos as $dato) 
+			{
+				$id_correlativo = $dato->id;
+				$datosCorrelativoEntidadGestion = $fila->Correlativos_model->getCorrelativoEntidadGestion($id_correlativo,$id_entidad,$id_dependencia,$gestion);
+				if($datosCorrelativoEntidadGestion)
+				{
+					$datos = array(
+						'estado'   	  => 'ANU',
+					);
+					$anular = $fila->Correlativos_model->anularCorrelativoEntidadGestion($id_correlativo,$id_entidad,$id_dependencia,$gestion,$datos);
+					if (!$anular) {
+						$fila->db->trans_rollback();
+						return false;
+					}
+				}
+			}
+		}
+		if ($fila->db->trans_status() === FALSE) {
+			$fila->db->trans_rollback();
+			return false;
+		} else {
+			$fila->db->trans_commit();
+			return true;
+		}
+	}
+	
 }
