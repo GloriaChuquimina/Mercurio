@@ -252,7 +252,7 @@ function cargarDatosBalanceGeneral(){
         {
             nivel= 0;
         }
-        var cierre =true;
+        var cierre =false;
         var enlace = base_url + "Contabilidad/BalanceGeneral/cargarDatosBalanceGeneral";
         $('#tablaBalanceGeneral').DataTable({
             destroy: true,
@@ -271,7 +271,8 @@ function cargarDatosBalanceGeneral(){
                     idSeleccionado:idSeleccionado,
                     valorCheckCero:valorCheckCero,
                     moneda:moneda,
-                    nivel:nivel
+                    nivel:nivel,
+                    cierre:cierre
                 },
                 dataSrc: function(json) {
                     $('.txtTotalImporteActivo').text(json.totalimporteActivo);

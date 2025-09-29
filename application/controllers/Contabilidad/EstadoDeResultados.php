@@ -459,9 +459,16 @@ class EstadoDeResultados extends CI_Controller {
 			$anio_cierre  = date("Y", strtotime($fecha_fin));
 			$tipo_cierre ="CIR";
 			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
-			$comprobantes_cierre = $filas[0]->comprobante;
-			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
-			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			if($filas)
+			{
+				$comprobantes_cierre = $filas[0]->comprobante;
+				$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
+				$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			}
+			else
+			{
+				$whereCierre = "";
+			}
 		}
 		elseif($cierre == 'true'){
 			$whereCierre = "";
@@ -602,9 +609,19 @@ class EstadoDeResultados extends CI_Controller {
 			$anio_cierre  = date("Y", strtotime($fecha_fin));
 			$tipo_cierre ="CIR";
 			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
-			$comprobantes_cierre = $filas[0]->comprobante;
-			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
-			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			// $comprobantes_cierre = $filas[0]->comprobante;
+			// $comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
+			// $whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			if($filas)
+			{
+				$comprobantes_cierre = $filas[0]->comprobante;
+				$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
+				$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			}
+			else
+			{
+				$whereCierre = "";
+			}
 		}
 		elseif($cierre == 'true'){
 			$whereCierre = "";

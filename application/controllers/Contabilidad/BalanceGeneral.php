@@ -262,6 +262,7 @@ class BalanceGeneral extends CI_Controller {
 		$fecha_inicio  		   = $this->input->post('fecha_desde');
 		$fecha_fin             = $this->input->post('fecha_hasta');
 		$fecha_al              = $this->input->post('fecha_al');
+		$fecha_desde           = primerDiaDelAnio($fecha_al);
 		$idSeleccionado        = $this->input->post('idSeleccionado');	
 		$valorCheckCero        = $this->input->post('valorCheckCero');
 		$moneda                = $this->input->post('moneda');
@@ -299,7 +300,8 @@ class BalanceGeneral extends CI_Controller {
 
 		$whereFecha = "";
 		if($idSeleccionado == 'radioAl'){
-			$whereFecha = " AND fecha_comprobante <='$fecha_al' ";
+			// $whereFecha = " AND fecha_comprobante <='$fecha_al' ";
+			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_desde' AND '$fecha_al' ";
 		}
 		elseif($idSeleccionado == 'radioEntre'){
 			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_inicio' AND '$fecha_fin' ";
@@ -314,13 +316,29 @@ class BalanceGeneral extends CI_Controller {
 			$anio_cierre  = date("Y", strtotime($fecha_al));
 			$tipo_cierre ="CIB";
 			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
-			$comprobantes_cierre = $filas[0]->comprobante;
-			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
-			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			// $comprobantes_cierre = $filas[0]->comprobante;
+			// $comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
+			// $whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+
+			if($filas)
+			{
+				$comprobantes_cierre = $filas[0]->comprobante;
+				$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
+				$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			}
+			else
+			{
+				$whereCierre = "";
+			}
+
+
+
 		}
 		elseif($cierre == 'true'){
 			$whereCierre = "";
 		}
+
+		// echo("Where Fecha: ".$whereFecha);
 
 		if($moneda === 'BOB'){
  
@@ -577,9 +595,11 @@ class BalanceGeneral extends CI_Controller {
 
 		// echo("Nivel: ".$nivel);
 		// die();
+		$fecha_desde           = primerDiaDelAnio($fecha_al);
 		$whereFecha = "";
 		if($idSeleccionado == 'radioAl'){
-			$whereFecha = " AND fecha_comprobante <='$fecha_al' ";
+			// $whereFecha = " AND fecha_comprobante <='$fecha_al' ";
+			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_desde' AND '$fecha_al' ";
 		}
 		elseif($idSeleccionado == 'radioEntre'){
 			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_inicio' AND '$fecha_fin' ";
@@ -587,13 +607,21 @@ class BalanceGeneral extends CI_Controller {
 
 		$whereCierre = "";
 		if($cierre == 'false'){
-
+			// echo ("Cierre false");
 			$anio_cierre  = date("Y", strtotime($fecha_al));
 			$tipo_cierre ="CIB";
 			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
-			$comprobantes_cierre = $filas[0]->comprobante;
-			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
-			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			if($filas)
+			{
+				$comprobantes_cierre = $filas[0]->comprobante;
+				$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
+				$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			}
+			else
+			{
+				$whereCierre = "";
+			}
+			
 		}
 		elseif($cierre == 'true'){
 			$whereCierre = "";
@@ -1212,9 +1240,12 @@ class BalanceGeneral extends CI_Controller {
 		$pdf->sigla=sigla_entidad($id_entidad);
 		$pdf->tituloCabecera = 'BALANCE GENERAL';
 
+		$fecha_desde           = primerDiaDelAnio($fecha_al);
+		$whereFecha = "";
 		if($idSeleccionado == 'radioAl'){
+			// $whereFecha = " AND fecha_comprobante <='$fecha_al' ";
+			$whereFecha = " AND fecha_comprobante BETWEEN '$fecha_desde' AND '$fecha_al' ";
 			$pdf->subtituloCabecera1 = "AL ".formato_fecha_dia_2($fecha_al);  
-
 		}
 		elseif($idSeleccionado == 'radioEntre'){
 			$pdf->subtituloCabecera1 = "Entre el ".formato_fecha_slash($fecha_inicio). " y el ".formato_fecha_slash($fecha_fin);  
@@ -1285,9 +1316,19 @@ class BalanceGeneral extends CI_Controller {
 			$anio_cierre  = date("Y", strtotime($fecha_al));
 			$tipo_cierre ="CIB";
 			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
-			$comprobantes_cierre = $filas[0]->comprobante;
-			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
-			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			if($filas)
+			{
+				$comprobantes_cierre = $filas[0]->comprobante;
+				$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
+				$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
+			}
+			else
+			{
+				$whereCierre = "";
+			}
+
+
+
 		}
 		elseif($cierre == 'true'){
 			$whereCierre = "";

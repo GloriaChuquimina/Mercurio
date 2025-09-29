@@ -1392,7 +1392,8 @@ class Pdf2 extends FPDF {
                 $h = $fh;
         }
         //Issue a page break first if needed
-        $this->CheckPageBreak($h);
+        // $this->CheckPageBreak($h);
+        $this->CheckPageBreak_LM($h);
         //Draw the cells of the row
         for($i=0;$i<count($data);$i++)
         {
