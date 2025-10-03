@@ -237,7 +237,7 @@ class Comprobante extends CI_Controller {
 		$nro_registros=0;
 		if($resul == 1)
 		{
-				if($accion_comprobante == "nuevo" && $accion_cuenta == "nuevo")
+				if($accion_comprobante == "nuevo" && ($accion_cuenta == "nuevo" || $accion_cuenta == "editar"))
 				{  
 					// echo ("CUENTAS CADENA".$cadRegistroCuenta);
 					$filas = explode("|", $cadRegistroCuenta);  
@@ -276,7 +276,7 @@ class Comprobante extends CI_Controller {
 
 							$botonEditar = "<div style='text-align: center;'>
 										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
-											<button type='button' class='btn btn-block btn-success btn-sm' onclick=\"eliminarDocumentoT('".$id_cuenta."','".$descripcion_cuenta."','".$tipo_movimiento."','". $glosa_cuenta."' )\"><i>✏️</i></button>
+											<button type='button' class='btn btn-block btn-success btn-sm' onclick=\"mostrarEditarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$id_cuenta_auxiliar."','".$cuenta_auxiliar."','".$cadRegistroCuenta."')\"><i>✏️</i></button>
 										</span>										
 									</div>";
 							$botonEliminar = "<div style='text-align: center;'>
@@ -302,7 +302,7 @@ class Comprobante extends CI_Controller {
 								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
 								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
 								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
-								$botonEliminar
+								$botonEliminar.$botonEditar
 							);
 							$totalimporteDebe+=$importeDebe;
 							$totalimporteHaber+=$importeHaber;
@@ -901,7 +901,7 @@ class Comprobante extends CI_Controller {
 		$doc  			= $this->input->post('doc');
 		$nrodoc   		= $this->input->post('nrodoc');
 		$fechadoc 		= $this->input->post('fechadoc');
-		$cadDocumentos 	=$this->input->post('documentos');
+		$cadDocumentos 	= $this->input->post('documentos');
 		if(trim($accion) == 'nuevo')
 		{
 			$cadCuentas = str_replace('*'.$id_cuenta.'*'.$codigoCuenta.'*'.$tipo_movimiento.'*'.$tipo_movimiento_literal.'*'.$importe.'*'.$tipo_cambio.'*'.$glosa_cuenta.'*'.$id_cuenta_auxiliar.'*'.$cuenta_auxiliar."|","",$cadRegistroCuenta);
@@ -2004,6 +2004,32 @@ class Comprobante extends CI_Controller {
 		echo json_encode($output);
 		exit();
     }
+	function editarRegistroCuentaTemporal()
+	{				
+		$accion 				     = $this->input->post('accion');
+		$cadRegistroCuenta		     = $this->input->post('cadRegistroCuenta');
+		$cadRegistroCuentaAnterior	 = $this->input->post('cadRegistroCuentaAnterior');
+		$cadCuentaTemporalModificada = $this->input->post('cadCuentaTemporalModificada');
+
+		if(trim($accion) == 'editar')
+		{
+			// echo("ingresa por editar");
+			$cadCuentas = str_replace($cadRegistroCuentaAnterior,$cadCuentaTemporalModificada,$cadRegistroCuenta);
+			// echo("cuentas_nueva=>".$cadCuentas);
+			$mensaje = array("resultado" => 1 , 
+			                    "mensaje"=>"Se ha editado correctamente el registro", 
+								"cuentas"=> $cadCuentas);
+		}
+		// else{
+		// 	$data = array (
+		// 	'estado' => 'AN',
+		// 	'fecha' => date('Y-m-d H:i:s')
+		// 	);
+		// 	$filas = $this->entidaddocumento_model->updateEntidadDocumento($id,$data);
+		// 	$mensaje = array("resultado" => 1 , "mensaje"=>"Se ha eliminado el registro", "cuentas"=>"");
+		// }	
+		echo json_encode($mensaje);
+	}
 	
 	
 }

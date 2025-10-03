@@ -464,8 +464,8 @@ function guardarRegistroCuenta()
                             /****************************************************** */
                             // quitarComaNumeroDecimal1();
 
-                            // if(accion_comprobante == 'nuevo' && accion_cuenta == 'nuevo')
-                            // {
+                            if(accion_comprobante == 'nuevo' && accion_cuenta == 'nuevo')
+                            {
                                 var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"|";
                                 $('#registroCuentaT').val(cadRegistroCuentaT);
                                 var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
@@ -526,10 +526,15 @@ function guardarRegistroCuenta()
                                     $('#modalRegistroMovimiento').modal('hide');  
                                 }
 
-                            
-                            /****************************************************** */
 
-                            
+
+                            }else{
+                                if(accion_comprobante == 'nuevo' && accion_cuenta == 'editar')
+                                {
+                                    editarRegistroCuentaTemporal();
+                                }
+                            }
+                            /****************************************************** */
                         }
                     });
                 }
@@ -707,7 +712,7 @@ function guardarDatosComprobanteMasDetalle()
         var nro_cuentas_comprobante = $('#cant_cuentas').val();        
         if(nro_cuentas_comprobante>0)
         {
-            mensaje="¿Está seguro de actualizar el comprobante?";
+            mensaje="¿Está seguro de actualizar la información del comprobante?";
             icon="warning";
         }
         else
@@ -1408,4 +1413,128 @@ function busquedaIDCuentaAuxliar(id_cuenta_auxiliar,cuenta_auxiliar)
      $('#id_cuenta_auxiliar').val( id_cuenta_auxiliar) ;
      $('#txtAuxiliarCuenta').val( cuenta_auxiliar) ;
      $('#modalListaCuentasAuxiliares').modal('hide');  
+}
+
+/*FUNCIONES PARA EDITAR REGISTRO TEMPORAL  */
+
+function mostrarEditarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,tipo_movimiento_literal,importe,tipo_cambio,glosa_cuenta,id_cuenta_auxiliar,cuenta_auxiliar,cadRegistroCuenta)
+{
+ 
+    // swal({
+    //     title: 'ATENCIÓN',
+    //     text: "¿Está seguro de eliminar el registro de cuenta del comprobante?",
+    //     icon: 'warning',
+    //     dangerMode: true,
+    //     buttons: {
+    //         cancel: "Cancelar",
+    //         verificar: {
+    //             text: "ELIMINAR",
+    //             value: "eliminar",
+    //         }
+    //     },
+    // })
+    // .then(respuesta => {
+    //     if (respuesta)
+    //     {
+    //         var accion  = $('#txtAccionMovimiento').val();
+    //         var enlace = base_url + "Contabilidad/Comprobante/eliminarRegistroCuentaTemporal";
+    //         $.ajax({
+    //             type: "POST",
+    //             url: enlace,
+    //             data: { accion: accion,
+    //                  id_cuenta: id_cuenta,
+    //               codigoCuenta: codigoCuenta,
+    //            tipo_movimiento: tipo_movimiento,
+    //    tipo_movimiento_literal: tipo_movimiento_literal,
+    //                    importe: importe,
+    //                tipo_cambio: tipo_cambio,
+    //               glosa_cuenta: glosa_cuenta,
+    //         id_cuenta_auxiliar: id_cuenta_auxiliar,
+    //            cuenta_auxiliar: cuenta_auxiliar,
+    //          cadRegistroCuenta: cadRegistroCuenta
+    //                   },
+    //             dataType: 'JSON',
+    //             success: function(data) {
+    //                         $('#registroCuentaT').val(data.cuentas);
+    //                         cargarCuentasComprobanteT();   
+    //             }
+    //         });
+    //     }
+    // });
+
+    $('#txtAccionMovimiento').val('editar');
+    $('#btnGuardarCuenta').text('Editar');
+    $('#id_cuenta').val(id_cuenta);
+    $('#txtCuenta').val(codigoCuenta);
+    $('#txtTipoMovimiento option[value="'+tipo_movimiento+'"]').prop('selected','selected'); 
+    $('#txtImporte').val(importe);
+    $('#txtGlosaCuenta').val(glosa_cuenta);   
+    var cadRegistroMovimientoCuentaT = "*"+id_cuenta+"*"+codigoCuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"|";
+    $('#registroMovimientoCuentaT').val(cadRegistroMovimientoCuentaT);   
+    $('#modalRegistroMovimiento').modal({backdrop: 'static', keyboard: false})
+    $('#modalRegistroMovimiento').modal('show');  
+
+}
+function editarRegistroCuentaTemporal()
+{
+
+    var accion_comprobante        = $('#txtAccionComprobanteCuenta').val();
+    var accion_cuenta             = $('#txtAccionMovimiento').val();
+    var id_entidad                = $('#id_entidad_registro').val();
+    var id_comprobante            = $('#id_comprobante').val();
+    var id_cuenta                 = $('#id_cuenta').val();
+    var cuenta                    = $('#txtCuenta').val();
+    var tipo_movimiento           = $('#txtTipoMovimiento').val();
+    var tipo_movimiento_literal   = $('#txtTipoMovimiento option:selected').text();
+    var importe                   = $('#txtImporte').val();
+    var importeFormato            = importe.split(",").join("");
+    var tipo_cambio               = $('#txtTipoCambio').val();
+    var glosa_cuenta              = $('#txtGlosaCuenta').val();
+	var id_cuenta_auxiliar		  = $('#id_cuenta_auxiliar').val();
+	var cuenta_auxiliar		      = $('#txtAuxiliarCuenta').val();
+    var cadRegistroCuenta         = $('#registroCuentaT').val();//cadena de registro de cuentas
+    var cadRegistroCuentaAnterior = $('#registroMovimientoCuentaT').val();//cadena de registro de cuenta anterior
+    var enlace                    = base_url + "Contabilidad/Comprobante/validarDatosRegistroCuenta";
+    var datos                     = $('#formularioRegistroCuenta').serialize();
+    var datos_cuenta              = $('#formularioRegistroCuenta').serialize();
+
+
+    swal({
+        title: 'ATENCIÓN',
+        text: "¿Está seguro de editar el registro de cuenta del comprobante?",
+        icon: 'warning',
+        dangerMode: true,
+        buttons: {
+            cancel: "Cancelar",
+            verificar: {
+                text: "EDITAR",
+                value: "editar",
+            }
+        },
+    })
+    .then(respuesta => {
+        if (respuesta)
+        {
+            var accion  = $('#txtAccionMovimiento').val();
+            var enlace = base_url + "Contabilidad/Comprobante/editarRegistroCuentaTemporal";
+            var cadCuentaTemporalModificada = "*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"|";
+            $.ajax({
+                type: "POST",
+                url: enlace,
+                data: { 
+                                accion: accion,
+                     cadRegistroCuenta: cadRegistroCuenta,
+             cadRegistroCuentaAnterior: cadRegistroCuentaAnterior,
+           cadCuentaTemporalModificada: cadCuentaTemporalModificada
+                      },
+                dataType: 'JSON',
+                success: function(data) {
+                            $('#registroCuentaT').val(data.cuentas);
+                            $('#txtAccionMovimiento').val('nuevo');
+                            cargarCuentasComprobanteT();   
+                            $('#modalRegistroMovimiento').modal('hide');  
+                }
+            });
+        }
+    });
 }

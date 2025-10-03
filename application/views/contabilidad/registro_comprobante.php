@@ -254,6 +254,7 @@
                     <input type="hidden" class="form-control" id="id_registroCuentaComprobante" name="id_registroCuentaComprobante">
                     <input type="hidden" class="form-control" id="mensaje" name="mensaje">
                     <input type="hidden" class="form-control" id="id_cuenta_auxiliar" name="id_cuenta_auxiliar">
+                    <input type="hidden" class="form-control" id="registroMovimientoCuentaT" name="registroMovimientoCuentaT">
                     <div class="card card-outline card-info">
                         <div class="card-header">
                         <h7 class="card-title">
@@ -372,7 +373,7 @@
                     <i class="mr-1">❌</i>
                     Cerrar
                 </button>
-                <button type="button" class="btn btn-info" onclick="guardarRegistroCuenta();">
+                <button type="button" class="btn btn-info" onclick="guardarRegistroCuenta();" id="btnGuardarCuenta">
                     <i class="mr-1">💾</i>
                     Guardar Registro
                 </button>
@@ -449,7 +450,7 @@
                   </button>
             </div>
 
-            </div>
+            <!-- </div> -->
         </div>
     </div>
 </div>
