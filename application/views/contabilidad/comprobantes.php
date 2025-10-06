@@ -39,6 +39,7 @@
                 </div>
               </div>
             </div>
+          
             <div class="card" style="background-color: #f0f0ff; border-left: 4px solid #3c8dbc;">
               <div class="card-body p-3">
                 <div class="row align-items-center">
@@ -89,6 +90,7 @@
                 </div>
               </div>
             </div>
+          
             <div class="card">
               <div class="card-header bg-gradient-secondary">
                 <h3 class="card-title text-black">

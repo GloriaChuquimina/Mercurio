@@ -94,7 +94,7 @@ function cargarCuentas(){
 }
 $(function (){
 
-    $('#txtCuenta' ).on({
+        $('#txtCuenta' ).on({
                 'change': function(event) {
                     $('#idCuenta').val('');
                     var target = event.target.value;
@@ -163,7 +163,7 @@ $(function (){
 
         });
         /* Valida  numeros en los textos */ 
-        $("#txtImporte").keypress(function (e) {
+        $("#txtImporte,#txtMontoUSD,#txtMontoBOB").keypress(function (e) {
             var keyCode = e.keyCode || e.which;
             if (event.which && (event.which < 46 || event.which > 57 || event.which == 47) && event.keyCode != 8) {
                     event.preventDefault();
@@ -172,6 +172,25 @@ $(function (){
         $('#txtFecha').on('blur', function(){
             validarFecha($(this).val());
         });
+
+
+        $('#txtMontoUSD' ).on({
+                'change': function(event) {
+                    var montoUSD = event.target.value;
+                    calcularMontoMonedaExtranjera(montoUSD);
+                   
+                },
+                'blur':  function(event) {
+                    var montoUSD = event.target.value;
+                    calcularMontoMonedaExtranjera(montoUSD);
+                    
+                }
+
+        });
+
+
+
+
         // $('#txtFecha').change(function(){
         //     fecha = $(this).val();
         //     var enlace =  base_url + 'Contabilidad/Comprobante/getTipoCambio';
@@ -1535,6 +1554,25 @@ function editarRegistroCuentaTemporal()
                             $('#modalRegistroMovimiento').modal('hide');  
                 }
             });
+        }
+    });
+}
+function calcularMontoMonedaExtranjera(montoUSD)
+{
+    var tipo_cambio = $('#txtTipoCambio').val();
+    var enlace = base_url + "Contabilidad/Comprobante/calcularMontoMonedaExtranjera";
+    $.ajax({
+        type: "POST",
+        url: enlace,
+        data: { 
+                        montoUSD : montoUSD,
+                     tipo_cambio : tipo_cambio
+                },
+        dataType: 'JSON',
+        success: function(data) {
+                    $('#txtMontoBOB').val(data.montoBOB);
+                    $('#txtImporte').val(data.montoBOB);
+                    
         }
     });
 }

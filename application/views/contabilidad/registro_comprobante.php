@@ -257,114 +257,187 @@
                     <input type="hidden" class="form-control" id="registroMovimientoCuentaT" name="registroMovimientoCuentaT">
                     <div class="card card-outline card-info">
                         <div class="card-header">
-                        <h7 class="card-title">
-                            <i class="mr-2">✏️</i>
-                            REGISTRO DE CUENTA
-                        </h7>
+                            <h7 class="card-title">
+                                <i class="mr-2">✏️</i>
+                                REGISTRO DE CUENTA
+                            </h7>
                         </div>
                         <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="form-group">
-                                    <label>
-                                    <i class="text-danger">*</i>
-                                    <strong> DESCRIPCIÓN CUENTA:</strong>
-                                    </label>
-                                    <div class="input-group">
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            placeholder="Buscar cuenta..."
-                                            list="listaCuentas"
-                                            id="txtCuenta" 
-                                            name="txtCuenta"
-                                        />
-                                        <datalist id='listaCuentas'></datalist>
-                                        <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
-                                        <div class="input-group-append">
-                                            <button
-                                            type="button"
-                                            class="btn btn-warning"
-                                            onclick="listaCuentasBusqueda();"
-                                            >
-                                            <i>🔍</i>
-                                            </button>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label>
+                                        <i class="text-danger">*</i>
+                                        <strong> DESCRIPCIÓN CUENTA:</strong>
+                                        </label>
+                                        <div class="input-group">
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder="Buscar cuenta..."
+                                                list="listaCuentas"
+                                                id="txtCuenta" 
+                                                name="txtCuenta"
+                                            />
+                                            <datalist id='listaCuentas'></datalist>
+                                            <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
+                                            <div class="input-group-append">
+                                                <button
+                                                type="button"
+                                                class="btn btn-warning"
+                                                onclick="listaCuentasBusqueda();"
+                                                >
+                                                <i>🔍</i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>
+                                        <i class="text-danger">*</i>
+                                        <strong> TIPO:</strong>
+                                        </label>
+                                        <select class="form-control" id="txtTipoMovimiento" name="txtTipoMovimiento">
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>
+                                        <i class="text-danger">*</i>
+                                        <strong> IMPORTE:</strong>
+                                        </label>
+                                        <input type="text" id="txtImporte" name="txtImporte" class="form-control text-right" placeholder="0.00" />
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- CONVERSION -->
+                            <div class="card" style="background-color: #f0f0ff; border-left: 4px solid #3c8dbc;">
+                                <div class="card-body p-3">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="d-flex align-items-end">
+                                                    <div style="flex-grow: 1; margin-right: 10px;">
+                                                        <label for="gestion_comprobante">
+                                                            <strong>Monto en Dólares(USD):</strong>
+                                                        </label>
+                                                        <div class="input-group">
+                                                            <div class="input-group-append">
+                                                                <button
+                                                                type="button"
+                                                                class="btn btn-primary"
+                                                                >
+                                                                <i>💵 USD</i>
+                                                                </button>
+                                                            </div>
+                                                             <input
+                                                                type="text"
+                                                                class="form-control text-right"
+                                                                placeholder="0.00"
+                                                                id="txtMontoUSD" 
+                                                                name="txtMontoUSD"
+                                                            />
+                                                            
+                                                        </div>
+                                                        <label>
+                                                            Introducir monto en dólares estadounidenses
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="d-flex align-items-end">
+                                                    
+                                                    <div style="flex-grow: 1; margin-right: 10px;">
+                                                        <label for="tipo_comprobante">
+                                                            <strong>Equivalente en Moneda Local:</strong>
+                                                        </label>
+                                                        <div class="input-group">
+                                                            <div class="input-group-append">
+                                                                <button
+                                                                type="button"
+                                                                class="btn btn-secondary"
+                                                                >
+                                                                <i>🪙</i> Bs.
+                                                                </button>
+                                                            </div>
+                                                             <input
+                                                                type="text"
+                                                                class="form-control text-right"
+                                                                placeholder="0.00"
+                                                                id="txtMontoBOB" 
+                                                                name="txtMontoBOB"
+                                                                readonly
+                                                            />
+                                                        </div>
+                                                        <label>
+                                                            Calculado automáticamente al tipo de cambio seleccionado
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label>
-                                    <i class="text-danger">*</i>
-                                    <strong> TIPO:</strong>
-                                    </label>
-                                    <select class="form-control" id="txtTipoMovimiento" name="txtTipoMovimiento">
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label>
-                                    <i class="text-danger">*</i>
-                                    <strong> IMPORTE:</strong>
-                                    </label>
-                                    <input type="text" id="txtImporte" name="txtImporte" class="form-control text-right" placeholder="0.00" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row" id="auxiliares_cuenta" >
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>
-                                    <i class="text-danger">*</i>
-                                    <strong> AUXILIARES DE LA CUENTA:</strong>
-                                    </label>
-                                    <div class="input-group">
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            placeholder="Buscar auxiliar de la cuenta..."
-                                            list="listaAuxiliaresDeCuenta"
-                                            id="txtAuxiliarCuenta" 
-                                            name="txtAuxiliarCuenta"
-                                        />
-                                        <datalist id='listaAuxiliaresDeCuenta'></datalist>
-                                        <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
-                                        <div class="input-group-append">
-                                            <button
-                                            type="button"
-                                            class="btn btn-info"
-                                            onclick="listaCuentasAuxiliaresBusqueda();"
-                                            >
-                                            <i>🕵️</i>
-                                            </button>
+                            <!-- CONVERSION -->
+                            <div class="row" id="auxiliares_cuenta" >
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>
+                                        <i class="text-danger">*</i>
+                                        <strong> AUXILIARES DE LA CUENTA:</strong>
+                                        </label>
+                                        <div class="input-group">
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder="Buscar auxiliar de la cuenta..."
+                                                list="listaAuxiliaresDeCuenta"
+                                                id="txtAuxiliarCuenta" 
+                                                name="txtAuxiliarCuenta"
+                                            />
+                                            <datalist id='listaAuxiliaresDeCuenta'></datalist>
+                                            <!-- <input type='hidden' name='idCuenta' id='idCuenta' > -->
+                                            <div class="input-group-append">
+                                                <button
+                                                type="button"
+                                                class="btn btn-info"
+                                                onclick="listaCuentasAuxiliaresBusqueda();"
+                                                >
+                                                <i>🕵️</i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>
-                                    <i class="text-danger">*</i>
-                                    <strong> GLOSA:</strong>
-                                    </label>
-                                    <textarea 
-                                    id="txtGlosaCuenta" 
-                                    name="txtGlosaCuenta"
-                                    class="form-control"
-                                    rows="3"
-                                    placeholder="Descripción del movimiento..."
-                                    ></textarea>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>
+                                        <i class="text-danger">*</i>
+                                        <strong> GLOSA:</strong>
+                                        </label>
+                                        <textarea 
+                                        id="txtGlosaCuenta" 
+                                        name="txtGlosaCuenta"
+                                        class="form-control"
+                                        rows="3"
+                                        placeholder="Descripción del movimiento..."
+                                        ></textarea>
+                                    </div>
                                 </div>
                             </div>
+                            
                         </div>
-                        
                     </div>
                 </form>
             </div>

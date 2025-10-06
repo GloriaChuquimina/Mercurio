@@ -2030,6 +2030,33 @@ class Comprobante extends CI_Controller {
 		// }	
 		echo json_encode($mensaje);
 	}
+
+	function calcularMontoMonedaExtranjera()
+	{				
+		// $accion 				     = $this->input->post('accion');
+		// $cadRegistroCuenta		     = $this->input->post('cadRegistroCuenta');
+		// $cadRegistroCuentaAnterior	 = $this->input->post('cadRegistroCuentaAnterior');
+		// $cadCuentaTemporalModificada = $this->input->post('cadCuentaTemporalModificada');
+		$montoUSD    = $this->input->post('montoUSD');
+		$tipo_cambio = $this->input->post('tipo_cambio');
+		$montoBOB	 = 0.00;
+		if(trim($tipo_cambio) != '')
+		{
+			$montoBOB = round($montoUSD*$tipo_cambio,2);
+			$importeBaseBOB = floatval(str_replace(',', '', $montoBOB));
+			$mensaje = array("resultado" => 1 , 
+								"mensaje"=>"Conversión realizada", 
+								"montoBOB"=> $importeBaseBOB);
+		}
+		else{
+			$mensaje = array("resultado" => 2 , 
+			                    "mensaje"=>"No se tiene el dato del valor de tipo de cambio, para realizar la conversion.",
+								"montoBOB"=> $montoBOB
+							);
+		}
+
+		echo json_encode($mensaje);
+	}
 	
 	
 }
