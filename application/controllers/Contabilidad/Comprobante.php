@@ -213,6 +213,7 @@ class Comprobante extends CI_Controller {
 		$importe   		           		= $datos_registro_cuenta['txtImporte'];
 		$glosa_cuenta   		   		= $datos_registro_cuenta['txtGlosaCuenta'];
 		$id_cuenta_auxiliar 		   	= $datos_registro_cuenta['id_cuenta_auxiliar'];
+		$importe_origen       		   	= $datos_registro_cuenta['txtMontoUSD'];
 		if($id_cuenta_auxiliar == '-')
 		{
 			$id_cuenta_auxiliar = null;
@@ -235,6 +236,8 @@ class Comprobante extends CI_Controller {
 		$totalimporteDebeUs=0;
 		$totalimporteHaberUs=0;
 		$nro_registros=0;
+		$totalDiferencia   = 0;
+		$totalDiferenciaUs = 0;
 		if($resul == 1)
 		{
 				if($accion_comprobante == "nuevo" && ($accion_cuenta == "nuevo" || $accion_cuenta == "editar"))
@@ -255,7 +258,7 @@ class Comprobante extends CI_Controller {
 						if( $fila)
 						{
 							$row = explode("*", $fila); 
-							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
+							list($ini,$id_cuenta,$cuenta, $tipo_movimiento,$tipo_movimiento_literal,$importe,$tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar,$importe_origen) = $row;
 
 							$codigoCuenta = explode("-",$cuenta);
 							list($codigo_cuenta,$descripcion_cuenta)= $codigoCuenta;
@@ -281,7 +284,7 @@ class Comprobante extends CI_Controller {
 									</div>";
 							$botonEliminar = "<div style='text-align: center;'>
 										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar Registro'>
-											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$id_cuenta_auxiliar."','".$cuenta_auxiliar."','".$cadRegistroCuenta."')\"><i>🗑️</i></button>
+											<button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"eliminarRegistroCuentaTemporal('".$id_cuenta."','".$cuenta."','".$tipo_movimiento."','".$tipo_movimiento_literal."',".$importe.",'".$tipo_cambio."','".$glosa_cuenta."','".$id_cuenta_auxiliar."','".$cuenta_auxiliar."','".$cadRegistroCuenta."','".$importe_origen."')\"><i>🗑️</i></button>
 										</span>										
 									</div>";
 									
@@ -300,8 +303,10 @@ class Comprobante extends CI_Controller {
 								$cuenta_registro,
 								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
 								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
+								"<div style='text-align: right; color: #dc3545; font-weight: bold;'></div>",
 								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
 								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
+								"<div style='text-align: right; color: #dc3545; font-weight: bold;'></div>",
 								$botonEliminar.$botonEditar
 							);
 							$totalimporteDebe+=$importeDebe;
@@ -437,8 +442,10 @@ class Comprobante extends CI_Controller {
 								$cuenta_registro,
 								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
 								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
+								"<div style='text-align: right; color: #dc3545; font-weight: bold;'></div>",
 								"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
 								"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
+								"<div style='text-align: right; color: #dc3545; font-weight: bold;'></div>",
 								$botonEliminar.$botonEditar
 							);
 							$totalimporteDebe+=$importeDebe;
@@ -452,6 +459,8 @@ class Comprobante extends CI_Controller {
 				}
 		
 		}	
+		$totalDiferencia   = $totalimporteDebe-$totalimporteHaber;
+		$totalDiferenciaUs = $totalimporteDebeUs-$totalimporteHaberUs;
 		 $output = array(
             "draw" => $draw,
             "recordsTotal" => count($filas)-1,
@@ -459,8 +468,11 @@ class Comprobante extends CI_Controller {
             "nro_registros" => $nro_registros,
             "totalimporteDebe" => number_format($totalimporteDebe,2,'.',','),
             "totalimporteHaber" => number_format($totalimporteHaber,2,'.',','),
+            "totalDiferencia"     => number_format($totalDiferencia,2,'.',','),
             "totalimporteDebeUs" => number_format($totalimporteDebeUs,2,'.',','),
             "totalimporteHaberUs" => number_format($totalimporteHaberUs,2,'.',','),
+            "totalimporteHaberUs" => number_format($totalimporteHaberUs,2,'.',','),
+            "totalDiferenciaUs"   => number_format($totalDiferenciaUs,2,'.',','),
             "data" => $data,
 			"resultado"=>$resul,
 			"mensaje"=>$mensaje
@@ -564,8 +576,7 @@ class Comprobante extends CI_Controller {
 				$mensaje = formaterarValidacion($mensaje);
 
 			}
-			// echo("TEPHANY".$resul."<br>");
-			// echo("TEPHANY".$mensaje."<br>");
+
 		}
 		else
 		{
@@ -666,7 +677,7 @@ class Comprobante extends CI_Controller {
 									$row = explode("*", $fila);
 									if(!isset($row[0]) || empty($row[0]))
 									{
-										list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar) = $row;
+										list($inicio,$id_cuenta, $cuenta,$tipo_movimiento,$tipo_movimiento_literal, $importe, $tipo_cambio,$glosa_cuenta,$id_cuenta_auxiliar,$cuenta_auxiliar,$importe_origen) = $row;
 										// $importe   = number_format($importe,2,'.',',');
 										// $importeUs = number_format(($importe/$tipo_cambio),2,'.',',');
 										$importeUs = round($importe/$tipo_cambio,2);
@@ -683,7 +694,8 @@ class Comprobante extends CI_Controller {
 											'importe_moneda_nacional'   => $importeBase,
 											'importe_moneda_extranjera' => $importeUs,
 											'glosa_cuenta'              => $glosa_cuenta,
-											'id_usuario_registro'       => $id_usuario									
+											'id_usuario_registro'       => $id_usuario	,
+											'importe_moneda_origen'		=> $importe_origen						
 											);
 										}
 										else
@@ -698,7 +710,8 @@ class Comprobante extends CI_Controller {
 											'importe_moneda_extranjera' => $importeUs,
 											'glosa_cuenta'              => $glosa_cuenta,
 											'id_usuario_registro'       => $id_usuario,					
-											'id_cuenta_auxiliar'        => $id_cuenta_auxiliar										
+											'id_cuenta_auxiliar'        => $id_cuenta_auxiliar,
+											'importe_moneda_origen'		=> $importe_origen											
 											);
 										}
 										
@@ -897,6 +910,7 @@ class Comprobante extends CI_Controller {
 		$id_cuenta_auxiliar   	  = $this->input->post('id_cuenta_auxiliar');
 		$cuenta_auxiliar   		  = $this->input->post('cuenta_auxiliar');
 		$cadRegistroCuenta		  = $this->input->post('cadRegistroCuenta');
+		$importe_origen		      = $this->input->post('importe_origen');
 
 		$doc  			= $this->input->post('doc');
 		$nrodoc   		= $this->input->post('nrodoc');
@@ -904,7 +918,7 @@ class Comprobante extends CI_Controller {
 		$cadDocumentos 	= $this->input->post('documentos');
 		if(trim($accion) == 'nuevo')
 		{
-			$cadCuentas = str_replace('*'.$id_cuenta.'*'.$codigoCuenta.'*'.$tipo_movimiento.'*'.$tipo_movimiento_literal.'*'.$importe.'*'.$tipo_cambio.'*'.$glosa_cuenta.'*'.$id_cuenta_auxiliar.'*'.$cuenta_auxiliar."|","",$cadRegistroCuenta);
+			$cadCuentas = str_replace('*'.$id_cuenta.'*'.$codigoCuenta.'*'.$tipo_movimiento.'*'.$tipo_movimiento_literal.'*'.$importe.'*'.$tipo_cambio.'*'.$glosa_cuenta.'*'.$id_cuenta_auxiliar.'*'.$cuenta_auxiliar.'*'.$importe_origen."*|","",$cadRegistroCuenta);
 			$mensaje = array("resultado" => 1 , 
 			                    "mensaje"=>"Se ha eliminado el registro", 
 								"cuentas"=> $cadCuentas);
@@ -1601,8 +1615,10 @@ class Comprobante extends CI_Controller {
 		$importeHaberUs=0;
 		$totalimporteDebe=0;
 		$totalimporteHaber=0;
+		$totalDiferencia=0;
 		$totalimporteDebeUs=0;
 		$totalimporteHaberUs=0;
+		$totalDiferenciaUs=0;
 		$nro_registros=count($detalleComprobante);	
 		$cuenta_auxiliar="";
 		// echo($nro_registros);
@@ -1679,8 +1695,10 @@ class Comprobante extends CI_Controller {
 					$cuenta_registro,
 					"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebe, 2, '.', ',')."</div>",
 					"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaber,2,'.',',')."</div>",
+					"<div style='text-align: right; color: #dc3545; font-weight: bold;'></div>",
 					"<div style='text-align: right; color: #28a745; font-weight: bold;'>".number_format($importeDebeUs,2,'.',',')."</div>",
 					"<div style='text-align: right; color: #dc3545; font-weight: bold;'>".number_format($importeHaberUs,2,'.',',')."</div>",
+					"<div style='text-align: right; color: #dc3545; font-weight: bold;'></div>",
 					$botonEliminar.$botonEditar
 				);
 				$totalimporteDebe+=$importeDebe;
@@ -1699,19 +1717,24 @@ class Comprobante extends CI_Controller {
 					"",
 					"",
 					"",
+					"",
+					"",
 					""
 				);
 		}
-		
+		$totalDiferencia   = $totalimporteDebe-$totalimporteHaber;
+		$totalDiferenciaUs = $totalimporteDebeUs-$totalimporteHaberUs;
 		$output = array(
             "draw" => $draw,
-            "recordsTotal" => count($detalleComprobante)-1,
-            "recordsFiltered" => count($detalleComprobante)-1,
-            "nro_registros" => $nro_registros,
-            "totalimporteDebe" => number_format($totalimporteDebe,2,'.',','),
-            "totalimporteHaber" => number_format($totalimporteHaber,2,'.',','),
-            "totalimporteDebeUs" => number_format($totalimporteDebeUs,2,'.',','),
+            "recordsTotal"        => count($detalleComprobante)-1,
+            "recordsFiltered"     => count($detalleComprobante)-1,
+            "nro_registros"       => $nro_registros,
+            "totalimporteDebe"    => number_format($totalimporteDebe,2,'.',','),
+            "totalimporteHaber"   => number_format($totalimporteHaber,2,'.',','),
+            "totalDiferencia"     => number_format($totalDiferencia,2,'.',','),
+            "totalimporteDebeUs"  => number_format($totalimporteDebeUs,2,'.',','),
             "totalimporteHaberUs" => number_format($totalimporteHaberUs,2,'.',','),
+            "totalDiferenciaUs"   => number_format($totalDiferenciaUs,2,'.',','),
             "data" => $data
         );
 	    echo json_encode($output);
@@ -2039,19 +2062,26 @@ class Comprobante extends CI_Controller {
 		// $cadCuentaTemporalModificada = $this->input->post('cadCuentaTemporalModificada');
 		$montoUSD    = $this->input->post('montoUSD');
 		$tipo_cambio = $this->input->post('tipo_cambio');
+
+		$montoUSD_sin_comas = str_replace(',', '', $montoUSD);
+
 		$montoBOB	 = 0.00;
 		if(trim($tipo_cambio) != '')
 		{
-			$montoBOB = round($montoUSD*$tipo_cambio,2);
-			$importeBaseBOB = floatval(str_replace(',', '', $montoBOB));
+			$montoBOB = round($montoUSD_sin_comas*$tipo_cambio,2);
+			$importeBaseBOB1 = $montoBOB;
+			$importeBaseBOB2 = floatval(str_replace(',', '', $montoBOB));
 			$mensaje = array("resultado" => 1 , 
 								"mensaje"=>"Conversión realizada", 
-								"montoBOB"=> $importeBaseBOB);
+								"montoBOB1"=> number_format($importeBaseBOB1,2,'.',','),
+								"montoBOB2"=> number_format($importeBaseBOB2,2,'.',',')
+							);
 		}
 		else{
 			$mensaje = array("resultado" => 2 , 
 			                    "mensaje"=>"No se tiene el dato del valor de tipo de cambio, para realizar la conversion.",
-								"montoBOB"=> $montoBOB
+								"montoBOB1"=> number_format($montoBOB,2,'.',','),
+								"montoBOB2"=> number_format($montoBOB,2,'.',',')
 							);
 		}
 

@@ -1,10 +1,9 @@
-<script src="<?php echo  base_url() ?>scriptjs/jquery.js"></script>
-<script src="<?php echo  base_url() ?>scriptjs/contabilidad/comprobantes.js"></script>
-<script src="<?php echo  base_url() ?>scriptjs/validacion.js"></script>
-<link rel="stylesheet" href="<?php echo base_url();?>resources/css/global.css">
+<script src="<?php echo base_url(); ?>scriptjs/jquery.js"></script>
+<script src="<?php echo base_url(); ?>scriptjs/contabilidad/comprobantes.js"></script>
+<script src="<?php echo base_url(); ?>scriptjs/validacion.js"></script>
+<link rel="stylesheet" href="<?php echo base_url(); ?>resources/css/global.css">
 
-
-<div class="wapper">
+<div class="wrapper">
     <section class="content">
         <div class="container-fluid">
             <div class="card card-primary card-outline" id="cardEntidad">
@@ -14,7 +13,7 @@
                   Selección de Entidad
                 </h3>
                 <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" >
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
                       <i>🔼🔽</i>
                     </button>
                 </div>
@@ -98,7 +97,7 @@
                   COMPROBANTES
                 </h3>
                 <div class="card-tools">
-                  <button type="button" class="btn btn-tool" data-card-widget="collapse" >
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
                     <i>🔍</i>
                   </button>
                 </div>
@@ -139,146 +138,9 @@
                 </div>
               </div>
             </div>
-        </div>
-    </section>
-</div>
-<!-- <div class="row">
-            <div class="col-md-3 col-sm-6 col-12">
-              <div
-                class="info-box"
-                style="
-                  background-color: #fff;
-                  box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-                  border-radius: 0.25rem;
-                "
-              >
-                  <span class="info-box-icon bg-info">
-                      <i class="far fa-file-alt"></i>
-                  </span>
-                  <div class="info-box-content" style="padding: 15px;">
-                    <span class="info-box-text">Total Comprobantes</span>
-                    <span class="info-box-number" style="font-size: 24px; font-weight: bold;">
-                    </span>
-                  </div>
-
-                  <div
-                    style="
-                      width: 50px,
-                      background-color: #17a2b8,
-                      display: flex,
-                      align-items: center,
-                      justify-content: center,
-                      color: white,
-                      font-size: 24px;
-                    "
-                  >
-                    📊
-                  </div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-12">
-              <div
-                class="info-box"
-                style="
-                  background-color: #fff;
-                  box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-                  border-radius: 0.25rem;
-                "
-              >
-              <span class="info-box-icon bg-success">
-                  <i class="far fa-file-alt"></i>
-              </span>
-                <div class="info-box-content" style="padding: 15px;">
-                  <span class="info-box-text">Aprobados</span>
-                  <span
-                    class="info-box-number"
-                    style="font-size: 24px; font-weight: bold; color: #28a745;"
-                  >
-                  </span>
-                </div>
-                <div
-                  style="
-                    width: 50px,
-                    background-color: #28a745,
-                    display: flex,
-                    align-items: center,
-                    justify-content: center,
-                    color: white,
-                    font-size: 24px;
-                  "
-                >
-                  ✓
-                </div>
-              </div>
-            </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div
-                  class="info-box"
-                  style="
-                    background-color: #fff,
-                    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                    border-radius: 0.25rem;
-                  "
-                >
-                <span class="info-box-icon bg-warning">
-                    <i class="far fa-file-alt"></i>
-                </span>
-                    <div class="info-box-content" style=" padding:15px;">
-                      <span class="info-box-text">Pendientes</span>
-                      <span
-                        class="info-box-number"
-                        style="font-size:24px; font-weight: bold; color: #ffc107;" 
-                      >   
-                      </span>
-                    </div>
-                    <div
-                      style="
-                        width: 50px,
-                        background-color: #ffc107,
-                        display: flex,
-                        align-items: center,
-                        justify-content: center,
-                        color: white,
-                        font-size: 24px;"
-                    >
-                      ⏳
-                    </div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-6 col-12">
-                <div
-                  class="info-box"
-                  style="
-                    background-color: #fff,
-                    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2),
-                    border-radius: 0.25rem;"
-                >
-                <span class="info-box-icon bg-danger">
-                    <i class="far fa-file-alt"></i>
-                </span>
-                  <div class="info-box-content" style=" padding:15px">
-                    <span class="info-box-text">Anulados</span>
-                    <span
-                      class="info-box-number"
-                      style="font-size: 24px; font-weight: bold; color: #dc3545;"
-                    >
-                    </span>
-                  </div>
-                  <div
-                    style="
-                      width: 50px,
-                      background-color: #dc3545,
-                      display: flex,
-                      align-items: center,
-                      justify-content: center,
-                      color: white,
-                      font-size: 24px;"
-                  >
-                    ❌
-                  </div>
-                </div>
-              </div>
-</div> -->
+        </div> <!-- cierra container-fluid -->
+    </section> <!-- cierra content -->
+</div> <!-- cierra wrapper -->
 <script type="text/javascript">
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    

@@ -184,6 +184,14 @@ $(function (){
                     var montoUSD = event.target.value;
                     calcularMontoMonedaExtranjera(montoUSD);
                     
+                },
+                'keydown': function(event) {
+                    // Detectar Enter (keyCode 13)
+                    if (event.key === "Enter" || event.keyCode === 13) {
+                        event.preventDefault(); // Evita que el Enter provoque un submit
+                        var montoUSD = event.target.value;
+                        calcularMontoMonedaExtranjera(montoUSD);
+                    }
                 }
 
         });
@@ -459,6 +467,8 @@ function guardarRegistroCuenta()
 	var id_cuenta_auxiliar		  = $('#id_cuenta_auxiliar').val();
 	var cuenta_auxiliar		      = $('#txtAuxiliarCuenta').val();
     var cadRegistroCuenta         = $('#registroCuentaT').val();
+    var importe_origen            = $('#txtMontoUSD').val();
+    var importe_formato_origen    = importe_origen.split(",").join("");
     var enlace                    = base_url + "Contabilidad/Comprobante/validarDatosRegistroCuenta";
     var datos                     = $('#formularioRegistroCuenta').serialize();
     var datos_cuenta              = $('#formularioRegistroCuenta').serialize();
@@ -483,9 +493,10 @@ function guardarRegistroCuenta()
                             /****************************************************** */
                             // quitarComaNumeroDecimal1();
 
-                            if(accion_comprobante == 'nuevo' && accion_cuenta == 'nuevo')
+                            if((accion_comprobante == 'nuevo' || accion_comprobante == 'editar' ) && accion_cuenta == 'nuevo')
                             {
-                                var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"|";
+                                alert("Registrar una cuenta temporal ");
+                                var cadRegistroCuentaT = cadRegistroCuenta+"*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"*"+importe_formato_origen+"|";
                                 $('#registroCuentaT').val(cadRegistroCuentaT);
                                 var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
                                 // var datos_cuenta = $('#formularioRegistroCuenta').serialize();
@@ -518,9 +529,10 @@ function guardarRegistroCuenta()
                                                 // $('#txtTotalImporteDebe').text(parseFloat(json.totalimporteDebe).toFixed(2));
                                                 $('.txtTotalImporteDebe').text(json.totalimporteDebe);
                                                 $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+                                                $('.txtTotalDiferencia').text(json.totalDiferencia);
                                                 $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
                                                 $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
-
+                                                $('.txtTotalDiferenciaUs').text(json.totalDiferenciaUs);
                                                 $('#total_debe').val(json.totalimporteDebe);
                                                 $('#total_haber').val(json.totalimporteHaber);
                                                 $('#total_debe_us').val(json.totalimporteDebeUs);
@@ -528,6 +540,13 @@ function guardarRegistroCuenta()
 
                                                 $('#cant_cuentas').val(json.nro_registros);
                                                 $('#mensaje').val(json.mensaje);
+                                                alert("DIFERENCIA EN BOB =>"+json.totalDiferencia);
+                                                alert("Diferencia US=>"+json.totalDiferenciaUs);
+                                                if (json.totalDiferencia != 0 || json.totalDiferenciaUs != 0) {
+                                                    $('#alertaDiferencia').show();   // 👈 Muestra el span
+                                                } else {
+                                                    $('#alertaDiferencia').hide();   // 👈 Lo oculta
+                                                }
                                                 return json.data; // Data para el cuerpo de la tabla
                                             }
                                     }
@@ -544,12 +563,10 @@ function guardarRegistroCuenta()
                                 {
                                     $('#modalRegistroMovimiento').modal('hide');  
                                 }
-
-
-
                             }else{
                                 if(accion_comprobante == 'nuevo' && accion_cuenta == 'editar')
                                 {
+                                    alert("Editar un registro temporal ");
                                     editarRegistroCuentaTemporal();
                                 }
                             }
@@ -671,7 +688,16 @@ function cargarCuentasComprobanteT()
                     $('.txtTotalImporteHaber').text(json.totalimporteHaber);
                     $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
                     $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+
+                    $('.txtTotalDiferencia').text(json.totalDiferencia);
+                    $('.txtTotalDiferenciaUs').text(json.totalDiferenciaUs);
+
                     $('#cant_cuentas').val(json.nro_registros);
+                    if (json.totalDiferencia != 0 || json.totalDiferenciaUs != 0) {
+                        $('#alertaDiferencia').show();   // 👈 Muestra el span
+                    } else {
+                        $('#alertaDiferencia').hide();   // 👈 Lo oculta
+                    }
                     return json.data;
                 }
         },
@@ -703,6 +729,13 @@ function cargarCuentasComprobanteRegistrado(id_comprobante)
                         $('.txtTotalImporteHaber').text(json.totalimporteHaber);
                         $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
                         $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+                        $('.txtTotalDiferencia').text(json.totalDiferencia);
+                        $('.txtTotalDiferenciaUs').text(json.totalDiferenciaUs);
+                        if (json.totalDiferencia != 0 || json.totalDiferenciaUs != 0) {
+                        $('#alertaDiferencia').show();   // 👈 Muestra el span
+                        } else {
+                            $('#alertaDiferencia').hide();   // 👈 Lo oculta
+                        }
                         $('#cant_cuentas').val(json.nro_registros);
                         return json.data;
                     
@@ -1008,8 +1041,9 @@ function eliminarRegistroCuentaComprobante(id_registro_CuentaComprobante)
         }
     });
 }
-function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,tipo_movimiento_literal,importe,tipo_cambio,glosa_cuenta,id_cuenta_auxiliar,cuenta_auxiliar,cadRegistroCuenta)
+function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,tipo_movimiento_literal,importe,tipo_cambio,glosa_cuenta,id_cuenta_auxiliar,cuenta_auxiliar,cadRegistroCuenta,importe_origen)
 {
+    // var importe_origen            = $('#txtMontoUSD').val();
     swal({
         title: 'ATENCIÓN',
         text: "¿Está seguro de eliminar el registro de cuenta del comprobante?",
@@ -1041,7 +1075,8 @@ function eliminarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimiento,t
                   glosa_cuenta: glosa_cuenta,
             id_cuenta_auxiliar: id_cuenta_auxiliar,
                cuenta_auxiliar: cuenta_auxiliar,
-             cadRegistroCuenta: cadRegistroCuenta
+             cadRegistroCuenta: cadRegistroCuenta,
+                importe_origen: importe_origen
                       },
                 dataType: 'JSON',
                 success: function(data) {
@@ -1229,8 +1264,10 @@ function cargarDatosComprobante(id_comprobante,entidad)
 
                                 $('.txtTotalImporteDebe').text(json.totalimporteDebe);
                                 $('.txtTotalImporteHaber').text(json.totalimporteHaber);
+                                $('.txtTotalDiferencia').text(json.totalDiferencia);
                                 $('.txtTotalImporteDebeUs').text(json.totalimporteDebeUs);
                                 $('.txtTotalImporteHaberUs').text(json.totalimporteHaberUs);
+                                $('.txtTotalDiferenciaUs').text(json.totalDiferenciaUs);
                                 $('#cant_cuentas').val(json.nro_registros);
                                 return json.data;
                             }
@@ -1488,7 +1525,7 @@ function mostrarEditarRegistroCuentaTemporal(id_cuenta,codigoCuenta,tipo_movimie
     $('#txtTipoMovimiento option[value="'+tipo_movimiento+'"]').prop('selected','selected'); 
     $('#txtImporte').val(importe);
     $('#txtGlosaCuenta').val(glosa_cuenta);   
-    var cadRegistroMovimientoCuentaT = "*"+id_cuenta+"*"+codigoCuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"|";
+    var cadRegistroMovimientoCuentaT = "*"+id_cuenta+"*"+codigoCuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importe+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"*|";
     $('#registroMovimientoCuentaT').val(cadRegistroMovimientoCuentaT);   
     $('#modalRegistroMovimiento').modal({backdrop: 'static', keyboard: false})
     $('#modalRegistroMovimiento').modal('show');  
@@ -1536,7 +1573,7 @@ function editarRegistroCuentaTemporal()
         {
             var accion  = $('#txtAccionMovimiento').val();
             var enlace = base_url + "Contabilidad/Comprobante/editarRegistroCuentaTemporal";
-            var cadCuentaTemporalModificada = "*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"|";
+            var cadCuentaTemporalModificada = "*"+id_cuenta+"*"+cuenta+"*"+tipo_movimiento+"*"+tipo_movimiento_literal+"*"+importeFormato+"*"+tipo_cambio+"*"+glosa_cuenta+"*"+id_cuenta_auxiliar+"*"+cuenta_auxiliar+"*|";
             $.ajax({
                 type: "POST",
                 url: enlace,
@@ -1570,8 +1607,14 @@ function calcularMontoMonedaExtranjera(montoUSD)
                 },
         dataType: 'JSON',
         success: function(data) {
-                    $('#txtMontoBOB').val(data.montoBOB);
-                    $('#txtImporte').val(data.montoBOB);
+                    if(data.montoBOB1 == '0.00')
+                    {
+                         swal({title:"ALERTA",text:data.mensaje,icon:"warning",button:"OK",dangerMode:true});
+                         $('#txtMontoUSD').val('0.00');
+                    }
+                    
+                    $('#txtMontoBOB').val(data.montoBOB1);
+                    $('#txtImporte').val(data.montoBOB1);
                     
         }
     });

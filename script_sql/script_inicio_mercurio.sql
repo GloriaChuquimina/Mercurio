@@ -214,6 +214,31 @@ CREATE TABLE contabilidad.detalle_comprobante (
 	CONSTRAINT detalle_comprobante_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE contabilidad.detalle_comprobante (
+	id serial4 NOT NULL,
+	id_entidad int4 NOT NULL,
+	id_comprobante int4 NOT NULL,
+	id_cuenta int4 NOT NULL,
+	id_cuenta_auxiliar int4 NULL,
+	tipo_movimiento varchar(3) NOT NULL,
+	tipo_cambio numeric(10, 2) NULL,
+	importe_moneda_nacional numeric(10, 2) DEFAULT 0 NULL,
+	importe_moneda_extranjera numeric DEFAULT 0 NULL,
+	importe_moneda_origen numeric(10,2) DEFAULT 0 null;
+	glosa_cuenta text NULL,
+	fecha_registro timestamp DEFAULT now() NULL,
+	id_usuario_registro int4 NULL,
+	fecha_modificacion timestamp NULL,
+	id_funcionario_update int4 NULL,
+	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
+	estado_balance varchar(3) DEFAULT 'PEN'::character varying NULL,
+	estado_resultado varchar(3) NULL,
+	sec_log numeric(10) NULL,
+	CONSTRAINT detalle_comprobante_pkey PRIMARY KEY (id)
+);
+
+-- alter table contabilidad.detalle_comprobante add importe_moneda_origen numeric(10,2) DEFAULT 0 null;
+
 
 COMMENT ON TABLE contabilidad.detalle_comprobante IS 'Detalle de las cuentas asociadas a cada comprobante contable.';
 
