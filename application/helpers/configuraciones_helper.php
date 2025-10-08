@@ -973,6 +973,32 @@ function getCodigoCuenta($id_cuenta)
     } 
     return $respuesta;
 }
+function getCuentaAuxiliar($id_cuenta_aux)
+{
+    $fila_m =& get_instance();
+    $fila_m->load->model('PlanDeCuentas_model');
+
+    $fila = $fila_m->PlanDeCuentas_model->getPlanDeCuentasAuxiliarById($id_cuenta_aux);
+    $respuesta = "";
+    if($fila)
+    {
+       $respuesta = $fila[0]->descripcion;
+    } 
+    return $respuesta;
+}
+function getCodigoCuentaAuxiliar($id_cuenta_aux)
+{
+    $fila_m =& get_instance();
+    $fila_m->load->model('PlanDeCuentas_model');
+
+    $fila = $fila_m->PlanDeCuentas_model->getPlanDeCuentasAuxiliarById($id_cuenta_aux);
+    $respuesta = "";
+    if($fila)
+    {
+       $respuesta = $fila[0]->codigo;
+    } 
+    return $respuesta;
+}
 function getCodigoCuentaById($id_cuenta)
 {
     $fila_m =& get_instance();

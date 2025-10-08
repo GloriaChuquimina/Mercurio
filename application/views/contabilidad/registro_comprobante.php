@@ -247,17 +247,17 @@
             <div class="modal-body">
                 <form id="formularioRegistroCuenta">
                     <!-- CAMPOS OCULTOS -->
-                    <input class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
-                    <input class="form-control" id="id_comprobante" name="id_comprobante">
-                    <input class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
-                    <input class="form-control" id="id_entidad_registro" name="id_entidad_registro">
-                    <input class="form-control" id="id_cuenta" name="id_cuenta">
-                    <input class="form-control" id="registroCuentaT" name="registroCuentaT">
-                    <input class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
-                    <input class="form-control" id="id_registroCuentaComprobante" name="id_registroCuentaComprobante">
-                    <input class="form-control" id="mensaje" name="mensaje">
-                    <input class="form-control" id="id_cuenta_auxiliar" name="id_cuenta_auxiliar">
-                    <input class="form-control" id="registroMovimientoCuentaT" name="registroMovimientoCuentaT">
+                    <input type="hidden" class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
+                    <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
+                    <input type="hidden" class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
+                    <input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+                    <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
+                    <input type="hidden" class="form-control" id="registroCuentaT" name="registroCuentaT">
+                    <input type="hidden" class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
+                    <input type="hidden" class="form-control" id="id_registroCuentaComprobante" name="id_registroCuentaComprobante">
+                    <input type="hidden" class="form-control" id="mensaje" name="mensaje">
+                    <input type="hidden" class="form-control" id="id_cuenta_auxiliar" name="id_cuenta_auxiliar">
+                    <input type="hidden" class="form-control" id="registroMovimientoCuentaT" name="registroMovimientoCuentaT">
                     
                     <div class="card card-outline card-info">
                         <div class="card-header">
@@ -406,6 +406,7 @@
                                                 list="listaAuxiliaresDeCuenta"
                                                 id="txtAuxiliarCuenta" 
                                                 name="txtAuxiliarCuenta"
+                                                readonly
                                             />
                                             <datalist id="listaAuxiliaresDeCuenta"></datalist>
                                             <div class="input-group-append">

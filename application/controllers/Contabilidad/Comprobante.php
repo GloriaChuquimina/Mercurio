@@ -131,8 +131,6 @@ class Comprobante extends CI_Controller {
 	}
 	public function fecha_valida($fecha)
 	{
-		// $fecha = $this->input->post('txtFecha');
-		// echo ($fecha);
 		if (DateTime::createFromFormat('Y-m-d', $fecha) !== false) {
 			return true;
 		} else {
@@ -163,21 +161,7 @@ class Comprobante extends CI_Controller {
 				$mensaje = formaterarValidacion($mensaje);
 			}
 		}
-		else
-		{
-			// if($this->form_validation->run('validar_opcion_editar'))
-			// {
-			// 	$resul = 1;
-			// 	$mensaje = "OK";
-			// }
-			// else
-			// {
-			// 	$resul = 0;
-			// 	$mensaje = json_encode($this->form_validation->get_errores_arreglo());
-			// 	$mensaje = formaterarValidacion($mensaje);
-			// }
-		}
-
+		
 		$resultado ='[{								
 					"resultado":"'.$resul.'",
 					"mensaje":"'.$mensaje.'"
@@ -213,7 +197,7 @@ class Comprobante extends CI_Controller {
 		$importe   		           		= $datos_registro_cuenta['txtImporte'];
 		$glosa_cuenta   		   		= $datos_registro_cuenta['txtGlosaCuenta'];
 		$id_cuenta_auxiliar 		   	= $datos_registro_cuenta['id_cuenta_auxiliar'];
-		$importe_origen       		   	= $datos_registro_cuenta['txtMontoUSD'];
+		$importe_origen                 = !empty($datos_registro_cuenta['txtMontoUSD']) ? $datos_registro_cuenta['txtMontoUSD'] : 0;
 		if($id_cuenta_auxiliar == '-')
 		{
 			$id_cuenta_auxiliar = null;
@@ -242,13 +226,8 @@ class Comprobante extends CI_Controller {
 		{
 				if($accion_comprobante == "nuevo" && ($accion_cuenta == "nuevo" || $accion_cuenta == "editar"))
 				{  
-					// echo ("CUENTAS CADENA".$cadRegistroCuenta);
 					$filas = explode("|", $cadRegistroCuenta);  
 					$nro_registros = count($filas)-1;
-					// echo("<pre>");
-					// print_r ($filas);
-					// echo("</pre>");
-					// echo ($nro_registros);
 					foreach($filas as $fila )
 					{
 						$importeDebe=0;
@@ -273,9 +252,6 @@ class Comprobante extends CI_Controller {
 								// $importeHaberUs=$tipo_cambio==0?0:round($importe/$tipo_cambio,2);
 								$importeHaberUs=$tipo_cambio==0?0:$importe/$tipo_cambio;
 							}
-
-							// echo("Importe DOLARES:".$importeHaberUs);
-							// die();
 
 							$botonEditar = "<div style='text-align: center;'>
 										<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Baja'>
@@ -330,20 +306,23 @@ class Comprobante extends CI_Controller {
 
 					$importe_sin_comas = str_replace(',', '', $importe);
 					$importeUs=$importe_sin_comas/$tipo_cambio;
+
+					$importe_origen_sin_comas = str_replace(',', '', $importe_origen);
 					
 					if($accion_comprobante == "editar" && $accion_cuenta == "nuevo"){
-						$datosComprobanteDetalle = array(
-						'id_entidad'	            => $id_entidad,
-						'id_comprobante'            => $id_comprobante,
-						'id_cuenta'                 => $id_cuenta,
-						'tipo_movimiento'           => $tipo_movimiento,
-						'tipo_cambio'               => $tipo_cambio,
-						'importe_moneda_nacional'   => $importe_sin_comas,
-						'importe_moneda_extranjera' => $importeUs,
-						'glosa_cuenta'              => $glosa_cuenta,
-						'id_usuario_registro'       => $id_usuario,					
-						'id_cuenta_auxiliar'        => $id_cuenta_auxiliar				
-					);
+							$datosComprobanteDetalle = array(
+							'id_entidad'	            => $id_entidad,
+							'id_comprobante'            => $id_comprobante,
+							'id_cuenta'                 => $id_cuenta,
+							'tipo_movimiento'           => $tipo_movimiento,
+							'tipo_cambio'               => $tipo_cambio,
+							'importe_moneda_nacional'   => $importe_sin_comas,
+							'importe_moneda_extranjera' => $importeUs,
+							'glosa_cuenta'              => $glosa_cuenta,
+							'id_usuario_registro'       => $id_usuario,					
+							'id_cuenta_auxiliar'        => $id_cuenta_auxiliar,				
+							'importe_moneda_origen'     => $importe_origen_sin_comas				
+						);
 						$save_count_record = $this->Comprobantes_model->guardarDetalleComprobante($datosComprobanteDetalle);
 						if($save_count_record){
 							$verificacion_registro =1;
@@ -360,7 +339,8 @@ class Comprobante extends CI_Controller {
 						'glosa_cuenta'              => $glosa_cuenta,
 						'fecha_modificacion'        => $fechaActual,					
 						'id_funcionario_update'     => $id_funcionario,					
-						'id_cuenta_auxiliar'        => $id_cuenta_auxiliar						
+						'id_cuenta_auxiliar'        => $id_cuenta_auxiliar,
+						'importe_moneda_origen'     => $importe_origen_sin_comas								
 						);
 						$update_count_record = $this->Comprobantes_model->updateDetalleComprobante($id_registroCuentaComprobante,$datosComprobanteDetalle);
 						if($update_count_record){
@@ -486,18 +466,10 @@ class Comprobante extends CI_Controller {
  		$txtAccion 	= $data['txtAccionComprobante'];
 		$idEntidad  = $data['id_entidad'];
 		$fecha      = $data['txtFecha'];
-
-		// $verifica =$this->verificarEntidad($idEntidad);
 		$verifica_fecha = $this->fecha_valida($fecha);
-		// echo $verifica;	
-		// echo $verifica_fecha;	
-		// die();
-
  		$this->form_validation->set_data($data);
  		$resul = 1;
 		$mensaje = "OK";
-
-		// echo json_encode($data);
 
 		if($txtAccion == 'nuevo')
 		{	
@@ -542,25 +514,12 @@ class Comprobante extends CI_Controller {
 	{
 
 		$datos = $this->input->post('datos');  
- 		
-		// $idEntidad  = $data['id_entidad'];
-		// $fecha      = $data['txtFecha'];
-
-		// $verifica =$this->verificarEntidad($idEntidad);
-		// $verifica_fecha = $this->fecha_valida($fecha);
-		// echo $verifica;	
-		// echo $verifica_fecha;	
-		// die();
-
 		$data = [];
         parse_str($datos, $data);
 		$txtAccion 	= $data['txtAccionComprobante'];
  		$this->form_validation->set_data($data);
  		$resul = 1;
 		$mensaje = "OK";
-
-		// echo json_encode($data);
-
 		if($txtAccion == 'nuevo')
 		{	
 			if($this->form_validation->run('validar_registro_comprobante'))
@@ -748,7 +707,6 @@ class Comprobante extends CI_Controller {
 									}
 									else
 									{
-										// echo("FALSOOOOO");
 										$resul = 0;
 										$mensaje = "ERROR EN EL REGISTRO DETALLE COMPROBANTE....!!!";
 									}
@@ -832,10 +790,6 @@ class Comprobante extends CI_Controller {
 		{
 			$filas  	 = $this->Comprobantes_model->getComprobanteByIdEntidadTipoComprobante($id_entidad,$id_tipo_comprobante,$gestion);
 		}
-		// echo("<pre>");
-		// print_r($filas);
-		// echo("</pre>");
-		// die();
 		foreach ($filas as $fila)
 		{   
 			$boton      			   = "";
@@ -918,19 +872,12 @@ class Comprobante extends CI_Controller {
 		$cadDocumentos 	= $this->input->post('documentos');
 		if(trim($accion) == 'nuevo')
 		{
+			$cuenta_eliminar = "*".$id_cuenta.'*'.$codigoCuenta.'*'.$tipo_movimiento.'*'.$tipo_movimiento_literal.'*'.$importe.'*'.$tipo_cambio.'*'.$glosa_cuenta.'*'.$id_cuenta_auxiliar.'*'.$cuenta_auxiliar.'*'.$importe_origen."*|";
 			$cadCuentas = str_replace('*'.$id_cuenta.'*'.$codigoCuenta.'*'.$tipo_movimiento.'*'.$tipo_movimiento_literal.'*'.$importe.'*'.$tipo_cambio.'*'.$glosa_cuenta.'*'.$id_cuenta_auxiliar.'*'.$cuenta_auxiliar.'*'.$importe_origen."*|","",$cadRegistroCuenta);
 			$mensaje = array("resultado" => 1 , 
 			                    "mensaje"=>"Se ha eliminado el registro", 
 								"cuentas"=> $cadCuentas);
 		}
-		// else{
-		// 	$data = array (
-		// 	'estado' => 'AN',
-		// 	'fecha' => date('Y-m-d H:i:s')
-		// 	);
-		// 	$filas = $this->entidaddocumento_model->updateEntidadDocumento($id,$data);
-		// 	$mensaje = array("resultado" => 1 , "mensaje"=>"Se ha eliminado el registro", "cuentas"=>"");
-		// }	
 		echo json_encode($mensaje);
 	}	
 	private function ordenarJerarquicamente($cuentas, $padreId = 0, $indentacion = 0)
@@ -1023,16 +970,13 @@ class Comprobante extends CI_Controller {
 		// parse_str($datos_json, $datos1);		
 		
 		$datosComprobante    = $this->Comprobantes_model->getComprobanteById($id_comprobante);
-		// echo json_encode($datosComprobante);
+	
 		/****************************/
 		/*INICIO DEL REPORTE*/
 		/****************************/
 		$orden = array("\r\n", "\n", "\r" ,'"') ;
 		$pdf=new exFPDFCartaContable('P','mm','Letter');
-		// $this->load->library('fpdf/pdf2');
-		// $pdf=new Pdf2('P','mm','Letter');
 		$pdf->fechahora_impresion='SI';
-		// $pdf->opcion_pie ="PAGINADOR_FECHA";
 		$pdf->SetFont('Arial','',14);
 		$pdf->AliasNbPages();
 		$pdf->AddPage(); 
@@ -1127,7 +1071,6 @@ class Comprobante extends CI_Controller {
 			// $detalleComprobante=$detalle_json;		
 			// $filas = explode("|", $detalleComprobante);
 			$detalleComprobante    = $this->Comprobantes_model->getDetalleComprobanteById($id_comprobante);
-			// echo json_encode($detalleComprobante);
 			$importeDebe=0;
 			$importeHaber=0;
 			$importeDebeUs=0;
@@ -1288,11 +1231,6 @@ class Comprobante extends CI_Controller {
 		$detalle_json =$this->input->post('detalleComprobante');
 		// ******parse_str($this->input->post('datos'), $data1);
 		parse_str($datos_json, $datos1);		
-		// // echo("<pre>");
-		// // print_r($datos1);
-		// // echo("<br>");
-		// // print_r($detalle_json);
-		// // echo("</pre>");
 
 		// parse_str($this->input->post('datos'), $data);
 		// $detalleComprobante  = $this->input->post('detalleComprobante');
@@ -1608,7 +1546,6 @@ class Comprobante extends CI_Controller {
 
 		$id_comprobante  = $this->input->post('id_comprobante');
 		$detalleComprobante    = $this->Comprobantes_model->getDetalleComprobanteById($id_comprobante);
-		// echo json_encode($detalleComprobante);
 		$importeDebe=0;
 		$importeHaber=0;
 		$importeDebeUs=0;
@@ -1621,7 +1558,6 @@ class Comprobante extends CI_Controller {
 		$totalDiferenciaUs=0;
 		$nro_registros=count($detalleComprobante);	
 		$cuenta_auxiliar="";
-		// echo($nro_registros);
 		// $data[] = array();
 		if($nro_registros>0)
 		{
@@ -1743,7 +1679,6 @@ class Comprobante extends CI_Controller {
 	function getTipoCambio()
 	{
 		$fecha_buscar  = $this->input->post('fecha');
-		// echo ($fecha_buscar);
 		$tipoCambio    = number_format(getTipoCambio(formato_fecha_slash_invertido2($fecha_buscar)),2,'.',',');
         echo json_encode(['tipo_cambio_fecha' => $tipoCambio]);
 
@@ -1815,9 +1750,30 @@ class Comprobante extends CI_Controller {
 			$importe_moneda_extranjera = $datos_cuenta_comprobante[0]->importe_moneda_extranjera;
 			$glosa_cuenta     	       = $datos_cuenta_comprobante[0]->glosa_cuenta;
 			$estado     		       = $datos_cuenta_comprobante[0]->estado;
+			
 			$codigo_cuenta			   = getCodigoCuenta($id_cuenta);
 			$descripcion_cuenta		   = getCuenta($id_cuenta);
 			$codigo_descripcion		   = $codigo_cuenta."-".$descripcion_cuenta;
+
+			$id_cuenta_auxiliar          = $datos_cuenta_comprobante[0]->id_cuenta_auxiliar;;
+			if(!is_null($id_cuenta_auxiliar) && $id_cuenta_auxiliar != '')
+			{
+				$codigo_cuenta_auxiliar      = getCodigoCuentaAuxiliar($id_cuenta_auxiliar);
+				$descripcion_cuenta_auxiliar = getCuentaAuxiliar($id_cuenta_auxiliar);
+				$codigo_descripcion_auxiliar = $codigo_cuenta."-".$descripcion_cuenta;
+			}
+			else
+			{
+				$id_cuenta_auxiliar          = "-";
+				$codigo_cuenta_auxiliar      = "-";
+				$descripcion_cuenta_auxiliar = "-";
+				$codigo_descripcion_auxiliar = "-";
+
+			}
+			
+
+			$importe_moneda_origen     = $datos_cuenta_comprobante[0]->importe_moneda_origen;
+
 			$resul 				       = 1;
 			$mensaje				   = "OK";	
 		}
@@ -1836,6 +1792,11 @@ class Comprobante extends CI_Controller {
 						'codigo_cuenta'				=> $codigo_cuenta,
 						'descripcion_cuenta'		=> $descripcion_cuenta,
 						'codigo_descripcion'		=> $codigo_descripcion,
+						'id_cuenta_auxiliar'		=> $id_cuenta_auxiliar,
+						'codigo_cuenta_auxiliar'	=> $codigo_cuenta_auxiliar,
+						'descripcion_cuenta_auxiliar'=> $descripcion_cuenta_auxiliar,
+						'codigo_descripcion_auxiliar'=> $codigo_descripcion_auxiliar,
+						'importe_moneda_origen'     => number_format($importe_moneda_origen,2,'.',','),
 						'resultado'				    => $resul,
 						'mensaje'				    => $mensaje
 					);
@@ -1988,10 +1949,6 @@ class Comprobante extends CI_Controller {
     {
 		$id_cuenta=$this->input->post('id_cuenta');
 		$cuentasAuxiliares   = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($id_cuenta);
-		// echo("<pre>");
-		// print_r($cuentasAuxiliares);
-		// echo("</pre>");
-		// die();
 		
 		$draw    = intval($this->input->get("draw"));
 		$start   = intval($this->input->get("start"));
@@ -2036,30 +1993,18 @@ class Comprobante extends CI_Controller {
 
 		if(trim($accion) == 'editar')
 		{
-			// echo("ingresa por editar");
 			$cadCuentas = str_replace($cadRegistroCuentaAnterior,$cadCuentaTemporalModificada,$cadRegistroCuenta);
-			// echo("cuentas_nueva=>".$cadCuentas);
 			$mensaje = array("resultado" => 1 , 
 			                    "mensaje"=>"Se ha editado correctamente el registro", 
 								"cuentas"=> $cadCuentas);
 		}
-		// else{
-		// 	$data = array (
-		// 	'estado' => 'AN',
-		// 	'fecha' => date('Y-m-d H:i:s')
-		// 	);
-		// 	$filas = $this->entidaddocumento_model->updateEntidadDocumento($id,$data);
-		// 	$mensaje = array("resultado" => 1 , "mensaje"=>"Se ha eliminado el registro", "cuentas"=>"");
-		// }	
+
 		echo json_encode($mensaje);
 	}
 
 	function calcularMontoMonedaExtranjera()
 	{				
-		// $accion 				     = $this->input->post('accion');
-		// $cadRegistroCuenta		     = $this->input->post('cadRegistroCuenta');
-		// $cadRegistroCuentaAnterior	 = $this->input->post('cadRegistroCuentaAnterior');
-		// $cadCuentaTemporalModificada = $this->input->post('cadCuentaTemporalModificada');
+
 		$montoUSD    = $this->input->post('montoUSD');
 		$tipo_cambio = $this->input->post('tipo_cambio');
 

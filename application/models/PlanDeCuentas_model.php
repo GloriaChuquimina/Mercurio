@@ -42,6 +42,15 @@ class PlanDeCuentas_model extends CI_Model
                                          );
         return $query->result();
     }
+	function getPlanDeCuentasAuxiliarById($id)
+    {
+        $query = $this->db_mercurio->query("select *
+                                              from contabilidad.plancuentas_auxiliares
+                                             where id= ".$id."
+                                               and estado='ACT'" 
+                                         );
+        return $query->result();
+    }
 	function getPlanDeCuentasByNivel($nivel)
     {
         $query = $this->db_mercurio->query("select *
