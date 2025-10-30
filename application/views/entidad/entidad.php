@@ -38,9 +38,9 @@
                         <th style="color: white; width: 50px;">NRO</th>
                         <th style="color: white;">NOMBRE</th>
                         <th style="color: white;">SIGLA</th>
-                        <th style="color: white;">OBSERVACIONES</th>
+                        <!-- <th style="color: white;">OBSERVACIONES</th> -->
                         <th style="color: white;">FECHA DE REGISTRO</th>
-                        <th style="color: white;">ESTADO</th>
+                        <!-- <th style="color: white;">ESTADO</th> -->
                       </tr>
                     </thead>
                   </table>

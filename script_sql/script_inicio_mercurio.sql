@@ -129,6 +129,10 @@ create table contabilidad.plancuentas(
 	estado varchar(3) DEFAULT 'ACT'::character varying NULL,
 	CONSTRAINT plancuentas_pkey PRIMARY KEY (id)
 );
+
+alter table contabilidad.plancuentas add tipo_moneda_cuenta varchar(3) DEFAULT 'BOB'::character varying NULL;
+
+
 create table contabilidad.plancuentas_auxiliares(
 	id serial4 NOT null,
 	id_plancuenta int4 NULL,
@@ -174,6 +178,8 @@ CREATE TABLE contabilidad.comprobante (
 	CONSTRAINT comprobante_pkey PRIMARY KEY (id)
 );
 
+
+
 COMMENT ON TABLE contabilidad.comprobante IS 'Tabla que registra los distintos tipos de comprobantes contables.';
 
 COMMENT ON COLUMN contabilidad.comprobante.id IS 'Identificador único del comprobante.';
@@ -192,7 +198,7 @@ COMMENT ON COLUMN contabilidad.comprobante.id_funcionario_update IS 'Funcionario
 COMMENT ON COLUMN contabilidad.comprobante.estado IS 'Estado del comprobante (AC = Activo, AN = Anulado, etc.).';
 COMMENT ON COLUMN contabilidad.comprobante.sec_log IS 'Campo para control de cambios o logging.';
 
-CREATE TABLE contabilidad.detalle_comprobante (
+/*CREATE TABLE contabilidad.detalle_comprobante (
 	id serial4 NOT NULL,
 	id_entidad int4 NOT NULL,
 	id_comprobante int4 NOT NULL,
@@ -212,7 +218,7 @@ CREATE TABLE contabilidad.detalle_comprobante (
 	estado_resultado varchar(3) NULL,
 	sec_log numeric(10) NULL,
 	CONSTRAINT detalle_comprobante_pkey PRIMARY KEY (id)
-);
+);*/
 
 CREATE TABLE contabilidad.detalle_comprobante (
 	id serial4 NOT NULL,

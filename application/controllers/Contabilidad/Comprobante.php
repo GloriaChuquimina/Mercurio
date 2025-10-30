@@ -1209,7 +1209,7 @@ class Comprobante extends CI_Controller {
 
 
 		$pie_contador="CONTADOR";
-		$pie_gerentegeneral="GERENTE GENERAL";
+		$pie_gerentegeneral="JEFATURA DE UNIDAD";
 		
 		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
 		$table->easyCell(utf8_decode("$pie_contador"),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	
@@ -1469,7 +1469,7 @@ class Comprobante extends CI_Controller {
 		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8' );	
 		$table->printRow(true);	
 		$pie_contador="CONTADOR";
-		$pie_gerentegeneral="GERENTE GENERAL";
+		$pie_gerentegeneral="JEFATURA DE UNIDAD";
 		
 		$table->easyCell(utf8_decode(""),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;' );	
 		$table->easyCell(utf8_decode("$pie_contador"),'valign:B;font-style:N ;bgcolor:#fff;font-size:8;border:T;' );	

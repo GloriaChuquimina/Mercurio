@@ -106,7 +106,7 @@ class PlanDeCuentas extends CI_Controller {
 			{
 				$boton   = "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
-                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-edit'></i></button>     
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."','". $fila['tipo_moneda_cuenta']."')\"><i class='fas fa-edit'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
                             <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."')\"><i class='fas fa-plus-circle'></i></button>     
@@ -189,14 +189,17 @@ class PlanDeCuentas extends CI_Controller {
 				break;
 			}
 			
+			$moneda =getValor2Configuraciones("MONEDA", $fila['tipo_moneda_cuenta']);
+
 			$data[] = array(
 				$boton.$mayores,
-				$num++,
+				// $num++,
 				// $indentacion."<span class='badge badge-secondary'>".$codigo."</span>",
 				"<span class='badge badge-secondary'>".$codigo."</span>",
 				$indentacion.$descripcion,	
 				$tipo,
                 $fila['nivel'],
+				$moneda,
                 // $fila['sigla'],
 				$estado,
 				// "<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
@@ -400,6 +403,7 @@ class PlanDeCuentas extends CI_Controller {
 			$ruta_subcuenta		= $ruta."-".$id_cuenta;
 			$sigla       		= $data['txtSigla'];
 			$codigo_cuenta      = str_replace($codigo_cuenta_p, "", $codigo);
+			$moneda       		= $data['txtTipoMoneda'];
 
 			if($accion === 'nuevo')
 			{
@@ -411,7 +415,8 @@ class PlanDeCuentas extends CI_Controller {
                     'ruta'                    => $ruta_subcuenta,
                     'id_funcionario_registro' => $id_funcionario,
 					'sigla'                   => $sigla,
-					'codigo_cuenta'			  => $codigo_cuenta
+					'codigo_cuenta'			  => $codigo_cuenta,
+					'tipo_moneda_cuenta'      => $moneda
 				);
 				// echo json_encode($datosPlanCuentas);
 				// die();
@@ -563,7 +568,7 @@ class PlanDeCuentas extends CI_Controller {
 
 			$boton   = "
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
-                            <button type='button' class='btn btn-success btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i>✓</i></button>     
+                            <button type='button' class='btn btn-success btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."','". $fila['tipo_moneda_cuenta']."')\"><i>✓</i></button>     
                         </span>				
                         ";		
 
@@ -742,6 +747,187 @@ class PlanDeCuentas extends CI_Controller {
 					 }]';
 
 		echo $resultado;
+	}
+	public function buscarCuentas() {
+		$nivel 				  = $this->input->post('filtroNivel');
+		$codigo_mayor 		  = $this->input->post('filtroMayores');
+		$codigo_subcuenta 	  = $this->input->post('filtroSubCuentas');
+		$codigo_otrascuentas  = $this->input->post('filtroOtrasSubCuentas');
+		$cadena_busqueda      = $this->input->post('filtroBusqueda');
+
+		// echo("Ingresaaaa");
+		$sql="";
+
+		if(!empty($cadena_busqueda))
+		{
+			$cadena_busqueda = trim($cadena_busqueda);
+			$sql .= "AND (codigo LIKE '".$cadena_busqueda."%' OR descripcion LIKE '".$cadena_busqueda."%') ";
+		}
+		else{
+			if (!empty($nivel) and $nivel != "-1") {
+				$sql .= "AND nivel = ".$nivel." ";
+			}
+			if (!empty($codigo_mayor) and $codigo_mayor != "-1" || empty($codigo_subcuenta)) {
+				$sql .= "AND padre = ".$codigo_mayor." ";
+			}
+			if (!empty($codigo_subcuenta) and $codigo_subcuenta != "-1" and $codigo_otrascuentas == "-1") {
+				$sql = " AND ruta like( '0-".$codigo_mayor."-".$codigo_subcuenta."%')";
+			}else{
+				if (!empty($codigo_otrascuentas) and $codigo_otrascuentas != "-1") {
+					$sql = " AND ruta like( '0-".$codigo_mayor."-".$codigo_subcuenta."-".$codigo_otrascuentas."%')";
+				}
+			}
+		}
+		// echo("<pre>");
+		// print_r($sql);
+		// echo("</pre>");
+		// die();
+		$cuentas   = $this->PlanDeCuentas_model->buscarPlanDeCuentas($sql);
+		// echo json_encode($cuentas);
+		
+		$cuentas = json_decode(json_encode($cuentas), true);
+
+		// if(!empty($nivel)and empty($codigo_mayor) and empty($codigo_subcuenta) and empty($codigo_otrascuentas)){
+		if(!empty($nivel)){
+			// Añadir campos a cada cuenta
+			foreach ($cuentas as $k => $fila) {
+				$cuentas[$k]['indentacion'] = 0;
+				$cuentas[$k]['es_padre'] = $nivel;
+			}
+			$ordenadas = $cuentas;
+		}
+		else
+		{
+			$ordenadas = $this->ordenarJerarquicamente($cuentas);
+		}
+		// $ordenadas = $this->ordenarJerarquicamente($cuentas);
+
+		// echo("<pre>");
+		// print_r($ordenadas);
+		// echo("</pre>");
+		// die();
+				
+		$draw    = intval($this->input->get("draw"));
+		$start   = intval($this->input->get("start"));
+		$length  = intval($this->input->get("length"));	
+		$data    = array();
+		$num     = 1;
+		$mayores = "";
+		foreach ($ordenadas as $fila)
+		{   
+			if($fila['estado']==='ACT')
+			{
+				$boton   = "
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Editar'>
+                            <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."','". $fila['tipo_moneda_cuenta']."')\"><i class='fas fa-edit'></i></button>     
+                        </span>	
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
+                            <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."')\"><i class='fas fa-plus-circle'></i></button>     
+                        </span>				
+                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='AGREGAR CUENTAS AUXILIARES'>
+                            <button type='button' class='btn btn-block btn-success btn-sm' onclick=\"agregarCuentasAuxiliares(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-list-alt'></i></button>     
+                        </span>				
+                        ";	
+
+				// Códigos que NO deben poder eliminarse
+				$protegidos = [1,2,3,4,5,6,7,8,9];
+					
+
+				if ( !in_array($fila['codigo'], $protegidos) ) {
+					$mayores = "
+						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
+							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'>
+								<i class='fas fa-trash-alt'></i>
+							</button>     
+						</span>";
+				}
+				else
+				{
+					$mayores ="";
+					// echo($fila['codigo']);		
+				}
+				
+			}
+			else
+			{
+				$boton = "";
+			}
+				
+
+			$indentacion		= str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $fila['indentacion']);
+			$descripcion 		= $fila['descripcion'];
+			$codigo      		= $fila['codigo'];
+			$codigo_cuenta      = $fila['codigo_cuenta'];
+
+			if (($fila['es_padre']) && ($fila['indentacion']== 0)) {
+				$descripcion = "<strong><u>{$descripcion}</u></strong>";
+				$codigo =  "<strong><u>{$codigo}</u></strong>";
+			}
+
+			$cadena = $fila['ruta'];
+			$partes = explode('-', $cadena);
+			$cont =count($partes);
+			// $primer_valor = $partes[0];
+			// $segundo_valor = $partes[1];
+			if($cont == 1)
+			{
+				$tipo =getCuenta($fila['padre']);
+			}
+			else
+			{
+				$segundo_valor = $partes[1];
+				$tipo =getCuenta($segundo_valor);
+			}
+
+			$codigoXXX="";
+
+			for ($i = 1; $i < $cont; $i++) {
+				$valor=$partes[$i];
+				$codigoXXX =$codigoXXX.".".getCodigoCuentaById($valor);
+			}
+			$codigoXXX=$codigoXXX.".".$codigo_cuenta;
+
+
+			$estado =getValor2Configuraciones("ESTADO REGISTRO", $fila['estado']);
+			switch ($fila['estado']) {
+			case "ACT":
+				$estado="<span class='badge badge-success'>".$estado."</span>";
+				break;
+			case "ANU":
+				$estado="<span class='badge badge-danger'>".$estado."</span>";
+				// $boton="";
+				break;
+			default:
+				$estado="<span class='badge badge-secondary'>".$estado."</span>";
+				break;
+			}
+			
+			$moneda =getValor2Configuraciones("MONEDA", $fila['tipo_moneda_cuenta']);
+
+			$data[] = array(
+				$boton.$mayores,
+				// $num++,
+				// $indentacion."<span class='badge badge-secondary'>".$codigo."</span>",
+				"<span class='badge badge-secondary'>".$codigo."</span>",
+				$indentacion.$descripcion,	
+				$tipo,
+                $fila['nivel'],
+				$moneda,
+                // $fila['sigla'],
+				$estado,
+				// "<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
+			);
+		}
+
+		// die();
+		$output = array(
+			"draw" => $draw,
+			"recordsTotal" => count($ordenadas),
+			"recordsFiltered" => count($ordenadas),
+			"data" => $data
+		);
+		echo json_encode($output);
+		exit();
 	}
 
 }

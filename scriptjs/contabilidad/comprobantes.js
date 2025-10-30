@@ -560,7 +560,7 @@ function limpiarModalRegistro()
         }
     });
     $('#txtImporte').val('');
-    $('#txtGlosaCuenta').val('');
+    // $('#txtGlosaCuenta').val('');
     $('#id_cuenta').val('');
     $('#txtMontoUSD').val('');
     $('#txtMontoBOB').val('');

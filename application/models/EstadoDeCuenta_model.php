@@ -76,7 +76,7 @@ class EstadoDeCuenta_model extends CI_Model
 								left outer join administracion.entidad e on c.id_entidad =e.id
 								left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
 								left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
-										where e.id=".$id_entidad."
+										  where e.id=".$id_entidad."
 											and c.estado in ('ACT','HI') 
 											and dc.estado in ('ACT','HI') 
 											and pc.id =".$id_cuenta."

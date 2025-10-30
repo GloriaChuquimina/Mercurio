@@ -28,7 +28,66 @@ function cargarTablaPlanDeCuentas()
     ],
     "order": [] // <-- Desactiva orden inicial automática
     });
+
+     cargarTipoMoneda();
 }
+function buscarTablaPlanDeCuentas()
+{
+    var enlace = base_url + "Contabilidad/PlanDeCuentas/buscarCuentas";
+    $('#tablaPlanDeCuentas').DataTable({
+        destroy: true,
+        responsive: true,
+        "aLengthMenu": [[10, 20, 50, -1], [10, 20, 50, "Todos"]],
+        "iDisplayLength": 40,
+        "font-size":8,
+        "ajax": {
+            type: "POST",
+            url: enlace,
+            data: function(d) {
+                // Añadir los parámetros POST desde los filtros del formulario
+                d.filtroNivel = $('#filtroNivel').val();
+                d.filtroMayores = $('#filtroMayores').val();
+                d.filtroSubCuentas = $('#filtroSubCuentas').val();
+                d.filtroOtrasSubCuentas = $('#filtroOtrasSubCuentas').val();
+                // campo de búsqueda opcional (ajusta el id si es otro)
+                d.filtroBusqueda = $('#filtroBusqueda').val() || '';
+            }
+        },
+        "columnDefs": [
+        {
+            targets: 0, 
+            orderable: false, // <-- DESACTIVA ordenamiento
+            width: "180px", 
+            className: "text-center" 
+        }
+        
+    ],
+    "order": [] // <-- Desactiva orden inicial automática
+    });
+
+     cargarTipoMoneda();
+}
+function cargarFiltrosPlanDeCuentas()
+{
+    cargarNiveles();
+    cargarMayores();
+    // cargarSubCuentas();
+}
+$(function() {
+    $('#filtroMayores').change(function(){
+        var id_mayores   =  $(this).val();
+        cargarSubCuentas(id_mayores);
+
+    });
+    $('#filtroSubCuentas').change(function(){
+        var id_mayores   =  $('#filtroMayores').val();
+        var id_subcuenta   =  $(this).val();
+        
+        cargarOtrasSubCuentas(id_mayores, id_subcuenta);
+
+    });
+
+});
 function agregarCuentas()
 {
     // eliminaMensajeError();
@@ -38,6 +97,7 @@ function agregarCuentas()
     $('#txtDescripcionCuenta').val('');
     $('#txtAccion').val('nuevo');
     $('#nivel').val(1);
+    cargarTipoMoneda();
     $('#modalPlanDeCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanDeCuentas').modal('show');  
 }
@@ -117,12 +177,26 @@ function agregarSubCuentas(id_cuenta,codigo,nombreCuenta,nivel,padre,ruta)
     $('#codigo_cuenta_padre').val(codigo+".");
     $('#modalPlanDeSubCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanDeSubCuentas').modal('show');  
+    cargarTipoMoneda();
     cargarTablaPlanDeSubCuentas(id_cuenta);
     // Espera a que se muestre el input antes de asignar prefijo
     var aux="";
     setTimeout(() => {
         cargarPrefijo(codigo+".",aux);
     }, 300); // ajusta si tu modal tarda más en mostrarse
+}
+
+function cargarTipoMoneda()
+{
+    var enlace = base_url + "Comunes/Comunes/cargarTipoMoneda";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#txtTipoMoneda').html(data);
+            $('#txtTipoMoneda_editar').html(data);
+        }
+    });
 }
 
 function guardarPlanDeSubCuentas()
@@ -192,7 +266,7 @@ function cargarTablaPlanDeSubCuentas(id_cuenta)
         },
     });
 }
-function editarCuentas(id_cuenta,codigo,sigla,descripcion)
+function editarCuentas(id_cuenta,codigo,sigla,descripcion,tipo_moneda_cuenta)
 {
     // eliminaMensajeError();
     // eliminaMensajeErrorCombos();
@@ -201,6 +275,8 @@ function editarCuentas(id_cuenta,codigo,sigla,descripcion)
     $('#idCuenta').val(id_cuenta);
     $('#txtCodigoCuenta').val(codigo);
     $('#txtSiglaCuenta').val(sigla);
+   
+    $('#txtTipoMoneda_editar option[value="'+tipo_moneda_cuenta+'"]').prop('selected','selected'); 
     $('#txtDescripcionCuenta').val(descripcion);
     $('#modalPlanDeCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanDeCuentas').modal('show');  
@@ -429,3 +505,83 @@ function eliminarAuxiliarCuenta(id_auxiliar_cuenta,id_cuenta)
         }
     });
 }
+/*FUNCIONES FILTROS DE BUSQUEDA PLAN DE CUENTAS */
+function cargarNiveles()
+{
+    var enlace = base_url + "Comunes/Comunes/cargarNivelesPlanDeCuentas";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            // alert (data);
+            $('#filtroNivel').html(data);
+        }
+    });
+}
+function cargarMayores()
+{
+    var enlace = base_url + "Comunes/Comunes/cargarMayoresPlanDeCuentas";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            // alert (data);
+            $('#filtroMayores').html(data);
+        }
+    });
+}
+function cargarSubCuentas()
+{
+    var id_mayor = $('#filtroMayores').val();
+    if(id_mayor=="" || id_mayor==null || id_mayor== -1){
+        swal("ALERTA","Seleccione una cuenta mayor","warning");
+        return;}
+    else{
+         var enlace = base_url + "Comunes/Comunes/cargarSubCuentasPlanDeCuentas";
+        $.ajax({
+            type: "POST",
+            url: enlace,
+            data: { id_mayor: id_mayor },
+            success: function(data) {
+                // alert (data);
+                $('#filtroSubCuentas').html(data);
+            }
+        });
+    }
+   
+}
+function cargarOtrasSubCuentas()
+{
+    var id_mayor = $('#filtroMayores').val();
+    var id_cuenta = $('#filtroSubCuentas').val();
+    if(id_mayor=="" || id_mayor==null || id_mayor== -1){
+        swal("ALERTA","Seleccione los filtros de las cuentas","warning");
+        return;}
+    else{
+         var enlace = base_url + "Comunes/Comunes/cargarOtrasSubCuentasPlanDeCuentas";
+        $.ajax({
+            type: "POST",
+            url: enlace,
+            data: { id_mayor: id_mayor, id_cuenta: id_cuenta },
+            success: function(data) {
+                // alert (data);
+                $('#filtroOtrasSubCuentas').html(data);
+            }
+        });
+    }
+}
+function limpiarFiltros() {
+    $('#filtroNivel').val('');
+    $('#filtroMayores').val('');
+    $('#filtroSubCuentas').val('');
+    $('#filtroOtrasSubCuentas').val('');
+    $('#filtroBusqueda').val('');
+    swal({
+        title: "¡Listo!",
+        text: "Filtros limpiados",
+        icon: "success",
+        button: "OK"
+    });
+    cargarTablaPlanDeCuentas();
+}
+

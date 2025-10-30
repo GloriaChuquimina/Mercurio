@@ -30,18 +30,92 @@
                   </button>
                 </div>
               </div>
+
+              <!-- Filter Section -->
+              <div class="card-header bg-gradient-light">
+                  <div class="row">
+                      <div class="col-md-12">
+                          <h5 class="mb-3">
+                              <i class="fas fa-filter mr-2"></i>
+                              Filtros de Búsqueda
+                          </h5>
+                      </div>
+                  </div>
+                  
+                  <div class="row">
+                      <!-- Filtro por Nivel -->
+                      <div class="col-md-2">
+                          <div class="form-group mb-2">
+                              <label class="mb-1"><strong>Nivel:</strong></label>
+                              <select class="form-control form-control-sm" id="filtroNivel" name ="filtroNivel">
+                              </select>
+                          </div>
+                      </div>
+
+                      <!-- Filtro por Grupo Principal -->
+                      <div class="col-md-3">
+                          <div class="form-group mb-2">
+                              <label class="mb-1"><strong>Cuentas Mayores:</strong></label>
+                              <select class="form-control form-control-sm" id="filtroMayores" name ="filtroMayores">
+                              </select>
+                          </div>
+                      </div>
+
+                      <!-- Filtro por Subgrupo -->
+                      <div class="col-md-3">
+                          <div class="form-group mb-2">
+                              <label class="mb-1"><strong>SubCuentas:</strong></label>
+                              <select class="form-control form-control-sm" id="filtroSubCuentas" name="filtroSubCuentas">
+  
+                              </select>
+                          </div>
+                      </div>
+
+                      <!-- Filtro por Tipo -->
+                      <div class="col-md-2">
+                          <div class="form-group mb-2">
+                              <label class="mb-1"><strong>Cuentas:</strong></label>
+                              <select class="form-control form-control-sm" id="filtroOtrasSubCuentas" name="filtroOtrasSubCuentas">
+                                  
+                              </select>
+                          </div>
+                      </div>
+
+                      <!-- Búsqueda por texto -->
+                      <div class="col-md-2">
+                          <div class="form-group mb-2">
+                              <label class="mb-1"><strong>Buscar:</strong></label>
+                              <input type="text" class="form-control form-control-sm" id="filtroBusqueda" 
+                                    placeholder="Código o descripción...">
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="row">
+                      <div class="col-md-12 text-right">
+                          <button type="button" class="btn btn-info btn-sm" onclick="buscarTablaPlanDeCuentas()">
+                              <i class="fas fa-search mr-1"></i> Buscar
+                          </button>
+                          <button type="button" class="btn btn-secondary btn-sm" onclick="limpiarFiltros()">
+                              <i class="fas fa-eraser mr-1"></i> Limpiar
+                          </button>
+                      </div>
+                  </div>
+              </div>
+
               <div class="card-body p-1">
                 <div class="table-responsive">
                   <table id="tablaPlanDeCuentas" class="table table-striped table-hover" style="width: 100%;">
                     <thead class="bg-dark">
                       <tr>
                         <th style="color: white; width: 100px;">OPCIONES</th>
-                        <th style="color: white; width: 50px;">NRO</th>
+                        <!-- <th style="color: white; width: 50px;">NRO</th> -->
                         <th style="color: white;">CÓDIGO</th>
                         <th style="color: white;">DESCRIPCIÓN</th>
                         <th style="color: white;">TIPO</th>
                         <th style="color: white;">NIVEL</th>
                         <!-- <th style="color: white;">SIGLA</th> -->
+                        <th style="color: white;">MONEDA</th>
                         <th style="color: white;">ESTADO</th>
                         <!-- <th style="color: white;">CODIGO_CUENTA</th> -->
                       </tr>
@@ -96,7 +170,7 @@
                     </div>
                     <div class="card-body">
                       <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>
                                 <i class="text-danger">*</i>
@@ -111,7 +185,17 @@
                                 />
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label>
+                              <i class="text-danger">*</i>
+                              <strong> TIPO MONEDA:</strong>
+                            </label>
+                            <select class="form-control" id="txtTipoMoneda_editar" name="txtTipoMoneda_editar">
+                            </select>
+                          </div>
+                        </div> 
+                        <div class="col-md-4">
                           <div class="form-group">
                             <label>
                               <i class="text-danger">*</i>
@@ -198,7 +282,7 @@
                     </div>
                     <div class="card-body">
                       <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                           <div class="form-group">
                             <label>
                               <i class="text-danger">*</i>
@@ -213,7 +297,17 @@
                             />
                           </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                          <div class="form-group">
+                            <label>
+                              <i class="text-danger">*</i>
+                              <strong> TIPO MONEDA:</strong>
+                            </label>
+                            <select class="form-control" id="txtTipoMoneda" name="txtTipoMoneda">
+                            </select>
+                          </div>
+                        </div> 
+                        <div class="col-md-2">
                           <div class="form-group">
                             <label>
                               <i class="text-danger">*</i>
@@ -387,6 +481,7 @@
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
       cargarTablaPlanDeCuentas();
+      cargarFiltrosPlanDeCuentas();
     //   cargarNiveles();
     });
 </script>  
