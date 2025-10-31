@@ -778,35 +778,27 @@ class PlanDeCuentas extends CI_Controller {
 				}
 			}
 		}
-		// echo("<pre>");
-		// print_r($sql);
-		// echo("</pre>");
-		// die();
+
 		$cuentas   = $this->PlanDeCuentas_model->buscarPlanDeCuentas($sql);
-		// echo json_encode($cuentas);
+		$cuentas = json_decode(json_encode($cuentas), true);		
+		// if(!empty($nivel)){
+			
+		// 	foreach ($cuentas as $k => $fila) {
+		// 		$cuentas[$k]['indentacion'] = 0;
+		// 		$cuentas[$k]['es_padre'] = $nivel;
+		// 	}
+		// 	$ordenadas = $cuentas;
+		// }
+		// else
+		// {
+		// 	$ordenadas = $this->ordenarJerarquicamente($cuentas);
+		// }	
 		
-		$cuentas = json_decode(json_encode($cuentas), true);
-
-		// if(!empty($nivel)and empty($codigo_mayor) and empty($codigo_subcuenta) and empty($codigo_otrascuentas)){
-		if(!empty($nivel)){
-			// Añadir campos a cada cuenta
-			foreach ($cuentas as $k => $fila) {
-				$cuentas[$k]['indentacion'] = 0;
-				$cuentas[$k]['es_padre'] = $nivel;
-			}
-			$ordenadas = $cuentas;
+		foreach ($cuentas as $k => $fila) {
+			$cuentas[$k]['indentacion'] = 0;
+			$cuentas[$k]['es_padre'] = $nivel;
 		}
-		else
-		{
-			$ordenadas = $this->ordenarJerarquicamente($cuentas);
-		}
-		// $ordenadas = $this->ordenarJerarquicamente($cuentas);
-
-		// echo("<pre>");
-		// print_r($ordenadas);
-		// echo("</pre>");
-		// die();
-				
+		$ordenadas = $cuentas;		
 		$draw    = intval($this->input->get("draw"));
 		$start   = intval($this->input->get("start"));
 		$length  = intval($this->input->get("length"));	
