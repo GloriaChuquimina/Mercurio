@@ -195,6 +195,59 @@ class Comunes extends CI_Controller
 	    $fecha_cierre = $filas[0]->fecha_cierre;
    		echo $fecha_cierre;
 	}
+	/*FILTROS DE BUSQUEDA DE PLAN DE CUENTAS */
+	function cargarNivelesPlanDeCuentas()
+	{
+	    $filas = $this->PlanDeCuentas_model->getNivelesPlanDeCuentas();
+		// echo("<pre>");
+		// print_r($filas);
+		// echo("</pre>");
+		// die();
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->nivel."'>".$fila->name_nivel."</option>";
+	    }
+	    echo $option;
+	}
+	function cargarMayoresPlanDeCuentas()
+	{
+	    $filas = $this->PlanDeCuentas_model->getMayoresPlanDeCuentas();
+		// echo("<pre>");
+		// print_r($filas);
+		// echo("</pre>");
+		// die();
+	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->id."'>".$fila->codigo." - ".$fila->descripcion."</option>";
+	    }
+	    echo $option;
+	}
+	function cargarSubCuentasPlanDeCuentas()
+	{
+		$id_cuenta = $this->input->post('id_mayor');
+	    $filas = $this->PlanDeCuentas_model->getSubCuentasPlanDeCuentas($id_cuenta);
+	    $option = "<option VALUE='-1'>Seleccione primero una cuenta mayor</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->id."'>".$fila->codigo." - ".$fila->descripcion."</option>";
+	    }
+	    echo $option;
+	}
+	
+	function cargarOtrasSubCuentasPlanDeCuentas()
+	{
+		$id_mayor = $this->input->post('id_mayor');
+		$id_cuenta = $this->input->post('id_cuenta');
+	    $filas = $this->PlanDeCuentas_model->getOtrasSubCuentasPlanDeCuentas($id_mayor,$id_cuenta);
+	    $option = "<option VALUE='-1'>Seleccione primero una cuenta mayor y su subcuenta</OPTION>";
+	    foreach ($filas as $fila)
+	    {
+	        $option.="<option value = '".$fila->id."'>".$fila->codigo." - ".$fila->descripcion."</option>";
+	    }
+	    echo $option;
+	}
 	
 	
 }

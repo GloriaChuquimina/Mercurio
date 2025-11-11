@@ -42,6 +42,15 @@ class PlanDeCuentas_model extends CI_Model
                                          );
         return $query->result();
     }
+	function getPlanDeCuentasAuxiliarById($id)
+    {
+        $query = $this->db_mercurio->query("select *
+                                              from contabilidad.plancuentas_auxiliares
+                                             where id= ".$id."
+                                               and estado='ACT'" 
+                                         );
+        return $query->result();
+    }
 	function getPlanDeCuentasByNivel($nivel)
     {
         $query = $this->db_mercurio->query("select *
@@ -131,7 +140,59 @@ class PlanDeCuentas_model extends CI_Model
 		$this->db_mercurio->where('id',$id_auxCuenta);
 		return $this->db_mercurio->update('contabilidad.plancuentas_auxiliares',$data);
 	}
-
-
+	
+	function getNivelesPlanDeCuentas()
+	{
+		$query = $this->db_mercurio->query("select distinct p.nivel, ('Nivel '|| p.nivel) as name_nivel
+		                                      from contabilidad.plancuentas p
+											 where p.estado='ACT'
+											 order by p.nivel ASC;
+											");
+		return $query->result();
+	}
+	function getMayoresPlanDeCuentas()
+	{
+		$query = $this->db_mercurio->query("select *
+		                                      from contabilidad.plancuentas p
+											 where p.estado='ACT'
+											   and p.nivel = 1
+											 order by p.nivel ASC;
+											");
+		return $query->result();
+	}
+	function getSubCuentasPlanDeCuentas($id_cuenta)
+	{
+		$query = $this->db_mercurio->query("select *
+		                                      from contabilidad.plancuentas p
+											 where p.estado='ACT'
+											   and p.nivel > 1
+											   and p.padre = ".$id_cuenta."
+											 order by p.nivel ASC;
+											");
+		return $query->result();
+	}
+	function getOtrasSubCuentasPlanDeCuentas($id_mayor,$id_cuenta)
+	{
+		$query = $this->db_mercurio->query("select *
+		                                      from contabilidad.plancuentas p
+											 where p.estado='ACT'
+											   and p.ruta like( '0-".$id_mayor."-".$id_cuenta."%')
+											 order by p.nivel ASC;
+											");
+		return $query->result();
+	}
+	function buscarPlanDeCuentas($busqueda)
+	{
+		$query = $this->db_mercurio->query("select *
+											 from contabilidad.plancuentas
+										    where estado='ACT'
+											  and 1=1
+											  ".$busqueda."
+										 order by nivel ASC,
+  												  codigo ASC;
+											" 
+										  );
+		return $query->result();
+	}
 }
 ?>

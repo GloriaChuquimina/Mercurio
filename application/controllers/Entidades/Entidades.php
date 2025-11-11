@@ -69,9 +69,9 @@ class Entidades extends CI_Controller {
 				$num++,
 				$fila->nombre,
 				$fila->sigla,			
-				$fila->observaciones,	
-				formato_fecha($fila->fecha_registro),	
-				$fila->estado
+				// $fila->observaciones,	
+				formato_fecha($fila->fecha_registro)
+				// $fila->estado
 			);
 		}
 		$output = array(
