@@ -1,0 +1,258 @@
+<?php
+/*
+*/
+
+class EstadoDeResultado_model extends CI_Model
+{
+    function __construct()
+	{
+		parent::__construct();	
+		$this->db_mercurio = $this->load->database('db_mercurio', TRUE);		
+	}
+    // function getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_ingreso,$cuenta_mayor_ingreso)
+	// {
+	// 	$query = $this->db_mercurio->query("
+    //                                        SELECT * FROM (
+    //                                                                  select	 pc.codigo
+    //                                                                         ,pc.descripcion 
+    //                                                                         ,CASE 
+    //                                                                             WHEN SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) > 
+    //                                                                                 SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END)
+    //                                                                             THEN 
+    //                                                                                 SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+    //                                                                                 SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END)
+    //                                                                             ELSE 0 
+    //                                                                         END AS saldo_acreedor             
+    //                                                                    from contabilidad.comprobante c 
+    //                                                         left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante
+    //                                                         left outer join administracion.entidad e on c.id_entidad =e.id
+    //                                                         left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
+    //                                                         left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
+    //                                                                 where e.id=".$id_entidad."
+    //                                                                     and c.estado in ('ACT')
+    //                                                                     and dc.estado in('ACT')
+	// 																	and ('".$id_cuenta_mayor_ingreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_ingreso."') 
+    //                                                                     and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
+    //                                                             group by pc.codigo,pc.descripcion
+    //                                                         ) z_q WHERE saldo_acreedor <> 0
+	// 	    							");
+	// 	return $query->result();
+	// }
+    function getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_ingreso,$cuenta_mayor_ingreso,$whereCierre)
+	{
+		$query = $this->db_mercurio->query("
+                                           SELECT 
+                                                     pc.id
+                                                    ,pc.nivel
+                                                    ,pc.codigo
+                                                    ,pc.descripcion
+                                                    ,pc.nivel
+                                                    ,pc.ruta
+                                                    ,pc.padre
+                                                    ,CASE 
+                                                        WHEN cuentas_con_movimiento.saldo_acreedor is null then  0.00
+                                                        else cuentas_con_movimiento.saldo_acreedor                
+                                                     end  as saldo
+                                                    ,CASE 
+                                                        WHEN cuentas_con_movimiento.saldo_acreedorUSD is null then  0.00
+                                                        else cuentas_con_movimiento.saldo_acreedorUSD                
+                                                     end  as saldoUSD
+                                                FROM contabilidad.plancuentas pc
+                                           LEFT JOIN(
+                                                            select	 
+                                                                 pc.id
+                                                                ,pc.codigo
+                                                                ,pc.descripcion 
+                                                                ,(SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+                                                                    SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END))
+                                                                AS saldo_acreedor            
+                                                                ,(SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END) - 
+                                                                    SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END))
+                                                                AS saldo_acreedorUSD            
+                                                            from contabilidad.comprobante c 
+                                                left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante
+                                                left outer join administracion.entidad e on c.id_entidad =e.id
+                                                left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
+                                                left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
+                                                        where e.id=".$id_entidad."
+                                                            and c.estado in ('ACT','HI') 
+                                                            and dc.estado in ('ACT','HI') 
+                                                            ".$whereCierre."
+                                                            and ('".$id_cuenta_mayor_ingreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_ingreso."') 
+                                                            and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
+                                                    group by pc.codigo,pc.descripcion,pc.id
+                                                ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
+                                                WHERE ('".$id_cuenta_mayor_ingreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_ingreso."') 
+                                                   
+                                            ORDER BY pc.id ASC;
+		    							");
+		return $query->result();
+	}
+    // function getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_egreso,$cuenta_mayor_egreso)
+	// {
+	// 	$query = $this->db_mercurio->query("
+    //                                          SELECT * FROM (       
+    //                                                             select   pc.codigo
+    //                                                                     ,pc.descripcion 
+    //                                                                     ,CASE 
+    //                                                                         WHEN SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) > 
+    //                                                                             SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)
+    //                                                                         THEN 
+    //                                                                             SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+    //                                                                             SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)
+    //                                                                         ELSE 0 
+    //                                                                     END AS saldo_deudor            
+    //                                                                from contabilidad.comprobante c 
+    //                                                     left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante
+    //                                                     left outer join administracion.entidad e on c.id_entidad =e.id
+    //                                                     left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
+    //                                                     left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
+    //                                                             where e.id=".$id_entidad."
+    //                                                                 and c.estado in ('ACT')
+    //                                                                 and dc.estado in('ACT')
+	// 																and ('".$id_cuenta_mayor_egreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_egreso."') 
+    //                                                                 and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
+    //                                                         group by pc.codigo,pc.descripcion
+    //                                                             ) z_q WHERE saldo_deudor <> 0
+	// 	    							");
+	// 	return $query->result();
+	// }
+    function getEstadoDeResultadosEgreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_egreso,$cuenta_mayor_egreso,$whereCierre)
+	{
+		$query = $this->db_mercurio->query("
+                                             SELECT 
+                                                     pc.id
+                                                    ,pc.nivel
+                                                    ,pc.codigo
+                                                    ,pc.descripcion
+                                                    ,pc.nivel
+                                                    ,pc.ruta
+                                                    ,pc.padre
+                                                    ,cuentas_con_movimiento.saldo_deudor as saldo 
+                                                    ,cuentas_con_movimiento.saldo_deudorUSD as saldoUSD
+                                                FROM contabilidad.plancuentas pc
+                                           LEFT JOIN(      
+                                                                select   pc.id
+                                                                        ,pc.codigo
+                                                                        ,pc.descripcion 
+                                                                        ,(SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+																		 SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)) AS saldo_deudor            
+                                                                        ,(SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END) - 
+																		 SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END)) AS saldo_deudorUSD            
+                                                                   from contabilidad.comprobante c 
+                                                        left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante
+                                                        left outer join administracion.entidad e on c.id_entidad =e.id
+                                                        left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
+                                                        left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
+                                                                where e.id=".$id_entidad."
+                                                                    and c.estado in ('ACT','HI') 
+                                                                    and dc.estado in ('ACT','HI') 
+                                                                    ".$whereCierre."
+																	and ('".$id_cuenta_mayor_egreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_egreso."') 
+                                                                    and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
+                                                            group by pc.codigo,pc.descripcion,pc.id
+                                                    ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
+                                                WHERE ('".$id_cuenta_mayor_egreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_egreso."') 
+                                                 
+                                            ORDER BY pc.id ASC;
+		    							");
+		return $query->result();
+	}
+    // function getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_ingreso,$cuenta_mayor_ingreso,$id_cuenta_mayor_egreso,$cuenta_mayor_egreso)
+    // {
+    //     $query = $this->db_mercurio->query("
+    //                                          SELECT sum(resultado.saldo_acreedor)-sum(resultado.saldo_deudor) as total_estado_resultado 
+    //                                            FROM (
+    //                                                              select  pc.codigo
+    //                                                                     ,pc.descripcion 
+    //                                                                     ,CASE 
+    //                                                                         WHEN SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) > 
+    //                                                                              SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END)
+    //                                                                         THEN 
+    //                                                                             SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+    //                                                                             SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END)
+    //                                                                         ELSE 0 
+    //                                                                     END AS saldo_acreedor 
+    //                                                                     ,CASE 
+    //                                                                         WHEN SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) > 
+    //                                                                              SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)
+    //                                                                         THEN 
+    //                                                                             SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+    //                                                                             SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)
+    //                                                                         ELSE 0 
+    //                                                                     END AS saldo_deudor             
+    //                                                                from contabilidad.comprobante c 
+    //                                                     left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante
+    //                                                     left outer join administracion.entidad e on c.id_entidad =e.id
+    //                                                     left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
+    //                                                     left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
+    //                                                               where e.id=".$id_entidad."
+    //                                                                 and c.estado in ('ACT')
+    //                                                                 and dc.estado in('ACT')
+	// 																and (('".$id_cuenta_mayor_egreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_egreso."') or
+	// 																	 ('".$id_cuenta_mayor_ingreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_ingreso."') )
+    //                                                                 and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
+    //                                                            group by pc.codigo,pc.descripcion
+    //                                                     ) as resultado
+	// 	    							");
+	// 	return $query->result();
+    // }
+	  function getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_mayor_ingreso,$cuenta_mayor_ingreso,$id_cuenta_mayor_egreso,$cuenta_mayor_egreso,$whereCierre)
+    {
+        $query = $this->db_mercurio->query("
+                                             SELECT 
+                                                 sum(resultado.saldo_acreedor)-sum(resultado.saldo_deudor) as total_estado_resultado 
+                                                ,sum(resultado.saldo_acreedorUSD)-sum(resultado.saldo_deudorUSD) as total_estado_resultadoUSD 
+                                               FROM (
+                                                                 select  pc.codigo
+                                                                        ,pc.descripcion 
+                                                                        ,CASE 
+                                                                            WHEN SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) > 
+                                                                                 SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END)
+                                                                            THEN 
+                                                                                SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+                                                                                SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END)
+                                                                            ELSE 0 
+																		END AS saldo_acreedor 
+																		,CASE 
+																			WHEN SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) > 
+																				SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)
+																			THEN 
+																				SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) - 
+																				SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)
+																			ELSE 0 
+																			END AS saldo_deudor             
+                                                                        ,CASE 
+                                                                            WHEN SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END) > 
+                                                                                 SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END)
+                                                                            THEN 
+                                                                                SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END) - 
+                                                                                SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END)
+                                                                            ELSE 0 
+																		END AS saldo_acreedorUSD 
+																		,CASE 
+																			WHEN SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END) > 
+																				SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END)
+																			THEN 
+																				SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END) - 
+																				SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END)
+																			ELSE 0 
+																			END AS saldo_deudorUSD             
+                                                                   from contabilidad.comprobante c 
+                                                        left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante
+                                                        left outer join administracion.entidad e on c.id_entidad =e.id
+                                                        left outer join contabilidad.plancuentas pc on dc.id_cuenta =pc.id
+                                                        left outer join contabilidad.plancuentas_auxiliares pa on dc.id_cuenta_auxiliar =pa.id
+                                                                  where e.id=".$id_entidad."
+                                                                    and c.estado in ('ACT','HI') 
+                                                                    and dc.estado in ('ACT','HI') 
+                                                                    ".$whereCierre."
+																	and (('".$id_cuenta_mayor_egreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_egreso."') or
+																		 ('".$id_cuenta_mayor_ingreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_ingreso."') )
+                                                                    and c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
+                                                               group by pc.codigo,pc.descripcion
+                                                        ) as resultado
+		    							");
+		return $query->result();
+    }
+}

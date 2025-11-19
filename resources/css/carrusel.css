@@ -1,0 +1,160 @@
+* {
+  box-sizing: border-box;
+}
+
+/* Position the image container (needed to position the left and right arrows) */
+.slideshow-container {
+  position: relative;
+}
+
+/* Hide the images by default */
+.mySlides {
+  display: none;
+}
+
+/* Add a pointer when hovering over the thumbnail images */
+.cursor {
+  cursor: pointer;
+}
+
+/*SLIDER DE IMAGENES*/
+* {box-sizing: border-box;}
+body {font-family: Verdana, sans-serif;}
+.mySlides {display: none; padding-bottom: 10px}
+img {vertical-align: middle;}
+
+/* Slideshow container */
+.slideshow-container {
+  width: 540px;
+  position: relative;
+  margin: auto;
+ /* padding: 5px;*/s
+  text-align: center;
+  background-color: #E5E5E5;
+}
+.mySlides > a >img
+{
+    width: 540px;
+    height: 300px;
+}
+
+/* Caption text */
+/*.text {
+  color: #f2f2f2;
+  font-size: 15px;
+  padding: 8px 12px;
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+}*/
+
+/* Number text (1/3 etc) */
+.numbertext {
+  color: #f2f2f2;
+  font-size: 12px;
+  padding: 8px 12px;
+  position: absolute;
+  top: 0;
+}
+
+/* The dots/bullets/indicators */
+.dot {
+  height: 15px;
+  width: 15px;
+  margin: 0 2px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.6s ease;
+}
+
+.actives {
+  background-color: #717171;
+  color: lightcyan;
+}
+
+/* Fading animation */
+.fade {
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+
+@keyframes fade {
+  from {opacity: .4} 
+  to {opacity: 1}
+}
+
+/* On smaller screens, decrease text size */                                   
+@media only screen and (max-width: 300px) {
+  .text {font-size: 11px}
+}
+
+
+
+/* Next & previous buttons */
+.prev_f, .next_f {
+  cursor: pointer;
+  position: absolute;
+  top: 40%;
+  width: auto;
+  padding: 16px;
+  margin-top: -38px;
+  color: white;
+  font-weight: bolder;
+  font-size: 24px;
+  transition: 0.6s ease;
+  z-index:2;
+  border-radius:6px;
+  text-decoration-style: wavy;
+}
+
+/* Position the "next button" to the right */
+.next_f {
+  right: 0px;
+  border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background color with a little bit see-through */
+.prev_f:hover, .next_f:hover {
+  background-color: rgba(0,0,0,0.7);
+  text-decoration-line: underline overline ;
+  color: darkcyan;
+}
+
+
+/* Container for image text */
+.caption-container {
+  text-align: center;
+  background-color: #222;
+  padding: 2px 16px;
+  color: white;
+  
+}
+.caption2{
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%)
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Six columns side by side */
+.column {
+  float: left;
+  width: 11.1121%;
+}
+
+/* Add a transparency effect for thumnbail images */
+.demo {
+  opacity: 0.55;
+}
+
+.active,
+.demo:hover {
+  opacity: 1;
+}
