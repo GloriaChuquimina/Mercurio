@@ -275,6 +275,128 @@ class EstadoDeCuenta extends CI_Controller {
 
 	}
 
+	function ReporteEstadoDeCuentaPDF_2($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta)
+	{			
+		/****************************/
+		/*INICIO DEL REPORTE*/
+		/****************************/		
+		$cuenta = getCodigoCuenta($id_cuenta)."-".getCuenta($id_cuenta);
+		$tipo_moneda_cuenta = getTipoMonedaCuenta($id_cuenta);
+		$this->load->library('fpdf/pdf2');
+        $pdf = new Pdf2();
+        $pdf->AliasNbPages();
+        $pdf->SetAutoPageBreak(true, 30);
+        $pdf->SetMargins(20,15,10);		
+		$pdf->SetTitle(utf8_decode("Reporte Estado de la Cuenta"));
+		$pdf->entidad=descripcion_nombre_entidad($id_entidad);
+		$pdf->sigla=sigla_entidad($id_entidad);
+		$pdf->tituloCabecera = 'ESTADO DE LA CUENTA';
+		$pdf->subtituloCabecera1 = $cuenta;  
+		$pdf->subtituloCabecera2 = "DEL  ".formato_fecha_dia_2($fecha_inicio). " AL ".formato_fecha_dia_2($fecha_fin);  
+		if($tipo_moneda_cuenta == 'BOB'){
+		    $pdf->subtituloCabecera3 = "Expresado en Bolivianos";
+		}else{
+			$pdf->subtituloCabecera3 = "Expresado en Dólares Americanos";
+			
+		}
+		$pdf->tipo_moneda_cuenta = $tipo_moneda_cuenta;
+		// $pdf->subtituloCabecera3 = "Expresado en Bolivianos";  
+        $w = array(15,115,40,50);
+        $pdf->setWidthsG($w);
+        $pdf->SetAligns(array('C','L','C','C'));
+		$pdf->AddPage('P','Letter');
+		$pdf->opcion_cabecera=10;
+		$pdf->Header();
+		$pdf->SetFillColor(255,255,255);
+        $pdf->SetTextColor(0);
+        $pdf->SetFont('Arial','',6);
+		$pdf->Ln(1);
+		$pdf->opcion_pie='FOOTER_VACIO';
+		/*CUERPO DEL REPORTE*/
+		$pdf->SetWidths([30, 135, 15, 15]);
+		$pdf->SetAligns(['L','L','R','R']);
+        $num = 0;
+        $total=0;
+		$estadoCuenta = $this->EstadoDeCuenta_model->getEstadoDeCuenta($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta);
+
+		// echo("<pre>");
+		// print_r($estadoCuenta);
+		// echo("</pre>");
+		// die();
+
+		$importeDebe=0;
+		$importeHaber=0;
+		$importeDeudor=0;
+		$importeAcreedor=0;
+		$totalSaldo=0;
+		$totalSaldoUSD=0;
+		foreach ($estadoCuenta as $fila)
+		{   
+			$codigo_aux 		 = $fila->codigo_aux;
+			$descripcion_aux	 = $fila->descripcion_aux;
+			$importeDebe	 	 = $fila->debe;
+			$importeHaber	 	 = $fila->haber;
+			$importeDebeUsd	 	 = $fila->debe_usd;
+			$importeHaberUsd	 = $fila->haber_usd;
+
+			if($tipo_moneda_cuenta == 'BOB'){
+				$saldo 	   			 = $importeDebe - $importeHaber;
+				$saldo_USD 			 = '';
+				// $pdf->tipo_moneda_cuenta = 'BOB';
+			}
+			else{
+				$saldo 	   			 = $importeDebe - $importeHaber;
+				$saldo_USD 			 = $importeDebeUsd - $importeHaberUsd;
+				$saldo_USD			 = number_format($saldo_USD,2,'.',',');
+				$totalSaldoUSD		+= $saldo_USD;
+				// $pdf->tipo_moneda_cuenta = 'USD';
+			}
+			$row = array(
+				$codigo_aux,
+				utf8_decode($descripcion_aux),
+				$saldo_USD,
+				number_format($saldo,2,'.',',')
+			    );
+			$totalSaldo+=$saldo;
+			
+			$pdf->Row_Reportes_EC($row,true, '', 4);	
+		} 
+		$pdf->SetFont('Arial', 'B', 6);
+		$pdf->SetFillColor(230, 230, 225);
+		$x=15;
+		$y=$pdf->GetY();
+		$pdf->Line($x, $y, $x + 195, $y);
+		$pdf->Line($x, $y+5, $x + 195, $y+5);
+		$TOTALES="TOTAL";
+		$y=$pdf->GetY();
+		$pdf->SetXY(15,$y);    
+		$pdf->Cell(165,5,utf8_decode($TOTALES),0,0,'C',1);
+		if($tipo_moneda_cuenta == 'BOB'){
+			$pdf->Cell(15,5,'',0,0,'R',1); 
+			$pdf->Cell(15,5,utf8_decode(number_format($totalSaldo,2,'.',',')),0,0,'R',1);
+		}
+		else{
+			$pdf->Cell(15,5,utf8_decode(number_format($totalSaldoUSD,2,'.',',')),0,0,'R',1); 
+			$pdf->Cell(15,5,utf8_decode(number_format($totalSaldo,2,'.',',')),0,0,'R',1);
+		}
+		// $pdf->Cell(15,5,utf8_decode(number_format($totalSaldoUSD,2,'.',',')),0,0,'R',1); 
+		// $pdf->Cell(15,5,utf8_decode(number_format($totalSaldo,2,'.',',')),0,0,'R',1);
+
+		$ini_y=55;
+		$y_fin=$pdf->GetY();
+		$pdf->Line(15, $ini_y, 15, $y_fin+5);
+		$pdf->Line(45, $ini_y, 45, $y_fin);
+		if($tipo_moneda_cuenta == 'USD'){
+			$pdf->Line(180, $ini_y, 180, $y_fin+5);
+		}
+		$pdf->Line(195, $ini_y, 195, $y_fin+5);
+		$pdf->Line(210, $ini_y, 210, $y_fin+5);
+
+
+		$pdf->Footer();
+		$pdf->Output('I',utf8_decode('ReporteEstadoDeCuenta_2.pdf')); 
+	}
+
 
 
 }

@@ -16,6 +16,7 @@ class Pdf2 extends FPDF {
     public $subtituloCabecera1;
     public $subtituloCabecera2;
     public $subtituloCabecera3;
+    public $tipo_moneda_cuenta;
     public $gestion;
     public $opcion_cabecera;
     public $opcion_pie;
@@ -425,6 +426,74 @@ class Pdf2 extends FPDF {
             $this->Ln(3);
             
         }
+        // NUEVO REPORTE DE ESTADO DE CUENTA
+        if($this->opcion_cabecera==10)
+        {
+            $this->Ln();
+            $this->SetTextColor(0);
+            $this->SetFont('Times','B',6);
+            $y = $this->GetY();
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode($this->entidad),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode($this->sigla),0,'C',0);
+            $this->SetX(10);
+            $this->MultiCell(30,3,utf8_decode('SENAPE'),0,'C',0);
+            $this->Ln(3);
+            $this->SetXY(200, $y); 
+            $this->Cell(10, 5, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'R');
+            $this->SetXY(190,$y+3);            
+            $fecha_hoy = $this->fechaformato();
+            $this->Cell(10, 5,utf8_decode('Fecha:').$fecha_hoy, 0, 0, 'L');
+            $this->Ln(3);
+
+           
+            $this->SetXY(0,30);
+            $this->SetFont('Arial', 'BU', 12);
+            $this->Cell(0,0,utf8_decode($this->tituloCabecera),0,1,'C',0);
+            $this->Ln(4);
+            $this->SetFont('Times','B',7);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera1),0,1,'C',0);
+            $this->Ln(3);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera2),0,1,'C',0);
+            $this->Ln(3);
+            $this->SetX(0);
+            $this->Cell(0,0,utf8_decode($this->subtituloCabecera3),0,1,'C',0);
+            $this->Ln(3);
+            
+            //Cabecera
+            // Cabecera superior agrupada
+            $this->SetXY(15, 45); // Coordenada superior izquierda
+            $this->SetFillColor(230, 230, 225);
+            $this->SetTextColor(0);
+            $this->SetFont('Arial','B',7);
+            // $this->SetX(20);
+            $this->Cell(30,10,utf8_decode('CÓDIGO'), 1, 0, 'C', 1);
+            // $this->SetXY(180,45);
+            // $this->Cell(30,5,utf8_decode('SALDO'),1,0,'C',1);
+            // $this->SetXY(180,50);
+
+            if($this->tipo_moneda_cuenta == 'USD')
+            {
+                $this->Cell(135,10,utf8_decode('CUENTA'), 1, 0, 'C', 1);
+                $x = $this->GetX();
+                $y = $this->GetY();
+                $this->MultiCell(15, 5, utf8_decode("SALDO\nUSD"), 1, 'C', 1);
+                $this->SetXY($x + 15, $y);
+            }
+            else {
+                $this->Cell(150,10,utf8_decode('CUENTA'), 1, 0, 'C', 1);
+                $x = $this->GetX();
+                $y = $this->GetY();
+                $this->SetXY($x, $y);
+            }
+            // $this->SetXY(195,50);
+            $this->MultiCell(15, 5, utf8_decode("SALDO\nBOB"), 1, 'C', 1);
+
+        }
+        
     }
 	public function getBottomMargin() {
 		return $this->bMargin;
@@ -439,6 +508,8 @@ class Pdf2 extends FPDF {
                 // $y=$this->SetY(-10);
                 $this->setXY(10,$y);
                 $this->setXY(10,$y);
+                $this->SetFillColor(230, 230, 225);
+				$this->SetFont('Arial', 'B', 7);
                 $TOTALES="TOTALES";		    
                 // $this->Cell(160,5,utf8_decode($TOTALES),1,0,'R',1);
                 // $this->Cell(20,5,utf8_decode(number_format($this->totalLD_Debe,2,',','.')),1,0,'R',1);

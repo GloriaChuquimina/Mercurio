@@ -973,6 +973,19 @@ function getCodigoCuenta($id_cuenta)
     } 
     return $respuesta;
 }
+function getTipoMonedaCuenta($id_cuenta)
+{
+    $fila_m =& get_instance();
+    $fila_m->load->model('PlanDeCuentas_model');
+
+    $fila = $fila_m->PlanDeCuentas_model->getPlanDeCuentasById($id_cuenta);
+    $respuesta = "";
+    if($fila)
+    {
+       $respuesta = $fila[0]->tipo_moneda_cuenta;
+    } 
+    return $respuesta;
+}
 function getCuentaAuxiliar($id_cuenta_aux)
 {
     $fila_m =& get_instance();

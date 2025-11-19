@@ -229,7 +229,7 @@ CREATE TABLE contabilidad.detalle_comprobante (
 	tipo_movimiento varchar(3) NOT NULL,
 	tipo_cambio numeric(10, 2) NULL,
 	importe_moneda_nacional numeric(10, 2) DEFAULT 0 NULL,
-	importe_moneda_extranjera numeric DEFAULT 0 NULL,
+	importe_moneda_extranjera numeric(10, 2) DEFAULT 0 NULL,
 	importe_moneda_origen numeric(10,2) DEFAULT 0 null;
 	glosa_cuenta text NULL,
 	fecha_registro timestamp DEFAULT now() NULL,

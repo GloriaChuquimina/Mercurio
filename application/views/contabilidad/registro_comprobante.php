@@ -247,8 +247,8 @@
             <div class="modal-body">
                 <form id="formularioRegistroCuenta">
                     <!-- CAMPOS OCULTOS -->
-                    <input type="hidden" class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
                     <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
+                    <input type="hidden" class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
                     <input type="hidden" class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
                     <input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
                     <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
@@ -297,7 +297,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-2">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>
                                             <i class="text-danger">*</i>
@@ -308,7 +308,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-2">
+                                <!-- <div class="col-md-2">
                                     <div class="form-group">
                                         <label>
                                             <i class="text-danger">*</i>
@@ -316,7 +316,7 @@
                                         </label>
                                         <input type="text" id="txtImporte" name="txtImporte" class="form-control text-right" placeholder="0.00" />
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             
                             <!-- CONVERSION -->
@@ -358,8 +358,10 @@
                                             <div class="form-group">
                                                 <div class="d-flex align-items-end">
                                                     <div style="flex-grow: 1; margin-right: 10px;">
-                                                        <label for="txtMontoBOB">
-                                                            <strong>Equivalente en Moneda Local:</strong>
+                                                        <!-- <label for="txtMontoBOB"> -->
+                                                        <label for="txtImporte">
+                                                            <!-- <strong>Equivalente en Moneda Local:</strong> -->
+                                                            <strong>Moneda Local:</strong>
                                                         </label>
                                                         <div class="input-group">
                                                             <div class="input-group-append">
@@ -370,13 +372,21 @@
                                                                     <i>🪙</i> Bs.
                                                                 </button>
                                                             </div>
-                                                            <input
+                                                            <!-- <input
                                                                 type="text"
                                                                 class="form-control text-right"
                                                                 placeholder="0.00"
                                                                 id="txtMontoBOB" 
                                                                 name="txtMontoBOB"
                                                                 readonly
+                                                            /> -->
+                                                            <input
+                                                                type="text"
+                                                                class="form-control text-right"
+                                                                placeholder="0.00"
+                                                                id="txtImporte" 
+                                                                name="txtImporte"
+                                                                
                                                             />
                                                         </div>
                                                         <label>

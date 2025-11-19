@@ -55,6 +55,8 @@ class EstadoDeCuenta_model extends CI_Model
     											,COALESCE(pa.descripcion, pc.descripcion) AS descripcion_aux
 												,SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) AS debe
 												,SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END) AS haber 
+												,SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END) AS debe_USD
+												,SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END) AS haber_USD
 												,CASE 
 													WHEN SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END) > 
 														SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_nacional ELSE 0 END)
@@ -71,6 +73,22 @@ class EstadoDeCuenta_model extends CI_Model
 														SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_nacional ELSE 0 END)
 													ELSE 0 
 												END AS saldo_acreedor
+												,CASE 
+													WHEN SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END) > 
+														SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END)
+													THEN 
+														SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END) - 
+														SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END)
+													ELSE 0 
+												END AS saldo_deudor_USD			
+												,CASE 
+													WHEN SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END) > 
+														SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END)
+													THEN 
+														SUM(CASE WHEN dc.tipo_movimiento = 'HB' THEN dc.importe_moneda_extranjera ELSE 0 END) - 
+														SUM(CASE WHEN dc.tipo_movimiento = 'DB' THEN dc.importe_moneda_extranjera ELSE 0 END)
+													ELSE 0 
+												END AS saldo_acreedor_USD
 										   from contabilidad.comprobante c 
 								left outer join contabilidad.detalle_comprobante dc on c.id =dc.id_comprobante --and dc.id_cuenta_auxiliar is not null
 								left outer join administracion.entidad e on c.id_entidad =e.id

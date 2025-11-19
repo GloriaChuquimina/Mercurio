@@ -160,7 +160,8 @@ $(function (){
 
         });
         /* Valida  numeros en los textos */ 
-        $("#txtImporte,#txtMontoUSD,#txtMontoBOB").keypress(function (e) {
+        // $("#txtImporte,#txtMontoUSD,#txtMontoBOB").keypress(function (e) {
+        $("#txtImporte,#txtMontoUSD").keypress(function (e) {
             var keyCode = e.keyCode || e.which;
             if (event.which && (event.which < 46 || event.which > 57 || event.which == 47) && event.keyCode != 8) {
                     event.preventDefault();
@@ -188,6 +189,32 @@ $(function (){
                         event.preventDefault(); // Evita que el Enter provoque un submit
                         var montoUSD = event.target.value;
                         calcularMontoMonedaExtranjera(montoUSD);
+                    }
+                }
+
+        });
+        $('#txtImporte' ).on({
+                'change': function(event) {
+                    var montoBOB = event.target.value;
+                    calcularMontoMonedaBOBaUSD(montoBOB);
+                   
+                },
+                'blur':  function(event) {
+                    var montoBOB = event.target.value;
+                    calcularMontoMonedaBOBaUSD(montoBOB);
+                   
+                },
+                'blur':  function(event) {
+                    var montoBOB = event.target.value;
+                    calcularMontoMonedaBOBaUSD(montoBOB);
+                    
+                },
+                'keydown': function(event) {
+                    // Detectar Enter (keyCode 13)
+                    if (event.key === "Enter" || event.keyCode === 13) {
+                        event.preventDefault(); // Evita que el Enter provoque un submit
+                        var montoBOB = event.target.value;
+                        calcularMontoMonedaBOBaUSD(montoBOB);
                     }
                 }
 
@@ -564,7 +591,7 @@ function limpiarModalRegistro()
     // $('#txtGlosaCuenta').val('');
     $('#id_cuenta').val('');
     $('#txtMontoUSD').val('');
-    $('#txtMontoBOB').val('');
+    // $('#txtMontoBOB').val('');
 }
 
 function cargarCuentasComprobanteT()
@@ -1491,8 +1518,33 @@ function calcularMontoMonedaExtranjera(montoUSD)
                          $('#txtMontoUSD').val('0.00');
                     }
                     
-                    $('#txtMontoBOB').val(data.montoBOB1);
+                    // $('#txtMontoBOB').val(data.montoBOB1);
                     $('#txtImporte').val(data.montoBOB1);
+                    
+        }
+    });
+}
+function calcularMontoMonedaBOBaUSD(montoBOB)
+{
+    var tipo_cambio = $('#txtTipoCambio').val();
+    var enlace = base_url + "Contabilidad/Comprobante/calcularMontoMonedaBOBaUSD";
+    $.ajax({
+        type: "POST",
+        url: enlace,
+        data: { 
+                        montoBOB : montoBOB,
+                     tipo_cambio : tipo_cambio
+                },
+        dataType: 'JSON',
+        success: function(data) {
+                    if(data.montoBOB1 == '0.00')
+                    {
+                         swal({title:"ALERTA",text:data.mensaje,icon:"warning",button:"OK",dangerMode:true});
+                         $('#txtImporte').val('0.00');
+                    }
+                    
+                    // $('#txtMontoBOB').val(data.montoBOB1);
+                    $('#txtMontoUSD').val(data.montoUSD1);
                     
         }
     });

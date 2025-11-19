@@ -322,7 +322,7 @@ function generarReporteEstadoCuenta()
         var iframe = document.createElement("iframe");
             iframe.width = '100%';
             iframe.height = '700px';
-            iframe.src = base_url+'Contabilidad/EstadoDeCuenta/ReporteEstadoDeCuentaPDF/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin+"/"+id_cuenta; 
+            iframe.src = base_url+'Contabilidad/EstadoDeCuenta/ReporteEstadoDeCuentaPDF_2/'+id_entidad+"/"+fecha_inicio+"/"+fecha_fin+"/"+id_cuenta; 
             $('#divPDF').append(iframe);
         $('#divCapa').addClass('overlay');    
         $('#pdfModal > .modal-dialog ').parent().css('z-index', 1999);

@@ -2032,6 +2032,36 @@ class Comprobante extends CI_Controller {
 
 		echo json_encode($mensaje);
 	}
+	function calcularMontoMonedaBOBaUSD()
+	{				
+
+		$montoBOB    = $this->input->post('montoBOB');
+		$tipo_cambio = $this->input->post('tipo_cambio');
+
+		$montoBOB_sin_comas = str_replace(',', '', $montoBOB);
+
+		$montoUSD	 = 0.00;
+		if(trim($tipo_cambio) != '')
+		{
+			$montoUSD = round($montoBOB_sin_comas/$tipo_cambio,2);
+			$importeBaseUSD1 = $montoUSD;
+			$importeBaseUSD2 = floatval(str_replace(',', '', $montoUSD));
+			$mensaje = array("resultado" => 1 , 
+								"mensaje"=>"Conversión realizada", 
+								"montoUSD1"=> number_format($importeBaseUSD1,2,'.',','),
+								"montoUSD2"=> number_format($importeBaseUSD2,2,'.',',')
+							);
+		}
+		else{
+			$mensaje = array("resultado" => 2 , 
+			                    "mensaje"=>"No se tiene el dato del valor de tipo de cambio, para realizar la conversion.",
+								"montoUSD1"=> number_format($montoUSD,2,'.',','),
+								"montoUSD2"=> number_format($montoUSD,2,'.',',')
+							);
+		}
+
+		echo json_encode($mensaje);
+	}
 	
 	
 }
