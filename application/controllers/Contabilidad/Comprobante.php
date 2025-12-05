@@ -915,7 +915,8 @@ class Comprobante extends CI_Controller {
 	}
 	public function listarPlanDeCuentasBusquedaComprobante()
     {
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda();
+		$id_entidad = $this->input->post('id_entidad');
+		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda($id_entidad);
 		$cuentas = json_decode(json_encode($cuentas), true);
 		$ordenadas = $this->ordenarJerarquicamente($cuentas);
 		

@@ -14,7 +14,7 @@ function cargarCombos()
             valoresIniciales();
         }
     }); 
-    cargarCuentasLista();
+    // cargarCuentasLista();
 }
 function valoresIniciales(){
     var entidad = $('#entidades').val();    
@@ -62,20 +62,22 @@ function busquedaIDCuenta(id_cuenta,cuenta)
 }
 function cargarCuentasLista()
 {
-    $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
+    // $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
+    $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas", { id_entidad: id_entidad });
 }
 
 $(function (){
 
     $('#entidades').change(function(){
                 // id_entidad = $(this).val();
-                var id_entidad = $('#entidades').val();
+                id_entidad = $('#entidades').val();
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
                 $('#id_entidad').val(id_entidad);
                 cargarCuentasEntidad();
                 valoresIniciales();
                 $('#cardEntidad').find('[data-card-widget="collapse"]').click();
+                cargarCuentasLista(id_entidad);
             });
     $('#cuentaContable').change(function(){
                 id_cuenta = $(this).val();
@@ -154,7 +156,8 @@ function cargarCuentas(marcar){
             url: enlace,
             data:{          
                 marcareg:marcar,
-                cuentasSeleccionadas:cuentasSeleccionadas
+                cuentasSeleccionadas:cuentasSeleccionadas,
+                id_entidad: id_entidad
             }
         },
     });

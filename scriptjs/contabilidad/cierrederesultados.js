@@ -280,14 +280,15 @@ function seleccionDeCuentas()
 function listaCuentasBusqueda()
 {
     // alert("STEPH");
-    var cuentasSeleccionadas=$('#id_cuenta_seleccionadas').text();
+    var id_entidad = $('#id_entidad_registro').val();
+    // var cuentasSeleccionadas=$('#id_cuenta_seleccionadas').text();
     $('#opcionSeleccionar').checked = false;
-    cargarCuentas(0,cuentasSeleccionadas);
+    cargarCuentas(id_entidad);
     $('#modalListaCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalListaCuentas').modal('show');  
 }
 function cargarCuentas(){
-    var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
+    // var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
     var enlace = base_url + "Contabilidad/Comprobante/listarPlanDeCuentasBusquedaComprobante";
     $('#tbl_CuentasContables').DataTable({
         destroy: true,
@@ -296,7 +297,8 @@ function cargarCuentas(){
         "font-size":5,
         "ajax": {
             type: "POST",
-            url: enlace
+            url: enlace,
+            data:{id_entidad: id_entidad}
         },
     });
 }

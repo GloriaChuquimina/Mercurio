@@ -310,8 +310,8 @@ class EstadoDeResultados extends CI_Controller {
 		
 		$codigo_cuenta_ingreso     = 4;
 		$codigo_cuenta_egreso      = 5;
-		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
-		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
 
 
 		if($nivel== 0)
@@ -436,8 +436,8 @@ class EstadoDeResultados extends CI_Controller {
 		
 		$codigo_cuenta_ingreso     = 4;
 		$codigo_cuenta_egreso      = 5;
-		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
-		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
 
 		if($nivel== 0)
 		{
@@ -576,8 +576,8 @@ class EstadoDeResultados extends CI_Controller {
 
 		$codigo_cuenta_ingreso     = 4;
 		$codigo_cuenta_egreso      = 5;
-		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
-		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
 
 		
 		// $estadoResultadoAcreedor = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);	

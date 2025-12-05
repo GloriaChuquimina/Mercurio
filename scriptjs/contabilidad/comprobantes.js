@@ -78,7 +78,7 @@ function cargarCombos()
     
 
 }
-function cargarCuentas(){
+function cargarCuentas(id_entidad){
 
     var enlace = base_url + "Contabilidad/Comprobante/listarPlanDeCuentasBusquedaComprobante";
     $('#tbl_CuentasContables').DataTable({
@@ -88,7 +88,8 @@ function cargarCuentas(){
         "font-size":5,
         "ajax": {
             type: "POST",
-            url: enlace
+            url: enlace,
+            data: { id_entidad: id_entidad }
         },
     });
 }
@@ -683,13 +684,16 @@ function cargarCuentasComprobanteRegistrado(id_comprobante)
         },
     });
 }
-function cargarCuentasLista()
+/*LISTA DE DENTRO DE LA CAJA DE TEXTO  */
+function cargarCuentasLista(id_entidad)
 {
-    $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
+    $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas", { id_entidad: id_entidad });
 }
+/*LISTA DE DENTRO DEL BOTON  */
 function listaCuentasBusqueda()
 {
-    cargarCuentas();
+    var id_entidad = $('#id_entidad_registro').val();
+    cargarCuentas(id_entidad);
     $('#modalListaCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalListaCuentas').modal('show');  
 }

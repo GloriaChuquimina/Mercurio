@@ -155,8 +155,8 @@
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
-      // cargarTipoCambio();
       cargarCombos();
+      // cargarTipoCambio()
     //   cargarTablaComprobantesEntidades();
     });
 </script>  

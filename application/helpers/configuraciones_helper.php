@@ -1085,20 +1085,21 @@ function getNivelMaximo()
     return $valor;
   }
 }
-function getIdCuenta($codigo)
+function getIdCuenta($codigo,$id_entidad)
 {
   $fila =& get_instance();
   $fila->load->model('PlanDeCuentas_model');
-  $datos = $fila->PlanDeCuentas_model->getPlanDeCuentasByCodigo($codigo);
+  $datos = $fila->PlanDeCuentas_model->getPlanDeCuentasByCodigoEntidad($codigo,$id_entidad);
   if($datos)
   {
     return $datos[0]->id;
   }
   else
   {
-    return $valor;
+    return 0;
   }
 }
+
 function primerDiaDelAnio($fecha) {
     $anio = date("Y", strtotime($fecha));
     return $anio . "-01-01";

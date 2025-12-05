@@ -121,11 +121,11 @@ class CierreDeBalance extends CI_Controller {
 		$codigo_patrimonio	   	   = 3;
 		$codigo_cuentas_deudoras   = 6;
 		$codigo_cuentas_acreedoras = 7;
-		$id_activo                 = getIdCuenta($codigo_activo);
-		$id_pasivo                 = getIdCuenta($codigo_pasivo);
-		$id_patrimonio             = getIdCuenta($codigo_patrimonio);		
-		$id_cuentas_deudoras   	   = getIdCuenta($codigo_cuentas_deudoras);
-		$id_cuentas_acreedoras 	   = getIdCuenta($codigo_cuentas_acreedoras);
+		$id_activo                 = getIdCuenta($codigo_activo,$id_entidad);
+		$id_pasivo                 = getIdCuenta($codigo_pasivo,$id_entidad);
+		$id_patrimonio             = getIdCuenta($codigo_patrimonio,$id_entidad);		
+		$id_cuentas_deudoras   	   = getIdCuenta($codigo_cuentas_deudoras,$id_entidad);
+		$id_cuentas_acreedoras 	   = getIdCuenta($codigo_cuentas_acreedoras,$id_entidad);
 		
 
 		if($valorCheckCero === true){
@@ -626,18 +626,17 @@ class CierreDeBalance extends CI_Controller {
 			$codigo_patrimonio 		   = 3;
 			$codigo_cuentas_deudoras   = 6;
 			$codigo_cuentas_acreedoras = 7;
-			$id_activo		   		   = getIdCuenta($codigo_activo);
-			$id_pasivo		   		   = getIdCuenta($codigo_pasivo);
-			$id_patrimonio	   		   = getIdCuenta($codigo_patrimonio);
-			$id_cuentas_deudoras   	   = getIdCuenta($codigo_cuentas_deudoras);
-			$id_cuentas_acreedoras 	   = getIdCuenta($codigo_cuentas_acreedoras);
-
+			$id_activo		   		   = getIdCuenta($codigo_activo,$id_entidad);
+			$id_pasivo		   		   = getIdCuenta($codigo_pasivo,$id_entidad);
+			$id_patrimonio	   		   = getIdCuenta($codigo_patrimonio,$id_entidad);
+			$id_cuentas_deudoras   	   = getIdCuenta($codigo_cuentas_deudoras,$id_entidad);
+			$id_cuentas_acreedoras 	   = getIdCuenta($codigo_cuentas_acreedoras,$id_entidad);
 			$codigo_cuenta_ingreso     = 4;
 			$codigo_cuenta_egreso      = 5;
 			$codigo_perdidas_ganancias = 9;
-			$id_cuenta_ingreso         = getIdCuenta($codigo_cuenta_ingreso);
-			$id_cuenta_egreso          = getIdCuenta($codigo_cuenta_egreso);
-			$id_perdidas_ganancias     = getIdCuenta($codigo_perdidas_ganancias);
+			$id_cuenta_ingreso         = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
+			$id_cuenta_egreso          = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
+			$id_perdidas_ganancias     = getIdCuenta($codigo_perdidas_ganancias,$id_entidad);
 
 			// die();
 
@@ -689,15 +688,23 @@ class CierreDeBalance extends CI_Controller {
 					$id_patrimonio,
 					$whereFecha,
 					$tipo_cuenta_acreedor);
-			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getBalanceGeneralPorMayor(
-					$id_entidad,
-					$fecha_inicio,
-					$fecha_fin,
-					$codigo_cuentas_deudoras,
-					$id_cuentas_deudoras,
-					$whereFecha,
-					$tipo_cuenta_deudor);
-			$cuentas_acreedoras     = $this->BalanceGeneral_model->getBalanceGeneralPorMayor(
+
+			if($id_cuentas_deudoras !=0){
+				$cuentas_deudoras 	    = $this->BalanceGeneral_model->getBalanceGeneralPorMayor(
+				$id_entidad,
+				$fecha_inicio,
+				$fecha_fin,
+				$codigo_cuentas_deudoras,
+				$id_cuentas_deudoras,
+				$whereFecha,
+				$tipo_cuenta_deudor);
+			}
+			else{
+				$cuentas_deudoras = array();
+			}
+			if($id_cuentas_acreedoras !=0	)
+			{
+				$cuentas_acreedoras     = $this->BalanceGeneral_model->getBalanceGeneralPorMayor(
 					$id_entidad,
 					$fecha_inicio,
 					$fecha_fin,
@@ -705,6 +712,12 @@ class CierreDeBalance extends CI_Controller {
 					$id_cuentas_acreedoras,
 					$whereFecha,
 					$tipo_cuenta_acreedor);
+			}
+			else
+			{
+				$cuentas_acreedoras = array();
+			}
+			
 
 			// 6. Ordenar y calcular totales
 			$tipo_cuenta_balance="balance";

@@ -11,22 +11,24 @@ class PlanDeCuentas_model extends CI_Model
 		$this->db_mercurio = $this->load->database('db_mercurio', TRUE);		
 	}
 
-	function getPlanDeCuentas()
+	function getPlanDeCuentas($id_entidad)
 	{
 		$query = $this->db_mercurio->query("select *
-											 from contabilidad.plancuentas
-										  --where estado='ACT'
-										 order by nivel ASC,
-  												  codigo ASC;
+											  from contabilidad.plancuentas
+										     where estado='ACT'
+											   and id_entidad = ".$id_entidad."
+										  order by nivel ASC,
+  												   codigo ASC;
 											" 
 										  );
 		return $query->result();
 	}
-	function getPlanDeCuentasBusqueda()
+	function getPlanDeCuentasBusqueda($id_entidad)
 	{
 		$query = $this->db_mercurio->query("select *
 											 from contabilidad.plancuentas
 										    where estado='ACT'
+											  and id_entidad = ".$id_entidad."
 										 order by nivel ASC,
   												  codigo ASC;
 											" 
@@ -65,6 +67,16 @@ class PlanDeCuentas_model extends CI_Model
         $query = $this->db_mercurio->query("select *
                                               from contabilidad.plancuentas
                                              where codigo= '".$codigo."'
+                                               and estado='ACT'" 
+                                         );
+        return $query->result();
+    }
+	function getPlanDeCuentasByCodigoEntidad($codigo,$id_entidad)
+    {
+        $query = $this->db_mercurio->query("select *
+                                              from contabilidad.plancuentas
+                                             where codigo= '".$codigo."'
+                                               and id_entidad = ".$id_entidad."
                                                and estado='ACT'" 
                                          );
         return $query->result();
@@ -141,42 +153,46 @@ class PlanDeCuentas_model extends CI_Model
 		return $this->db_mercurio->update('contabilidad.plancuentas_auxiliares',$data);
 	}
 	
-	function getNivelesPlanDeCuentas()
+	function getNivelesPlanDeCuentas($id_entidad)
 	{
 		$query = $this->db_mercurio->query("select distinct p.nivel, ('Nivel '|| p.nivel) as name_nivel
 		                                      from contabilidad.plancuentas p
 											 where p.estado='ACT'
-											 order by p.nivel ASC;
+                                               and p.id_entidad = ".$id_entidad."
+										  order by p.nivel ASC;
 											");
 		return $query->result();
 	}
-	function getMayoresPlanDeCuentas()
+	function getMayoresPlanDeCuentas($id_entidad)
 	{
 		$query = $this->db_mercurio->query("select *
 		                                      from contabilidad.plancuentas p
 											 where p.estado='ACT'
 											   and p.nivel = 1
+                                               and p.id_entidad = ".$id_entidad."
 											 order by p.nivel ASC;
 											");
 		return $query->result();
 	}
-	function getSubCuentasPlanDeCuentas($id_cuenta)
+	function getSubCuentasPlanDeCuentas($id_cuenta,$id_entidad)
 	{
 		$query = $this->db_mercurio->query("select *
 		                                      from contabilidad.plancuentas p
 											 where p.estado='ACT'
 											   and p.nivel > 1
 											   and p.padre = ".$id_cuenta."
+                                               and p.id_entidad = ".$id_entidad."
 											 order by p.nivel ASC;
 											");
 		return $query->result();
 	}
-	function getOtrasSubCuentasPlanDeCuentas($id_mayor,$id_cuenta)
+	function getOtrasSubCuentasPlanDeCuentas($id_mayor,$id_cuenta,$id_entidad)
 	{
 		$query = $this->db_mercurio->query("select *
 		                                      from contabilidad.plancuentas p
 											 where p.estado='ACT'
 											   and p.ruta like( '0-".$id_mayor."-".$id_cuenta."%')
+											   and p.id_entidad = ".$id_entidad."
 											 order by p.nivel ASC;
 											");
 		return $query->result();
@@ -188,8 +204,8 @@ class PlanDeCuentas_model extends CI_Model
 										    where estado='ACT'
 											  and 1=1
 											  ".$busqueda."
-										 order by nivel ASC,
-  												  codigo ASC;
+										 order by id,codigo,nivel asc;
+
 											" 
 										  );
 		return $query->result();

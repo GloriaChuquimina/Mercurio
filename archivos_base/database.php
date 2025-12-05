@@ -6,7 +6,7 @@ $query_builder = TRUE;
 
 $db['db_entorno'] = array(
 	'dsn'	=> '',
-	'hostname' => '192.168.15.90',
+	'hostname' => '192.168.15.115',
 	'password' => 'BDpruebas17..',
 	/*'hostname' => 'localhost',
 	'password' => '1982',*/

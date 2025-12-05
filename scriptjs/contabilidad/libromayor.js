@@ -24,7 +24,7 @@ function cargarCombos()
             $('#tipo_moneda').html(data);
         }
     });
-    cargarCuentasLista();
+   
 }
 function valoresIniciales(){
     var entidad = $('#entidades').val();    
@@ -58,14 +58,17 @@ function valoresIniciales(){
         // $('#cuentaSeleccionada').show();
         // $('#tablaLibroMayor').show();
     }
+
+     
 }
-function cargarCuentasEntidad(){
+function cargarCuentasEntidad(id_entidad){
 
 
     var enlace = base_url + "Comunes/Comunes/cargarCuentaContableEntidad";
     $.ajax({
-        type: "GET",
+        type: "POST",
         url: enlace,
+        data: { id_entidad: id_entidad },
         success: function(data) {
             $('#cuentaContable').html(data);
         }
@@ -74,6 +77,7 @@ function cargarCuentasEntidad(){
 
 function cargarCuentas(marcar){
     var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
+
     var enlace = base_url + "Contabilidad/LibroMayor/listarPlanDeCuentasBusqueda";
     $('#tbl_CuentasContables').DataTable({
         destroy: true,
@@ -85,7 +89,8 @@ function cargarCuentas(marcar){
             url: enlace,
             data:{          
                 marcareg:marcar,
-                cuentasSeleccionadas:cuentasSeleccionadas
+                cuentasSeleccionadas:cuentasSeleccionadas,
+                id_entidad:id_entidad
             }
         },
     });
@@ -105,22 +110,26 @@ function busquedaIDCuenta(id_cuenta,cuenta)
      $('#txtCuenta').val( cuenta) ;
      $('#modalListaCuentas').modal('hide');  
 }
-function cargarCuentasLista()
+function cargarCuentasLista(id_entidad)
 {
-    $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
+    // $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
+     $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas", { id_entidad: id_entidad });
 }
 
 $(function (){
 
     $('#entidades').change(function(){
                 // id_entidad = $(this).val();
-                var id_entidad = $('#entidades').val();
+                id_entidad = $('#entidades').val();
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
                 $('#id_entidad').val(id_entidad);
-                cargarCuentasEntidad();
+                // cargarCuentasEntidad(id_entidad);
                 valoresIniciales();
                 $('#cardEntidad').find('[data-card-widget="collapse"]').click();
+                cargarCuentasLista(id_entidad);
+
+                 
             });
     $('#cuentaContable').change(function(){
                 id_cuenta = $(this).val();
@@ -150,12 +159,11 @@ $(function (){
            marcar = 0;
            $("#cantidadSolicitudes").html('0');
         }
-        // var id_entidad = $('#cbEntidades').val();
+      
         cargarCuentas(marcar);
     });
      
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
-        // alert('El modal se ha cerrado');
         // $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
     });
@@ -218,6 +226,7 @@ function seleccionDeCuentas()
     });
 
     var enlace = base_url + "Contabilidad/LibroMayor/seleccionDeCuentas";
+    form.append($('<input>').attr('type', 'hidden').attr('name', 'id_entidad').val(id_entidad));
     // var datos  = $('#formListaCuentas').serialize();
     $.ajax({
         type: "POST",
@@ -310,15 +319,16 @@ function consultar()
 					$('.txtTotalImporteAcreedor').text(data.totalimporteAcreedor ?? '0.00');
 
 					$('#tablaDatosLibroMayor').DataTable({
-						//   scrollY: true,
 						scrollY: '600px',   // Altura del contenedor visible
+						scrollX: true,       // Habilitar scroll horizontal
 						scrollCollapse: true,
-						responsive: true,
+						responsive: false,   // Desactivar responsive para usar scrollX
 						paging: true,
 						searching: true,
 						ordering: false,
 						"aLengthMenu": [[10,30, 50,  -1], [10,30, 50,  "Todos"]],
 						"iDisplayLength": 10,
+						"autoWidth": false,
 					});
 					
 				}

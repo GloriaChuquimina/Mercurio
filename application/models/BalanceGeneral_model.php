@@ -105,7 +105,7 @@ class BalanceGeneral_model extends CI_Model
                                                           AND c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                                     GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre,e.id
                                                     ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
-
+                                        where pc.id_entidad = ".$id_entidad."
                                             order by nivel ASC,
                                             codigo ASC;
 		    							   " 
@@ -230,6 +230,7 @@ class BalanceGeneral_model extends CI_Model
                                                      codigo ASC
                                           ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                    WHERE ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
+                                     AND pc.id_entidad = ".$id_entidad."
                                 ORDER BY nivel ASC,codigo ASC;
 		    							                    ");
 		    return $query->result();
@@ -290,6 +291,7 @@ class BalanceGeneral_model extends CI_Model
                                                      codigo ASC
                                           ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                    WHERE ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
+                                     AND pc.id_entidad = ".$id_entidad."
                                 ORDER BY nivel ASC,codigo ASC;
 		    							                    ");
 		    return $query->result();
@@ -365,6 +367,7 @@ class BalanceGeneral_model extends CI_Model
                                                      codigo ASC
                                           ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                    WHERE ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
+                                     AND pc.id_entidad = ".$id_entidad."
                                 ORDER BY nivel ASC,codigo ASC;
 		    							                    ");
 		    return $query->result();

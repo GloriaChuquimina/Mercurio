@@ -62,7 +62,8 @@ function valoresIniciales(){
 }
 function cargarCuentasLista()
 {
-    $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
+    // $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
+     $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas", { id_entidad: id_entidad });
 }
 function cargarCuentasEntidad(){
 
@@ -86,6 +87,7 @@ $(function (){
                 cargarCuentasEntidad();
                 valoresIniciales();
 				$('#cardEntidad').find('[data-card-widget="collapse"]').click();
+                cargarCuentasLista(id_entidad);
             });
     $('#cuentaContable').change(function(){
                 id_cuenta = $(this).val();
@@ -105,7 +107,6 @@ $(function (){
                 // valoresIniciales();
             });
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
-        // alert('El modal se ha cerrado');
         // $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
         // Aquí puedes ejecutar cualquier función adicional
@@ -183,7 +184,8 @@ function cargarCuentas(marcar){
             url: enlace,
             data:{          
                 marcareg:marcar,
-                cuentasSeleccionadas:cuentasSeleccionadas
+                cuentasSeleccionadas:cuentasSeleccionadas,
+                id_entidad: id_entidad
             }
         },
     });
@@ -253,6 +255,7 @@ function seleccionDeCuentas()
     });
 
     var enlace = base_url + "Contabilidad/LibroMayor/seleccionDeCuentas";
+    form.append($('<input>').attr('type', 'hidden').attr('name', 'id_entidad').val(id_entidad));
     // var datos  = $('#formListaCuentas').serialize();
     $.ajax({
         type: "POST",
@@ -318,7 +321,7 @@ function cargarDatosSumasySaldos(){
 	
 
 	if(id_entidad == null || id_entidad.length === 0){
-        // alert("SELECCIONE UNA ENTIDAD POR FAVOR");
+
         var mensaje ="SELECCIONE UNA ENTIDAD POR FAVOR";
         swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
         return;
@@ -416,7 +419,7 @@ function ReporteSumasySaldosPDF()
     var fecha_inicio = $('#fechaDesde').val();
     var fecha_fin    = $('#fechaHasta').val();
 	var cuentas_con_movimiento = $('#soloConMovimientos').prop('checked');
-    // alert(id_entidad);
+
 
     var fecha_al     = $('#fechaAl').val();  
     var idSeleccionado = $('input[name="customRadio2"]:checked').attr('id');
@@ -429,7 +432,7 @@ function ReporteSumasySaldosPDF()
     }
     var sw=0;
     if(id_entidad == null || id_entidad.length === 0){
-        // alert("SELECCIONE UNA ENTIDAD POR FAVOR");
+
         var mensaje ="SELECCIONE UNA ENTIDAD POR FAVOR";
         swal({title: "ERROR",text: mensaje,icon: "error",button: "OK",dangerMode:true,});
         return;

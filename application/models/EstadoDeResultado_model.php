@@ -83,7 +83,7 @@ class EstadoDeResultado_model extends CI_Model
                                                     group by pc.codigo,pc.descripcion,pc.id
                                                 ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                                 WHERE ('".$id_cuenta_mayor_ingreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_ingreso."') 
-                                                   
+                                                  AND pc.id_entidad = ".$id_entidad." 
                                             ORDER BY pc.id ASC;
 		    							");
 		return $query->result();
@@ -153,7 +153,7 @@ class EstadoDeResultado_model extends CI_Model
                                                             group by pc.codigo,pc.descripcion,pc.id
                                                     ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                                 WHERE ('".$id_cuenta_mayor_egreso."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor_egreso."') 
-                                                 
+                                                  AND pc.id_entidad = ".$id_entidad."
                                             ORDER BY pc.id ASC;
 		    							");
 		return $query->result();

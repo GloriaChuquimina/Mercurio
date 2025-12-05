@@ -75,8 +75,9 @@ class PlanDeCuentas extends CI_Controller {
 	}
 	function listCuentas()
 	{
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
-		$cuentas = json_decode(json_encode($cuentas), true);
+		$id_entidad = $this->input->post('id_entidad');
+		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas($id_entidad);
+		$cuentas   = json_decode(json_encode($cuentas), true);
 		$ordenadas = $this->ordenarJerarquicamente($cuentas);
 		$option= "";
 		foreach($ordenadas as $fila)
@@ -85,11 +86,13 @@ class PlanDeCuentas extends CI_Controller {
 		}
 		echo $option;
 	}
+
     public function listarPlanDeCuentas()
     {
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
-		$cuentas = json_decode(json_encode($cuentas), true);
-		$ordenadas = $this->ordenarJerarquicamente($cuentas);
+		$id_entidad = $this->input->post('id_entidad');
+		$cuentas    = $this->PlanDeCuentas_model->getPlanDeCuentas($id_entidad);
+		$cuentas    = json_decode(json_encode($cuentas), true);
+		$ordenadas  = $this->ordenarJerarquicamente($cuentas);
 
 		// echo json_encode($ordenadas);
 		// die();
@@ -109,21 +112,21 @@ class PlanDeCuentas extends CI_Controller {
                             <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."','". $fila['tipo_moneda_cuenta']."')\"><i class='fas fa-edit'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
-                            <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."')\"><i class='fas fa-plus-circle'></i></button>     
+                            <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."',". $fila['id_entidad'] .")\"><i class='fas fa-plus-circle'></i></button>     
                         </span>				
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='AGREGAR CUENTAS AUXILIARES'>
-                            <button type='button' class='btn btn-block btn-success btn-sm' onclick=\"agregarCuentasAuxiliares(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-list-alt'></i></button>     
+                            <button type='button' class='btn btn-block btn-success btn-sm' onclick=\"agregarCuentasAuxiliares(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."',". $fila['id_entidad'] .")\"><i class='fas fa-list-alt'></i></button>     
                         </span>				
                         ";	
 
 				// Códigos que NO deben poder eliminarse
-				$protegidos = [1,2,3,4,5,6,7,8,9];
+				$protegidos = [1,2,3,4,5,6,7,8,9,10];
 					
 
 				if ( !in_array($fila['codigo'], $protegidos) ) {
 					$mayores = "
 						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'>
+							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaCuenta(". $fila['id']. ",". $fila['id_entidad'] .")'>
 								<i class='fas fa-trash-alt'></i>
 							</button>     
 						</span>";
@@ -204,6 +207,41 @@ class PlanDeCuentas extends CI_Controller {
 				$estado,
 				// "<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
 			);
+			/*VERIFICAR SI UNA CUENTA POSEE CUENTAS AUXILIARES*/ 
+			$cuentas_auxiliares = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($fila['id']);
+
+			foreach ($cuentas_auxiliares as $cuenta_auxiliar) {
+				
+				$descripcion 		= $cuenta_auxiliar->descripcion;
+				$codigo      		= $cuenta_auxiliar->codigo;
+		
+				$codigo =  "<strong>{$codigo}</strong>";
+				$descripcion = "<strong>{$descripcion}</strong>";
+				
+				$estado =getValor2Configuraciones("ESTADO REGISTRO", $cuenta_auxiliar->estado);
+				switch ($cuenta_auxiliar->estado) {
+				case "ACT":
+					$estado="<span class='badge badge-success'>".$estado."</span>";
+					break;
+				case "ANU":
+					$estado="<span class='badge badge-danger'>".$estado."</span>";
+					break;
+				default:
+					$estado="<span class='badge badge-secondary'>".$estado."</span>";
+					break;
+				}
+				
+				$boton="";
+				$data[] = array(
+					$boton,
+					"<span class='badge badge-primary'>".$codigo."</span>",
+					$indentacion.$descripcion,	
+					$tipo,
+					$fila['nivel'],
+					$moneda,
+					$estado
+				);
+			}
 		}
 
 		// die();
@@ -237,6 +275,7 @@ class PlanDeCuentas extends CI_Controller {
 			$descripcion = $data['txtDescripcionCuenta'];
 			$id_cuenta   = $data['idCuenta'];
 			$sigla       = $data['txtSiglaCuenta'];
+			$id_entidad  = $data['id_entidad'];
 			// $nivel       = $data['opcionNivel'];
 			
 			if($accion === 'nuevo')
@@ -253,7 +292,8 @@ class PlanDeCuentas extends CI_Controller {
                     'padre'                   => $padre,
                     'ruta'                    => $ruta,
                     'id_funcionario_registro' => $id_funcionario,
-					'sigla'                   => $sigla
+					'sigla'                   => $sigla,
+					'id_entidad'              => $id_entidad
 				);
 
 				$plancuentas = $this->PlanDeCuentas_model->guardarPlanDeCuentas($datosPlanCuentas);
@@ -404,6 +444,7 @@ class PlanDeCuentas extends CI_Controller {
 			$sigla       		= $data['txtSigla'];
 			$codigo_cuenta      = str_replace($codigo_cuenta_p, "", $codigo);
 			$moneda       		= $data['txtTipoMoneda'];
+			$id_entidad    		= $data['id_entidad_sub'];
 
 			if($accion === 'nuevo')
 			{
@@ -416,7 +457,8 @@ class PlanDeCuentas extends CI_Controller {
                     'id_funcionario_registro' => $id_funcionario,
 					'sigla'                   => $sigla,
 					'codigo_cuenta'			  => $codigo_cuenta,
-					'tipo_moneda_cuenta'      => $moneda
+					'tipo_moneda_cuenta'      => $moneda,
+					'id_entidad'              => $id_entidad
 				);
 				// echo json_encode($datosPlanCuentas);
 				// die();
@@ -548,9 +590,11 @@ class PlanDeCuentas extends CI_Controller {
 					}]';
 		echo $resultado; 
 	}
+	/*PARA REPORTES */
 	public function listarPlanDeCuentasBusqueda()
     {
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
+		$id_entidad = $this->input->post('id_entidad');
+		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas($id_entidad);
 		$cuentas = json_decode(json_encode($cuentas), true);
 		$ordenadas = $this->ordenarJerarquicamente($cuentas);
 
@@ -740,12 +784,7 @@ class PlanDeCuentas extends CI_Controller {
 						"mensaje":"'.$mensaje.'"
 					 }]';
 
-		echo $resultado;
-		$resultado ='[{
-						"resultado":"'.$resul.'",
-						"mensaje":"'.$mensaje.'"
-					 }]';
-
+	
 		echo $resultado;
 	}
 	public function buscarCuentas() {
@@ -754,6 +793,7 @@ class PlanDeCuentas extends CI_Controller {
 		$codigo_subcuenta 	  = $this->input->post('filtroSubCuentas');
 		$codigo_otrascuentas  = $this->input->post('filtroOtrasSubCuentas');
 		$cadena_busqueda      = $this->input->post('filtroBusqueda');
+		$id_entidad			  = $this->input->post('id_entidad');
 
 		// echo("Ingresaaaa");
 		$sql="";
@@ -767,32 +807,34 @@ class PlanDeCuentas extends CI_Controller {
 			if (!empty($nivel) and $nivel != "-1") {
 				$sql .= "AND nivel = ".$nivel." ";
 			}
-			if (!empty($codigo_mayor) and $codigo_mayor != "-1" || empty($codigo_subcuenta)) {
+			if ((!empty($codigo_mayor) and $codigo_mayor != "-1") && empty($codigo_subcuenta)) {
 				$sql .= "AND padre = ".$codigo_mayor." ";
 			}
 			if (!empty($codigo_subcuenta) and $codigo_subcuenta != "-1" and $codigo_otrascuentas == "-1") {
-				$sql = " AND ruta like( '0-".$codigo_mayor."-".$codigo_subcuenta."%')";
+				// $sql = " AND ruta like( '0-".$codigo_mayor."-".$codigo_subcuenta."%')";
+				$sql = " AND ruta like( '0-".$codigo_mayor."%')";
 			}else{
 				if (!empty($codigo_otrascuentas) and $codigo_otrascuentas != "-1") {
 					$sql = " AND ruta like( '0-".$codigo_mayor."-".$codigo_subcuenta."-".$codigo_otrascuentas."%')";
 				}
 			}
 		}
+		// echo($sql);
+		if($sql == "")
+		{
+			$sql    .= " AND id_entidad = ".$id_entidad." ";
+			$cuentas = $this->PlanDeCuentas_model->buscarPlanDeCuentas($sql);
+			$cuentas = json_decode(json_encode($cuentas), true);	
+			$cuentas = $this->ordenarJerarquicamente($cuentas);	
+		}
+		else
+		{
+			$sql .= " AND id_entidad = ".$id_entidad." ";
+			$cuentas   = $this->PlanDeCuentas_model->buscarPlanDeCuentas($sql);
+			$cuentas = json_decode(json_encode($cuentas), true);		
 
-		$cuentas   = $this->PlanDeCuentas_model->buscarPlanDeCuentas($sql);
-		$cuentas = json_decode(json_encode($cuentas), true);		
-		// if(!empty($nivel)){
-			
-		// 	foreach ($cuentas as $k => $fila) {
-		// 		$cuentas[$k]['indentacion'] = 0;
-		// 		$cuentas[$k]['es_padre'] = $nivel;
-		// 	}
-		// 	$ordenadas = $cuentas;
-		// }
-		// else
-		// {
-		// 	$ordenadas = $this->ordenarJerarquicamente($cuentas);
-		// }	
+		}
+		
 		
 		foreach ($cuentas as $k => $fila) {
 			$cuentas[$k]['indentacion'] = 0;
@@ -828,7 +870,7 @@ class PlanDeCuentas extends CI_Controller {
 				if ( !in_array($fila['codigo'], $protegidos) ) {
 					$mayores = "
 						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'>
+							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaCuenta(". $fila['id']. ", ". $fila['id_entidad'] .")'>
 								<i class='fas fa-trash-alt'></i>
 							</button>     
 						</span>";
@@ -909,6 +951,49 @@ class PlanDeCuentas extends CI_Controller {
 				$estado,
 				// "<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
 			);
+
+			/*VERIFICAR SI UNA CUENTA POSEE CUENTAS AUXILIARES*/ 
+			$cuentas_auxiliares = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($fila['id']);
+
+			foreach ($cuentas_auxiliares as $cuenta_auxiliar) {
+				
+				$descripcion 		= $cuenta_auxiliar->descripcion;
+				$codigo      		= $cuenta_auxiliar->codigo;
+		
+				$codigo =  "<strong>{$codigo}</strong>";
+				$descripcion = "<strong>{$descripcion}</strong>";
+				
+				$estado =getValor2Configuraciones("ESTADO REGISTRO", $cuenta_auxiliar->estado);
+				switch ($cuenta_auxiliar->estado) {
+				case "ACT":
+					$estado="<span class='badge badge-success'>".$estado."</span>";
+					break;
+				case "ANU":
+					$estado="<span class='badge badge-danger'>".$estado."</span>";
+					break;
+				default:
+					$estado="<span class='badge badge-secondary'>".$estado."</span>";
+					break;
+				}
+				
+				$boton="";
+				$data[] = array(
+					$boton,
+					"<span class='badge badge-primary'>".$codigo."</span>",
+					$indentacion.$descripcion,	
+					$tipo,
+					$fila['nivel'],
+					$moneda,
+					$estado
+				);
+			}
+
+
+
+
+
+
+
 		}
 
 		// die();
@@ -920,6 +1005,37 @@ class PlanDeCuentas extends CI_Controller {
 		);
 		echo json_encode($output);
 		exit();
+	}
+	public function bajaCuenta()
+	{
+		$id_usuario   = $this->session->userdata('id_usuario');
+		$id_entidad   = $this->input->post('id_entidad');
+		$id_cuenta   = $this->input->post('id_cuenta');
+		$fecha_actual = getFechaHoraActual();
+		$estado       = 'ANU';
+		$updateCuenta = array(
+			'fecha_modificacion' => $fecha_actual,
+			'id_funcionario_update' => $id_usuario,
+			'estado'           => $estado
+		);
+
+		$cuenta = $this->PlanDeCuentas_model->updatePlanDeCuentas($id_cuenta, $updateCuenta);
+		if($cuenta)
+		{
+			$resul = 1;
+			$mensaje = "SE ELIMINO LA CUENTA CORRECTAMENTE.";
+		}
+		else
+		{
+			$resul = 0;
+			$mensaje = "ERROR EN LA ELIMINACIÓN!!!";
+		}
+		$resultado = '[{
+						"resultado":"' . $resul . '",
+						"mensaje":"' . $mensaje . '"
+					 }]';
+
+		echo $resultado;
 	}
 
 }

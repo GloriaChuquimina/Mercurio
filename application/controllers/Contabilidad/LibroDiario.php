@@ -498,8 +498,8 @@ class LibroDiario extends CI_Controller {
 						$fila = array(
 							$codigo_cuenta,
 							utf8_decode($descripcion_cuenta),
-							$importeDebe ,
-							$importeHaber 
+							number_format($importeDebe, 2, ',', '.'),
+							number_format($importeHaber, 2, ',', '.')
 						);	
 
 						$pdf->Row_SinLinea($fila,true, '', 4);
@@ -524,8 +524,8 @@ class LibroDiario extends CI_Controller {
 				$fila_pie_comprobante=array (
 												"----",
 												utf8_decode($glosa_comprobante),
-												$totalDebe,
-												$totalHaber
+												number_format($totalDebe, 2, ',', '.'),
+												number_format($totalHaber, 2, ',', '.')
 											);
 
 				$pdf->Row_SinLinea($fila_pie_comprobante,true, '', 5);

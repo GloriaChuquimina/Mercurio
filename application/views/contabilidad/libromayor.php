@@ -19,36 +19,36 @@
             <div class="card card-warning card-outline" id="cardEntidad">
                 <div class="card-header">
                     <h3 class="card-title">
-                    <i class="mr-2">🏢</i>
-                    Selección de Entidad
+                      <i class="mr-2">🏢</i>
+                      Selección de Entidad
                     </h3>
                     <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" >
-                      <i>🔼🔽</i>
-                    </button>
-                  </div>
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse" >
+                        <i>🔼🔽</i>
+                      </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                        <label>
-                            <i class="text-danger">*</i>
-                            <strong> ENTIDAD:</strong>
-                        </label>
-                        <select
-                            class="form-control"
-                            id="entidades"
-                            name="entidades"
-                        >
-                        </select>
-                        </div>
-                    </div>
+                      <div class="col-md-12">
+                          <div class="form-group">
+                            <label>
+                                <i class="text-danger">*</i>
+                                <strong> ENTIDAD:</strong>
+                            </label>
+                            <select
+                                class="form-control"
+                                id="entidades"
+                                name="entidades"
+                            >
+                            </select>
+                          </div>
+                      </div>
                     </div>
                 </div>
             </div>
             <!-- SECCION ENTIDAD SELECCIONADA -->
-            <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107;" id="entidadSeleccionada" style="display: none">
+            <div class="card" style="background-color: #fff3cd; border-left: 4px solid #ffc107; display: none;" id="entidadSeleccionada">
                 <div class="card-body p-3">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -77,7 +77,7 @@
                             </div>
                         </div>
                         <div class="col-md-4 text-right">
-                        <!-- <span class="badge badge-warning">XXX cuentas disponibles</span> -->
+                          <!-- <span class="badge badge-warning">XXX cuentas disponibles</span> -->
                         </div>
                     </div>
                 </div>
@@ -95,8 +95,6 @@
                     </button>
                   </div>
                 </div>
-
-
                 <div class="card-body">
 									<input type="hidden" class="form-control" id="id_entidad" name="id_entidad">
 									<input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
@@ -170,31 +168,30 @@
 
             </div>
             <!-- CUENTA SELECCIONADA -->
-            <div class="card" style="background-color: #f0f8ff; border-left: 4px solid #007bff" id="cuentaSeleccionada" style="display: none">
+            <div class="card" style="background-color: #f0f8ff; border-left: 4px solid #007bff; display: none;" id="cuentaSeleccionada">
                 <div class="card-body p-3">
                     <div class="row align-items-center">
                         <div class="col-md-12">
                             <div class="d-flex align-items-center">
                                     <div
                                     style="
-                                        width: 48px,
-                                        height: 48px,
-                                        border-radius: 50%,
-                                        background-color: #ffc107,
-                                        display: flex,
-                                        align-items: center,
-                                        justify-content: center,
-                                        color: white,
-                                        font-weight: bold,
-                                        font-size: 18px,
+                                        width: 48px;
+                                        height: 48px;
+                                        border-radius: 50%;
+                                        background-color: #ffc107;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        color: white;
+                                        font-weight: bold;
+                                        font-size: 18px;
                                     "
                                     >
                                     </div>
                                     <div class="ml-3">
-                                    <h7 class="mb-0">CUENTA(s):</h7>
-                                    <h8 class="mb-0" style="color: #007bff; font-weight: bold;" id="cuentas" name="cuentas">
-                                        
-                                    </h8>
+                                      <h7 class="mb-0">CUENTA(s):</h7>
+                                      <h8 class="mb-0" style="color: #007bff; font-weight: bold;" id="cuentas" name="cuentas">   
+                                     </h8>
                                     </div>
                             </div>
                         </div>
@@ -237,29 +234,29 @@
                      </div> -->
                   <!-- </div> -->
                   <!-- INICIO-->
-                  <div class="table-responsive" style="overflow-x:auto;">
-                    <table id="tablaDatosLibroMayor" class="table table-striped table-hover " style="width: 100%;">
+                  <div class="table-responsive" style="overflow-x: auto; max-width: 100%;">
+                    <table id="tablaDatosLibroMayor" class="table table-striped table-hover" style="width: 100%; min-width: 1200px;">
                       <thead class="bg-dark text-white">
                           <tr>
-                            <th rowspan="2" style="width: 150px;">FECHA</th>
-                            <th rowspan="2" style="width: 150px;">COMPROBANTE</th>
-                            <th rowspan="2" style="width: 350px;">TIPO</th>
-                            <th rowspan="2" style="width: 350px;">DESCRIPCIÓN(GLOSA)</th>
+                            <th rowspan="2" style="min-width: 120px;">FECHA</th>
+                            <th rowspan="2" style="min-width: 120px;">COMPROBANTE</th>
+                            <th rowspan="2" style="min-width: 200px;">TIPO</th>
+                            <th rowspan="2" style="min-width: 300px;">DESCRIPCIÓN(GLOSA)</th>
                             <th colspan="2" style="text-align: center;">MOVIMIENTOS</th>
                             <th colspan="2" style="text-align: center;">SALDOS</th>
                           </tr>
                           <tr>
-                            <th style="width: 120px; text-align: center;">DEBE</th>
-                            <th style="width: 120px; text-align: center;">HABER</th>
-                            <th style="width: 120px; text-align: center;">DEUDOR</th>
-                            <th style="width: 120px; text-align: center;">ACREEDOR</th>
+                            <th style="min-width: 100px; text-align: center;">DEBE</th>
+                            <th style="min-width: 100px; text-align: center;">HABER</th>
+                            <th style="min-width: 100px; text-align: center;">DEUDOR</th>
+                            <th style="min-width: 100px; text-align: center;">ACREEDOR</th>
                           </tr>
                       </thead>
                       <tbody id="tbodyLibroMayor">
                       </tbody>
                       <tfoot>
                           <tr class="bg-primary">
-                              <td colSpan="4" style="color: white; font-weight: bold;">
+                              <td colspan="4" style="color: white; font-weight: bold;">
                               TOTALES LIBRO MAYOR:
                               </td>
                                   <!-- <td style="text-align: right; color: white; font-weight: bold;" id="txtTotalImporteDebe">0.00</td> -->
@@ -267,7 +264,6 @@
                                   <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteHaber">0.00</td>
                                   <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteDeudor">0.00</td>
                                   <td style="text-align: right; color: white; font-weight: bold;" class="txtTotalImporteAcreedor">0.00</td>
-                              </td>
                           </tr>
                       </tfoot>
                     </table>
@@ -285,13 +281,13 @@
                         </p> -->
                         </div>
                         <div class="col-md-6 text-right">
-                        <small class="text-muted">Última actualización:</small>
+                          <small class="text-muted">Última actualización:</small>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- MENSAJE CUANDO NO HAY SELECCIONES-->
-             <div class="card" id="mensajeSeleccion" style="display: none;">
+            <div class="card" id="mensajeSeleccion" style="display: none;">
                 <div class="card-body text-center p-5">
                   <div style="font-size: 64px; margin-bottom: 20px">📖</div>
                   <h4 class="text-muted">Libro Mayor</h4>
@@ -301,7 +297,7 @@
                       : "Seleccione una cuenta contable para ver los movimientos"} -->
                   </p>
                 </div>
-              </div> 
+            </div> 
         </div>
     </section>
 </div>
@@ -344,7 +340,7 @@
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
       cargarCombos();
-      cargarCuentasLista();
+      // cargarCuentasLista();
     //   cargarTablaComprobantesEntidades();
     });
 </script>  

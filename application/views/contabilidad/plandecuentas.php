@@ -5,12 +5,53 @@
 <div class="wapper">
     <section class="content">
         <div class="container-fluid" >
+            <!-- Entidades -->
+            <div class="card card-primary card-outline" id="cardEntidad">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="mr-2">🏢</i>
+                  Selección de Entidad
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                      <i>🔼🔽</i>
+                    </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>
+                        <i class="text-danger">*</i>
+                        <strong> ENTIDADES:</strong>
+                      </label>
+                      <select
+                        class="form-control"
+                        id="entidades"
+                        name="entidades"
+                        value="selectedEntity"
+                      >
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Entidades -->
             <div class="card card-primary">
                 <div class="card-header d-flex justify-content-between align-items-center">
+                    <!-- Entidad Seleccionada -->
                     <div class="col-md-8">
-                        <h3 class="card-title mb-0">
-                        </h3>
+                      <div class="d-flex align-items-center">
+                        <div>
+                          <h5 class="mb-0">ENTIDAD:</h5>
+                          <h5 id="nombre_entidad" class="mb-0" style="color: #ffffff; font-weight: bold;">...
+                          </h5>
+                        </div>
+                      </div>
                     </div>
+                    <!-- Entidad Seleccionada -->
                     <div class="col-md-4 text-right">
                         <button type="button" class="btn btn-success mr-2" onclick="agregarCuentas()">
                             <i class="fas fa-save mr-1"></i> Registro de Cuentas Mayores
@@ -161,6 +202,7 @@
                   <input type="hidden" class="form-control" id="txtAccion" name="txtAccion" />
                   <input type="hidden" class="form-control" id="idCuenta" name="idCuenta" />
                   <input type="hidden" class="form-control" id="nivel" name="nivel" />               
+                  <input class="form-control" id="id_entidad" name="id_entidad" />               
                   <div class="card card-outline card-success">
                     <div class="card-header">
                       <h3 class="card-title">
@@ -226,7 +268,7 @@
                           <div class="form-group">
                             <label>
                               <i class="text-danger">*</i>
-                              <strong> DESCRIPCIÓN:</strong>
+                              <strong> NOMBRE DE LA CUENTA:</strong>
                             </label>
                             <textarea
                               class="form-control"
@@ -273,6 +315,7 @@
                   <input type="hidden" class="form-control" id="id_padre" name="id_padre" />
                   <input type="hidden" class="form-control" id="ruta" name="ruta" />
                   <input type="hidden" class="form-control" id="codigo_cuenta_padre" name="codigo_cuenta_padre" />
+                  <input class="form-control" id="id_entidad_sub" name="id_entidad_sub" />  
                   <div class="card card-outline card-info mb-4">
                     <div class="card-header">
                       <h3 class="card-title">
@@ -326,7 +369,7 @@
                           <div class="form-group">
                             <label>
                               <i class="text-danger">*</i>
-                              <strong> DESCRIPCIÓN:</strong>
+                              <strong> NOMBRE DE LA CUENTA:</strong>
                             </label>
                             <div class="input-group">
                               <input
@@ -395,6 +438,7 @@
                 <form id="formularioPlanCuentasAuxiliar">
                   <input type="hidden" class="form-control" id="txtAccionAux" name="txtAccionSubCuenta" />
                   <input type="hidden" class="form-control" id="id_cuentaAux" name="id_cuenta" />
+                  <input class="form-control" id="id_entidad_aux" name="id_entidad_aux" />
 
                   <div class="card card-outline card-success mb-4">
                     <div class="card-header">
@@ -480,8 +524,8 @@
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
-      cargarTablaPlanDeCuentas();
-      cargarFiltrosPlanDeCuentas();
+      cargarComboEntidades();
+      
     //   cargarNiveles();
     });
 </script>  

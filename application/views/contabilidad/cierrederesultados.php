@@ -97,7 +97,7 @@
                   <div class="row align-items-center">
                     <div class="col-sm-3 col-md-auto">
                         <div class="form-group">
-                          <label>
+                      ta    <label>
                             <i class="text-danger">*</i>
                             <strong>Fecha hasta la que se considera la gestión:</strong>
                           </label>

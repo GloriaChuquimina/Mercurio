@@ -1,10 +1,28 @@
 var base_url;
-
+var id_entidad;
 function baseurl(enlace) {
    base_url = enlace;
 }
 
-function cargarTablaPlanDeCuentas()
+function cargarComboEntidades()
+{
+    var enlace  = base_url + "Comunes/Comunes/cargarEntidad";
+    $.ajax({
+        type: "GET",
+        url: enlace,
+        success: function(data) {
+            $('#entidades').html(data);
+            if(id_entidad > -1){
+                $('#entidades option[value="'+id_entidad+'"]').prop('selected','selected');
+                nombre_entidad = $('#entidades option:selected').text();
+                $('#nombre_entidad').text(nombre_entidad);
+            }
+        }
+    });
+    
+}
+
+function cargarTablaPlanDeCuentas(id_entidad)
 {
     var enlace = base_url + "Contabilidad/PlanDeCuentas/listarPlanDeCuentas";
     $('#tablaPlanDeCuentas').DataTable({
@@ -15,7 +33,8 @@ function cargarTablaPlanDeCuentas()
         "font-size":8,
         "ajax": {
             type: "POST",
-            url: enlace
+            url: enlace,
+            data: { id_entidad: id_entidad }
         },
         "columnDefs": [
         {
@@ -28,11 +47,12 @@ function cargarTablaPlanDeCuentas()
     ],
     "order": [] // <-- Desactiva orden inicial automática
     });
-
+     cargarFiltrosPlanDeCuentas(id_entidad);
      cargarTipoMoneda();
 }
 function buscarTablaPlanDeCuentas()
 {
+    var id_entidad = $('#entidades').val();
     var enlace = base_url + "Contabilidad/PlanDeCuentas/buscarCuentas";
     $('#tablaPlanDeCuentas').DataTable({
         destroy: true,
@@ -51,6 +71,7 @@ function buscarTablaPlanDeCuentas()
                 d.filtroOtrasSubCuentas = $('#filtroOtrasSubCuentas').val();
                 // campo de búsqueda opcional (ajusta el id si es otro)
                 d.filtroBusqueda = $('#filtroBusqueda').val() || '';
+                d.id_entidad = id_entidad;
             }
         },
         "columnDefs": [
@@ -67,10 +88,10 @@ function buscarTablaPlanDeCuentas()
 
      cargarTipoMoneda();
 }
-function cargarFiltrosPlanDeCuentas()
+function cargarFiltrosPlanDeCuentas(id_entidad)
 {
-    cargarNiveles();
-    cargarMayores();
+    cargarNiveles(id_entidad);
+    cargarMayores(id_entidad);
     // cargarSubCuentas();
 }
 $(function() {
@@ -86,17 +107,30 @@ $(function() {
         cargarOtrasSubCuentas(id_mayores, id_subcuenta);
 
     });
+    $('#entidades').change(function(){
+            $('#cardEntidad').find('[data-card-widget="collapse"]').click();
+            id_entidad = $(this).val();            
+            // $('#gestion_comprobante option[value="'+gestion+'"]').prop('selected','selected');
+            nombre_entidad = $('#entidades option:selected').text();
+            // gestion        = $('#gestion_comprobante option:selected').val();
+            $('#nombre_entidad').text(nombre_entidad);
+            cargarTablaPlanDeCuentas(id_entidad);
+           
+
+        });
 
 });
 function agregarCuentas()
 {
     // eliminaMensajeError();
     // eliminaMensajeErrorCombos();
+    var id_entidad = $('#entidades').val();
     $('#txtCodigoCuenta').val('');
     $('#txtSiglaCuenta').val('');
     $('#txtDescripcionCuenta').val('');
     $('#txtAccion').val('nuevo');
-    $('#nivel').val(1);
+    $('#id_entidad').val(id_entidad);
+    $('#nivel').val(1);//parametro nivel 1
     cargarTipoMoneda();
     $('#modalPlanDeCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanDeCuentas').modal('show');  
@@ -150,7 +184,7 @@ function agregarCuentas()
                             swal({title:"ALERTA",text:datos.mensaje,icon:"warning",button:"OK",dangerMode:true});
                         }else{
                             swal({title:"!Excelente¡",text:datos.mensaje,icon:"success",button:"OK"});
-                            cargarTablaPlanDeCuentas();
+                            cargarTablaPlanDeCuentas(id_entidad);
                             $("#modalPlanDeCuentas").modal('hide'); 
                         }
                     });
@@ -160,7 +194,7 @@ function agregarCuentas()
     });
  
 }
-function agregarSubCuentas(id_cuenta,codigo,nombreCuenta,nivel,padre,ruta)
+function agregarSubCuentas(id_cuenta,codigo,nombreCuenta,nivel,padre,ruta,id_entidad)
 {
     // eliminaMensajeError();
     // eliminaMensajeErrorCombos();
@@ -175,6 +209,7 @@ function agregarSubCuentas(id_cuenta,codigo,nombreCuenta,nivel,padre,ruta)
     $('#ruta').val(ruta);
     $('#tituloSubcuentas').text(Cuenta);
     $('#codigo_cuenta_padre').val(codigo+".");
+    $('#id_entidad_sub').val(id_entidad);
     $('#modalPlanDeSubCuentas').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanDeSubCuentas').modal('show');  
     cargarTipoMoneda();
@@ -239,7 +274,7 @@ function guardarPlanDeSubCuentas()
                              $('#txtCodigo').val(codigo_cuenta);
                              $('#txtSigla').val('');
                              $('#txtDescripcion').val('');
-                            cargarTablaPlanDeCuentas();
+                            cargarTablaPlanDeCuentas(id_entidad);
                             cargarTablaPlanDeSubCuentas(id_cuenta);
                             $("#modalPlanDeCuentas").modal('hide'); 
                         }
@@ -338,15 +373,6 @@ function cargarPrefijo(codigo,aux) {
         return;
     }
 
-    // if (!input) {
-    //     console.warn("No se encontró el input txtCodigo");
-    //     return;
-    // }
-    // else
-    // {
-    //     console.log("ENTRAAAA");
-    // }
-
     // Coloca el prefijo y pone el cursor al final
     input.value = codigo;
     // input.textContent = codigo;
@@ -379,7 +405,7 @@ function cargarPrefijo(codigo,aux) {
     };
 }
 
-function agregarCuentasAuxiliares(id_cuenta,codigo,sigla,descripcion)
+function agregarCuentasAuxiliares(id_cuenta,codigo,sigla,descripcion,id_entidad)
 {
     // eliminaMensajeError();
     // eliminaMensajeErrorCombos();
@@ -392,6 +418,7 @@ function agregarCuentasAuxiliares(id_cuenta,codigo,sigla,descripcion)
     $('#txtCodigoCuenta').val(codigo);
     $('#txtSiglaCuenta').val(sigla);
     $('#txtDescripcionCuenta').val(descripcion);
+    $('#id_entidad_aux').val(id_entidad);
     cargarTablaAuxiliaresPlanDeCuentas(id_cuenta);
     $('#modalPlanCuentasAuxiliares').modal({backdrop: 'static', keyboard: false})
     $('#modalPlanCuentasAuxiliares').modal('show');  
@@ -440,6 +467,7 @@ function guardarAuxiliarPlanDeCuentas()
                         }else{
                             swal({title:"!Excelente¡",text:datos.mensaje,icon:"success",button:"OK"});
                             cargarTablaAuxiliaresPlanDeCuentas(id_cuenta);
+                            cargarTablaPlanDeCuentas(id_entidad);
                             // $("#modalPlanCuentasAuxiliares").modal('hide'); 
                         }
                     });
@@ -468,6 +496,7 @@ function cargarTablaAuxiliaresPlanDeCuentas(id_cuenta)
 function eliminarAuxiliarCuenta(id_auxiliar_cuenta,id_cuenta)
 {
     // var id_cuenta = $('#id_cuentaAux').val();
+    var id_entidad = $('#id_entidad_aux').val();
     swal({
         title: 'ATENCIÓN',
         text: "¿Está seguro de eliminar el auxiliar de la cuenta contable ?",
@@ -496,6 +525,7 @@ function eliminarAuxiliarCuenta(id_auxiliar_cuenta,id_cuenta)
                         {
                             swal({title: "",text: datos.mensaje ,icon: "success",button: "OK",dangerMode:true });
                             cargarTablaAuxiliaresPlanDeCuentas(id_cuenta);
+                            cargarTablaPlanDeCuentas(id_entidad);
                         }else{
                             swal({title: "Advertencia",text: datos.mensaje ,icon: "warning",button: "OK" });
                         }
@@ -508,24 +538,26 @@ function eliminarAuxiliarCuenta(id_auxiliar_cuenta,id_cuenta)
 /*FUNCIONES FILTROS DE BUSQUEDA PLAN DE CUENTAS */
 function cargarNiveles()
 {
+    var id_entidad = $('#entidades').val();
     var enlace = base_url + "Comunes/Comunes/cargarNivelesPlanDeCuentas";
     $.ajax({
-        type: "GET",
+        type: "POST",
         url: enlace,
+        data: { id_entidad: id_entidad },
         success: function(data) {
-            // alert (data);
             $('#filtroNivel').html(data);
         }
     });
 }
 function cargarMayores()
 {
+    var id_entidad = $('#entidades').val();
     var enlace = base_url + "Comunes/Comunes/cargarMayoresPlanDeCuentas";
     $.ajax({
-        type: "GET",
+        type: "POST",
         url: enlace,
+        data: { id_entidad: id_entidad },
         success: function(data) {
-            // alert (data);
             $('#filtroMayores').html(data);
         }
     });
@@ -533,6 +565,7 @@ function cargarMayores()
 function cargarSubCuentas()
 {
     var id_mayor = $('#filtroMayores').val();
+    var id_entidad = $('#entidades').val();
     if(id_mayor=="" || id_mayor==null || id_mayor== -1){
         swal("ALERTA","Seleccione una cuenta mayor","warning");
         return;}
@@ -541,9 +574,10 @@ function cargarSubCuentas()
         $.ajax({
             type: "POST",
             url: enlace,
-            data: { id_mayor: id_mayor },
+            data: {   id_mayor: id_mayor,
+                    id_entidad: id_entidad
+             },
             success: function(data) {
-                // alert (data);
                 $('#filtroSubCuentas').html(data);
             }
         });
@@ -554,6 +588,7 @@ function cargarOtrasSubCuentas()
 {
     var id_mayor = $('#filtroMayores').val();
     var id_cuenta = $('#filtroSubCuentas').val();
+     var id_entidad = $('#entidades').val();
     if(id_mayor=="" || id_mayor==null || id_mayor== -1){
         swal("ALERTA","Seleccione los filtros de las cuentas","warning");
         return;}
@@ -562,9 +597,10 @@ function cargarOtrasSubCuentas()
         $.ajax({
             type: "POST",
             url: enlace,
-            data: { id_mayor: id_mayor, id_cuenta: id_cuenta },
+            data: { id_mayor: id_mayor, 
+                   id_cuenta: id_cuenta,
+                   id_entidad: id_entidad},
             success: function(data) {
-                // alert (data);
                 $('#filtroOtrasSubCuentas').html(data);
             }
         });
@@ -582,6 +618,51 @@ function limpiarFiltros() {
         icon: "success",
         button: "OK"
     });
-    cargarTablaPlanDeCuentas();
+    cargarTablaPlanDeCuentas(id_entidad);
+}
+function bajaCuenta(id_cuenta,id_entidad)
+{
+
+    swal({
+        title:'ATENCIÓN',
+        text:"¿Está seguro de dar de baja la cuenta?",
+        icon:'warning',
+        dangerMode:true,
+        buttons:{
+            cancel:"Cancelar",
+            verificar:{
+                text:"GUARDAR",
+                value:"verificar"
+            }
+        }
+    })
+    .then(respuesta=>{
+        if(respuesta)
+        {
+            var enlace = base_url + "Contabilidad/PlanDeCuentas/bajaCuenta";
+            $.ajax({
+                type:"POST",
+                url:enlace,
+                data:{ id_entidad: id_entidad,
+                        id_cuenta: id_cuenta
+                },
+                success:function(data)
+                {
+                    var result =JSON.parse(data);
+                    $.each(result,function(i,datos){
+                        if(datos.resultado == 0)
+                        {
+                            swal({title:"ALERTA",text:"Existen Observaciones.",icon:"warning",button:"OK",dangerMode:true});
+                        }
+                        else
+                        {
+                            swal("!Excelente!","SE REGISTRO CORRECTAMENTE LA BAJA.","success");
+                            cargarTablaPlanDeCuentas(id_entidad);
+                        }
+                    });
+                }
+            });
+        }
+    });
 }
 

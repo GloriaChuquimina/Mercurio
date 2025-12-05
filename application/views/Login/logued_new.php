@@ -26,7 +26,7 @@
                 <h1 class="login-title">MERCURIO</h1>
                 <p class="login-subtitle">Sistema Contable</p>
                 <div class="login-box-2">
-                    <?= form_open('Login/logued') ?>
+                    <?= form_open('Login/loguedNuevo') ?>
 
 
                     <div class="input-group mb-3">

@@ -37,9 +37,9 @@ function cargarCombos()
         success: function(data) {
             $('#anioTipoCambio').html(data);
 			$('#anioTipoCambio option[value="'+yyyy+'"]').prop('selected','selected'); 
+            cargarTipoCambio(yyyy,mm);
         }
     }); 
-	cargarTipoCambio(yyyy,mm);
 }
 function valoresIniciales(){
     var entidad = $('#entidades').val();    
@@ -62,7 +62,7 @@ function valoresIniciales(){
 }
 function cargarTipoCambio(gestion,mes){
 
-	
+	// alert("GESTION: "+gestion+" MES: "+mes);
 
     var enlace = base_url + "Contabilidad/TipoCambio/cargarTipoCambio";
      $('#tablaTipoCambio').DataTable({
@@ -106,19 +106,20 @@ $(function (){
                 // cargarCuentasEntidad();
                 // valoresIniciales();
             });
-	//  $('#mesTipoCambio').change(function(){
-	// 			var gestion = $('#anioTipoCambio').val();
-	// 			if(gestion != -1)
-	// 			{
-	// 				cargarTipoCambio();
-	// 			}
-	// 			else
-	// 			{
-	// 				var mensaje="Seleccione una gestión, por favor."
-	// 				 swal({title:"ALERTA",text:mensaje,icon:"warning",button:"OK",dangerMode:true});
-	// 			}			
+	 $('#mesTipoCambio').change(function(){
+				var gestion = $('#anioTipoCambio').val();
+				if(gestion != -1)
+				{
+					// cargarTipoCambio();
+                    buscar();
+				}
+				else
+				{
+					var mensaje="Seleccione una gestión, por favor."
+					 swal({title:"ALERTA",text:mensaje,icon:"warning",button:"OK",dangerMode:true});
+				}			
                
-    //         });
+            });
 	// cargarTipoCambio();
 	   $("#tipo_cambio").keypress(function (e) {
             var keyCode = e.keyCode || e.which;

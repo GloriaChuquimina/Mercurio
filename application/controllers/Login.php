@@ -151,7 +151,7 @@ class Login extends CI_Controller
 
 	function loguedNuevo()
 	{
-		$IDAPLICACION = 1;
+		$IDAPLICACION = $this->config->item('IDAPLICACION');
 		$username = $this->input->post('username');
 		$password = $this->input->post('pass');
 		$ip = $this->obtenerIp();
