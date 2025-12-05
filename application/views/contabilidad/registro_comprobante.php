@@ -250,7 +250,11 @@
                     <input type="hidden" class="form-control" id="id_comprobante" name="id_comprobante">
                     <input type="hidden" class="form-control" id="txtAccionComprobanteCuenta" name="txtAccionComprobanteCuenta">
                     <input type="hidden" class="form-control" id="txtAccionMovimiento" name="txtAccionMovimiento">
+<<<<<<< HEAD
                     <input class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+=======
+                    <input type="hidden" class="form-control" id="id_entidad_registro" name="id_entidad_registro">
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                     <input type="hidden" class="form-control" id="id_cuenta" name="id_cuenta">
                     <input type="hidden" class="form-control" id="registroCuentaT" name="registroCuentaT">
                     <input type="hidden" class="form-control" id="tipo_cambio_movimiento" name="tipo_cambio_movimiento">
@@ -553,7 +557,11 @@
         $('#id_entidad').val(id_entidad);
         $('#id_comprobanteP').val(id_comprobante);
         $('#txtAccionComprobante').val(accion);
+<<<<<<< HEAD
         cargarCuentasLista(id_entidad);
+=======
+        cargarCuentasLista();
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
         cargarCombos();
         if(id_comprobante > 0) {
             cargarDatosComprobante(id_comprobante, id_entidad);

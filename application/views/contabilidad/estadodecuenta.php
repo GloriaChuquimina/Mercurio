@@ -64,9 +64,15 @@
                                     </div>
                             </div>
                         </div>
+<<<<<<< HEAD
                         <!-- <div class="col-md-4 text-right">
                         <span class="badge badge-warning">XXX cuentas disponibles</span>
                         </div> -->
+=======
+                        <div class="col-md-4 text-right">
+                        <span class="badge badge-warning">XXX cuentas disponibles</span>
+                        </div>
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                     </div>
                 </div>
             </div>
@@ -308,7 +314,11 @@
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
       cargarCombos();
+<<<<<<< HEAD
       // cargarCuentasLista();
+=======
+      cargarCuentasLista();
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
     //   cargarTablaComprobantesEntidades();
     });
 </script>  

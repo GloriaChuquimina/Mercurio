@@ -1,7 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+<<<<<<< HEAD
 $config['base_url'] = 'http://localhost:8081/mercurio';
+=======
+$config['base_url'] = 'http://localhost:8085/mercurio';
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 $config['IDAPLICACION'] = 11;
 

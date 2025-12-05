@@ -310,8 +310,13 @@ class EstadoDeResultados extends CI_Controller {
 		
 		$codigo_cuenta_ingreso     = 4;
 		$codigo_cuenta_egreso      = 5;
+<<<<<<< HEAD
 		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
 		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
+=======
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 
 		if($nivel== 0)
@@ -436,8 +441,13 @@ class EstadoDeResultados extends CI_Controller {
 		
 		$codigo_cuenta_ingreso     = 4;
 		$codigo_cuenta_egreso      = 5;
+<<<<<<< HEAD
 		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
 		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
+=======
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 		if($nivel== 0)
 		{
@@ -576,8 +586,13 @@ class EstadoDeResultados extends CI_Controller {
 
 		$codigo_cuenta_ingreso     = 4;
 		$codigo_cuenta_egreso      = 5;
+<<<<<<< HEAD
 		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
 		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
+=======
+		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
+		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 		
 		// $estadoResultadoAcreedor = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso);	

@@ -131,7 +131,10 @@ create table contabilidad.plancuentas(
 );
 
 alter table contabilidad.plancuentas add tipo_moneda_cuenta varchar(3) DEFAULT 'BOB'::character varying NULL;
+<<<<<<< HEAD
 alter table contabilidad.plancuentas add id_entidad int4 NULL;
+=======
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 
 create table contabilidad.plancuentas_auxiliares(

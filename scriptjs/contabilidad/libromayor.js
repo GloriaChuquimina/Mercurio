@@ -24,7 +24,11 @@ function cargarCombos()
             $('#tipo_moneda').html(data);
         }
     });
+<<<<<<< HEAD
    
+=======
+    cargarCuentasLista();
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 }
 function valoresIniciales(){
     var entidad = $('#entidades').val();    
@@ -58,17 +62,27 @@ function valoresIniciales(){
         // $('#cuentaSeleccionada').show();
         // $('#tablaLibroMayor').show();
     }
+<<<<<<< HEAD
 
      
 }
 function cargarCuentasEntidad(id_entidad){
+=======
+}
+function cargarCuentasEntidad(){
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 
     var enlace = base_url + "Comunes/Comunes/cargarCuentaContableEntidad";
     $.ajax({
+<<<<<<< HEAD
         type: "POST",
         url: enlace,
         data: { id_entidad: id_entidad },
+=======
+        type: "GET",
+        url: enlace,
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
         success: function(data) {
             $('#cuentaContable').html(data);
         }
@@ -77,7 +91,10 @@ function cargarCuentasEntidad(id_entidad){
 
 function cargarCuentas(marcar){
     var cuentasSeleccionadas = $('#id_cuenta_seleccionadas').val();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
     var enlace = base_url + "Contabilidad/LibroMayor/listarPlanDeCuentasBusqueda";
     $('#tbl_CuentasContables').DataTable({
         destroy: true,
@@ -89,8 +106,12 @@ function cargarCuentas(marcar){
             url: enlace,
             data:{          
                 marcareg:marcar,
+<<<<<<< HEAD
                 cuentasSeleccionadas:cuentasSeleccionadas,
                 id_entidad:id_entidad
+=======
+                cuentasSeleccionadas:cuentasSeleccionadas
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
             }
         },
     });
@@ -110,16 +131,23 @@ function busquedaIDCuenta(id_cuenta,cuenta)
      $('#txtCuenta').val( cuenta) ;
      $('#modalListaCuentas').modal('hide');  
 }
+<<<<<<< HEAD
 function cargarCuentasLista(id_entidad)
 {
     // $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
      $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas", { id_entidad: id_entidad });
+=======
+function cargarCuentasLista()
+{
+    $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 }
 
 $(function (){
 
     $('#entidades').change(function(){
                 // id_entidad = $(this).val();
+<<<<<<< HEAD
                 id_entidad = $('#entidades').val();
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
@@ -130,6 +158,15 @@ $(function (){
                 cargarCuentasLista(id_entidad);
 
                  
+=======
+                var id_entidad = $('#entidades').val();
+                nombre_entidad = $('#entidades option:selected').text();
+                $('#nombre_entidad').text(nombre_entidad);
+                $('#id_entidad').val(id_entidad);
+                cargarCuentasEntidad();
+                valoresIniciales();
+                $('#cardEntidad').find('[data-card-widget="collapse"]').click();
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
             });
     $('#cuentaContable').change(function(){
                 id_cuenta = $(this).val();
@@ -159,11 +196,19 @@ $(function (){
            marcar = 0;
            $("#cantidadSolicitudes").html('0');
         }
+<<<<<<< HEAD
       
+=======
+        // var id_entidad = $('#cbEntidades').val();
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
         cargarCuentas(marcar);
     });
      
     $('#modalListaCuentas').on('hidden.bs.modal', function (e) {
+<<<<<<< HEAD
+=======
+        // alert('El modal se ha cerrado');
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
         // $('#cuentaSeleccionada').show();
         seleccionDeCuentas();
     });
@@ -226,7 +271,10 @@ function seleccionDeCuentas()
     });
 
     var enlace = base_url + "Contabilidad/LibroMayor/seleccionDeCuentas";
+<<<<<<< HEAD
     form.append($('<input>').attr('type', 'hidden').attr('name', 'id_entidad').val(id_entidad));
+=======
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
     // var datos  = $('#formListaCuentas').serialize();
     $.ajax({
         type: "POST",
@@ -319,16 +367,26 @@ function consultar()
 					$('.txtTotalImporteAcreedor').text(data.totalimporteAcreedor ?? '0.00');
 
 					$('#tablaDatosLibroMayor').DataTable({
+<<<<<<< HEAD
 						scrollY: '600px',   // Altura del contenedor visible
 						scrollX: true,       // Habilitar scroll horizontal
 						scrollCollapse: true,
 						responsive: false,   // Desactivar responsive para usar scrollX
+=======
+						//   scrollY: true,
+						scrollY: '600px',   // Altura del contenedor visible
+						scrollCollapse: true,
+						responsive: true,
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 						paging: true,
 						searching: true,
 						ordering: false,
 						"aLengthMenu": [[10,30, 50,  -1], [10,30, 50,  "Todos"]],
 						"iDisplayLength": 10,
+<<<<<<< HEAD
 						"autoWidth": false,
+=======
+>>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 					});
 					
 				}
