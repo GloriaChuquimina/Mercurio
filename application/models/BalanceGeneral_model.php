@@ -105,11 +105,7 @@ class BalanceGeneral_model extends CI_Model
                                                           AND c.fecha_comprobante between '".$fecha_inicio."' AND '".$fecha_fin."'
                                                     GROUP BY pc.id, pc.codigo, pc.descripcion, pc.nivel, e.nombre,e.id
                                                     ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
-<<<<<<< HEAD
                                         where pc.id_entidad = ".$id_entidad."
-=======
-
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                                             order by nivel ASC,
                                             codigo ASC;
 		    							   " 
@@ -234,10 +230,7 @@ class BalanceGeneral_model extends CI_Model
                                                      codigo ASC
                                           ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                    WHERE ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
-<<<<<<< HEAD
                                      AND pc.id_entidad = ".$id_entidad."
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                                 ORDER BY nivel ASC,codigo ASC;
 		    							                    ");
 		    return $query->result();
@@ -298,10 +291,7 @@ class BalanceGeneral_model extends CI_Model
                                                      codigo ASC
                                           ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                    WHERE ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
-<<<<<<< HEAD
                                      AND pc.id_entidad = ".$id_entidad."
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                                 ORDER BY nivel ASC,codigo ASC;
 		    							                    ");
 		    return $query->result();
@@ -377,10 +367,7 @@ class BalanceGeneral_model extends CI_Model
                                                      codigo ASC
                                           ) cuentas_con_movimiento on pc.id =cuentas_con_movimiento.id
                                    WHERE ('".$id_cuenta_mayor."' = ANY (string_to_array(pc.ruta, '-')) or pc.codigo = '".$cuenta_mayor."')
-<<<<<<< HEAD
                                      AND pc.id_entidad = ".$id_entidad."
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                                 ORDER BY nivel ASC,codigo ASC;
 		    							                    ");
 		    return $query->result();

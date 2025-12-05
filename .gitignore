@@ -1,10 +1,4 @@
-<<<<<<< HEAD
 application/config/config.php
 application/config/database.php
 upload/
-=======
-application/config/config.php
-application/config/database.php
-upload/
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 .htaccess

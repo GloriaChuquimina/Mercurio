@@ -5,7 +5,6 @@
 <div class="wapper">
     <section class="content">
         <div class="container-fluid" >
-<<<<<<< HEAD
             <!-- Entidades -->
             <div class="card card-primary card-outline" id="cardEntidad">
               <div class="card-header">
@@ -53,14 +52,6 @@
                       </div>
                     </div>
                     <!-- Entidad Seleccionada -->
-=======
-            <div class="card card-primary">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="col-md-8">
-                        <h3 class="card-title mb-0">
-                        </h3>
-                    </div>
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                     <div class="col-md-4 text-right">
                         <button type="button" class="btn btn-success mr-2" onclick="agregarCuentas()">
                             <i class="fas fa-save mr-1"></i> Registro de Cuentas Mayores
@@ -211,10 +202,7 @@
                   <input type="hidden" class="form-control" id="txtAccion" name="txtAccion" />
                   <input type="hidden" class="form-control" id="idCuenta" name="idCuenta" />
                   <input type="hidden" class="form-control" id="nivel" name="nivel" />               
-<<<<<<< HEAD
                   <input class="form-control" id="id_entidad" name="id_entidad" />               
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                   <div class="card card-outline card-success">
                     <div class="card-header">
                       <h3 class="card-title">
@@ -280,11 +268,7 @@
                           <div class="form-group">
                             <label>
                               <i class="text-danger">*</i>
-<<<<<<< HEAD
                               <strong> NOMBRE DE LA CUENTA:</strong>
-=======
-                              <strong> DESCRIPCIÓN:</strong>
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                             </label>
                             <textarea
                               class="form-control"
@@ -331,10 +315,7 @@
                   <input type="hidden" class="form-control" id="id_padre" name="id_padre" />
                   <input type="hidden" class="form-control" id="ruta" name="ruta" />
                   <input type="hidden" class="form-control" id="codigo_cuenta_padre" name="codigo_cuenta_padre" />
-<<<<<<< HEAD
                   <input class="form-control" id="id_entidad_sub" name="id_entidad_sub" />  
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                   <div class="card card-outline card-info mb-4">
                     <div class="card-header">
                       <h3 class="card-title">
@@ -388,11 +369,7 @@
                           <div class="form-group">
                             <label>
                               <i class="text-danger">*</i>
-<<<<<<< HEAD
                               <strong> NOMBRE DE LA CUENTA:</strong>
-=======
-                              <strong> DESCRIPCIÓN:</strong>
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                             </label>
                             <div class="input-group">
                               <input
@@ -461,10 +438,7 @@
                 <form id="formularioPlanCuentasAuxiliar">
                   <input type="hidden" class="form-control" id="txtAccionAux" name="txtAccionSubCuenta" />
                   <input type="hidden" class="form-control" id="id_cuentaAux" name="id_cuenta" />
-<<<<<<< HEAD
                   <input class="form-control" id="id_entidad_aux" name="id_entidad_aux" />
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
                   <div class="card card-outline card-success mb-4">
                     <div class="card-header">
@@ -550,13 +524,8 @@
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
-<<<<<<< HEAD
       cargarComboEntidades();
       
-=======
-      cargarTablaPlanDeCuentas();
-      cargarFiltrosPlanDeCuentas();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
     //   cargarNiveles();
     });
 </script>  

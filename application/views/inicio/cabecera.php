@@ -63,11 +63,7 @@
 
 
 
-<<<<<<< HEAD
 <div class="modal fade show" id="pdfModal" style ="background-color:rgba(0,0,0,0.4)" tabindex="-1" role="dialog" aria-hidden="true">
-=======
-  <div class="modal fade show" id="pdfModal" style ="background-color:rgba(0,0,0,0.4)" tabindex="-1" role="dialog" aria-hidden="true">
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
     <div class="modal-dialog" style="max-width: 1300px;" role="document">
         <div class="modal-content">
             <div class="modal-header bg-light">
@@ -77,13 +73,9 @@
                 </button>
             </div>
             <div class="modal-body ">
-<<<<<<< HEAD
                 <div id="divPDF" align="center">
 
                 </div>
-=======
-                <div id="divPDF" align="center"></div>
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
             </div>
             <!-- <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cerrar</button>

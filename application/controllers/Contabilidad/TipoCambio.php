@@ -57,7 +57,6 @@ class TipoCambio extends CI_Controller {
 
 		if(($gestion != -1 && $mes != -1) && (!empty($gestion) && !empty($mes)))
 		{
-<<<<<<< HEAD
 			$busqueda="and  EXTRACT(YEAR FROM fecha) = '".$gestion."'
 					   and  EXTRACT(MONTH  FROM fecha) = '".$mes."'";
 		}
@@ -68,37 +67,11 @@ class TipoCambio extends CI_Controller {
 		else
 		{
 			$busqueda="";
-=======
-			// echo("GESTION".$gestion);
-			// echo("MES".$mes);
-			// die();
-			$busqueda="and  EXTRACT(YEAR FROM fecha) = '".$gestion."'
-					   and  EXTRACT(MONTH  FROM fecha) = '".$mes."'";
-		}
-		else
-		{
-			if($gestion != -1 && $mes == -1 )
-			{
-				$busqueda="and  EXTRACT(YEAR FROM fecha) = '".$gestion."'";
-			}
-			elseif(($gestion == -1 && $mes == -1) || (empty($gestion) && empty($mes))){
-				$busqueda="";
-			}
-
-
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		}
 		// echo("BUSQUEDA".$busqueda);
 		// die();
 		$filas   = $this->TipoCambio_model->getTipoCambio($busqueda);
-<<<<<<< HEAD
 	
-=======
-		// echo json_encode($filas);
-		// die();
-
-
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		// echo json_encode($filas);
 		$draw    = intval($this->input->get("draw"));
 		$start   = intval($this->input->get("start"));

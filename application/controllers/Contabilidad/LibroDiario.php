@@ -498,13 +498,8 @@ class LibroDiario extends CI_Controller {
 						$fila = array(
 							$codigo_cuenta,
 							utf8_decode($descripcion_cuenta),
-<<<<<<< HEAD
 							number_format($importeDebe, 2, ',', '.'),
 							number_format($importeHaber, 2, ',', '.')
-=======
-							$importeDebe ,
-							$importeHaber 
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 						);	
 
 						$pdf->Row_SinLinea($fila,true, '', 4);
@@ -529,13 +524,8 @@ class LibroDiario extends CI_Controller {
 				$fila_pie_comprobante=array (
 												"----",
 												utf8_decode($glosa_comprobante),
-<<<<<<< HEAD
 												number_format($totalDebe, 2, ',', '.'),
 												number_format($totalHaber, 2, ',', '.')
-=======
-												$totalDebe,
-												$totalHaber
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 											);
 
 				$pdf->Row_SinLinea($fila_pie_comprobante,true, '', 5);

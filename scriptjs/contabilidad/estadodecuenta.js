@@ -14,11 +14,7 @@ function cargarCombos()
             valoresIniciales();
         }
     }); 
-<<<<<<< HEAD
     // cargarCuentasLista();
-=======
-    cargarCuentasLista();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 }
 function valoresIniciales(){
     var entidad = $('#entidades').val();    
@@ -66,33 +62,22 @@ function busquedaIDCuenta(id_cuenta,cuenta)
 }
 function cargarCuentasLista()
 {
-<<<<<<< HEAD
     // $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
     $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas", { id_entidad: id_entidad });
-=======
-    $("#listaCuentas").load(base_url +  "Contabilidad/PlanDeCuentas/listCuentas" );
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 }
 
 $(function (){
 
     $('#entidades').change(function(){
                 // id_entidad = $(this).val();
-<<<<<<< HEAD
                 id_entidad = $('#entidades').val();
-=======
-                var id_entidad = $('#entidades').val();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                 nombre_entidad = $('#entidades option:selected').text();
                 $('#nombre_entidad').text(nombre_entidad);
                 $('#id_entidad').val(id_entidad);
                 cargarCuentasEntidad();
                 valoresIniciales();
                 $('#cardEntidad').find('[data-card-widget="collapse"]').click();
-<<<<<<< HEAD
                 cargarCuentasLista(id_entidad);
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
             });
     $('#cuentaContable').change(function(){
                 id_cuenta = $(this).val();
@@ -171,12 +156,8 @@ function cargarCuentas(marcar){
             url: enlace,
             data:{          
                 marcareg:marcar,
-<<<<<<< HEAD
                 cuentasSeleccionadas:cuentasSeleccionadas,
                 id_entidad: id_entidad
-=======
-                cuentasSeleccionadas:cuentasSeleccionadas
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
             }
         },
     });

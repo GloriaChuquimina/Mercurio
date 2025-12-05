@@ -132,12 +132,8 @@ class Comunes extends CI_Controller
 	}
 	function cargarCuentaContableEntidad()
 	{
-<<<<<<< HEAD
 		$id_entidad = $this->input->post('id_entidad');
 	    $filas = $this->PlanDeCuentas_model->getPlanDeCuentas($id_entidad);
-=======
-	    $filas = $this->PlanDeCuentas_model->getPlanDeCuentas();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
 	    foreach ($filas as $fila)
 	    {
@@ -162,11 +158,7 @@ class Comunes extends CI_Controller
 	    $concepto = "MESES";
 		$estado = "ACT";
 	    $filas = $this->Comunes_model->getCatalogoDominio($concepto,$estado);
-<<<<<<< HEAD
 	    $option = "<option VALUE='-1'>Todos</OPTION>";
-=======
-	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 	    foreach ($filas as $fila)
 	    {
 	        $option.="<option value = '".$fila->valor1."'>".$fila->valor2."</option>";
@@ -207,16 +199,8 @@ class Comunes extends CI_Controller
 	/*FILTROS DE BUSQUEDA DE PLAN DE CUENTAS */
 	function cargarNivelesPlanDeCuentas()
 	{
-<<<<<<< HEAD
 		$id_entidad = $this->input->post('id_entidad');
 	    $filas = $this->PlanDeCuentas_model->getNivelesPlanDeCuentas($id_entidad);
-=======
-	    $filas = $this->PlanDeCuentas_model->getNivelesPlanDeCuentas();
-		// echo("<pre>");
-		// print_r($filas);
-		// echo("</pre>");
-		// die();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
 	    foreach ($filas as $fila)
 	    {
@@ -226,16 +210,8 @@ class Comunes extends CI_Controller
 	}
 	function cargarMayoresPlanDeCuentas()
 	{
-<<<<<<< HEAD
 		$id_entidad = $this->input->post('id_entidad');
 	    $filas = $this->PlanDeCuentas_model->getMayoresPlanDeCuentas($id_entidad);
-=======
-	    $filas = $this->PlanDeCuentas_model->getMayoresPlanDeCuentas();
-		// echo("<pre>");
-		// print_r($filas);
-		// echo("</pre>");
-		// die();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 	    $option = "<option VALUE='-1'>Seleccione opción</OPTION>";
 	    foreach ($filas as $fila)
 	    {
@@ -246,12 +222,8 @@ class Comunes extends CI_Controller
 	function cargarSubCuentasPlanDeCuentas()
 	{
 		$id_cuenta = $this->input->post('id_mayor');
-<<<<<<< HEAD
 		$id_entidad = $this->input->post('id_entidad');
 	    $filas = $this->PlanDeCuentas_model->getSubCuentasPlanDeCuentas($id_cuenta,$id_entidad);
-=======
-	    $filas = $this->PlanDeCuentas_model->getSubCuentasPlanDeCuentas($id_cuenta);
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 	    $option = "<option VALUE='-1'>Seleccione primero una cuenta mayor</OPTION>";
 	    foreach ($filas as $fila)
 	    {
@@ -264,12 +236,8 @@ class Comunes extends CI_Controller
 	{
 		$id_mayor = $this->input->post('id_mayor');
 		$id_cuenta = $this->input->post('id_cuenta');
-<<<<<<< HEAD
 		$id_entidad = $this->input->post('id_entidad');
 	    $filas = $this->PlanDeCuentas_model->getOtrasSubCuentasPlanDeCuentas($id_mayor,$id_cuenta,$id_entidad);
-=======
-	    $filas = $this->PlanDeCuentas_model->getOtrasSubCuentasPlanDeCuentas($id_mayor,$id_cuenta);
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 	    $option = "<option VALUE='-1'>Seleccione primero una cuenta mayor y su subcuenta</OPTION>";
 	    foreach ($filas as $fila)
 	    {

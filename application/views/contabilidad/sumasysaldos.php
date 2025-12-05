@@ -360,10 +360,6 @@
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
       cargarCombos();
-<<<<<<< HEAD
       // cargarCuentasLista();
-=======
-      cargarCuentasLista();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
     });
 </script> 

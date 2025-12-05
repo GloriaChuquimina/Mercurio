@@ -38,10 +38,7 @@ class LibroMayor extends CI_Controller {
 		$dato['nombre_usuario']  = $this->session->userdata('nombre_completo');
 
 		$titulo = "Libro Mayor";		
-<<<<<<< HEAD
 		// $titulo = "";		
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		$dato['titulo'] = $titulo;
 
 		$this->load->view('inicio/cabecera',$dato);
@@ -917,12 +914,8 @@ class LibroMayor extends CI_Controller {
 
 		$marcarRegistro       = $this->input->post('marcareg');
 		$cuentasSeleccionadas = $this->input->post('cuentasSeleccionadas');
-<<<<<<< HEAD
 		$id_entidad           = $this->input->post('id_entidad');
 		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda($id_entidad);
-=======
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		$totalCuentas = count($cuentas);
 		$cuentas = json_decode(json_encode($cuentas), true);
 		$ordenadas = $this->ordenarJerarquicamente($cuentas);
@@ -1018,14 +1011,9 @@ class LibroMayor extends CI_Controller {
         $mensaje = "OK";  
         $contador  = 0;      	
         $check  = 0;
-<<<<<<< HEAD
 		$id_entidad = $this->input->post('id_entidad');
 		// $cuentasSeleccionadas = $this->input->post('cuentasSeleccionadas');
 		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda($id_entidad);
-=======
-
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentasBusqueda();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		$cuentas   = json_decode(json_encode($cuentas), true);
 		$ordenadas = $this->ordenarJerarquicamente($cuentas);
 		$cuentas   = "";

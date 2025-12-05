@@ -237,13 +237,8 @@ class CierreDeResultados extends CI_Controller {
 		// die();
 		$codigo_cuenta_ingreso     = 4;
 		$codigo_cuenta_egreso      = 5;
-<<<<<<< HEAD
 		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
 		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
-=======
-		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
-		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		$nivel		  			   = 0;
 		$moneda		  			   = 'BOB';
 		$saldoCero    			   = true;
@@ -280,14 +275,6 @@ class CierreDeResultados extends CI_Controller {
 			$whereCierre = "";
 		}
 		$estadoResultadoIngreso    = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$whereCierre);
-<<<<<<< HEAD
-
-=======
-		// echo("<pre>");
-		// print_r($estadoResultadoIngreso);
-		// echo("</pre>");
-		// die();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		$cuentasIngreso  	       = json_decode(json_encode($estadoResultadoIngreso), true);		
 		$ordenadas_cuentas_ingreso = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasIngreso ,0,0,$excluirCuentasEnCero,$nivel);
 		$cuentasOrdenadasIngreso   = $ordenadas_cuentas_ingreso[0];
@@ -362,13 +349,8 @@ class CierreDeResultados extends CI_Controller {
 		$id_entidad			   	   = $this->input->post('id_entidad');
 		$codigo_cuenta_ingreso     = 4;
 		$codigo_cuenta_egreso      = 5;
-<<<<<<< HEAD
 		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
 		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
-=======
-		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso);
-		$id_cuenta_egreso   	   = getIdCuenta($codigo_cuenta_egreso);
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		$nivel		  			   = 0;
 		$moneda		  			   = 'BOB';
 		$saldoCero    			   = true;
@@ -519,15 +501,9 @@ class CierreDeResultados extends CI_Controller {
 			$codigo_cuenta_ingreso     = 4;
 			$codigo_cuenta_egreso      = 5;
 			$codigo_cuenta_resultado   = 9;//OTRAS CUENTAS DE RESULTADOS
-<<<<<<< HEAD
 			$id_cuenta_ingreso      = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
 			$id_cuenta_egreso       = getIdCuenta($codigo_cuenta_egreso,$id_entidad);
 			$id_cuenta_resultado    = getIdCuenta($codigo_cuenta_resultado,$id_entidad);
-=======
-			$id_cuenta_ingreso      = getIdCuenta($codigo_cuenta_ingreso);
-			$id_cuenta_egreso       = getIdCuenta($codigo_cuenta_egreso);
-			$id_cuenta_resultado    = getIdCuenta($codigo_cuenta_resultado);
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 			$nivel        			= getNivelMaximo();
 			$saldoCero    			= true;
 			$fecha_fin    			= $this->input->post('fechaCierreResultado');
@@ -557,13 +533,6 @@ class CierreDeResultados extends CI_Controller {
 				$nivel
 			);
 
-<<<<<<< HEAD
-=======
-			// echo("<pre>");
-			// echo("INGRESOS<br>");
-			// print_r($ingresosData);
-			// echo("</pre>");
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 			
 			list($cuentasEgresoOrdenadas, $sumaEgreso, $sumaEgresoUSD) = $this->ordenarCuentas(
 				$egresosData,
@@ -571,14 +540,6 @@ class CierreDeResultados extends CI_Controller {
 				$nivel
 			);
 
-<<<<<<< HEAD
-=======
-			// echo("<pre>");
-			// 	echo("egreso<br>");
-			// print_r($egresosData);
-			// echo("</pre>");
-			// die();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 			$resultado = $this->EstadoDeResultado_model->getMontoResultado(
 				$id_entidad,

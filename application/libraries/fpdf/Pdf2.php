@@ -515,13 +515,8 @@ class Pdf2 extends FPDF {
                 // $this->Cell(20,5,utf8_decode(number_format($this->totalLD_Debe,2,',','.')),1,0,'R',1);
                 // $this->Cell(20,5,utf8_decode(number_format($this->totalLD_Haber,2,',','.')),1,0,'R',1);
                 $this->Cell(160,5,utf8_decode($TOTALES),1,0,'R',1);
-<<<<<<< HEAD
                 $this->Cell(20,5,utf8_decode(number_format($this->paginaDebe,2,',','.')),1,0,'R',1);
                 $this->Cell(20,5,utf8_decode(number_format($this->paginaHaber,2,',','.')),1,0,'R',1);
-=======
-                $this->Cell(20,5,utf8_decode($this->paginaDebe),1,0,'R',1);
-                $this->Cell(20,5,utf8_decode($this->paginaHaber),1,0,'R',1);
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 				// Mostrar solo en la última página
 				$y2=$this->GetY();
 				if ($this->mostrar_total_general && $this->PageNo() == $this->page) {

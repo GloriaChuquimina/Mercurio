@@ -155,13 +155,8 @@
     $(document).ready(function(){
       var enlace  = "<?php echo base_url();?>";    
       baseurl(enlace);
-<<<<<<< HEAD
       cargarCombos();
       // cargarTipoCambio()
-=======
-      // cargarTipoCambio();
-      cargarCombos();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
     //   cargarTablaComprobantesEntidades();
     });
 </script>  

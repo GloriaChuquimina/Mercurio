@@ -75,14 +75,9 @@ class PlanDeCuentas extends CI_Controller {
 	}
 	function listCuentas()
 	{
-<<<<<<< HEAD
 		$id_entidad = $this->input->post('id_entidad');
 		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas($id_entidad);
 		$cuentas   = json_decode(json_encode($cuentas), true);
-=======
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
-		$cuentas = json_decode(json_encode($cuentas), true);
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		$ordenadas = $this->ordenarJerarquicamente($cuentas);
 		$option= "";
 		foreach($ordenadas as $fila)
@@ -91,7 +86,6 @@ class PlanDeCuentas extends CI_Controller {
 		}
 		echo $option;
 	}
-<<<<<<< HEAD
 
     public function listarPlanDeCuentas()
     {
@@ -99,13 +93,6 @@ class PlanDeCuentas extends CI_Controller {
 		$cuentas    = $this->PlanDeCuentas_model->getPlanDeCuentas($id_entidad);
 		$cuentas    = json_decode(json_encode($cuentas), true);
 		$ordenadas  = $this->ordenarJerarquicamente($cuentas);
-=======
-    public function listarPlanDeCuentas()
-    {
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
-		$cuentas = json_decode(json_encode($cuentas), true);
-		$ordenadas = $this->ordenarJerarquicamente($cuentas);
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 		// echo json_encode($ordenadas);
 		// die();
@@ -125,36 +112,21 @@ class PlanDeCuentas extends CI_Controller {
                             <button type='button' class='btn btn-block btn-warning btn-sm' onclick=\"editarCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."','". $fila['tipo_moneda_cuenta']."')\"><i class='fas fa-edit'></i></button>     
                         </span>	
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Agregar SubCuenta'>
-<<<<<<< HEAD
                             <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."',". $fila['id_entidad'] .")\"><i class='fas fa-plus-circle'></i></button>     
                         </span>				
                         <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='AGREGAR CUENTAS AUXILIARES'>
                             <button type='button' class='btn btn-block btn-success btn-sm' onclick=\"agregarCuentasAuxiliares(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."',". $fila['id_entidad'] .")\"><i class='fas fa-list-alt'></i></button>     
-=======
-                            <button type='button' class='btn btn-block btn-info btn-sm' onclick=\"agregarSubCuentas(". $fila['id']. ",'". $fila['codigo']."','". $fila['descripcion']."',". $fila['nivel'].",". $fila['padre'] .",'". $fila['ruta'] ."')\"><i class='fas fa-plus-circle'></i></button>     
-                        </span>				
-                        <span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='AGREGAR CUENTAS AUXILIARES'>
-                            <button type='button' class='btn btn-block btn-success btn-sm' onclick=\"agregarCuentasAuxiliares(". $fila['id']. ",'". $fila['codigo']."','". $fila['sigla']."','". $fila['descripcion']."')\"><i class='fas fa-list-alt'></i></button>     
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
                         </span>				
                         ";	
 
 				// Códigos que NO deben poder eliminarse
-<<<<<<< HEAD
 				$protegidos = [1,2,3,4,5,6,7,8,9,10];
-=======
-				$protegidos = [1,2,3,4,5,6,7,8,9];
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 					
 
 				if ( !in_array($fila['codigo'], $protegidos) ) {
 					$mayores = "
 						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-<<<<<<< HEAD
 							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaCuenta(". $fila['id']. ",". $fila['id_entidad'] .")'>
-=======
-							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'>
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 								<i class='fas fa-trash-alt'></i>
 							</button>     
 						</span>";
@@ -235,7 +207,6 @@ class PlanDeCuentas extends CI_Controller {
 				$estado,
 				// "<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
 			);
-<<<<<<< HEAD
 			/*VERIFICAR SI UNA CUENTA POSEE CUENTAS AUXILIARES*/ 
 			$cuentas_auxiliares = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($fila['id']);
 
@@ -271,8 +242,6 @@ class PlanDeCuentas extends CI_Controller {
 					$estado
 				);
 			}
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		}
 
 		// die();
@@ -306,10 +275,7 @@ class PlanDeCuentas extends CI_Controller {
 			$descripcion = $data['txtDescripcionCuenta'];
 			$id_cuenta   = $data['idCuenta'];
 			$sigla       = $data['txtSiglaCuenta'];
-<<<<<<< HEAD
 			$id_entidad  = $data['id_entidad'];
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 			// $nivel       = $data['opcionNivel'];
 			
 			if($accion === 'nuevo')
@@ -326,12 +292,8 @@ class PlanDeCuentas extends CI_Controller {
                     'padre'                   => $padre,
                     'ruta'                    => $ruta,
                     'id_funcionario_registro' => $id_funcionario,
-<<<<<<< HEAD
 					'sigla'                   => $sigla,
 					'id_entidad'              => $id_entidad
-=======
-					'sigla'                   => $sigla
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 				);
 
 				$plancuentas = $this->PlanDeCuentas_model->guardarPlanDeCuentas($datosPlanCuentas);
@@ -482,10 +444,7 @@ class PlanDeCuentas extends CI_Controller {
 			$sigla       		= $data['txtSigla'];
 			$codigo_cuenta      = str_replace($codigo_cuenta_p, "", $codigo);
 			$moneda       		= $data['txtTipoMoneda'];
-<<<<<<< HEAD
 			$id_entidad    		= $data['id_entidad_sub'];
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 			if($accion === 'nuevo')
 			{
@@ -498,12 +457,8 @@ class PlanDeCuentas extends CI_Controller {
                     'id_funcionario_registro' => $id_funcionario,
 					'sigla'                   => $sigla,
 					'codigo_cuenta'			  => $codigo_cuenta,
-<<<<<<< HEAD
 					'tipo_moneda_cuenta'      => $moneda,
 					'id_entidad'              => $id_entidad
-=======
-					'tipo_moneda_cuenta'      => $moneda
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 				);
 				// echo json_encode($datosPlanCuentas);
 				// die();
@@ -635,17 +590,11 @@ class PlanDeCuentas extends CI_Controller {
 					}]';
 		echo $resultado; 
 	}
-<<<<<<< HEAD
 	/*PARA REPORTES */
 	public function listarPlanDeCuentasBusqueda()
     {
 		$id_entidad = $this->input->post('id_entidad');
 		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas($id_entidad);
-=======
-	public function listarPlanDeCuentasBusqueda()
-    {
-		$cuentas   = $this->PlanDeCuentas_model->getPlanDeCuentas();
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		$cuentas = json_decode(json_encode($cuentas), true);
 		$ordenadas = $this->ordenarJerarquicamente($cuentas);
 
@@ -835,16 +784,7 @@ class PlanDeCuentas extends CI_Controller {
 						"mensaje":"'.$mensaje.'"
 					 }]';
 
-<<<<<<< HEAD
 	
-=======
-		echo $resultado;
-		$resultado ='[{
-						"resultado":"'.$resul.'",
-						"mensaje":"'.$mensaje.'"
-					 }]';
-
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		echo $resultado;
 	}
 	public function buscarCuentas() {
@@ -853,10 +793,7 @@ class PlanDeCuentas extends CI_Controller {
 		$codigo_subcuenta 	  = $this->input->post('filtroSubCuentas');
 		$codigo_otrascuentas  = $this->input->post('filtroOtrasSubCuentas');
 		$cadena_busqueda      = $this->input->post('filtroBusqueda');
-<<<<<<< HEAD
 		$id_entidad			  = $this->input->post('id_entidad');
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 		// echo("Ingresaaaa");
 		$sql="";
@@ -870,27 +807,18 @@ class PlanDeCuentas extends CI_Controller {
 			if (!empty($nivel) and $nivel != "-1") {
 				$sql .= "AND nivel = ".$nivel." ";
 			}
-<<<<<<< HEAD
 			if ((!empty($codigo_mayor) and $codigo_mayor != "-1") && empty($codigo_subcuenta)) {
 				$sql .= "AND padre = ".$codigo_mayor." ";
 			}
 			if (!empty($codigo_subcuenta) and $codigo_subcuenta != "-1" and $codigo_otrascuentas == "-1") {
 				// $sql = " AND ruta like( '0-".$codigo_mayor."-".$codigo_subcuenta."%')";
 				$sql = " AND ruta like( '0-".$codigo_mayor."%')";
-=======
-			if (!empty($codigo_mayor) and $codigo_mayor != "-1" || empty($codigo_subcuenta)) {
-				$sql .= "AND padre = ".$codigo_mayor." ";
-			}
-			if (!empty($codigo_subcuenta) and $codigo_subcuenta != "-1" and $codigo_otrascuentas == "-1") {
-				$sql = " AND ruta like( '0-".$codigo_mayor."-".$codigo_subcuenta."%')";
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 			}else{
 				if (!empty($codigo_otrascuentas) and $codigo_otrascuentas != "-1") {
 					$sql = " AND ruta like( '0-".$codigo_mayor."-".$codigo_subcuenta."-".$codigo_otrascuentas."%')";
 				}
 			}
 		}
-<<<<<<< HEAD
 		// echo($sql);
 		if($sql == "")
 		{
@@ -907,23 +835,6 @@ class PlanDeCuentas extends CI_Controller {
 
 		}
 		
-=======
-
-		$cuentas   = $this->PlanDeCuentas_model->buscarPlanDeCuentas($sql);
-		$cuentas = json_decode(json_encode($cuentas), true);		
-		// if(!empty($nivel)){
-			
-		// 	foreach ($cuentas as $k => $fila) {
-		// 		$cuentas[$k]['indentacion'] = 0;
-		// 		$cuentas[$k]['es_padre'] = $nivel;
-		// 	}
-		// 	$ordenadas = $cuentas;
-		// }
-		// else
-		// {
-		// 	$ordenadas = $this->ordenarJerarquicamente($cuentas);
-		// }	
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		
 		foreach ($cuentas as $k => $fila) {
 			$cuentas[$k]['indentacion'] = 0;
@@ -959,11 +870,7 @@ class PlanDeCuentas extends CI_Controller {
 				if ( !in_array($fila['codigo'], $protegidos) ) {
 					$mayores = "
 						<span class='d-inline-block' tabindex='0' data-toggle='tooltip' title='Eliminar'>
-<<<<<<< HEAD
 							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaCuenta(". $fila['id']. ", ". $fila['id_entidad'] .")'>
-=======
-							<button type='button' class='btn btn-block btn-danger btn-sm' onclick='bajaAplicacion(". $fila['id']. ")'>
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 								<i class='fas fa-trash-alt'></i>
 							</button>     
 						</span>";
@@ -1044,7 +951,6 @@ class PlanDeCuentas extends CI_Controller {
 				$estado,
 				// "<span class='badge badge-secondary'>".substr($codigoXXX,1)."</span>"
 			);
-<<<<<<< HEAD
 
 			/*VERIFICAR SI UNA CUENTA POSEE CUENTAS AUXILIARES*/ 
 			$cuentas_auxiliares = $this->PlanDeCuentas_model->getAuxiliaresPlanDeCuentasById($fila['id']);
@@ -1088,8 +994,6 @@ class PlanDeCuentas extends CI_Controller {
 
 
 
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 		}
 
 		// die();
@@ -1102,7 +1006,6 @@ class PlanDeCuentas extends CI_Controller {
 		echo json_encode($output);
 		exit();
 	}
-<<<<<<< HEAD
 	public function bajaCuenta()
 	{
 		$id_usuario   = $this->session->userdata('id_usuario');
@@ -1134,7 +1037,5 @@ class PlanDeCuentas extends CI_Controller {
 
 		echo $resultado;
 	}
-=======
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
 
 }

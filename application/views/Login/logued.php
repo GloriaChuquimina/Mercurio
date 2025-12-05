@@ -26,11 +26,7 @@
     <div class="card-body login-card-body">
       <p class="login-box-msg">Iniciar Sessión</p>
 
-<<<<<<< HEAD
        <?= form_open('Login/loguedNuevo')?>
-=======
-       <?= form_open('Login/logued')?>
->>>>>>> 86e86a998fd13133562672039854ed148e2211bf
         <div class="input-group mb-3">
           <input type="text" name = "username" class="form-control" placeholder="Usuario" required="true">
           <div class="input-group-append">
