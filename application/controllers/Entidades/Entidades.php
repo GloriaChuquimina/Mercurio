@@ -275,11 +275,6 @@ class Entidades extends CI_Controller {
 		$datosCorrelativos = $fila->Correlativos_model->getCorrelativos();
 		$datosGestiones = $fila->Comunes_model->getGestion();
 
-		// echo "<pre>";
-		// print_r($datosCorrelativos);
-		// print_r($datosGestiones);
-		// echo "</pre>";
-		// die();
 		foreach ($datosGestiones as $datoGestion) 
 		{
 			$gestion= $datoGestion->gestion;
