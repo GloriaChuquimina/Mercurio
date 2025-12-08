@@ -137,14 +137,40 @@ class Entidades extends CI_Controller {
                 }
 				else
 				{
-					$correlativo_registrado = $this->registrarCorrelativosEntidad($entidad, $id_dependencia);
-					if (!$correlativo_registrado) {
-						$this->db->trans_rollback();
-						echo json_encode([["resultado" => "0", "mensaje" => "ERROR EN EL REGISTRO DE CORRELATIVOS."]]);
-						return;
+
+					$gestion_actual           = date('Y', strtotime($fecha_actual));
+					// Primer día del año (1 de enero)
+					$fecha_inicio_gestion     = $gestion_actual . "-01-01";
+
+					// Último día del año (31 de diciembre)
+					$fecha_fin_gestion        = $gestion_actual . "-12-31";
+					$datosGestion = [
+						'gestion'             => $gestion_actual,
+						'fecha_inicio'        => $fecha_inicio_gestion,
+						'fecha_fin'           => $fecha_fin_gestion,
+						'id_entidad'          => $entidad,
+						'id_usuario_registro' => $id_usuario,	
+						'id_dependencia'      => $id_dependencia
+					];
+					
+					$gestion_existente = $this->Comunes_model->getVerificaGestion($entidad, $gestion_actual);	
+					// Solo crear la gestión si NO existe para esta entidad
+					if(empty($gestion_existente))
+					{
+						$gestion_entidad_registrada = $this->Comunes_model->addGestion($datosGestion);
+						if($gestion_entidad_registrada){
+							$correlativo_registrado = $this->registrarCorrelativosEntidad($entidad, $id_dependencia,$gestion_actual);
+							if (!$correlativo_registrado) {
+								$this->db->trans_rollback();
+								echo json_encode([["resultado" => "0", "mensaje" => "ERROR EN EL REGISTRO DE CORRELATIVOS."]]);
+								return;
+							}
+							$resul = 1;
+							$mensaje = "SE REGISTRO CORRECTAMENTE.";
+						}
 					}
-					$resul = 1;
-					$mensaje = "SE REGISTRO CORRECTAMENTE.";
+					
+
 				}
 				
 			}
@@ -239,7 +265,8 @@ class Entidades extends CI_Controller {
 
 		echo $resultado;
 	}
-	function registrarCorrelativosEntidad($id_entidad,$id_dependencia)
+	/*MODIFICAR FUNCION PARA PRODUCCION */
+	function registrarCorrelativosEntidad($id_entidad,$id_dependencia,$gestion)
 	{
 		$fila =& get_instance();
 		// $fila->load->model('Comunes_model');
@@ -247,6 +274,12 @@ class Entidades extends CI_Controller {
 		$fila->db->trans_begin();
 		$datosCorrelativos = $fila->Correlativos_model->getCorrelativos();
 		$datosGestiones = $fila->Comunes_model->getGestion();
+
+		// echo "<pre>";
+		// print_r($datosCorrelativos);
+		// print_r($datosGestiones);
+		// echo "</pre>";
+		// die();
 		foreach ($datosGestiones as $datoGestion) 
 		{
 			$gestion= $datoGestion->gestion;

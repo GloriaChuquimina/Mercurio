@@ -173,25 +173,39 @@ class CierreDeBalance extends CI_Controller {
 			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha,$tipo_cuenta_deudor,$whereCierre);
 			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha,$tipo_cuenta_acreedor,$whereCierre);
 			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha,$tipo_cuenta_acreedor,$whereCierre);
-			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor,$whereCierre);
-			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor,$whereCierre);
-			// echo("<pre>");
-			// echo("CUENTAS DE ORDEN DEUDORAS <br>");
-			// print_r($cuentas_acreedoras);
-			// echo("</pre>");
-			// die();
+			if($id_cuentas_deudoras !=0){
+				$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor,$whereCierre);
+			}else{
+				$cuentas_deudoras = array();
+			}
+			if($id_cuentas_acreedoras !=0){
+				$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorBoliviano($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor,$whereCierre);
+			}else{
+				$cuentas_acreedoras = array();
+			}
+
 		}
 		elseif ($moneda === 'USD') {
 
 			$cuentas_activo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_activo,$id_activo,$whereFecha,$tipo_cuenta_deudor,$whereCierre);
 			$cuentas_pasivo   	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_pasivo,$id_pasivo,$whereFecha,$tipo_cuenta_acreedor,$whereCierre);
 			$cuentas_patrimonio     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_patrimonio,$id_patrimonio,$whereFecha,$tipo_cuenta_acreedor,$whereCierre);
-			$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor,$whereCierre);
-			$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor,$whereCierre);
+			if($id_cuentas_deudoras !=0){
+				$cuentas_deudoras 	    = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_deudoras,$id_cuentas_deudoras,$whereFecha,$tipo_cuenta_deudor,$whereCierre);
+			}
+			else{
+				$cuentas_deudoras = array();
+			}
+			if($id_cuentas_acreedoras !=0){
+				$cuentas_acreedoras     = $this->BalanceGeneral_model->getGeneralBalanceGeneralPorMayorUSD($id_entidad,$fecha_inicio,$fecha_fin,$codigo_cuentas_acreedoras,$id_cuentas_acreedoras,$whereFecha,$tipo_cuenta_acreedor,$whereCierre);
+			}
+			else{
+				$cuentas_acreedoras = array();
+			}
 		}
 		
 		/*ORDENANDO CUENTAS*/
-		// $cuentas_activo1 		= json_decode(json_encode($cuentas_activo), true);		
+
 		list($cuentasOrdenadasActivo, $sumaTotalGlobalActivo, $sumaTotalGlobalActivoUSD) = $this->ordenarCuentas(
 				$cuentas_activo,
 				$saldoCero,
@@ -567,6 +581,44 @@ class CierreDeBalance extends CI_Controller {
 
 		
 	}
+	function registrarCorrelativosEntidadGestion($id_entidad,$id_dependencia,$gestion)
+	{
+		$fila =& get_instance();
+		// $fila->load->model('Comunes_model');
+		// $fila->load->model('Correlativos_model');
+		$fila->db->trans_begin();
+		$datosCorrelativos = $fila->Correlativos_model->getCorrelativos();
+	
+		foreach ($datosCorrelativos as $dato) 
+		{
+			$id_correlativo = $dato->id;
+			$datosCorrelativoEntidadGestion = $fila->Correlativos_model->getCorrelativoEntidadGestion($id_correlativo,$id_entidad,$id_dependencia,$gestion);
+			if(!$datosCorrelativoEntidadGestion)
+			{
+				$datos = array(
+					'id_correlativo'   	  => $id_correlativo,
+					'id_entidad'      	  => $id_entidad,
+					'id_dependencia'  	  => $id_dependencia,
+					'gestion'         	  => $gestion,
+					'correlativo'     	  => 0,
+					'id_usuario_registro' => $this->session->userdata('id_usuario')
+				);
+				$guardar = $fila->Correlativos_model->guardarCorrelativoEntidadGestion($datos);
+				if (!$guardar) {
+					$fila->db->trans_rollback();
+					return false;
+				}
+			}
+		}
+		
+		if ($fila->db->trans_status() === FALSE) {
+			$fila->db->trans_rollback();
+			return false;
+		} else {
+			$fila->db->trans_commit();
+			return true;
+		}
+	}
 	public function cerrarCuentasDeBalance()
 	{
 		// 1. Manejo de transacciones
@@ -842,20 +894,42 @@ class CierreDeBalance extends CI_Controller {
 						// Último día del año (31 de diciembre)
 						$fecha_fin_gestion = $gestion_apertura . "-12-31";
 
-						$datosGestion = [
-
-							'gestion'            => $gestion_apertura,
-							'fecha_inicio'       => $fecha_inicio_gestion,
-							'fecha_fin'          => $fecha_fin_gestion,
+						// Verificar si ya existe la gestión de apertura para esta entidad
+						$gestion_existente = $this->Comunes_model->getVerificaGestion($id_entidad, $gestion_apertura);
+						
+						// Solo crear la gestión si NO existe para esta entidad
+						if(empty($gestion_existente))
+						{
+							$datosGestion = [
+								'gestion'            => $gestion_apertura,
+								'fecha_inicio'       => $fecha_inicio_gestion,
+								'fecha_fin'          => $fecha_fin_gestion,
+								'id_entidad'         => $id_entidad,
+								'id_usuario_registro' => $id_usuario,	
+								'id_dependencia'      => $id_dependencia
+							];
 							
-						];
-						$this->Comunes_model->addGestion($datosGestion);
+							$gestion_registrada = $this->Comunes_model->addGestion($datosGestion);
+							if($gestion_registrada)
+							{
+								$correlativo_registrado = $this->registrarCorrelativosEntidadGestion($id_entidad, $id_dependencia, $gestion_apertura);
+								if (!$correlativo_registrado) {
+									$this->db->trans_rollback();
+									echo json_encode([["resultado" => "0", "mensaje" => "ERROR EN EL REGISTRO DE CORRELATIVOS."]]);
+									return;
+								}
+								$resul = 1;
+								$mensaje = "SE REGISTRO CORRECTAMENTE.";
+							}
+						}
+						
+						// Actualizar la gestión que se está cerrando (la del año actual) a histórico
+						// Solo para esta entidad específica
 						$updateGestion = [
 							'fecha_modificacion' => $fecha_actual,
-							'estado'          => 'HI',
-							
+							'estado'             => 'HI',
 						];
-						$this->Comunes_model->updateGestion($gestion,$updateGestion);
+						$this->Comunes_model->updateGestion($gestion, $id_entidad, $updateGestion);
 
 						$saveComprobante = $this->registrarComprobante(
 						    $id_entidad,
@@ -905,9 +979,7 @@ class CierreDeBalance extends CI_Controller {
 				[$id_perdidas_ganancias, $codigo_perdidas_ganancias]
 			];
 
-			// echo("<pre>");
-			// print_r($cuentasMayor);
-			// echo("</pre>");
+
 			// ===============================
 			// 1) Procesar CUENTAS DE COMPROBANTES
 			// ===============================
@@ -927,9 +999,6 @@ class CierreDeBalance extends CI_Controller {
 				);
 			}
 
-			// echo("<pre>");
-			// print_r($cuentasConsolidadasComprobantes);
-			// echo("</pre>");
 			
 			foreach ($cuentasConsolidadasComprobantes as $cuenta) {
 				$this->Comprobantes_model->updateComprobante(
@@ -962,9 +1031,6 @@ class CierreDeBalance extends CI_Controller {
 				);
 			}
 
-			// echo("<pre>");
-			// print_r($cuentasConsolidadas);
-			// echo("</pre>");
 			
 			foreach ($cuentasConsolidadas as $cuenta) {
 				$this->Comprobantes_model->updateDetalleComprobante(
@@ -1086,10 +1152,6 @@ class CierreDeBalance extends CI_Controller {
 		$estado
 	){
 
-		// echo("<pre>");
-		// print_r($cuentasCierre1);
-		// echo("</pre>");
-		// die();
 		//ACTIVO
 		foreach ($cuentasCierre2 as $cuenta) {
 			$saldo     = $cuenta->saldo_cuenta;
@@ -1147,10 +1209,7 @@ class CierreDeBalance extends CI_Controller {
 				$this->Comprobantes_model->guardarDetalleComprobante($datosDetalle);
 			}
 		}
-		// echo("<pre>");
-		// print_r($cuentasCierre2);
-		// echo("</pre>");
-		// die();
+
 		
 	}
 

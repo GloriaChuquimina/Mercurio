@@ -192,10 +192,7 @@ class CierreDeResultados extends CI_Controller {
 				{
 					$ordenadas[] = $cuenta;
 				}
-
 				// $ordenadas   = array_merge($ordenadas, $hijosOrdenados);
-
-
 				// Agregar hijos solo si no hay límite de nivel o si el hijo está permitido
 				if ($nivelMaximo === null || (isset($cuenta['nivel']) && $cuenta['nivel'] <= $nivelMaximo)) {
 					$ordenadas = array_merge($ordenadas, $hijosOrdenados);
@@ -233,8 +230,6 @@ class CierreDeResultados extends CI_Controller {
 		$data    = array();
 		$num     = 1;
 		$id_entidad			   	   = $this->input->post('id_entidad');
-		// echo("ID_ ENTIDAD==>".$id_entidad."<br>");
-		// die();
 		$codigo_cuenta_ingreso     = 4;
 		$codigo_cuenta_egreso      = 5;
 		$id_cuenta_ingreso   	   = getIdCuenta($codigo_cuenta_ingreso,$id_entidad);
@@ -248,7 +243,6 @@ class CierreDeResultados extends CI_Controller {
 		if($nivel== 0)
 		{
 			$nivel=getNivelMaximo();
-			// $nivel=4;
 		}
 
 		if($saldoCero == "true")
@@ -267,7 +261,6 @@ class CierreDeResultados extends CI_Controller {
 			$tipo_cierre ="CIR";
 			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
 			$comprobantes_cierre = $filas[0]->comprobante;
-			// echo("COMPROBANTES=>".$comprobantes_cierre);
 			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
 			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
 		}
@@ -304,9 +297,7 @@ class CierreDeResultados extends CI_Controller {
 			$codigo 		 	   = $cuenta['codigo'];
 			$nivel 		 	 	   = $cuenta['nivel'];
 			$descripcion     	   = $cuenta['descripcion'];
-			// $indentacion_invertida = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $cuenta['indentacion_invertida']);
 			$indentacion           = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $cuenta['indentacion']);
-			// $padding_px 		   = $cuenta['nivel'] * 20; // 20px por nivel
 			if($moneda === 'BOB'){
 				$saldoAcreedor	 = $cuenta['saldo'];
 			}
@@ -323,7 +314,6 @@ class CierreDeResultados extends CI_Controller {
 				"</div>"		
 				
 			);
-			// $totalSaldoAcreedor+=$saldoAcreedor;
 							
 		}		
 		$output =( array(
@@ -380,7 +370,6 @@ class CierreDeResultados extends CI_Controller {
 			$tipo_cierre ="CIR";
 			$filas = $this->Comunes_model->getFechaCierreGestion($anio_cierre,$tipo_cierre);
 			$comprobantes_cierre = $filas[0]->comprobante;
-			// echo("COMPROBANTES=>".$comprobantes_cierre);
 			$comprobantes_cierre = str_replace('-', ',', $comprobantes_cierre); 
 			$whereCierre = " and c.id not in(".$comprobantes_cierre.") ";
 		}
@@ -392,8 +381,6 @@ class CierreDeResultados extends CI_Controller {
 		$cuentasDeEgreso		   = json_decode(json_encode($estadoResultadoEgreso), true);
 		$ordenadas_cuentas_egreso  = $this->ordenarJerarquicamenteCuentasOrdenEstadoDeResultados($cuentasDeEgreso ,0,0,$excluirCuentasEnCero,$nivel);
 		$cuentasOrdenadasEgreso    = $ordenadas_cuentas_egreso[0];
-		
-		
 		$resultado    = $this->EstadoDeResultado_model->getMontoResultado($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta_ingreso,$codigo_cuenta_ingreso,$id_cuenta_egreso,$codigo_cuenta_egreso,$whereCierre);
 
 		if($moneda === 'BOB'){
@@ -435,9 +422,7 @@ class CierreDeResultados extends CI_Controller {
 				"<span style='text-align: left; '>".$indentacion.$descripcion."</span>",	
 				"<div style='text-align: right; color: #dc3545; font-weight: bold;'>
 				".number_format($totalDeudor,2,'.',',').$indentacion."</div>",				
-			);
-			// $totalSaldoDeudor+=$totalDeudor;
-							
+			);							
 		}		
 		$output =( array(
 			             "     resultado" => 1, 
@@ -466,20 +451,15 @@ class CierreDeResultados extends CI_Controller {
 	{
 		// 1. Manejo de transacciones
 		$this->db->trans_begin();
-
 		try {
-
 
 			// 2. Definición de constantes y datos de la sesión
 			$id_usuario      = $this->session->userdata('id_usuario');
 			$id_funcionario  = $this->session->userdata('id_funcionario');
 			$id_dependencia  = $this->session->userdata('id_dependencia_principal');
-			
-
 			// 3. Preparación de datos de cierre
 			$id_entidad      		= $this->input->post('id_entidad_registro');
 			$fecha_actual        	= getFechaHoraActual();
-			// $tipo_cambio         	= 6.96;
 			$tipo_cierre         	= 'CIR';
 			$estado_resultado    	= 'CNS';
 			$tipo_comprobante    	= 'TR';
@@ -510,20 +490,23 @@ class CierreDeResultados extends CI_Controller {
 			$fecha_inicio 			= primerDiaDelAnio($fecha_fin);
 			$moneda       			= 'BOB';
 
+			$whereCierre = "";
 			// 5. Obtención de datos de ingresos y egresos
 			$ingresosData = $this->EstadoDeResultado_model->getEstadoDeResultadosIngreso(
 				$id_entidad,
 				$fecha_inicio,
 				$fecha_fin,
 				$id_cuenta_ingreso,
-				$codigo_cuenta_ingreso
+				$codigo_cuenta_ingreso,
+				$whereCierre
 			);
 			$egresosData = $this->EstadoDeResultado_model->getEstadoDeResultadosEgreso(
 				$id_entidad,
 				$fecha_inicio,
 				$fecha_fin,
 				$id_cuenta_egreso,
-				$codigo_cuenta_egreso
+				$codigo_cuenta_egreso,
+				$whereCierre
 			);
 
 			// 6. Ordenar y calcular totales
@@ -548,7 +531,8 @@ class CierreDeResultados extends CI_Controller {
 				$id_cuenta_ingreso,
 				$codigo_cuenta_ingreso,
 				$id_cuenta_egreso,
-				$codigo_cuenta_egreso
+				$codigo_cuenta_egreso,
+				$whereCierre
 			);
 
 			$total_resultado    = $resultado[0]->total_estado_resultado ?? 0;
@@ -859,13 +843,11 @@ class CierreDeResultados extends CI_Controller {
 	{
 		foreach ($cuentas as $cuenta) {
 			$saldo     = $cuenta->saldo;
-			// echo($saldo."<br>");
 			$saldoUSD  = $cuenta->saldousd;
 			//SOLO SE REGISTRAN CUENTAS CON SALDO DIFERENTE DE CERO
 			if ($saldo != 0) {
 				$tipo_movimiento = ($saldo > 0) ? $tipoMovimientoPositivo : $tipoMovimientoNegativo;
 				$saldo           = ($saldo > 0) ? $saldo : $saldo * -1;
-				// echo("Saldo Despues=>".$saldo."<br>");
 				// $saldoUSD        = ($saldoUSD > 0) ? $saldoUSD : $saldoUSD * -1;
 				$saldoUSD       = round($saldo/$tipo_cambio,2);
 				$datosDetalle = [
@@ -892,7 +874,6 @@ class CierreDeResultados extends CI_Controller {
 			'id_comprobante'            => $comprobanteId,
 			'id_cuenta'                 => $idCuentaCierre,
 			'tipo_movimiento'           => $tipoMovimientoNegativo,
-			// 'tipo_cambio'             => 6.96,
 			'tipo_cambio'               => $tipo_cambio,
 			'importe_moneda_nacional' 	=> $sumaTotal,
 			'importe_moneda_extranjera' => $sumaTotalUSD,
@@ -920,7 +901,6 @@ class CierreDeResultados extends CI_Controller {
 			'id_comprobante'            => $comprobanteId,
 			'id_cuenta'                 => $idCuentaCierre,
 			'tipo_movimiento'           => $tipo_movimiento_cierre,
-			// 'tipo_cambio'             => 6.96,
 			'tipo_cambio'               => $tipo_cambio,
 			'importe_moneda_nacional'   => $importe,
 			'importe_moneda_extranjera' => $importeUSD,

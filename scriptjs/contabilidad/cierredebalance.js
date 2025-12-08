@@ -129,7 +129,7 @@ $(function (){
     // //         });
     // //         cargarDatosBalanceGeneral(id_entidad,fecha);
     // // });
-    console.log('fechaCierreBalance existe?', $('#fechaCierreBalance').length);
+    // console.log('fechaCierreBalance existe?', $('#fechaCierreBalance').length);
     // $('#fechaCierreResultado').on('blur', function(){
 // //    $(document).on('focusout', '#fechaCierreResultado', function(){
 // //         alert("STEPH");

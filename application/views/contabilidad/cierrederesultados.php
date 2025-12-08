@@ -331,37 +331,6 @@
                               </div>
                           </div>
                       </div>
-                      <!-- <div class="row">
-                          <div class="col-md-9">
-                              <div class="form-group">
-                                  <label>
-                                  <i class="text-danger">*</i>
-                                  <strong> DESCRIPCIÓN:</strong>
-                                  </label>
-                                  <textarea 
-                                  id="txtGlosaCuenta" 
-                                  name="txtGlosaCuenta"
-                                  class="form-control"
-                                  rows="3"
-                                  placeholder="Descripción del movimiento..."
-                                  ></textarea>
-                              </div>
-                          </div>
-                          <div class="col-md-3">
-                            <br>
-                            <br>
-                            <br>
-                              <div class="input-group-append">
-                                  <button
-                                  type="button"
-                                  class="btn btn-warning"
-                                  onclick="cerrarCuentaDeResultados();"
-                                  >
-                                  <i>⏳</i>Procesar Cierre
-                                  </button>
-                              </div>
-                          </div>                          
-                      </div> -->
                     </div>  
                   </div>
                   <!-- TABLA ESTADO DE CUENTA-->
@@ -372,9 +341,6 @@
                           ESTADO DE RESULTADOS
                         </h3>
                         <div class="card-tools">
-                          <!-- <span class="badge badge-light">
-                            NROMOVIMIENTOS
-                          </span> -->
                         </div>
                       </div>
                       <div class="card-body p-0">
@@ -428,8 +394,6 @@
                                 </tr>
                                 
                             </thead>
-                            <!-- <tbody id="tbodyEstadoCuenta">
-                            </tbody> -->
                             <tfoot>
                                 <tr class="bg-primary">
                                     <td colSpan="3" style="color: white; font-weight: bold;">
@@ -449,18 +413,6 @@
                           </table>
                         </div>
                       </div>
-                      <div class="card-footer">
-                          <div class="row">
-                              <div class="col-md-6">
-                              <p class="text-muted">
-                                  <!-- Empresa: • Período:• Movimientos: -->
-                              </p>
-                              </div>
-                              <div class="col-md-6 text-right">
-                              <small class="text-muted">Última actualización:</small>
-                              </div>
-                          </div>
-                      </div>
                   </div>
 
                 </form>
@@ -470,10 +422,6 @@
                   <i class="mr-1">❌</i>
                   Cerrar
               </button>
-              <!-- <button type="button" class="btn btn-info" onclick="guardarRegistroCuenta();">
-                  <i class="mr-1">💾</i>
-                  Guardar Registro
-              </button> -->
             </div>
       </div>
   </div>
@@ -510,11 +458,6 @@
         </div>
     </div>
 </div>
-
-
-
-
-
 
 <script type="text/javascript">
     $(document).ready(function(){
