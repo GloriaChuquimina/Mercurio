@@ -319,11 +319,6 @@ class EstadoDeCuenta extends CI_Controller {
         $total=0;
 		$estadoCuenta = $this->EstadoDeCuenta_model->getEstadoDeCuenta($id_entidad,$fecha_inicio,$fecha_fin,$id_cuenta);
 
-		// echo("<pre>");
-		// print_r($estadoCuenta);
-		// echo("</pre>");
-		// die();
-
 		$importeDebe=0;
 		$importeHaber=0;
 		$importeDeudor=0;
@@ -341,20 +336,20 @@ class EstadoDeCuenta extends CI_Controller {
 
 			if($tipo_moneda_cuenta == 'BOB'){
 				$saldo 	   			 = $importeDebe - $importeHaber;
-				$saldo_USD 			 = '';
-				// $pdf->tipo_moneda_cuenta = 'BOB';
+				// $saldo_USD 			 = '';
+				$saldo_USD 			 = 0;
+
 			}
 			else{
 				$saldo 	   			 = $importeDebe - $importeHaber;
 				$saldo_USD 			 = $importeDebeUsd - $importeHaberUsd;
-				$saldo_USD			 = number_format($saldo_USD,2,'.',',');
-				$totalSaldoUSD		+= $saldo_USD;
-				// $pdf->tipo_moneda_cuenta = 'USD';
+				$totalSaldoUSD		 = $totalSaldoUSD + $saldo_USD;
+
 			}
 			$row = array(
 				$codigo_aux,
 				utf8_decode($descripcion_aux),
-				$saldo_USD,
+				number_format($saldo_USD,2,'.',','),
 				number_format($saldo,2,'.',',')
 			    );
 			$totalSaldo+=$saldo;

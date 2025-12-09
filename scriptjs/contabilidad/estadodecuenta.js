@@ -162,75 +162,7 @@ function cargarCuentas(marcar){
         },
     });
 }
-// function seleccionDeCuentas()
-// {
 
-//     // Obtener todos los checkboxes seleccionados del DataTable, no solo los visibles
-//     var table = $('#tbl_CuentasContables').DataTable();
-
-//     // Array para guardar los inputs seleccionados manualmente
-//     var inputs = [];
-
-//     // Recorremos todas las filas (incluso las que no están en el DOM)
-//     table.$('input[type="checkbox"]:checked').each(function () {
-//         var name = $(this).attr('name');
-//         var value = $(this).val();
-
-//         // Asegurarse de que tiene un name (para serializar)
-//         if (name) {
-//             inputs.push($('<input>').attr('type', 'hidden').attr('name', name).val(value));
-//         }
-//     });
-
-//     // Clonamos el formulario para no modificar el original
-//     var form = $('#formListaCuentas').clone();
-
-//     // Añadimos los inputs ocultos
-//     $.each(inputs, function (i, input) {
-//         form.append(input);
-//     });
-
-//     var enlace = base_url + "Contabilidad/LibroMayor/seleccionDeCuentas";
-//     // var datos  = $('#formListaCuentas').serialize();
-//     $.ajax({
-//         type: "POST",
-//         url: enlace,
-//         // data: datos,
-//         data:form.serialize(),
-//         dataType:'JSON',
-//         success: function(data)
-//         {
-//             // var result = JSON.parse(data);
-//             if(data.totalCuentas > 1)
-//             {
-//                 // swal({title: "ALERTA",text: data.mensaje ,icon: "warning",button: "OK",dangerMode:true,});
-//                 $('#id_cuenta_seleccionadas').val(data.cuentas);
-//                 $('#cuentas').text(data.cuentasLiteral);
-//                 $('#txtCuenta').val("");
-//                 $('#txtCuenta').prop('readonly', true);
-//             }
-//             else
-//             {
-//                 if(data.totalCuentas == 1)
-//                 {
-//                     // swal({title: "EXITO",text: data.mensaje ,icon: "success",button: "OK",dangerMode:true,});
-//                     $('#id_cuenta').val(data.cuentas);
-//                     $('#txtCuenta').val(data.cuentasLiteral);
-//                     $('#id_cuenta_seleccionadas').val(data.cuentas);
-//                     $('#cuentas').text(data.cuentasLiteral);
-//                     $('#txtCuenta').prop('readonly', false);
-//                 }
-//                 else
-//                 {
-//                     swal({title: "ERROR",text: "No se encontraron cuentas seleccionadas",icon: "error",button: "OK",dangerMode:true,});
-//                     $('#id_cuenta_seleccionadas').val("");
-//                     $('#cuentas').text("");
-//                     $('#txtCuenta').prop('readonly', false);
-//                 }
-//             }
-//         }
-//     });
-// }
 function cargarEstadoDeCuenta()
 {
 	var enlace = base_url + "Contabilidad/Comprobante/cargarTablaRegistroCuenta";
