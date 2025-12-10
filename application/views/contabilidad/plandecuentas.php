@@ -202,7 +202,7 @@
                   <input type="hidden" class="form-control" id="txtAccion" name="txtAccion" />
                   <input type="hidden" class="form-control" id="idCuenta" name="idCuenta" />
                   <input type="hidden" class="form-control" id="nivel" name="nivel" />               
-                  <input class="form-control" id="id_entidad" name="id_entidad" />               
+                  <input type="hidden" class="form-control" id="id_entidad" name="id_entidad" />               
                   <div class="card card-outline card-success">
                     <div class="card-header">
                       <h3 class="card-title">
