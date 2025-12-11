@@ -93,11 +93,10 @@ class Usuarios extends CI_Controller {
 		$id_usuario_administrador 	= $this->session->userdata('id_usuario');				
 		$idApliacion 				= $this->config->item('IDAPLICACION');
 
-		$valorOpcionBD 				= 400;//VALORRRRRR ???
+		$valorOpcionBD 				= 444;//VALORRRRRR ???
 
 		$permiso 	 = verificarPermisosUsuario($id_usuario_administrador,$valorOpcionBD);
-		// echo json_encode($permiso);
-		//$permiso = array("ss"=>"ww");
+
 		$formulario  = "";
         if($permiso > 0 && $is_logued_in == TRUE)
        	{       			
@@ -106,6 +105,7 @@ class Usuarios extends CI_Controller {
 			$formulario= "<div class='col-12 row'>";
        		$idUsuario      = $this->input->post('idUser');
        		$permisosCero   = $this->roles_model->getPermisosCero($idApliacion);
+
         	$permisos       = $this->roles_model->getPermisos($idApliacion);
         	$con = 1;            
 			$aux = 0;
@@ -191,7 +191,7 @@ class Usuarios extends CI_Controller {
 		$fechaActual 				 = getFechaHoraActual();
 		$idApliacion 				 = $this->config->item('IDAPLICACION');	
 		
-		$valorOpcionBD  = 400;
+		$valorOpcionBD  = 444;
 		
 		$permiso 		= verificarPermisosUsuario($id_usuario_administrador,$valorOpcionBD);
 		$formulario  = "";

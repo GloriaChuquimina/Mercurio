@@ -32,7 +32,7 @@ function opcionesUsuario(idusuario)
         {   
             if(data == 0)
             {
-                alert('Ocurrio un error al cargar la información de documentos, Inicie sessión con el usuario Administrador');
+                alert('Ocurrio un error al cargar la información!!!');
                 window.setTimeout('location.reload()', 500); 
             }
             else
